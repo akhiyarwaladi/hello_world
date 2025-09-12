@@ -18,12 +18,18 @@ models/
 - **YOLOv8** - Primary object detection model for malaria parasite detection
 - **RT-DETR** - Alternative detection transformer model for comparison
 
-## Training Process
-1. Models will be trained on processed malaria datasets
-2. 6-class classification: P_falciparum, P_vivax, P_malariae, P_ovale, Mixed_infection, Uninfected  
-3. Model weights saved here after training completion
+## Training Status (Updated: December 12, 2024)
+1. ✅ **YOLOv8 Training ACTIVE** - Multiple training processes running on CPU
+2. 🔄 **Data Pipeline FIXED** - Species mapping corrected for proper 6-class training
+3. 📊 **Training Progress** - Real-time monitoring of multiple training sessions
+4. 💾 **Model Weights** - Will be saved here upon training completion
+
+## Current Training Sessions
+- **yolo_classify** - Training on legacy data format 
+- **yolo_classify_integrated** - Training on integrated dataset format
+- **CPU-based training** - Using device=cpu due to GPU availability
 
 ## Important Notes
 - All model weight files (*.pt, *.pth, *.onnx, etc.) are **GITIGNORED**
 - Only configuration files and .gitkeep placeholders are tracked
-- Model training will begin after pipeline completion
+- **TRAINING IN PROGRESS** - Multiple active YOLOv8 sessions
