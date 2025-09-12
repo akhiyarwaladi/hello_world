@@ -179,7 +179,7 @@ class MalariaDataAugmenter:
                     
                     augmented_needed = max(0, target_count - current_count)
                     targets[split_name][class_id] = augmented_needed
-                    
+            
             elif balance_method == "uniform":
                 # Set uniform target for all classes
                 if target_samples_per_class is None:
@@ -299,7 +299,7 @@ class MalariaDataAugmenter:
                           split_df: pd.DataFrame,
                           augmentation_targets: Dict[int, int]) -> pd.DataFrame:
         """Augment data for a single split"""
-        print(f"\\nAugmenting {split_name} split...")
+        print(f"\nAugmenting {split_name} split...")
         
         # Copy original annotations
         all_annotations = split_df.to_dict('records')
@@ -442,7 +442,7 @@ class MalariaDataAugmenter:
         plt.savefig(viz_path, dpi=300, bbox_inches='tight')
         plt.close()
         
-        print(f" Visualization saved to {viz_path}")
+        print(f"✓ Visualization saved to {viz_path}")
     
     def save_augmented_data(self, augmented_annotations: Dict[str, pd.DataFrame]):
         """Save augmented annotations"""
@@ -464,7 +464,7 @@ class MalariaDataAugmenter:
         combined_csv = self.augmented_output_dir / "annotations" / "all_augmented.csv"
         combined_df.to_csv(combined_csv, index=False)
         
-        print(f" Augmented annotations saved to {self.augmented_output_dir / 'annotations'}")
+        print(f"✓ Augmented annotations saved to {self.augmented_output_dir / 'annotations'}")
     
     def create_augmentation_report(self, 
                                  original_annotations: Dict[str, pd.DataFrame],
@@ -519,14 +519,14 @@ class MalariaDataAugmenter:
         with open(report_path, 'w') as f:
             json.dump(report, f, indent=2)
         
-        print(f" Augmentation report saved to {report_path}")
+        print(f"✓ Augmentation report saved to {report_path}")
         
         # Print summary
         self.print_augmentation_summary(report)
     
     def print_augmentation_summary(self, report: Dict):
         """Print augmentation summary"""
-        print("\\n" + "="*60)
+        print("\n" + "="*60)
         print(" DATA AUGMENTATION SUMMARY ")
         print("="*60)
         
@@ -536,15 +536,15 @@ class MalariaDataAugmenter:
         print(f"Generated samples: {summary['generated_samples']}")
         print(f"Augmentation factor: {summary['augmentation_factor']:.2f}x")
         
-        print("\\nSplit-wise results:")
+        print("\nSplit-wise results:")
         for split, stats in report['split_summary'].items():
-            print(f"  {split}: {stats['original_count']} � {stats['final_count']} "
+            print(f"  {split}: {stats['original_count']} -> {stats['final_count']} " +
                   f"(+{stats['generated_count']})")
         
-        print("\\nClass-wise results:")
+        print("\nClass-wise results:")
         for class_name, stats in report['class_summary'].items():
             if stats['final_count'] > 0:
-                print(f"  {class_name}: {stats['original_count']} � {stats['final_count']} "
+                print(f"  {class_name}: {stats['original_count']} -> {stats['final_count']} " +
                       f"(+{stats['generated_count']})")
         
         print("="*60)
@@ -554,7 +554,7 @@ class MalariaDataAugmenter:
                        balance_method: str = "oversample_to_max",
                        augment_splits: List[str] = None):
         """Main augmentation function"""
-        print("\\n" + "="*60)
+        print("\n" + "="*60)
         print(" MALARIA DATASET AUGMENTATION ")
         print("="*60)
         
@@ -571,9 +571,9 @@ class MalariaDataAugmenter:
         # Analyze current distribution
         distribution_analysis = self.analyze_class_distribution(original_annotations)
         
-        print("\\nCurrent class distribution:")
+        print("\nCurrent class distribution:")
         for split_name, analysis in distribution_analysis.items():
-            print(f"\\n{split_name.upper()} split:")
+            print(f"\n{split_name.upper()} split:")
             for class_id, info in analysis['class_distribution'].items():
                 print(f"  {info['name']}: {info['count']} ({info['percentage']:.1f}%)")
             print(f"  Imbalance ratio: {analysis['imbalance_ratio']:.1f}x")
@@ -583,10 +583,10 @@ class MalariaDataAugmenter:
             original_annotations, target_samples_per_class, balance_method
         )
         
-        print("\\nAugmentation targets:")
+        print("\nAugmentation targets:")
         for split_name, targets in augmentation_targets.items():
             if split_name in augment_splits:
-                print(f"\\n{split_name.upper()} split:")
+                print(f"\n{split_name.upper()} split:")
                 for class_id, num_aug in targets.items():
                     class_name = self.class_names[class_id]
                     print(f"  {class_name}: +{num_aug} samples")
@@ -612,7 +612,7 @@ class MalariaDataAugmenter:
         self.create_augmentation_visualization(original_annotations, augmented_annotations)
         self.create_augmentation_report(original_annotations, augmented_annotations)
         
-        print("\\n Data augmentation completed successfully!")
+        print("\n✓ Data augmentation completed successfully!")
 
 
 def main():

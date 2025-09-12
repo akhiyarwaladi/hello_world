@@ -203,7 +203,7 @@ class MalariaDataPreprocessor:
                     'original_path': str(img_path),
                     'dataset': 'nih_cell',
                     'class': class_label,
-                    'species': 'unknown' if class_label == 'uninfected' else 'mixed',
+                    'species': 'none' if class_label == 'uninfected' else 'unknown',
                     'quality_score': quality_score,
                     'original_size': f"{img.shape[1]}x{img.shape[0]}",
                     'processed_size': f"{self.target_size}x{self.target_size}",
@@ -358,7 +358,7 @@ class MalariaDataPreprocessor:
                     'original_path': str(img_path),
                     'dataset': 'kaggle_nih',
                     'class': class_label,
-                    'species': 'unknown' if class_label == 'uninfected' else 'mixed',
+                    'species': 'none' if class_label == 'uninfected' else 'unknown',
                     'quality_score': quality_score,
                     'original_size': f"{img.shape[1]}x{img.shape[0]}",
                     'processed_size': f"{self.target_size}x{self.target_size}",
@@ -368,6 +368,80 @@ class MalariaDataPreprocessor:
                 self.stats['total_processed'] += 1
         
         return processed_samples
+    
+    def process_nih_thick_smear_datasets(self) -> List[Dict]:
+        """Process NIH thick smear datasets with species-specific labels"""
+        print("\nProcessing NIH Thick Smear Datasets...")
+        
+        all_samples = []
+        
+        # Define thick smear datasets with their species
+        thick_datasets = {
+            'nih_thick_pf': 'P_falciparum',
+            'nih_thick_pv': 'P_vivax', 
+            'nih_thick_uninfected': 'none'
+        }
+        
+        for dataset_name, species in thick_datasets.items():
+            dataset_dir = self.raw_data_dir / dataset_name
+            if not dataset_dir.exists():
+                print(f"  {dataset_name} not found, skipping...")
+                continue
+                
+            # Find image files in all subdirectories
+            image_files = []
+            for ext in ['*.jpg', '*.jpeg', '*.png', '*.tiff', '*.bmp']:
+                image_files.extend(list(dataset_dir.rglob(ext)))
+            
+            if not image_files:
+                print(f"  No images found in {dataset_name}")
+                continue
+                
+            print(f"  Processing {len(image_files)} images from {dataset_name} ({species})...")
+            
+            # Determine class label
+            class_label = 'uninfected' if species == 'none' else 'infected'
+            
+            for img_path in tqdm(image_files, desc=f"Processing {dataset_name}"):
+                # Check quality
+                is_good, quality_score, metrics = self.check_image_quality(img_path)
+                
+                if not is_good:
+                    self.stats['total_rejected'] += 1
+                    continue
+                
+                # Load and process image
+                img = cv2.imread(str(img_path))
+                if img is None:
+                    continue
+                
+                # Resize and normalize
+                img_resized = self.resize_and_pad(img, self.target_size)
+                img_enhanced = self.normalize_image(img_resized)
+                
+                # Save processed image
+                output_filename = f"{dataset_name}_{species}_{img_path.stem}.jpg"
+                output_path = self.processed_data_dir / "images" / output_filename
+                output_path.parent.mkdir(parents=True, exist_ok=True)
+                
+                cv2.imwrite(str(output_path), img_enhanced, [cv2.IMWRITE_JPEG_QUALITY, 95])
+                
+                # Record sample info
+                sample_info = {
+                    'image_path': str(output_path.relative_to(self.processed_data_dir)),
+                    'original_path': str(img_path),
+                    'dataset': dataset_name,
+                    'class': class_label,
+                    'species': species,
+                    'quality_score': quality_score,
+                    'original_size': f"{img.shape[1]}x{img.shape[0]}",
+                    'processed_size': f"{self.target_size}x{self.target_size}",
+                    **metrics
+                }
+                all_samples.append(sample_info)
+                self.stats['total_processed'] += 1
+        
+        return all_samples
     
     def create_processing_report(self, all_samples: List[Dict]):
         """Create comprehensive processing report"""
@@ -456,6 +530,10 @@ class MalariaDataPreprocessor:
         # Process each dataset
         nih_samples = self.process_nih_cell_dataset()
         all_samples.extend(nih_samples)
+        
+        # Process species-specific thick smear datasets
+        thick_samples = self.process_nih_thick_smear_datasets()
+        all_samples.extend(thick_samples)
         
         mp_idb_samples = self.process_mp_idb_dataset()
         all_samples.extend(mp_idb_samples)
