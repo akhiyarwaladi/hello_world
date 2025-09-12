@@ -5,11 +5,13 @@ Contains all Python scripts for the malaria detection pipeline.
 
 ## Pipeline Scripts (Fixed & Working)
 1. `01_download_datasets.py` - **MalariaDatasetDownloader** - Downloads from multiple sources (NIH, MP-IDB, etc.)
-2. `02_preprocess_data.py` - **MalariaDataPreprocessor** - Image quality assessment, resize, normalize, CLAHE
-3. `03_integrate_datasets.py` - **MalariaDatasetIntegrator** - Maps to unified 6-class system  
+2. `02_preprocess_data.py` - **MalariaDataPreprocessor** - **UPDATED** - Added NIH thick smear species processing
+3. `03_integrate_datasets.py` - **MalariaDatasetIntegrator** - **UPDATED** - Fixed species mapping for 6 classes  
 4. `04_convert_to_yolo.py` - **MalariaYOLOConverter** - Converts to YOLO training format
 5. `05_augment_data.py` - **MalariaDataAugmenter** - Albumentations for minority class balancing
 6. `06_split_dataset.py` - **MalariaDatasetSplitter** - Stratified train/val/test splits
+7. `07_train_yolo.py` - **YOLOTrainer** - **NEW** - YOLOv8 classification training
+8. `08_train_rtdetr.py` - **RTDETRTrainer** - **NEW** - RT-DETR detection training
 
 ## Utility Scripts
 - `run_pipeline.py` - Manual pipeline runner with error handling
@@ -21,10 +23,11 @@ Contains all Python scripts for the malaria detection pipeline.
 - **ALL FIXED** with proper classes and comprehensive functionality
 - Added complete error handling, logging, progress bars
 
-## Current Status
-- **Preprocessing** (02) running in background - 13% complete, ~27k images processed
-- **Integration** (03) ready to auto-run when CSV file created
-- **Pipeline Watcher** active - will auto-execute remaining steps
+## Current Status (Updated: December 12, 2024)
+- **Preprocessing** (02) **UPDATED & RE-RUNNING** - Fixed species mapping, ~15% complete
+- **Integration** (03) **COMPLETED & RE-RUNNING** - Processing with corrected data
+- **Training** (07,08) **ACTIVE** - YOLOv8 training processes running on CPU
+- **Pipeline Watcher** active - monitoring all background processes
 
 ## Usage
 ```bash

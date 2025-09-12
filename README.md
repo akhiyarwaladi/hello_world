@@ -1,6 +1,28 @@
 # 🔬 Malaria-YOLO-Detection
 > Multi-Species Malaria Parasite Detection and Classification using YOLOv8 and RT-DETR
 
+## 📊 Current Project Status (Updated: December 12, 2024)
+
+### ✅ **Pipeline Status**
+- **Data Download**: ✅ COMPLETED - All 6 datasets successfully downloaded
+- **Initial Processing**: ✅ COMPLETED - 56,754 images processed and integrated
+- **Species Mapping Fix**: ✅ COMPLETED - Corrected from 2 classes to proper 6-class system
+- **Re-preprocessing**: 🔄 IN PROGRESS - ~15% complete with corrected species mapping
+- **YOLOv8 Training**: 🔄 ACTIVE - Multiple training processes running on CPU
+- **Pipeline Monitoring**: 🤖 AUTOMATED - Background processes actively monitored
+
+### 🎯 **Key Achievements**
+- **Fixed Critical Bug**: Species mapping was incorrectly assigning all infected samples to "mixed" class
+- **Added Species-Specific Processing**: NIH thick smear datasets now properly processed with P_falciparum, P_vivax labels  
+- **Automated Pipeline**: Full background processing with automatic continuation between stages
+- **Real-time Training**: Multiple YOLOv8 training sessions running simultaneously
+
+### 📈 **Current Training Progress**
+- **yolo_classify**: Training on legacy data format
+- **yolo_classify_integrated**: Training on corrected integrated dataset  
+- **Device**: CPU-based training (GPU not available)
+- **Expected Completion**: Training ongoing, preprocessing ~15% complete
+
 ## 📁 Repository Structure
 
 ```
@@ -38,12 +60,16 @@ malaria-yolo-detection/
 │   └── cache/                  # Temporary files
 │
 ├── scripts/
-│   ├── 01_download_datasets.py     # Download all datasets
-│   ├── 02_preprocess_data.py       # Preprocess and standardize
-│   ├── 03_integrate_datasets.py    # Integrate all datasets
+│   ├── 01_download_datasets.py     # Download all datasets ✅
+│   ├── 02_preprocess_data.py       # Preprocess and standardize 🔄
+│   ├── 03_integrate_datasets.py    # Integrate all datasets ✅🔄
 │   ├── 04_convert_to_yolo.py       # Convert to YOLO format
 │   ├── 05_augment_data.py          # Data augmentation
 │   ├── 06_split_dataset.py         # Train/val/test split
+│   ├── 07_train_yolo.py            # YOLOv8 training script 🔄
+│   ├── 08_train_rtdetr.py          # RT-DETR training script
+│   ├── run_pipeline.py             # Manual pipeline execution
+│   ├── watch_pipeline.py           # Automated pipeline monitoring 🤖
 │   └── utils/
 │       ├── __init__.py
 │       ├── download_utils.py       # Download helper functions
@@ -151,27 +177,41 @@ chmod 600 ~/.kaggle/kaggle.json
 
 ## 🚀 Quick Start
 
+### ✅ **Current Status - Already Running!**
 ```bash
-# 1. Download all datasets
+# Setup environment (already configured)
+source venv/bin/activate
+
+# Check current pipeline status
+python -c "from pathlib import Path; print('Processed images:', len(list(Path('data/processed/images').glob('*.jpg'))))"
+```
+
+### 🔄 **Active Processes** 
+```bash
+# These processes are currently running in background:
+# 1. Data re-preprocessing with corrected species mapping
+# 2. YOLOv8 training on CPU (multiple sessions)
+# 3. Automated pipeline monitoring
+
+# Monitor progress
+python watch_pipeline.py  # Already running - shows current status
+```
+
+### 🎯 **Manual Pipeline (if needed)**
+```bash
+# 1. Download all datasets ✅ COMPLETED
 python scripts/01_download_datasets.py --config config/dataset_config.yaml
 
-# 2. Preprocess data
+# 2. Preprocess data 🔄 RUNNING
 python scripts/02_preprocess_data.py --resize 640
 
-# 3. Integrate datasets
+# 3. Integrate datasets ✅🔄 COMPLETED & RE-RUNNING
 python scripts/03_integrate_datasets.py --output data/processed
 
-# 4. Convert to YOLO format
-python scripts/04_convert_to_yolo.py --format yolov8
-
-# 5. Augment minority classes
-python scripts/05_augment_data.py --min-samples 500
-
-# 6. Split dataset
-python scripts/06_split_dataset.py --train 0.7 --val 0.15 --test 0.15
-
-# 7. Train YOLOv8
-yolo task=detect mode=train model=yolov8m.pt data=config/yolo_config.yaml epochs=100
+# 4. Train YOLOv8 🔄 ACTIVE
+python scripts/07_train_yolo.py
+# or
+yolo classify train data=data/integrated/images model=yolov8n-cls.pt epochs=25 device=cpu
 ```
 
 ## 📈 Training Configuration

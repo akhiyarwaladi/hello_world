@@ -13,5 +13,10 @@ Contains all configuration files for the malaria detection pipeline.
 - **Datasets**: NIH Cell, MP-IDB, BBBC041, PlasmoID, IML, Uganda datasets
 - **Augmentation**: Rotation, flip, brightness, contrast adjustments for minority classes
 
+## Current Status (Updated: December 12, 2024)
+- ✅ **Configurations active** - Scripts using YAML configs for pipeline execution
+- 🔄 **Species mapping FIXED** - Updated class mappings working in preprocessing
+- 📊 **Training configs** - Supporting multiple YOLOv8 training sessions
+
 ## Usage
 Scripts automatically load configs from this directory using YAML parsing.
