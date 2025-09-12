@@ -83,7 +83,7 @@ class MalariaDatasetIntegrator:
     
     def map_species_to_class(self, class_label: str, species: str) -> int:
         """Map species and class to unified class ID"""
-        if class_label == 'uninfected':
+        if class_label == 'uninfected' or species == 'none':
             return self.class_mapping['uninfected']
         
         # Handle infected cases
