@@ -1,0 +1,23 @@
+datasets:
+  nih_cell:
+    url: "https://data.lhncbc.nlm.nih.gov/public/Malaria/cell_images.zip"
+    type: "segmented_cells"
+    classes: ["infected", "uninfected"]
+    
+  mp_idb:
+    url: "https://github.com/andrealoddo/MP-IDB-The-Malaria-Parasite-Image-Database-for-Image-Processing-and-Analysis.git"
+    type: "whole_slide"
+    classes: ["P_falciparum", "P_vivax", "P_malariae", "P_ovale"]
+    
+  kaggle_nih:
+    dataset: "iarunava/cell-images-for-detecting-malaria"
+    type: "segmented_cells"
+    classes: ["parasitized", "uninfected"]
+
+augmentation:
+  minority_threshold: 500
+  techniques:
+    - rotation: [-30, 30]
+    - flip: ["horizontal", "vertical"]
+    - brightness: [0.8, 1.2]
+    - contrast: [0.8, 1.2]

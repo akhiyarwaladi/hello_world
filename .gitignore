@@ -1,0 +1,126 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb_checkpoints/
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Data - Don't commit large datasets
+data/raw/*
+data/processed/*
+data/cache/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/cache/.gitkeep
+
+# Model weights
+*.pt
+*.pth
+*.onnx
+*.engine
+*.weights
+models/yolov8/*
+models/rtdetr/*
+!models/yolov8/.gitkeep
+!models/rtdetr/.gitkeep
+
+# Results
+results/weights/*
+results/logs/*
+results/predictions/*
+!results/weights/.gitkeep
+!results/logs/.gitkeep
+!results/predictions/.gitkeep
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.cache
+.DS_Store
+Thumbs.db
+
+# Kaggle
+.kaggle/
+kaggle.json
+
+# WandB
+wandb/
+.wandb/
+
+# Large files
+*.zip
+*.tar
+*.gz
+*.rar
+*.7z
+
+# Image datasets (keep only samples)
+*.png
+*.jpg
+*.jpeg
+*.bmp
+*.tiff
+!docs/images/*
+!examples/*
+
+# Video files
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+# Environment variables
+.env
+.env.local
+
+# Documentation build
+docs/_build/
+docs/_static/
+docs/_templates/
+
+# Testing
+.coverage
+.pytest_cache/
+htmlcov/
+.tox/
+
+# Profiling
+*.prof
+*.lprof
+
+# Custom
+scratch/
+tmp/
+temp/
+old/
+backup/
