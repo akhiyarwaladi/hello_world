@@ -215,72 +215,84 @@ class MalariaDataPreprocessor:
         return processed_samples
     
     def process_mp_idb_dataset(self) -> List[Dict]:
-        """Process MP-IDB dataset"""
+        """Process MP-IDB dataset with correct species mapping.
+        Expected structure:
+          data/raw/mp_idb/
+            ├── Falciparum/{img,gt,...}
+            ├── Vivax/{img,gt,...}
+            ├── Malariae/{img,gt,...}
+            └── Ovale/{img,gt,...}
+        We infer species from the top-level directory name, not inner folders like 'img'.
+        """
         print("\nProcessing MP-IDB Dataset...")
-        
+
         dataset_dir = self.raw_data_dir / "mp_idb"
         processed_samples = []
-        
+
         if not dataset_dir.exists():
             print(f"MP-IDB dataset not found at {dataset_dir}")
             return processed_samples
-        
-        # Look for image directories (structure may vary)
-        for species_dir in dataset_dir.rglob("*"):
-            if not species_dir.is_dir():
+
+        # Map folder names to canonical species labels
+        species_map = {
+            'falciparum': 'P_falciparum',
+            'vivax': 'P_vivax',
+            'malariae': 'P_malariae',
+            'ovale': 'P_ovale',
+        }
+
+        # Iterate only top-level species directories
+        for sp_dir in sorted([d for d in dataset_dir.iterdir() if d.is_dir()]):
+            sp_name_lower = sp_dir.name.lower()
+            if sp_name_lower.startswith('.'):
                 continue
-            
-            # Skip hidden directories and git folders
-            if species_dir.name.startswith('.'):
+
+            species = None
+            for key, val in species_map.items():
+                if key in sp_name_lower:
+                    species = val
+                    break
+
+            if species is None:
+                # Not a species directory; skip (e.g., .git, scripts)
                 continue
-                
-            # Find image files
-            image_files = []
-            for ext in ['*.jpg', '*.jpeg', '*.png', '*.tiff', '*.bmp']:
-                image_files.extend(list(species_dir.glob(ext)))
-            
+
+            # Prefer images under 'img' subfolder if exists
+            img_root = sp_dir / 'img'
+            search_root = img_root if img_root.exists() else sp_dir
+
+            image_files: List[Path] = []
+            for ext in ['*.jpg', '*.jpeg', '*.png', '*.tiff', '*.bmp', '*.JPG', '*.PNG']:
+                image_files.extend(list(search_root.rglob(ext)))
+
             if not image_files:
+                print(f"  No images found under {sp_dir}")
                 continue
-                
-            print(f"  Processing {len(image_files)} images from {species_dir.name}...")
-            
-            # Try to infer species from directory name
-            dir_name = species_dir.name.lower()
-            if 'falciparum' in dir_name or 'pf' in dir_name:
-                species = 'P_falciparum'
-            elif 'vivax' in dir_name or 'pv' in dir_name:
-                species = 'P_vivax'
-            elif 'malariae' in dir_name or 'pm' in dir_name:
-                species = 'P_malariae'
-            elif 'ovale' in dir_name or 'po' in dir_name:
-                species = 'P_ovale'
-            else:
-                species = 'unknown'
-            
-            for img_path in tqdm(image_files, desc=f"Processing {species_dir.name}"):
+
+            print(f"  Processing {len(image_files)} images for {species} from {sp_dir.name}...")
+
+            for img_path in tqdm(image_files, desc=f"Processing {sp_dir.name}"):
                 # Check quality
                 is_good, quality_score, metrics = self.check_image_quality(img_path)
-                
                 if not is_good:
                     self.stats['total_rejected'] += 1
                     continue
-                
+
                 # Load and process image
                 img = cv2.imread(str(img_path))
                 if img is None:
                     continue
-                
+
                 # Resize and normalize
                 img_resized = self.resize_and_pad(img, self.target_size)
                 img_enhanced = self.normalize_image(img_resized)
-                
+
                 # Save processed image
                 output_filename = f"mp_idb_{species}_{img_path.stem}.jpg"
                 output_path = self.processed_data_dir / "images" / output_filename
                 output_path.parent.mkdir(parents=True, exist_ok=True)
-                
                 cv2.imwrite(str(output_path), img_enhanced, [cv2.IMWRITE_JPEG_QUALITY, 95])
-                
+
                 # Record sample info
                 sample_info = {
                     'image_path': str(output_path.relative_to(self.processed_data_dir)),
@@ -295,7 +307,7 @@ class MalariaDataPreprocessor:
                 }
                 processed_samples.append(sample_info)
                 self.stats['total_processed'] += 1
-        
+
         return processed_samples
     
     def process_kaggle_dataset(self) -> List[Dict]:
