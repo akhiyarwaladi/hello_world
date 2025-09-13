@@ -81,7 +81,13 @@ class MalariaDatasetSplitter:
         
         if not all_data:
             print("No augmented data found. Trying to load integrated data...")
-            # Fallback to integrated data
+            # If input_dir itself is an integrated dir (e.g., data/integrated_v2)
+            alt_integrated_file = self.input_data_dir / "annotations" / "unified_annotations.csv"
+            if alt_integrated_file.exists():
+                df = pd.read_csv(alt_integrated_file)
+                print(f"Loaded {len(df)} samples from integrated annotations at {alt_integrated_file}")
+                return df
+            # Fallback to integrated data under parent
             integrated_file = self.input_data_dir.parent / "integrated" / "annotations" / "unified_annotations.csv"
             
             if integrated_file.exists():
@@ -249,8 +255,16 @@ class MalariaDatasetSplitter:
                 dst_image_path = split_images_dir / dst_filename
                 dst_label_path = split_labels_dir / f"{Path(dst_filename).stem}.txt"
                 
-                # Copy image
-                shutil.copy2(src_image_path, dst_image_path)
+                # Copy or link image to save space
+                try:
+                    if not dst_image_path.exists():
+                        try:
+                            os.link(src_image_path, dst_image_path)
+                        except Exception:
+                            shutil.copy2(src_image_path, dst_image_path)
+                except Exception as e:
+                    print(f"Warning: failed to materialize image {dst_image_path}: {e}")
+                    continue
                 
                 # Create label file (YOLO format)
                 class_id = int(row['unified_class'])

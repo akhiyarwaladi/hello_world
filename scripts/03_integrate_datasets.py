@@ -107,9 +107,40 @@ class MalariaDatasetIntegrator:
         
         print("Creating unified annotations...")
         
+        def _infer_species_from_path(row) -> Optional[str]:
+            try:
+                path_str = str(row.get('original_path', '')).lower()
+                # Infer for MP-IDB by folder name in path
+                if row.get('dataset') == 'mp_idb':
+                    if 'falciparum' in path_str:
+                        return 'P_falciparum'
+                    if 'vivax' in path_str:
+                        return 'P_vivax'
+                    if 'malariae' in path_str:
+                        return 'P_malariae'
+                    if 'ovale' in path_str:
+                        return 'P_ovale'
+                # Infer for NIH thick datasets from dataset name
+                dname = str(row.get('dataset', '')).lower()
+                if dname == 'nih_thick_pf':
+                    return 'P_falciparum'
+                if dname == 'nih_thick_pv':
+                    return 'P_vivax'
+                if dname == 'nih_thick_uninfected':
+                    return 'none'
+            except Exception:
+                pass
+            return None
+
         for idx, row in tqdm(df.iterrows(), total=len(df)):
             # Map to unified class
-            unified_class = self.map_species_to_class(row['class'], row['species'])
+            species_val = row.get('species')
+            # Fallback: try to infer species from original path/dataset if unknown
+            if isinstance(species_val, str) and species_val.lower() == 'unknown':
+                inferred = _infer_species_from_path(row)
+                if inferred is not None:
+                    species_val = inferred
+            unified_class = self.map_species_to_class(row['class'], species_val)
             
             annotation = {
                 'image_id': idx,
