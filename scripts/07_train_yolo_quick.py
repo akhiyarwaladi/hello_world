@@ -5,16 +5,25 @@ Quick YOLOv8 Classification Training - Optimized for <30 minutes
 
 import os
 import time
+import argparse
 from pathlib import Path
 from ultralytics import YOLO
 
 def main():
+    ap = argparse.ArgumentParser(description="Quick YOLOv8 Classification Training")
+    ap.add_argument("--data", default="data/classification", help="Classification dataset root")
+    ap.add_argument("--epochs", type=int, default=10, help="Epochs (default 10)")
+    ap.add_argument("--imgsz", type=int, default=64, help="Image size (default 64)")
+    ap.add_argument("--batch", type=int, default=32, help="Batch size (default 32)")
+    ap.add_argument("--device", default="cpu", help="Device, e.g., 'cpu' or 'cuda:0'")
+    ap.add_argument("--name", default="quick_test", help="Run name")
+    args = ap.parse_args()
     print("=" * 60)
     print("QUICK YOLOV8 MALARIA CLASSIFICATION TRAINING")
     print("=" * 60)
 
     # Configuration for quick training
-    data_path = "data/classification"
+    data_path = args.data
 
     # Check if data exists
     if not Path(data_path).exists():
@@ -41,16 +50,16 @@ def main():
     # Train with minimal settings for speed
     results = model.train(
         data=data_path,
-        epochs=10,           # Very few epochs
-        imgsz=64,           # Small image size for speed
-        batch=32,           # Large batch for efficiency
-        workers=4,          # Use multiple workers
-        device='cpu',       # Use CPU
-        patience=3,         # Early stopping
-        save_period=-1,     # Don't save intermediate models
-        cache=True,         # Cache images in memory
+        epochs=args.epochs,       # configurable
+        imgsz=args.imgsz,
+        batch=args.batch,
+        workers=4,
+        device=args.device,
+        patience=3,
+        save_period=-1,
+        cache=True,
         project='results/classification',
-        name='quick_test',
+        name=args.name,
         exist_ok=True,
         verbose=True,
         plots=True
@@ -64,7 +73,7 @@ def main():
     print("=" * 60)
     print(f"⏱️  Total training time: {training_time/60:.1f} minutes")
     print(f"📊 Best accuracy: {results.best_fitness:.3f}")
-    print(f"📂 Results saved to: results/classification/quick_test")
+    print(f"📂 Results saved to: results/classification/{args.name}")
 
     # Show some results
     print("\n📈 Training Summary:")

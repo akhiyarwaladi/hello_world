@@ -1,1 +1,0 @@
-P_falciparum\nP_vivax\nP_malariae\nP_ovale\nMixed_infection\nUninfected\n

@@ -1,0 +1,13 @@
+{
+  "dataset_type": "parasite_classification_crops",
+  "crop_size": "128x128",
+  "padding": 16,
+  "total_crops": 1242,
+  "train_crops": 869,
+  "val_crops": 186,
+  "test_crops": 187,
+  "classes": [
+    "parasite"
+  ],
+  "source": "MP-IDB detection dataset"
+}
