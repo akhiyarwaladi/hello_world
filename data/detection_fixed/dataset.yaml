@@ -1,0 +1,14 @@
+# MP-IDB Parasite Detection Dataset
+path: /home/rahasia/Documents/penelitian/malaria_detection/data/detection_fixed
+train: images
+val: images  # Using same for now, should split later
+test: images
+
+nc: 1
+names:
+  0: parasite
+
+# Dataset info
+total_images: 103
+total_parasites: 1242
+species: ['Falciparum']
