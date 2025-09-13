@@ -1,0 +1,78 @@
+training:
+  quick:
+    name: "Quick Training (Testing)"
+    epochs: 10
+    batch_size: 32
+    img_size: 64
+    patience: 3
+    device: "cpu"
+    workers: 4
+    cache: true
+    augment: false
+    duration_minutes: 30
+    description: "Fast training for testing pipeline"
+
+  standard:
+    name: "Standard Training"
+    epochs: 50
+    batch_size: 16
+    img_size: 224
+    patience: 10
+    device: "auto"
+    workers: 8
+    cache: true
+    augment: true
+    duration_hours: 2
+    description: "Standard training configuration"
+
+  production:
+    name: "Production Training"
+    epochs: 100
+    batch_size: 8
+    img_size: 640
+    patience: 15
+    device: "auto"
+    workers: 8
+    cache: true
+    augment: true
+    duration_hours: 8
+    description: "Full production training"
+
+models:
+  yolov8_nano:
+    name: "yolov8n-cls.pt"
+    type: "classification"
+    params: "1.4M"
+    speed: "fast"
+
+  yolov8_medium:
+    name: "yolov8m-cls.pt"
+    type: "classification"
+    params: "25M"
+    speed: "medium"
+
+  rtdetr_large:
+    name: "rtdetr-l.pt"
+    type: "detection"
+    params: "32M"
+    speed: "medium"
+
+optimizer:
+  type: "AdamW"
+  lr0: 0.001
+  momentum: 0.9
+  weight_decay: 0.0005
+
+augmentation:
+  hsv_h: 0.015
+  hsv_s: 0.7
+  hsv_v: 0.4
+  degrees: 0.0
+  translate: 0.1
+  scale: 0.5
+  shear: 0.0
+  perspective: 0.0
+  flipud: 0.0
+  fliplr: 0.5
+  mixup: 0.0
+  copy_paste: 0.0
