@@ -143,25 +143,54 @@ colors:  # BGR format for visualization
   5: [128, 128, 128]   # Gray
 ```
 
-## 🔧 Installation
+## 🔧 Installation & Setup
 
+### **🚀 Quick Setup (Recommended for New Machines)**
 ```bash
-# Clone repository
-git clone https://github.com/yourusername/malaria-yolo-detection.git
-cd malaria-yolo-detection
+# 1. Clone repository
+git clone https://github.com/akhiyarwaladi/malaria_detection.git
+cd malaria_detection
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+# 2. Run automated setup script (handles everything)
+chmod +x quick_setup_new_machine.sh
+./quick_setup_new_machine.sh
+```
 
-# Install dependencies
+**What the script does:**
+- ✅ Creates virtual environment and installs dependencies
+- ✅ Downloads all 6 datasets (~30 mins)
+- ✅ Prepares detection dataset (103 images, 1,242 parasites)
+- ✅ Crops individual parasites (1,242 single cells)
+- ✅ Runs training tests to verify system
+- ✅ Generates verification documentation
+
+### **🔍 Manual Setup (Step by Step)**
+```bash
+# 1. Clone repository
+git clone https://github.com/akhiyarwaladi/malaria_detection.git
+cd malaria_detection
+
+# 2. Create virtual environment
+python3 -m venv venv
+source venv/bin/activate  # Linux/Mac
+# venv\Scripts\activate   # Windows
+
+# 3. Install dependencies
 pip install -r requirements.txt
 
-# Setup Kaggle API (for NIH dataset)
-# Place your kaggle.json in ~/.kaggle/
-mkdir ~/.kaggle
-cp kaggle.json ~/.kaggle/
-chmod 600 ~/.kaggle/kaggle.json
+# 4. Verify installation
+python -c "import torch, ultralytics, cv2; print('✅ Setup successful')"
+```
+
+### **📋 Setup Verification**
+```bash
+# Use detailed verification checklist
+# See: setup_verification.md (comprehensive 5-phase verification)
+
+# Quick verification commands:
+echo "Datasets: $(ls data/raw/ | wc -l)"              # Should be 6+
+echo "Detection images: $(ls data/detection_fixed/images/ | wc -l)"  # Should be 103
+echo "Parasites: $(find data/classification_crops/ -name "*.jpg" | wc -l)"  # Should be 1,242
 ```
 
 ## 📊 Dataset Information
