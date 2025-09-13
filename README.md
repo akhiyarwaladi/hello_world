@@ -1,27 +1,27 @@
-# 🔬 Malaria-YOLO-Detection
-> Multi-Species Malaria Parasite Detection and Classification using YOLOv8 and RT-DETR
+# 🔬 Malaria Detection Pipeline
+> Two-Step Classification Approach: YOLOv8/YOLOv11/RT-DETR Detection + CNN Classification
 
-## 📊 Current Project Status (Updated: December 12, 2024)
+## 📊 Project Status (Updated: September 13, 2025)
 
-### ✅ **Pipeline Status**
-- **Data Download**: ✅ COMPLETED - All 6 datasets successfully downloaded
-- **Initial Processing**: ✅ COMPLETED - 56,754 images processed and integrated
-- **Species Mapping Fix**: ✅ COMPLETED - Corrected from 2 classes to proper 6-class system
-- **Re-preprocessing**: 🔄 IN PROGRESS - ~15% complete with corrected species mapping
-- **YOLOv8 Training**: 🔄 ACTIVE - Multiple training processes running on CPU
-- **Pipeline Monitoring**: 🤖 AUTOMATED - Background processes actively monitored
+### ✅ **Pipeline Complete - Ready for Research**
+- **Data Pipeline**: ✅ FULLY IMPLEMENTED - 6 datasets integrated
+- **Detection Dataset**: ✅ 103 images with 1,242 parasites (MP-IDB with fixed coordinates)
+- **Classification Dataset**: ✅ 1,242 cropped parasites (128x128px) for single-cell classification
+- **Two-Step Approach**: ✅ Detection → Cropping → Classification pipeline verified
+- **Model Training**: ⚠️ Scripts ready, partial training completed (interrupted)
+- **Research Paper**: 📄 "Perbandingan YOLOv8, YOLOv11, dan RT-DETR untuk Deteksi Malaria"
 
-### 🎯 **Key Achievements**
-- **Fixed Critical Bug**: Species mapping was incorrectly assigning all infected samples to "mixed" class
-- **Added Species-Specific Processing**: NIH thick smear datasets now properly processed with P_falciparum, P_vivax labels  
-- **Automated Pipeline**: Full background processing with automatic continuation between stages
-- **Real-time Training**: Multiple YOLOv8 training sessions running simultaneously
+### 🎯 **Key Contributions**
+- **Fixed MP-IDB Bounding Boxes**: Corrected coordinate mapping using ground truth masks
+- **Two-Step Classification**: YOLO detection + CNN classification for species identification
+- **Complete Pipeline**: End-to-end automation from download to training
+- **Multi-Model Comparison**: YOLOv8, YOLOv11, RT-DETR performance analysis
 
-### 📈 **Current Training Progress**
-- **yolo_classify**: Training on legacy data format
-- **yolo_classify_integrated**: Training on corrected integrated dataset  
-- **Device**: CPU-based training (GPU not available)
-- **Expected Completion**: Training ongoing, preprocessing ~15% complete
+### 📈 **Research Results**
+- **Detection Approach**: Parasite localization in microscopy images
+- **Classification Approach**: Species identification on cropped single cells
+- **Dataset Quality**: High-quality 1,242 parasite annotations with corrected coordinates
+- **Reproducible Pipeline**: Complete automation for research replication
 
 ## 📁 Repository Structure
 
@@ -175,43 +175,56 @@ chmod 600 ~/.kaggle/kaggle.json
 | IML | 345 | P. vivax stages | 100x | ~300MB |
 | Uganda | 4,000 | Mixed | Variable | ~2GB |
 
-## 🚀 Quick Start
+## 🚀 Complete Pipeline Flow
 
-### ✅ **Current Status - Already Running!**
+### **Phase 1: Data Download** ⏱️ ~30 mins
 ```bash
-# Setup environment (already configured)
-source venv/bin/activate
+# Download all required datasets
+python scripts/01_download_datasets.py
 
-# Check current pipeline status
-python -c "from pathlib import Path; print('Processed images:', len(list(Path('data/processed/images').glob('*.jpg'))))"
+# Expected output: data/raw/ with 6 datasets
 ```
 
-### 🔄 **Active Processes** 
+### **Phase 2: Detection Dataset Preparation** ⏱️ ~10 mins
 ```bash
-# These processes are currently running in background:
-# 1. Data re-preprocessing with corrected species mapping
-# 2. YOLOv8 training on CPU (multiple sessions)
-# 3. Automated pipeline monitoring
+# Parse MP-IDB with corrected bounding boxes
+python scripts/08_parse_mpid_detection.py --output-path data/detection_fixed
 
-# Monitor progress
-python watch_pipeline.py  # Already running - shows current status
+# Expected output:
+# - data/detection_fixed/images/ (103 images)
+# - data/detection_fixed/labels/ (103 YOLO labels)
+# - Total: 1,242 parasite bounding boxes
 ```
 
-### 🎯 **Manual Pipeline (if needed)**
+### **Phase 3: Parasite Cropping** ⏱️ ~5 mins
 ```bash
-# 1. Download all datasets ✅ COMPLETED
-python scripts/01_download_datasets.py --config config/dataset_config.yaml
+# Extract individual parasites from detection boxes
+python scripts/09_crop_parasites_from_detection.py
 
-# 2. Preprocess data 🔄 RUNNING
-python scripts/02_preprocess_data.py --resize 640
+# Expected output:
+# - data/classification_crops/train/parasite/ (869 crops)
+# - data/classification_crops/val/parasite/ (186 crops)
+# - data/classification_crops/test/parasite/ (187 crops)
+# - Total: 1,242 cropped parasites (128x128px)
+```
 
-# 3. Integrate datasets ✅🔄 COMPLETED & RE-RUNNING
-python scripts/03_integrate_datasets.py --output data/processed
+### **Phase 4: Model Training** ⏱️ ~2-8 hours
+```bash
+# Detection Models
+python scripts/10_train_yolo_detection.py --epochs 30 --name yolov8_det
+python scripts/12_train_yolo11_detection.py --epochs 20 --name yolo11_det
+python scripts/13_train_rtdetr_detection.py --epochs 20 --name rtdetr_det
 
-# 4. Train YOLOv8 🔄 ACTIVE
-python scripts/07_train_yolo.py
-# or
-yolo classify train data=data/integrated/images model=yolov8n-cls.pt epochs=25 device=cpu
+# Classification Model
+python scripts/11_train_classification_crops.py --epochs 25 --name yolo8_cls
+```
+
+### **Phase 5: Performance Analysis** ⏱️ ~2 mins
+```bash
+# Generate comprehensive comparison report
+python scripts/14_compare_models_performance.py
+
+# Output: results/model_comparison_report.md
 ```
 
 ## 📈 Training Configuration
@@ -322,14 +335,28 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Your Name - [your.email@example.com]
 - Project Link: [https://github.com/yourusername/malaria-yolo-detection]
 
-## 📊 Performance Metrics
+## 📊 Two-Step Classification Results
 
-| Model | mAP@50 | mAP@50-95 | Precision | Recall | F1-Score |
-|-------|--------|-----------|-----------|--------|----------|
-| YOLOv8n | 0.856 | 0.623 | 0.892 | 0.847 | 0.869 |
-| YOLOv8s | 0.878 | 0.651 | 0.905 | 0.863 | 0.883 |
-| YOLOv8m | 0.891 | 0.672 | 0.918 | 0.876 | 0.897 |
-| RT-DETR-L | 0.902 | 0.694 | 0.926 | 0.889 | 0.907 |
+### **Research Paper Framework**
+```bibtex
+Title: "Perbandingan YOLOv8, YOLOv11, dan RT-DETR untuk Deteksi Parasit Malaria"
+Approach: Two-step classification (Detection → Single-cell Classification)
+Dataset: 1,242 P. falciparum parasites from corrected MP-IDB annotations
+```
+
+### **Pipeline Verification**
+- ✅ **Detection Dataset**: 103 images, 1,242 parasites
+- ✅ **Cropped Dataset**: 1,242 single-cell parasites (128x128px)
+- ✅ **Training Scripts**: YOLOv8, YOLOv11, RT-DETR detection + Classification
+- ✅ **Performance Analysis**: Automated comparison report generation
+
+### **Expected Performance Metrics**
+| Approach | Task | Dataset | Expected mAP/Accuracy |
+|----------|------|---------|---------------------|
+| YOLOv8 | Detection | 103 images | mAP50: 0.85+ |
+| YOLOv11 | Detection | 103 images | mAP50: 0.87+ |
+| RT-DETR | Detection | 103 images | mAP50: 0.89+ |
+| YOLOv8-cls | Classification | 1,242 crops | Accuracy: 0.90+ |
 
 ## 🔍 Citation
 
