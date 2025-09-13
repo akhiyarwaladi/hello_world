@@ -297,41 +297,186 @@ class MalariaDatasetDownloader:
 
 
 def main():
-    """Main execution function"""
+    """Main execution function with flexible dataset selection"""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Download malaria datasets")
+    parser = argparse.ArgumentParser(
+        description="Download malaria datasets for research",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Download only MP-IDB (recommended for two-step classification research)
+  python scripts/01_download_datasets.py --dataset mp_idb
+  
+  # Download specific datasets
+  python scripts/01_download_datasets.py --dataset nih_cell,mp_idb
+  
+  # Download all datasets (full research)
+  python scripts/01_download_datasets.py --dataset all
+  
+  # List available datasets
+  python scripts/01_download_datasets.py --list-datasets
+
+Available datasets:
+  mp_idb      - MP-IDB whole slide images (RECOMMENDED for detection research)
+  nih_cell    - NIH segmented cell images
+  nih_thick   - NIH thick smear images 
+  kaggle_nih  - Kaggle NIH cell dataset
+  bbbc041     - BBBC041 P. vivax stages
+  plasmoID    - PlasmoID Indonesian dataset
+  iml         - IML P. vivax lifecycle
+  all         - Download all datasets
+        """)
+    
     parser.add_argument(
         "--config",
         type=str,
         default="config/dataset_config.yaml",
         help="Path to dataset configuration file"
     )
+    
     parser.add_argument(
         "--dataset",
         type=str,
-        choices=["all", "nih", "mp_idb", "kaggle", "bbbc041"],
-        default="all",
-        help="Specific dataset to download"
+        default="mp_idb",
+        help="Dataset(s) to download. Use comma-separated list for multiple datasets"
+    )
+    
+    parser.add_argument(
+        "--list-datasets",
+        action="store_true",
+        help="List available datasets and exit"
+    )
+    
+    parser.add_argument(
+        "--skip-existing",
+        action="store_true",
+        default=True,
+        help="Skip datasets that already exist (default: True)"
+    )
+    
+    parser.add_argument(
+        "--force-redownload",
+        action="store_true",
+        help="Force re-download even if dataset exists"
     )
     
     args = parser.parse_args()
     
+    # List available datasets
+    if args.list_datasets:
+        print("Available datasets for malaria detection research:")
+        print("=" * 60)
+        print("🎯 RECOMMENDED for Two-Step Classification Research:")
+        print("  mp_idb      - MP-IDB whole slide images (103 images, 1,242 parasites)")
+        print("                Required for detection → classification pipeline")
+        print()
+        print("📊 Additional Research Datasets:")
+        print("  nih_cell    - NIH segmented cell images (27k+ cells)")
+        print("  nih_thick   - NIH thick smear images (P. falciparum & P. vivax)")
+        print("  kaggle_nih  - Kaggle NIH dataset (alternative source)")
+        print("  bbbc041     - BBBC041 P. vivax lifecycle stages")
+        print("  plasmoID    - PlasmoID Indonesian dataset (4 species)")
+        print("  iml         - IML P. vivax lifecycle images")
+        print()
+        print("💡 Usage Examples:")
+        print("  # For main research pipeline (RECOMMENDED):")
+        print("  python scripts/01_download_datasets.py --dataset mp_idb")
+        print()
+        print("  # For comprehensive research:")
+        print("  python scripts/01_download_datasets.py --dataset all")
+        print()
+        print("  # Multiple specific datasets:")
+        print("  python scripts/01_download_datasets.py --dataset mp_idb,nih_cell")
+        return
+    
+    # Initialize downloader
     downloader = MalariaDatasetDownloader(args.config)
     
-    if args.dataset == "all":
-        downloader.download_all()
-    elif args.dataset == "nih":
-        downloader.download_nih_cell_images()
-        downloader.download_nih_thick_smears()
-    elif args.dataset == "mp_idb":
-        downloader.download_mp_idb()
-    elif args.dataset == "kaggle":
-        downloader.download_kaggle_dataset()
-    elif args.dataset == "bbbc041":
-        downloader.download_bbbc041()
+    # Override skip_existing if force redownload is requested
+    if args.force_redownload:
+        downloader.skip_existing = False
+        print("🔄 Force re-download mode enabled")
+    else:
+        downloader.skip_existing = args.skip_existing
     
-    print("\n✅ Download process completed!")
+    # Parse dataset selection
+    datasets_to_download = [ds.strip().lower() for ds in args.dataset.split(',')]
+    
+    # Mapping of dataset names to download methods (FIXED method names)
+    dataset_methods = {
+        'mp_idb': ('MP-IDB Whole Slide Images', downloader.download_mp_idb),
+        'nih_cell': ('NIH Cell Images', downloader.download_nih_cell_images),
+        'nih_thick': ('NIH Thick Smears', downloader.download_nih_thick_smears),
+        'kaggle_nih': ('Kaggle NIH Dataset', downloader.download_kaggle_dataset),
+        'bbbc041': ('BBBC041 P. vivax', downloader.download_bbbc041),
+        'plasmoid': ('PlasmoID Indonesian', downloader.download_plasmoID),
+        'iml': ('IML P. vivax Lifecycle', downloader.download_iml_dataset),
+    }
+    
+    print("🔬 Malaria Dataset Downloader")
+    print("=" * 50)
+    
+    if 'all' in datasets_to_download:
+        print("📥 Downloading ALL datasets...")
+        print("⏱️  Estimated time: 30-60 minutes")
+        print("💾 Required space: ~6GB")
+        print()
+        downloader.download_all()
+    else:
+        # Validate dataset names
+        invalid_datasets = []
+        valid_datasets = []
+        
+        for dataset in datasets_to_download:
+            if dataset in dataset_methods:
+                valid_datasets.append(dataset)
+            else:
+                invalid_datasets.append(dataset)
+        
+        if invalid_datasets:
+            print(f"❌ Invalid dataset(s): {', '.join(invalid_datasets)}")
+            print(f"✅ Valid options: {', '.join(dataset_methods.keys())}, all")
+            print("💡 Use --list-datasets to see all available options")
+            return
+        
+        # Download selected datasets
+        print(f"📥 Downloading {len(valid_datasets)} dataset(s)...")
+        
+        for dataset in valid_datasets:
+            name, method = dataset_methods[dataset]
+            print(f"\n🔄 Downloading: {name}")
+            try:
+                method()
+                print(f"✅ {name} download completed")
+            except Exception as e:
+                print(f"❌ {name} download failed: {str(e)}")
+                continue
+    
+    print("\n" + "=" * 50)
+    print("✅ Download process completed!")
+    
+    # Show downloaded datasets summary
+    import os
+    data_dir = "data/raw"
+    if os.path.exists(data_dir):
+        downloaded_dirs = [d for d in os.listdir(data_dir) 
+                          if os.path.isdir(os.path.join(data_dir, d)) and d != '.gitkeep']
+        print(f"📊 Total datasets available: {len(downloaded_dirs)}")
+        print(f"📁 Downloaded datasets: {', '.join(downloaded_dirs)}")
+        
+        # Special note for MP-IDB (main research dataset)
+        if 'mp_idb' in downloaded_dirs:
+            print("\n🎯 MP-IDB Ready for Two-Step Classification Pipeline:")
+            print("   Next step: python scripts/08_parse_mpid_detection.py")
+    
+    print("\n💡 Next Steps:")
+    if 'mp_idb' in [ds.strip().lower() for ds in args.dataset.split(',')]:
+        print("   1. Parse detection dataset: python scripts/08_parse_mpid_detection.py")
+        print("   2. Crop parasites: python scripts/09_crop_parasites_from_detection.py")
+        print("   3. Train models: python scripts/10_train_yolo_detection.py")
+    else:
+        print("   See README.md for complete pipeline instructions")
 
 
 if __name__ == "__main__":

@@ -117,16 +117,36 @@ success "All critical imports successful"
 # Phase 2: Data Pipeline Setup
 log "📊 PHASE 2: Data Pipeline Setup"
 
-# Download datasets
-log "Downloading malaria datasets..."
-log "This will take 15-30 minutes depending on internet speed..."
-log "Datasets to download: NIH Cell Images, MP-IDB, BBBC041, PlasmoID, IML"
+# Download datasets with options
+log "Configuring dataset download options..."
+
+# Check for download preference
+echo ""
+echo "📥 Dataset Download Options:"
+echo "1. MP-IDB only (RECOMMENDED) - Required for two-step classification (~500MB, 5-10 min)"
+echo "2. All datasets - Full research suite (~6GB, 30-60 min)"
+echo ""
+read -p "Select option (1/2) [1]: " -n 1 -r
+DOWNLOAD_OPTION=${REPLY:-1}
+echo
+
+if [[ "$DOWNLOAD_OPTION" == "1" ]]; then
+    log "Downloading MP-IDB dataset only (recommended for main pipeline)..."
+    log "Size: ~500MB, Time: 5-10 minutes"
+    DATASET_ARG="mp_idb"
+    EXPECTED_DATASETS=1
+else
+    log "Downloading all datasets (comprehensive research)..."
+    log "Size: ~6GB, Time: 30-60 minutes"
+    DATASET_ARG="all"
+    EXPECTED_DATASETS=6
+fi
 
 # Check if data already exists
-if [[ -d "data/raw" ]] && [[ $(ls -1 data/raw/ | wc -l) -gt 5 ]]; then
+if [[ -d "data/raw" ]] && [[ $(ls -1 data/raw/ | wc -l) -ge $EXPECTED_DATASETS ]]; then
     warning "Raw data appears to already exist. Skipping download..."
 else
-    python scripts/01_download_datasets.py || error "Dataset download failed"
+    python scripts/01_download_datasets.py --dataset "$DATASET_ARG" || error "Dataset download failed"
 fi
 
 # Verify downloads
@@ -134,10 +154,19 @@ log "Verifying downloaded datasets..."
 DATASET_COUNT=$(ls -1 data/raw/ | wc -l)
 log "Found $DATASET_COUNT datasets in data/raw/"
 
-if [[ $DATASET_COUNT -lt 5 ]]; then
-    warning "Expected 6+ datasets, found $DATASET_COUNT. Some downloads may have failed."
+if [[ $DATASET_COUNT -ge $EXPECTED_DATASETS ]]; then
+    success "Datasets downloaded and verified ($DATASET_COUNT/$EXPECTED_DATASETS)"
+    if [[ "$DOWNLOAD_OPTION" == "1" ]]; then
+        log "✅ MP-IDB dataset ready for two-step classification pipeline"
+    else
+        log "✅ All datasets ready for comprehensive research"
+    fi
 else
-    success "Datasets downloaded and verified"
+    if [[ "$DOWNLOAD_OPTION" == "1" ]]; then
+        error "Expected MP-IDB dataset (1), found $DATASET_COUNT. Download may have failed."
+    else
+        warning "Expected $EXPECTED_DATASETS datasets, found $DATASET_COUNT. Some downloads may have failed."
+    fi
 fi
 
 # Phase 3: Detection Dataset Preparation
