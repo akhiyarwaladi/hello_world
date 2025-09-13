@@ -206,12 +206,32 @@ echo "Parasites: $(find data/classification_crops/ -name "*.jpg" | wc -l)"  # Sh
 
 ## 🚀 Complete Pipeline Flow
 
-### **Phase 1: Data Download** ⏱️ ~30 mins
-```bash
-# Download all required datasets
-python scripts/01_download_datasets.py
+### **Phase 1: Data Download**
 
-# Expected output: data/raw/ with 6 datasets
+#### **Option A: MP-IDB Only (RECOMMENDED)** ⏱️ ~5-10 mins
+```bash
+# Download only MP-IDB (sufficient for main research pipeline)
+python scripts/01_download_datasets.py --dataset mp_idb
+
+# Expected output: data/raw/mp_idb/
+# Size: ~500MB, Contains: 103 images with 1,242 parasites
+```
+
+#### **Option B: All Datasets (Comprehensive)** ⏱️ ~30-60 mins
+```bash
+# Download all 6 datasets (for full research)
+python scripts/01_download_datasets.py --dataset all
+
+# Expected output: data/raw/ with 6 datasets (~6GB)
+```
+
+#### **Option C: Custom Selection**
+```bash
+# Multiple specific datasets
+python scripts/01_download_datasets.py --dataset mp_idb,nih_cell
+
+# List available datasets
+python scripts/01_download_datasets.py --list-datasets
 ```
 
 ### **Phase 2: Detection Dataset Preparation** ⏱️ ~10 mins
