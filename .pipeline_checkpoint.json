@@ -1,0 +1,83 @@
+{
+  "stages": {
+    "environment_check": {
+      "status": "completed",
+      "completed_at": "2025-09-14T09:44:02.141156",
+      "validation_result": null,
+      "metadata": {}
+    },
+    "dataset_download": {
+      "status": "completed",
+      "completed_at": "2025-09-14T09:44:02.932841",
+      "validation_result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [
+          "This is a classification dataset - no bounding box annotations expected"
+        ],
+        "stats": {
+          "total_images": 288,
+          "species_directories": [
+            "Falciparum",
+            "Vivax",
+            "Malariae",
+            "Ovale"
+          ],
+          "species_counts": {
+            "Falciparum": 208,
+            "Vivax": 80
+          },
+          "dataset_type": "classification"
+        },
+        "repair_needed": false
+      },
+      "metadata": {}
+    },
+    "detection_preparation": {
+      "status": "completed",
+      "completed_at": "2025-09-14T09:46:49.767800",
+      "validation_result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "stats": {
+          "total_images": 103,
+          "total_labels": 103,
+          "corrupt_images": 0
+        },
+        "repair_needed": false
+      },
+      "metadata": {}
+    },
+    "parasite_cropping": {
+      "status": "completed",
+      "completed_at": "2025-09-14T09:46:59.182205",
+      "validation_result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "stats": {
+          "train_crops": 869,
+          "val_crops": 186,
+          "test_crops": 187,
+          "total_crops": 1242,
+          "corrupt_crops": 0,
+          "small_crops": 0,
+          "metadata_entries": 1242
+        },
+        "repair_needed": false
+      },
+      "metadata": {}
+    },
+    "training_verification": {
+      "status": "completed",
+      "completed_at": "2025-09-14T09:49:01.946214",
+      "validation_result": null,
+      "metadata": {}
+    }
+  },
+  "last_run": null,
+  "conda_env": "py312",
+  "python_path": "/home/gli/anaconda3/envs/py312/bin/python",
+  "last_updated": "2025-09-14T09:49:01.946274"
+}

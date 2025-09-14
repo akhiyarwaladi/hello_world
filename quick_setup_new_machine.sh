@@ -91,18 +91,18 @@ if [[ -d "venv" ]]; then
     rm -rf venv
 fi
 
-python3 -m venv venv
-source venv/bin/activate
+#python3 -m venv venv
+#source venv/bin/activate
 success "Virtual environment created and activated"
 
 # Upgrade pip
 log "Upgrading pip..."
-pip install --upgrade pip
+#pip install --upgrade pip
 
 # Install dependencies
 log "Installing Python dependencies..."
 log "This may take 5-10 minutes depending on internet speed..."
-pip install -r requirements.txt
+#pip install -r requirements.txt
 success "Dependencies installed successfully"
 
 # Verify critical imports
@@ -257,8 +257,8 @@ log "This will test both detection and classification training..."
 log "Testing YOLOv8 detection training (1 epoch)..."
 python scripts/10_train_yolo_detection.py \
     --data data/detection_fixed/dataset.yaml \
-    --epochs 1 \
-    --batch 4 \
+    --epochs 40 \
+    --batch 10 \
     --device cpu \
     --name test_setup_detection || error "Detection training test failed"
 
@@ -273,8 +273,8 @@ fi
 log "Testing classification training (1 epoch)..."
 python scripts/11_train_classification_crops.py \
     --data data/classification_crops \
-    --epochs 1 \
-    --batch 16 \
+    --epochs 40 \
+    --batch 10 \
     --device cpu \
     --name test_setup_classification || error "Classification training test failed"
 
