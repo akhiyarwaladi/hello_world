@@ -1,0 +1,4 @@
+Experiment,Dataset Size,Val Ratio,Performance,Overfitting Score,Risk Level,Analysis
+multispecies_overfitted,176,0.18,0.909,0.44555050505050514,Medium Risk,Severe Overfitting
+detection_fixed_realistic,103,0.20,0.738,0.299,Low Risk,Realistic Performance
+classification_multispecies,1345,0.20,0.967,0.26,Low Risk,Balanced Performance

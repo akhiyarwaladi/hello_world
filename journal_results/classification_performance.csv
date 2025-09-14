@@ -1,0 +1,4 @@
+Experiment,Dataset,Final Accuracy,Best Accuracy,Final Loss,Epochs,Convergence,Stability,Training Time (min)
+multispecies_classification,Multi-Species,0.968,0.974,0.0692,23,23,0.0062,5.1
+malaria_background,Classification,0.966,0.966,0.1045,6,6,0.0123,111.7
+multispecies_classification,Multi-Species,0.968,0.974,0.0692,23,23,0.0062,5.1

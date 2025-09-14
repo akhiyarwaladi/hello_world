@@ -1,0 +1,6 @@
+                  Experiment         Dataset mAP@0.5 mAP@0.5:0.95 Precision Recall Best mAP@0.5  Epochs  Convergence Stability Training Time (min)
+               yolo11n_mpidb    Dataset.Yaml   0.000        0.000     0.000  0.000        0.000       1            2    0.0000                 0.8
+multispecies_detection_final   Multi-Species   0.909        0.530     0.824  0.876        0.922      30           30    0.0222                22.7
+    yolov8_malaria_detection Detection Fixed   0.738        0.303     0.853  0.509        0.738      13           14    0.9127                 7.8
+         yolov8n_malaria_30e Detection Fixed   0.000        0.000     0.000  0.006        0.000       1            1    0.0000                 2.2
+multispecies_detection_final   Multi-Species   0.909        0.530     0.824  0.876        0.922      30           30    0.0222                22.7
