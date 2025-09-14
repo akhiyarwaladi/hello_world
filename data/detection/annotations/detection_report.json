@@ -1,0 +1,20 @@
+{
+  "dataset_type": "parasite_detection",
+  "total_images": 103,
+  "total_parasites": 1242,
+  "avg_parasites_per_image": 12.058252427184467,
+  "species_distribution": {
+    "Falciparum": 103
+  },
+  "parasite_type_distribution": {
+    "ring": 1176,
+    "schi": 18,
+    "tro": 41,
+    "game": 7
+  },
+  "image_dimensions": "2592x1944",
+  "annotation_format": "YOLO (normalized bounding boxes)",
+  "classes": {
+    "parasite": 0
+  }
+}

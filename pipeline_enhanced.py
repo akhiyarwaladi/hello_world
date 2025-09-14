@@ -552,7 +552,7 @@ class EnhancedMalariaPipeline:
         """Download and setup the MP-IDB dataset"""
         self.print_status("📥 Setting up MP-IDB dataset...")
 
-        script_path = "scripts/01_download_datasets.py"
+        script_path = "scripts/download_datasets.py"
         if not Path(script_path).exists():
             self.print_status(f"Download script not found: {script_path}", "error")
             return False
@@ -580,7 +580,7 @@ class EnhancedMalariaPipeline:
         """Prepare YOLO detection dataset"""
         self.print_status("🔄 Preparing detection dataset...")
 
-        script_path = "scripts/08_parse_mpid_detection.py"
+        script_path = "scripts/parse_mpid_annotations.py"
         if not Path(script_path).exists():
             self.print_status(f"Detection preparation script not found: {script_path}", "error")
             return False
@@ -605,7 +605,7 @@ class EnhancedMalariaPipeline:
         """Extract parasite crops for classification"""
         self.print_status("✂️  Cropping parasites for classification...")
 
-        script_path = "scripts/09_crop_parasites_from_detection.py"
+        script_path = "scripts/crop_detections.py"
         if not Path(script_path).exists():
             self.print_status(f"Cropping script not found: {script_path}", "error")
             return False
@@ -631,8 +631,8 @@ class EnhancedMalariaPipeline:
         self.print_status("🧪 Verifying training system...")
 
         # Quick detection training test
-        detection_script = "scripts/10_train_yolo_detection.py"
-        classification_script = "scripts/11_train_classification_crops.py"
+        detection_script = "scripts/train_yolo_detection.py"
+        classification_script = "scripts/train_classification_crops.py"
 
         detection_results_dir = self.run_manager.get_results_path("detection", "test_setup_detection")
         classification_results_dir = self.run_manager.get_results_path("classification", "test_setup_classification")
@@ -682,7 +682,7 @@ class EnhancedMalariaPipeline:
         """Full YOLOv8 detection model training"""
         self.print_status("🏋️ Starting full detection model training...")
 
-        detection_script = "scripts/10_train_yolo_detection.py"
+        detection_script = "scripts/train_yolo_detection.py"
         results_dir = self.run_manager.get_results_path("detection", "production_detection")
 
         try:
@@ -715,7 +715,7 @@ class EnhancedMalariaPipeline:
         """Full classification model training"""
         self.print_status("🏋️ Starting classification model training...")
 
-        classification_script = "scripts/11_train_classification_crops.py"
+        classification_script = "scripts/train_classification_crops.py"
         results_dir = self.run_manager.get_results_path("classification", "production_classification")
 
         try:
@@ -764,7 +764,7 @@ class EnhancedMalariaPipeline:
         self.print_status("📋 Generating performance reports...")
 
         # Check if comparison script exists
-        comparison_script = "scripts/14_compare_models_performance.py"
+        comparison_script = "scripts/compare_model_performance.py"
         if Path(comparison_script).exists():
             try:
                 reports_dir = self.run_manager.get_results_path("reports")
