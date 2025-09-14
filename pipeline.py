@@ -18,6 +18,7 @@ from typing import Dict, List, Optional, Any
 # Import existing utilities
 sys.path.append(str(Path(__file__).parent))
 from utils.experiment_logger import ExperimentLogger, ResultsCollector
+from utils.results_manager import ResultsManager
 
 class MalariaPipeline:
     """Unified pipeline for malaria detection training and evaluation"""
@@ -30,9 +31,12 @@ class MalariaPipeline:
         self.models_config = self._load_config("models.yaml")
         self.datasets_config = self._load_config("datasets.yaml")
 
-        # Setup directories
-        self.results_dir = Path(self.models_config.get("defaults", {}).get("results_dir", "results/pipeline_final"))
-        self.logs_dir = Path(self.models_config.get("defaults", {}).get("logs_dir", "experiment_logs"))
+        # Setup organized results management
+        self.results_manager = ResultsManager()
+
+        # Setup directories (now organized)
+        self.results_dir = Path("results/current_experiments")
+        self.logs_dir = Path("results/experiment_logs")
 
         self.results_dir.mkdir(parents=True, exist_ok=True)
         self.logs_dir.mkdir(parents=True, exist_ok=True)
