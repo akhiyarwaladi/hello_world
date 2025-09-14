@@ -50,6 +50,7 @@ def _load_species_mapping(mpidb_root: Path) -> Dict[str, str]:
     """Build mapping from base image stem -> species name (canonical lower-case)."""
     mapping: Dict[str, str] = {}
     for sp in SPECIES_DIRS:
+        # First try original CSV
         csv_path = mpidb_root / sp / f"mp-idb-{sp.lower()}.csv"
         if not csv_path.exists():
             # Try abspath variant if present
@@ -57,7 +58,14 @@ def _load_species_mapping(mpidb_root: Path) -> Dict[str, str]:
             if alt.exists():
                 csv_path = alt
             else:
-                continue
+                # Try mask-derived CSV (our new format)
+                alt = mpidb_root / sp / f"mp-idb-{sp.lower()}-from-masks.csv"
+                if alt.exists():
+                    csv_path = alt
+                else:
+                    print(f"⚠️  No CSV found for {sp}")
+                    continue
+
         with open(csv_path, "r", newline="") as f:
             reader = csv.DictReader(f)
             for row in reader:
@@ -65,6 +73,9 @@ def _load_species_mapping(mpidb_root: Path) -> Dict[str, str]:
                 if not fn:
                     continue
                 mapping[Path(fn).stem] = SPECIES_CANON[sp]
+
+        print(f"✅ Loaded {sp}: {len([k for k,v in mapping.items() if v == SPECIES_CANON[sp]])} images")
+
     if not mapping:
         raise RuntimeError("Could not build species mapping from MP-IDB CSVs.")
     return mapping
