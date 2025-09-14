@@ -1,7 +1,33 @@
 # Malaria Detection Project - Context for Claude
 
 ## Project Overview
-This is a comprehensive malaria detection system using YOLOv8 and RT-DETR models for microscopy image analysis. The project processes multiple datasets for malaria parasite detection and classification into 6 classes: P_falciparum, P_vivax, P_malariae, P_ovale, Mixed_infection, and Uninfected.
+This is a comprehensive malaria detection system using YOLOv8 and RT-DETR models for microscopy image analysis. The project implements a **TWO-STAGE PIPELINE**:
+
+### Stage 1: Detection (YOLO Object Detection)
+- **Purpose**: Locate malaria parasites in blood smear images
+- **Input**: Full microscopy images (1024x1024 typical)
+- **Output**: Bounding boxes around detected parasites
+- **Classes**: Binary detection (parasite vs background)
+- **Dataset**: `data/detection/` - images with YOLO format annotations
+
+### Stage 2: Classification (6-Class Species Classification)
+- **Purpose**: Classify detected parasites into specific species
+- **Input**: Cropped parasite regions from Stage 1 detection
+- **Output**: Species classification with confidence scores
+- **Classes**: 6-class system:
+  1. **P_falciparum** - Most dangerous, causes severe malaria
+  2. **P_vivax** - Common, causes recurring malaria
+  3. **P_malariae** - Rare, chronic infections
+  4. **P_ovale** - Rare, similar to vivax
+  5. **Mixed_infection** - Multiple species present
+  6. **Uninfected** - Normal red blood cells
+- **Dataset**: `data/classification_crops/` - cropped images organized by species folders
+
+### Two-Stage Architecture Benefits
+- **Higher Accuracy**: Specialized models for each task
+- **Efficient Processing**: Focus classification on detected regions only
+- **Clinical Relevance**: Matches diagnostic workflow (find → identify)
+- **Scalable**: Can handle full slide images efficiently
 
 ## Project Status (Updated: December 12, 2024)
 - ✅ **All major codebase issues FIXED**

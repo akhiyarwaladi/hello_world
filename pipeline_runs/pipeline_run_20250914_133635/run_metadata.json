@@ -1,0 +1,10 @@
+{
+  "run_id": "pipeline_run_20250914_133635",
+  "timestamp": "20250914_133635",
+  "start_time": "2025-09-14T13:36:35.711645",
+  "status": "started",
+  "command_line": "pipeline_enhanced.py --status",
+  "working_directory": "/home/gli/Documents/malaria_detection",
+  "python_version": "3.12.7 | packaged by Anaconda, Inc. | (main, Oct  4 2024, 13:27:36) [GCC 11.2.0]",
+  "conda_env": "py312"
+}
