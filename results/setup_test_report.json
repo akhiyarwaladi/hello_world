@@ -1,0 +1,19 @@
+[
+  {
+    "experiment_name": "test_setup_detection",
+    "model_type": "unknown",
+    "task": "detection",
+    "mAP50": 0.91601,
+    "mAP50_95": 0.54693,
+    "precision": 0.89477,
+    "recall": 0.90982,
+    "final_box_loss": 1.49313,
+    "epochs": 40,
+    "batch_size": 10,
+    "image_size": 640
+  },
+  {
+    "experiment_name": "yolo11n_mpidb",
+    "model_type": "YOLOv11",
+    "task": "detection",
+    "mAP50": 
