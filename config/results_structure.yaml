@@ -1,0 +1,68 @@
+# Results Structure Configuration for Malaria Detection Pipeline
+# Defines organized folder structure for different types of experiments
+
+results_structure:
+  # Base results directory
+  base_dir: "results"
+
+  # Organized subdirectories
+  directories:
+    # Active experiments and ongoing training
+    current_experiments: "current_experiments"
+
+    # Production-ready final models
+    completed_models: "completed_models"
+
+    # Publication-ready exports and reports
+    publications: "publications"
+
+    # Archived old experiments
+    archive: "archive"
+
+    # Validation and testing results
+    validation: "validation"
+
+    # Raw experiment logs
+    logs: "experiment_logs"
+
+# Path mappings for different experiment types
+experiment_paths:
+  # Pipeline experiments (validation, testing)
+  pipeline_validation: "current_experiments/validation"
+  pipeline_training: "current_experiments/training"
+
+  # Production models (final, deployed)
+  production_detection: "completed_models/detection"
+  production_classification: "completed_models/classification"
+
+  # Individual model training
+  model_training: "current_experiments/models"
+
+  # Comprehensive evaluations
+  comprehensive_eval: "current_experiments/evaluation"
+
+  # Publication exports
+  journal_export: "publications/journal_export"
+  research_export: "publications/research"
+
+# Automatic organization rules
+organization_rules:
+  # Move models to completed after reaching criteria
+  auto_promote_to_completed:
+    # Detection models with mAP > threshold
+    detection_map50_threshold: 0.85
+    # Classification models with accuracy > threshold
+    classification_accuracy_threshold: 0.85
+
+  # Archive old experiments after days
+  auto_archive_after_days: 30
+
+  # Keep only N most recent experiments per type
+  max_experiments_per_type: 10
+
+# Default project settings
+defaults:
+  results_dir: "results/current_experiments"
+  logs_dir: "results/experiment_logs"
+  publications_dir: "results/publications"
+  completed_models_dir: "results/completed_models"

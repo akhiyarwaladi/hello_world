@@ -4,10 +4,15 @@ Train RT-DETR Detection Model for Malaria Parasites
 """
 
 import os
+import sys
 import time
 import argparse
 from pathlib import Path
 from ultralytics import RTDETR
+
+# Add project root to path for imports
+sys.path.append(str(Path(__file__).parent.parent))
+from utils.results_manager import ResultsManager
 
 def main():
     parser = argparse.ArgumentParser(description="Train RT-DETR Detection for Malaria")
@@ -31,6 +36,24 @@ def main():
     print("=" * 60)
     print("RT-DETR MALARIA PARASITE DETECTION TRAINING")
     print("=" * 60)
+
+    # Initialize Results Manager for organized folder structure
+    results_manager = ResultsManager()
+
+    # Determine experiment type based on name
+    if "production" in args.name.lower() or "final" in args.name.lower():
+        experiment_type = "production"
+    elif "validation" in args.name.lower() or "test" in args.name.lower():
+        experiment_type = "validation"
+    else:
+        experiment_type = "training"
+
+    # Get organized experiment path
+    experiment_path = results_manager.get_experiment_path(
+        experiment_type=experiment_type,
+        model_name="rtdetr_detection",
+        experiment_name=args.name
+    )
 
     # Check if data exists
     if not Path(args.data).exists():
@@ -77,8 +100,8 @@ def main():
         patience=15,
         save_period=10,  # Save every 10 epochs
         cache=True,
-        project='results/detection',
-        name=args.name,
+        project=str(experiment_path.parent),
+        name=experiment_path.name,
         exist_ok=True,
         verbose=True,
         plots=True,
@@ -92,7 +115,7 @@ def main():
     print("🎉 RT-DETR DETECTION TRAINING COMPLETED!")
     print("=" * 60)
     print(f"⏱️  Training time: {training_time/60:.1f} minutes")
-    print(f"📂 Results saved to: results/detection/{args.name}")
+    print(f"📂 Results saved to: {experiment_path}")
 
     # Show training results
     if hasattr(results, 'results_dict'):
@@ -102,7 +125,7 @@ def main():
                 print(f"   {key}: {value:.4f}")
 
     # Get best model path
-    best_model = Path(f"results/detection/{args.name}/weights/best.pt")
+    best_model = experiment_path / "weights/best.pt"
     if best_model.exists():
         print(f"\\n✅ Best model saved: {best_model}")
 
