@@ -1,0 +1,8 @@
+# Machine Learning Environment Settings
+export NNPACK_DISABLE=1
+export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:128
+export OMP_NUM_THREADS=4
+export MKL_NUM_THREADS=4
+
+# Suppress specific warnings
+export PYTHONWARNINGS="ignore::UserWarning:torch"
