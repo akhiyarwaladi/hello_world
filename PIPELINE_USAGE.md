@@ -68,3 +68,79 @@ python scripts/10_train_yolo_detection.py --epochs 30 --name production_detectio
 # Classification training
 python scripts/11_train_classification_crops.py --epochs 25 --name production_classification
 ```
+
+---
+
+# 🚀 NEW: Unified Training Pipeline
+
+## 🎯 Mengatasi Redundansi Testing
+
+**MASALAH SEBELUMNYA:**
+- ❌ 2 proses `train_multispecies.py test` berjalan redundant
+- ❌ `test_models_comprehensive.py` manual dan terpisah
+- ❌ Multiple scattered training scripts
+
+**SOLUSI BARU:**
+```bash
+# Single unified interface - RECOMMENDED
+python pipeline.py validate          # Replace redundant testing
+python pipeline.py train MODEL_NAME  # Unified training
+python pipeline.py evaluate --comprehensive  # Replace comprehensive testing
+```
+
+## 🔧 Unified Pipeline Commands
+
+### Status & Information
+```bash
+python pipeline.py status                    # Check current state
+python pipeline.py list --models            # Available models
+python pipeline.py list --datasets          # Available datasets
+```
+
+### Quick Validation (Menggantikan train_multispecies.py test)
+```bash
+python pipeline.py validate                 # Test all models (2 epochs)
+python pipeline.py validate --models yolov8_detection  # Test specific model
+```
+
+### Training (Unified Interface)
+```bash
+python pipeline.py train yolov8_detection --epochs 30
+python pipeline.py train yolov8_classification --batch 8 --background
+```
+
+### Evaluation (Menggantikan test_models_comprehensive.py)
+```bash
+python pipeline.py evaluate --comprehensive  # Full comprehensive testing
+python pipeline.py evaluate --models yolov8_detection --comprehensive
+```
+
+### Export Results
+```bash
+python pipeline.py export --format journal  # Ready for publication
+```
+
+## ✅ Migration Path
+
+### Stop Redundant Processes
+```bash
+# Kill redundant testing (if still running)
+pkill -f "train_multispecies.py test"
+```
+
+### Use New Unified Pipeline
+```bash
+# OLD way (redundant):
+python train_multispecies.py test
+
+# NEW way (unified):
+python pipeline.py validate
+```
+
+## 🛡️ Safety Features
+
+- ✅ Prerequisites validation before execution
+- ✅ Configuration-driven (config/models.yaml, config/datasets.yaml)
+- ✅ Integrated with ExperimentLogger
+- ✅ Background training support
+- ✅ Timeout protection

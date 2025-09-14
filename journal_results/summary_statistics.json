@@ -1,0 +1,24 @@
+{
+  "total_experiments": 8,
+  "detection_experiments": 5,
+  "classification_experiments": 3,
+  "detection_stats": {
+    "mean_map50": 0.51122,
+    "std_map50": 0.4220351513322083,
+    "best_map50": 0.90922,
+    "mean_map50_95": 0.272614,
+    "std_map50_95": 0.23752461426976362,
+    "best_map50_95": 0.53006
+  },
+  "classification_stats": {
+    "mean_accuracy": 0.96724,
+    "std_accuracy": 0.0007071067811865744,
+    "best_accuracy": 0.96774,
+    "min_accuracy": 0.96624
+  },
+  "efficiency_stats": {
+    "mean_training_time_hours": 0.37119599652777774,
+    "mean_epochs": 15.875,
+    "total_training_time_hours": 2.969567972222222
+  }
+}

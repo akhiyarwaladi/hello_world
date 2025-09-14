@@ -1,0 +1,84 @@
+# Model configurations for Malaria Detection Pipeline
+models:
+  # Detection Models
+  yolov8_detection:
+    type: "detection"
+    script: "python scripts/train_yolo_detection.py"
+    args:
+      data: "data/detection_multispecies/dataset.yaml"
+      epochs: 30
+      batch: 8
+      device: "cpu"
+      project: "results/pipeline_final"
+    validation_args:
+      epochs: 2
+      batch: 4
+    description: "YOLOv8 detection for malaria parasites"
+
+  yolov11_detection:
+    type: "detection"
+    script: "yolo detect train"
+    args:
+      data: "data/detection_multispecies/dataset.yaml"
+      model: "yolo11n.pt"
+      epochs: 30
+      batch: 8
+      device: "cpu"
+      project: "results/pipeline_final"
+    validation_args:
+      epochs: 2
+      batch: 4
+    description: "YOLOv11 detection for malaria parasites"
+
+  rtdetr_detection:
+    type: "detection"
+    script: "yolo detect train"
+    args:
+      data: "data/detection_multispecies/dataset.yaml"
+      model: "rtdetr-l.pt"
+      epochs: 30
+      batch: 4
+      device: "cpu"
+      project: "results/pipeline_final"
+    validation_args:
+      epochs: 2
+      batch: 2
+    description: "RT-DETR detection for malaria parasites"
+
+  # Classification Models
+  yolov8_classification:
+    type: "classification"
+    script: "python scripts/train_classification_crops.py"
+    args:
+      data: "data/classification_multispecies"
+      epochs: 25
+      batch: 8
+      device: "cpu"
+      project: "results/pipeline_final"
+    validation_args:
+      epochs: 2
+      batch: 4
+    description: "YOLOv8 classification for malaria species"
+
+  yolov11_classification:
+    type: "classification"
+    script: "yolo classify train"
+    args:
+      data: "data/classification_multispecies"
+      model: "yolo11n-cls.pt"
+      epochs: 25
+      batch: 8
+      device: "cpu"
+      project: "results/pipeline_final"
+    validation_args:
+      epochs: 2
+      batch: 4
+    description: "YOLOv11 classification for malaria species"
+
+# Default configurations
+defaults:
+  device: "cpu"
+  validation_timeout: 300
+  production_timeout: 7200
+  results_dir: "results/pipeline_final"
+  logs_dir: "experiment_logs"
