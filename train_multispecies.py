@@ -21,7 +21,7 @@ def run_yolov8_detection_training():
     print("=" * 50)
 
     cmd = [
-        'python', 'scripts/train_yolo_detection.py',
+        'python', 'scripts/07_train_yolo_detection.py',
         '--data', 'data/detection_multispecies/dataset.yaml',
         '--epochs', '30',
         '--batch', '8',
@@ -74,7 +74,7 @@ def run_yolov8_classification_training():
     print("=" * 50)
 
     cmd = [
-        'python', 'scripts/train_classification_crops.py',
+        'python', 'scripts/11_train_classification_crops.py',
         '--data', 'data/classification_multispecies',
         '--epochs', '25',
         '--batch', '8',
@@ -170,7 +170,7 @@ def run_model_validation():
     # Test configurations with organized output
     models_to_test = [
         ("YOLOv8 Detection", [
-            'python', 'scripts/train_yolo_detection.py',
+            'python', 'scripts/07_train_yolo_detection.py',
             '--data', 'data/detection_multispecies/dataset.yaml',
             '--epochs', '2', '--batch', '4', '--device', 'cpu', 
             '--project', 'results/pipeline_final/validation',
@@ -189,7 +189,7 @@ def run_model_validation():
             'name=test_rtdetr_detection'
         ]),
         ("YOLOv8 Classification", [
-            'python', 'scripts/train_classification_crops.py',
+            'python', 'scripts/11_train_classification_crops.py',
             '--data', 'data/classification_multispecies', '--epochs', '2',
             '--batch', '4', '--device', 'cpu',
             '--project', 'results/pipeline_final/validation',

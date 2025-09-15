@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Train YOLOv11 Detection Model for Malaria Parasites
+Train Classification Model on Cropped Parasites
 """
 
 import os
@@ -11,30 +11,31 @@ from pathlib import Path
 from ultralytics import YOLO
 
 # Add project root to path for imports
-sys.path.append(str(Path(__file__).parent.parent))
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 from utils.results_manager import ResultsManager
 
 def main():
-    parser = argparse.ArgumentParser(description="Train YOLOv11 Detection for Malaria")
-    parser.add_argument("--data", default="data/detection_fixed/dataset.yaml",
-                       help="Dataset YAML file")
+    parser = argparse.ArgumentParser(description="Train Classification on Cropped Parasites")
+    parser.add_argument("--data", default="data/classification_crops",
+                       help="Classification dataset root")
     parser.add_argument("--epochs", type=int, default=50,
                        help="Number of epochs")
-    parser.add_argument("--imgsz", type=int, default=640,
+    parser.add_argument("--imgsz", type=int, default=128,
                        help="Image size for training")
-    parser.add_argument("--batch", type=int, default=16,
+    parser.add_argument("--batch", type=int, default=32,
                        help="Batch size")
     parser.add_argument("--device", default="cpu",
                        help="Device (cpu or cuda)")
-    parser.add_argument("--model", default="yolo11n.pt",
-                       help="YOLOv11 model (yolo11n.pt, yolo11s.pt, yolo11m.pt)")
-    parser.add_argument("--name", default="yolo11_malaria_detection",
+    parser.add_argument("--model", default="yolov8n-cls.pt",
+                       help="YOLOv8 classification model")
+    parser.add_argument("--name", default="yolov8_parasite_classification",
                        help="Experiment name")
 
     args = parser.parse_args()
 
     print("=" * 60)
-    print("YOLOV11 MALARIA PARASITE DETECTION TRAINING")
+    print("YOLOV8 PARASITE CLASSIFICATION TRAINING")
     print("=" * 60)
 
     # Initialize Results Manager for organized folder structure
@@ -51,13 +52,13 @@ def main():
     # Get organized experiment path
     experiment_path = results_manager.get_experiment_path(
         experiment_type=experiment_type,
-        model_name="yolo11_detection",
+        model_name="yolov8_classification",
         experiment_name=args.name
     )
 
     # Check if data exists
     if not Path(args.data).exists():
-        print(f"❌ Dataset file not found: {args.data}")
+        print(f"❌ Dataset directory not found: {args.data}")
         return
 
     print(f"📁 Using dataset: {args.data}")
@@ -67,19 +68,26 @@ def main():
     print(f"📦 Batch size: {args.batch}")
     print(f"💻 Device: {args.device}")
 
+    # Count images per split
+    train_path = Path(args.data) / "train" / "parasite"
+    val_path = Path(args.data) / "val" / "parasite"
+    test_path = Path(args.data) / "test" / "parasite"
+
+    train_count = len(list(train_path.glob("*.jpg")))
+    val_count = len(list(val_path.glob("*.jpg")))
+    test_count = len(list(test_path.glob("*.jpg")))
+
+    print(f"\\n📊 Dataset composition:")
+    print(f"   Train: {train_count} images")
+    print(f"   Val: {val_count} images")
+    print(f"   Test: {test_count} images")
+
     # Load model
     print(f"\\n🚀 Loading {args.model} model...")
-    try:
-        model = YOLO(args.model)
-    except Exception as e:
-        print(f"❌ Error loading YOLOv11 model: {e}")
-        print("💡 YOLOv11 might not be available yet. Using YOLOv8 instead...")
-        model_fallback = args.model.replace("yolo11", "yolov8")
-        print(f"🔄 Loading fallback model: {model_fallback}")
-        model = YOLO(model_fallback)
+    model = YOLO(args.model)
 
     # Start training
-    print("\\n⏱️  Starting YOLOv11 detection training...")
+    print("\\n⏱️  Starting classification training...")
     start_time = time.time()
 
     results = model.train(
@@ -104,7 +112,7 @@ def main():
     training_time = end_time - start_time
 
     print("\\n" + "=" * 60)
-    print("🎉 YOLOV11 DETECTION TRAINING COMPLETED!")
+    print("🎉 PARASITE CLASSIFICATION TRAINING COMPLETED!")
     print("=" * 60)
     print(f"⏱️  Training time: {training_time/60:.1f} minutes")
     print(f"📂 Results saved to: {experiment_path}")
@@ -113,7 +121,7 @@ def main():
     if hasattr(results, 'results_dict'):
         print("\\n📈 Training Results:")
         for key, value in results.results_dict.items():
-            if any(metric in key.lower() for metric in ['map', 'precision', 'recall']):
+            if any(metric in key.lower() for metric in ['accuracy', 'loss']):
                 print(f"   {key}: {value:.4f}")
 
     # Get best model path
@@ -121,17 +129,21 @@ def main():
     if best_model.exists():
         print(f"\\n✅ Best model saved: {best_model}")
 
-        # Validate on test set if available
-        print("\\n🧪 Running validation...")
-        val_results = model.val(data=args.data)
+        # Test on test set
+        print("\\n🧪 Running test evaluation...")
+        test_results = model.val(data=args.data, split='test')
 
-        print("\\n📊 Validation Metrics:")
-        print(f"   mAP50: {val_results.box.map50:.4f}")
-        print(f"   mAP50-95: {val_results.box.map:.4f}")
-        print(f"   Precision: {val_results.box.mp:.4f}")
-        print(f"   Recall: {val_results.box.mr:.4f}")
+        print("\\n📊 Test Metrics:")
+        if hasattr(test_results, 'top1acc'):
+            print(f"   Top-1 Accuracy: {test_results.top1acc:.4f}")
+        if hasattr(test_results, 'top5acc'):
+            print(f"   Top-5 Accuracy: {test_results.top5acc:.4f}")
 
-    print("\\n✅ YOLOv11 detection training completed successfully!")
+    print("\\n✅ Parasite classification training completed successfully!")
+    print("\\n🎯 Results:")
+    print(f"   - Trained on {train_count} cropped parasites")
+    print(f"   - Validated on {val_count} cropped parasites")
+    print(f"   - Tested on {test_count} cropped parasites")
 
 if __name__ == "__main__":
     main()
