@@ -474,7 +474,7 @@ Available datasets:
     if 'mp_idb' in [ds.strip().lower() for ds in args.dataset.split(',')]:
         print("   1. Parse detection dataset: python scripts/08_parse_mpid_detection.py")
         print("   2. Crop parasites: python scripts/09_crop_parasites_from_detection.py")
-        print("   3. Train models: python scripts/10_train_yolo_detection.py")
+        print("   3. Train models: python pipeline.py train yolov8_detection --name first_run")
     else:
         print("   See README.md for complete pipeline instructions")
 

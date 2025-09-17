@@ -1,0 +1,16 @@
+Model: mobilenet_v2
+Best Val Acc: 73.55%
+Test Acc: 85.76%
+Training Time: 0.8 min
+
+Classification Report:
+              precision    recall  f1-score   support
+
+  falciparum       0.97      0.89      0.93       313
+    malariae       0.00      0.00      0.00         9
+       ovale       0.00      0.00      0.00         6
+       vivax       0.18      1.00      0.31         9
+
+    accuracy                           0.86       337
+   macro avg       0.29      0.47      0.31       337
+weighted avg       0.91      0.86      0.87       337

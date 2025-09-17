@@ -1,259 +1,273 @@
 #!/usr/bin/env python3
 """
-Crop parasite regions into a species-labeled classification dataset.
-
-Default mode uses ground-truth YOLO labels from data/detection/split/labels
-and species mapping from MP-IDB CSVs to create:
-  data/classification/{train,val,test}/{falciparum,vivax,malariae,ovale}/*.jpg
-
-Optionally, you can crop from model predictions if you have a trained detector.
-
-Usage examples:
-  python scripts/10_crop_detections.py                            # use GT labels
-  python scripts/10_crop_detections.py --pred-weights results/detection/yolo11n_mpidb/weights/best.pt
-  python scripts/10_crop_detections.py --padding 1.3 --min-size 12
+Generate Classification Crops from Detection Model Results
+This script uses a trained detection model to detect parasites and crop them for classification training
 """
 
-from __future__ import annotations
-
+import os
+import sys
 import argparse
-import csv
-import json
-from pathlib import Path
-from typing import Dict, List, Tuple
-
 import cv2
 import numpy as np
+from pathlib import Path
+from ultralytics import YOLO
+import pandas as pd
+from tqdm import tqdm
 
-try:
-    from ultralytics import YOLO
-except Exception:  # inference only if predictions mode
-    YOLO = None  # type: ignore
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+from utils.results_manager import ResultsManager
 
+def load_detection_model(model_path):
+    """Load trained detection model"""
+    if not Path(model_path).exists():
+        raise FileNotFoundError(f"Model not found: {model_path}")
 
-MPIDB_ROOT = Path("data/raw/mp_idb")
-DET_SPLIT_ROOT = Path("data/detection/split")
-DET_IMAGES_DIR = Path("data/detection/images")
-DET_LABELS_DIR = Path("data/detection/labels")
-DEFAULT_OUT_ROOT = Path("data/classification_crops")
+    print(f"🔄 Loading detection model: {model_path}")
+    model = YOLO(model_path)
+    return model
 
-SPECIES_DIRS = ["Falciparum", "Vivax", "Malariae", "Ovale"]
-SPECIES_CANON = {
-    "Falciparum": "falciparum",
-    "Vivax": "vivax",
-    "Malariae": "malariae",
-    "Ovale": "ovale",
-}
-
-
-def _load_species_mapping(mpidb_root: Path) -> Dict[str, str]:
-    """Build mapping from base image stem -> species name (canonical lower-case)."""
-    mapping: Dict[str, str] = {}
-    for sp in SPECIES_DIRS:
-        csv_path = mpidb_root / sp / f"mp-idb-{sp.lower()}.csv"
-        if not csv_path.exists():
-            # Try abspath variant if present
-            alt = mpidb_root / sp / f"mp-idb-{sp.lower()}-abspath.csv"
-            if alt.exists():
-                csv_path = alt
-            else:
-                continue
-        with open(csv_path, "r", newline="") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                fn = Path(row.get("filename", "")).name
-                if not fn:
-                    continue
-                mapping[Path(fn).stem] = SPECIES_CANON[sp]
-    if not mapping:
-        raise RuntimeError("Could not build species mapping from MP-IDB CSVs.")
-    return mapping
-
-
-def _yolo_to_xyxy(b: Tuple[float, float, float, float], w: int, h: int) -> Tuple[int, int, int, int]:
-    cx, cy, bw, bh = b
-    x1 = int((cx - bw / 2) * w)
-    y1 = int((cy - bh / 2) * h)
-    x2 = int((cx + bw / 2) * w)
-    y2 = int((cy + bh / 2) * h)
-    return x1, y1, x2, y2
-
-
-def _pad_and_clip(x1, y1, x2, y2, pad: float, w: int, h: int) -> Tuple[int, int, int, int]:
-    cx = (x1 + x2) / 2.0
-    cy = (y1 + y2) / 2.0
-    bw = (x2 - x1) * pad
-    bh = (y2 - y1) * pad
-    nx1 = max(0, int(cx - bw / 2))
-    ny1 = max(0, int(cy - bh / 2))
-    nx2 = min(w - 1, int(cx + bw / 2))
-    ny2 = min(h - 1, int(cy + bh / 2))
-    return nx1, ny1, nx2, ny2
-
-
-def _ensure_out_dirs(out_root: Path):
-    for split in ["train", "val", "test"]:
-        for sp in SPECIES_CANON.values():
-            (out_root / split / sp).mkdir(parents=True, exist_ok=True)
-
-
-def _read_split_list(split: str) -> List[Path]:
-    list_path = DET_SPLIT_ROOT / f"{split}.txt"
-    if not list_path.exists():
+def detect_and_crop(model, image_path, confidence=0.25, crop_size=128):
+    """Detect parasites in image and return crops"""
+    image = cv2.imread(str(image_path))
+    if image is None:
         return []
-    imgs: List[Path] = []
-    with open(list_path, "r") as f:
-        for ln in f:
-            p = Path(ln.strip())
-            if p.exists():
-                imgs.append(p)
-    return imgs
 
+    # Run detection
+    results = model(image, conf=confidence, verbose=False)
 
-def _iter_gt_label_files() -> List[Tuple[str, Path, Path]]:
-    """Return list of (split, img_path, lbl_path) using list-based split to avoid duplication."""
-    items: List[Tuple[str, Path, Path]] = []
-    for split in ["train", "val", "test"]:
-        imgs = _read_split_list(split)
-        for img in imgs:
-            lbl = DET_LABELS_DIR / f"{img.stem}.txt"
-            if lbl.exists():
-                items.append((split, img, lbl))
-    if not items:
-        raise RuntimeError("No GT split lists found. Run 09_train_detection.py to create train.txt/val.txt/test.txt.")
-    return items
+    crops = []
+    for result in results:
+        boxes = result.boxes
+        if boxes is not None:
+            for box in boxes:
+                # Get bounding box coordinates
+                x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()
+                conf = box.conf[0].cpu().numpy()
 
+                # Convert to integers
+                x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
 
-def crop_from_gt(padding: float, min_size: int, output_size: int | None, out_root: Path) -> None:
-    mapping = _load_species_mapping(MPIDB_ROOT)
-    _ensure_out_dirs(out_root)
+                # Calculate center and expand to square crop
+                center_x = (x1 + x2) // 2
+                center_y = (y1 + y2) // 2
 
-    index: Dict[str, List[Dict]] = {"train": [], "val": [], "test": []}
+                # Create square crop around center
+                half_size = crop_size // 2
+                crop_x1 = max(0, center_x - half_size)
+                crop_y1 = max(0, center_y - half_size)
+                crop_x2 = min(image.shape[1], center_x + half_size)
+                crop_y2 = min(image.shape[0], center_y + half_size)
 
-    items = _iter_gt_label_files()
-    for split, img_path, lbl_path in items:
-        img = cv2.imread(str(img_path))
-        if img is None:
-            continue
-        h, w = img.shape[:2]
-        with open(lbl_path, "r") as f:
-            lines = [ln.strip() for ln in f.readlines() if ln.strip()]
-        for i, ln in enumerate(lines):
-            parts = ln.split()
-            if len(parts) != 5:
-                continue
-            # class_id = int(parts[0])  # always 0 (parasite)
-            cx, cy, bw, bh = map(float, parts[1:])
-            x1, y1, x2, y2 = _yolo_to_xyxy((cx, cy, bw, bh), w, h)
-            x1, y1, x2, y2 = _pad_and_clip(x1, y1, x2, y2, padding, w, h)
-            if (x2 - x1) < min_size or (y2 - y1) < min_size:
-                continue
+                # Extract crop
+                crop = image[crop_y1:crop_y2, crop_x1:crop_x2]
 
-            crop = img[y1:y2, x1:x2]
-            if output_size is not None and output_size > 0:
-                crop = cv2.resize(crop, (output_size, output_size), interpolation=cv2.INTER_AREA)
-            species = mapping.get(img_path.stem)
-            if species is None:
-                # fall back to unknown; skip to keep dataset clean
-                continue
+                # Resize to exact crop size if needed
+                if crop.shape[0] != crop_size or crop.shape[1] != crop_size:
+                    crop = cv2.resize(crop, (crop_size, crop_size))
 
-            out_dir = out_root / split / species
-            out_name = f"{img_path.stem}_{i}.jpg"
-            out_path = out_dir / out_name
-            if not out_path.exists():
-                cv2.imwrite(str(out_path), crop)
-
-            index[split].append({
-                "src": str(img_path),
-                "label": species,
-                "bbox": [int(x1), int(y1), int(x2), int(y2)],
-                "out": str(out_path),
-            })
-
-    # Save an index for reproducibility
-    (out_root).mkdir(parents=True, exist_ok=True)
-    with open(out_root / "crops_index.json", "w") as f:
-        json.dump(index, f, indent=2)
-
-    # Basic summary
-    counts = {split: len(index[split]) for split in index}
-    print("\n✅ Cropping completed (ground-truth).")
-    print(f"Saved crops per split: {counts}")
-    print(f"Output directory: {out_root}")
-
-
-def crop_from_predictions(weights: str, padding: float, min_size: int, conf: float, output_size: int | None, out_root: Path) -> None:
-    if YOLO is None:
-        raise RuntimeError("Ultralytics not available. Install per requirements.txt")
-    model = YOLO(weights)
-    _ensure_out_dirs(out_root)
-
-    # We'll run predictions over the split images to keep the species mapping
-    mapping = _load_species_mapping(MPIDB_ROOT)
-    index: Dict[str, List[Dict]] = {"train": [], "val": [], "test": []}
-
-    for split in ["train", "val", "test"]:
-        imgs = _read_split_list(split)
-        for img_path in imgs:
-            img = cv2.imread(str(img_path))
-            if img is None:
-                continue
-            h, w = img.shape[:2]
-            preds = model.predict(str(img_path), conf=conf, verbose=False)
-            if not preds:
-                continue
-            boxes = preds[0].boxes.xyxy.cpu().numpy() if hasattr(preds[0].boxes, 'xyxy') else []
-            for i, (x1, y1, x2, y2) in enumerate(boxes):
-                x1, y1, x2, y2 = map(int, [x1, y1, x2, y2])
-                x1, y1, x2, y2 = _pad_and_clip(x1, y1, x2, y2, padding, w, h)
-                if (x2 - x1) < min_size or (y2 - y1) < min_size:
-                    continue
-                crop = img[y1:y2, x1:x2]
-                species = mapping.get(img_path.stem)
-                if species is None:
-                    continue
-                out_dir = out_root / split / species
-                out_name = f"{img_path.stem}_{i}.jpg"
-                out_path = out_dir / out_name
-                if output_size is not None and output_size > 0:
-                    crop = cv2.resize(crop, (output_size, output_size), interpolation=cv2.INTER_AREA)
-                if not out_path.exists():
-                    cv2.imwrite(str(out_path), crop)
-                index[split].append({
-                    "src": str(img_path),
-                    "label": species,
-                    "bbox": [int(x1), int(y1), int(x2), int(y2)],
-                    "out": str(out_path),
+                crops.append({
+                    'crop': crop,
+                    'confidence': conf,
+                    'bbox': [x1, y1, x2, y2],
+                    'crop_coords': [crop_x1, crop_y1, crop_x2, crop_y2]
                 })
 
-    with open(out_root / "crops_index.json", "w") as f:
-        json.dump(index, f, indent=2)
-    counts = {split: len(index[split]) for split in index}
-    print("\n✅ Cropping completed (predictions).")
-    print(f"Saved crops per split: {counts}")
-    print(f"Output directory: {out_root}")
+    return crops
 
+def process_dataset(model, input_dir, output_dir, dataset_name, confidence=0.25, crop_size=128):
+    """Process entire dataset and generate crops"""
+    input_path = Path(input_dir)
+    output_path = Path(output_dir)
+
+    # Create output directories
+    crops_dir = output_path / "crops"
+    crops_dir.mkdir(parents=True, exist_ok=True)
+
+    # Create subdirectories for train/val/test if they exist in input
+    for split in ['train', 'val', 'test']:
+        split_path = input_path / split
+        if split_path.exists():
+            (crops_dir / split).mkdir(exist_ok=True)
+
+    # Process images and collect metadata
+    metadata = []
+    processed_count = 0
+    crop_count = 0
+
+    # Get all image files
+    image_extensions = ['*.jpg', '*.jpeg', '*.png', '*.bmp', '*.tiff']
+    all_images = []
+
+    for split in ['train', 'val', 'test']:
+        split_path = input_path / split / "images"
+        if split_path.exists():
+            for ext in image_extensions:
+                all_images.extend([(img, split) for img in split_path.glob(ext)])
+
+    # If no split structure, process all images in input_dir
+    if not all_images:
+        for ext in image_extensions:
+            all_images.extend([(img, 'all') for img in input_path.glob(f"**/{ext}")])
+
+    print(f"📊 Found {len(all_images)} images to process")
+
+    # Process each image
+    for image_path, split in tqdm(all_images, desc="Generating crops"):
+        try:
+            crops = detect_and_crop(model, image_path, confidence, crop_size)
+            processed_count += 1
+
+            for i, crop_data in enumerate(crops):
+                # Generate crop filename
+                crop_filename = f"{image_path.stem}_crop_{i:03d}.jpg"
+
+                # Determine output path based on split
+                if split == 'all':
+                    crop_output_path = crops_dir / crop_filename
+                else:
+                    crop_output_path = crops_dir / split / crop_filename
+
+                # Save crop
+                cv2.imwrite(str(crop_output_path), crop_data['crop'])
+
+                # Add metadata
+                metadata.append({
+                    'original_image': str(image_path.relative_to(input_path)),
+                    'crop_filename': crop_filename,
+                    'split': split,
+                    'confidence': crop_data['confidence'],
+                    'bbox_x1': crop_data['bbox'][0],
+                    'bbox_y1': crop_data['bbox'][1],
+                    'bbox_x2': crop_data['bbox'][2],
+                    'bbox_y2': crop_data['bbox'][3],
+                    'crop_x1': crop_data['crop_coords'][0],
+                    'crop_y1': crop_data['crop_coords'][1],
+                    'crop_x2': crop_data['crop_coords'][2],
+                    'crop_y2': crop_data['crop_coords'][3],
+                    'dataset_source': dataset_name
+                })
+
+                crop_count += 1
+
+        except Exception as e:
+            print(f"❌ Error processing {image_path}: {e}")
+            continue
+
+    # Save metadata
+    if metadata:
+        metadata_df = pd.DataFrame(metadata)
+        metadata_df.to_csv(output_path / 'crop_metadata.csv', index=False)
+
+        print(f"\n✅ Processing completed:")
+        print(f"   📸 Images processed: {processed_count}")
+        print(f"   ✂️  Crops generated: {crop_count}")
+        print(f"   📊 Average crops per image: {crop_count/processed_count:.2f}")
+
+        # Show split distribution
+        if 'split' in metadata_df.columns:
+            split_counts = metadata_df['split'].value_counts()
+            print(f"   📂 Split distribution:")
+            for split, count in split_counts.items():
+                print(f"      {split}: {count} crops")
+
+        return metadata_df
+    else:
+        print("❌ No crops were generated!")
+        return None
+
+def create_yolo_classification_structure(crops_dir, metadata_df, output_dir):
+    """Create YOLO classification directory structure"""
+    yolo_dir = Path(output_dir) / "yolo_classification"
+
+    # For now, create single class structure (all crops are "parasite")
+    # Later this can be extended to use species labels if available
+
+    for split in ['train', 'val', 'test']:
+        split_crops = metadata_df[metadata_df['split'] == split]
+        if len(split_crops) > 0:
+            # Create parasite class directory
+            class_dir = yolo_dir / split / "parasite"
+            class_dir.mkdir(parents=True, exist_ok=True)
+
+            # Copy crops to class directory
+            for _, row in split_crops.iterrows():
+                src_path = Path(crops_dir) / split / row['crop_filename']
+                dst_path = class_dir / row['crop_filename']
+
+                if src_path.exists():
+                    import shutil
+                    shutil.copy2(src_path, dst_path)
+
+    print(f"✅ YOLO classification structure created at: {yolo_dir}")
+    return yolo_dir
 
 def main():
-    ap = argparse.ArgumentParser(description="Crop parasite regions into species-labeled classification dataset")
-    ap.add_argument("--use-gt-labels", action="store_true", help="Use ground-truth YOLO labels (default)")
-    ap.add_argument("--pred-weights", default="", help="Use model predictions with this weights path")
-    ap.add_argument("--padding", type=float, default=1.20, help="BBox padding factor (e.g., 1.2)")
-    ap.add_argument("--min-size", type=int, default=10, help="Discard crops smaller than this size (px)")
-    ap.add_argument("--conf", type=float, default=0.25, help="Confidence threshold if using predictions")
-    ap.add_argument("--output-size", type=int, default=96, help="Optional resize of crops to NxN (saves disk)")
-    ap.add_argument("--out-root", default=str(DEFAULT_OUT_ROOT), help="Output root for cropped classification dataset")
-    args = ap.parse_args()
+    parser = argparse.ArgumentParser(description="Generate crops from detection model")
+    parser.add_argument("--model", required=True,
+                       help="Path to trained detection model (best.pt)")
+    parser.add_argument("--input", required=True,
+                       help="Input dataset directory (with train/val/test/images structure)")
+    parser.add_argument("--output", required=True,
+                       help="Output directory for generated crops")
+    parser.add_argument("--confidence", type=float, default=0.25,
+                       help="Detection confidence threshold")
+    parser.add_argument("--crop_size", type=int, default=128,
+                       help="Size of generated crops")
+    parser.add_argument("--dataset_name", default="multispecies",
+                       help="Name of source dataset for metadata")
+    parser.add_argument("--create_yolo_structure", action="store_true",
+                       help="Create YOLO classification directory structure")
 
-    out_root = Path(args.out_root)
-    if args.use_gt_labels or not args.pred_weights:
-        crop_from_gt(padding=args.padding, min_size=args.min_size, output_size=args.output_size, out_root=out_root)
-    else:
-        crop_from_predictions(weights=args.pred_weights, padding=args.padding, min_size=args.min_size, conf=args.conf, output_size=args.output_size, out_root=out_root)
+    args = parser.parse_args()
 
-    print("\nNext step: Train the classifier on the cropped dataset using:")
-    print("  python scripts/07_train_yolo_quick.py --data", out_root)
+    print("=" * 60)
+    print("GENERATING CROPS FROM DETECTION MODEL")
+    print("=" * 60)
 
+    # Validate inputs
+    if not Path(args.model).exists():
+        print(f"❌ Model not found: {args.model}")
+        return
+
+    if not Path(args.input).exists():
+        print(f"❌ Input directory not found: {args.input}")
+        return
+
+    print(f"🎯 Detection model: {args.model}")
+    print(f"📁 Input dataset: {args.input}")
+    print(f"📂 Output directory: {args.output}")
+    print(f"🎚️  Confidence threshold: {args.confidence}")
+    print(f"📏 Crop size: {args.crop_size}x{args.crop_size}")
+
+    try:
+        # Load detection model
+        model = load_detection_model(args.model)
+
+        # Process dataset
+        metadata = process_dataset(
+            model=model,
+            input_dir=args.input,
+            output_dir=args.output,
+            dataset_name=args.dataset_name,
+            confidence=args.confidence,
+            crop_size=args.crop_size
+        )
+
+        if metadata is not None and args.create_yolo_structure:
+            # Create YOLO classification structure
+            crops_dir = Path(args.output) / "crops"
+            yolo_dir = create_yolo_classification_structure(
+                crops_dir, metadata, args.output
+            )
+
+        print(f"\n🎉 Crop generation completed successfully!")
+        print(f"📊 Results saved to: {args.output}")
+
+    except Exception as e:
+        print(f"❌ Error during processing: {e}")
+        return
 
 if __name__ == "__main__":
     main()

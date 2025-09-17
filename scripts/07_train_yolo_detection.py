@@ -28,14 +28,17 @@ def main():
     parser.add_argument("--device", default="cpu",
                        help="Device (cpu or cuda)")
     parser.add_argument("--model", default="yolov8n.pt",
-                       help="YOLOv8 model (yolov8n.pt, yolov8s.pt, yolov8m.pt)")
+                       help="YOLO family weights (e.g. yolov8n.pt, yolov10n.pt)")
+    parser.add_argument("--model-name", default="yolov8_detection",
+                       help="Results directory label (e.g. yolov10_detection)")
     parser.add_argument("--name", default="yolov8_malaria_detection",
                        help="Experiment name")
 
     args = parser.parse_args()
 
     print("=" * 60)
-    print("YOLOV8 MALARIA PARASITE DETECTION TRAINING")
+    title = f"{args.model_name.upper()} MALARIA PARASITE DETECTION TRAINING"
+    print(title)
     print("=" * 60)
 
     # Initialize Results Manager for organized folder structure
@@ -52,7 +55,7 @@ def main():
     # Get organized experiment path
     experiment_path = results_manager.get_experiment_path(
         experiment_type=experiment_type,
-        model_name="yolov8_detection",
+        model_name=args.model_name,
         experiment_name=args.name
     )
 
@@ -125,7 +128,7 @@ def main():
         print(f"   Precision: {val_results.box.mp:.4f}")
         print(f"   Recall: {val_results.box.mr:.4f}")
 
-    print("\\n✅ YOLOv8 detection training completed successfully!")
+    print(f"\\n✅ {args.model_name} training completed successfully!")
     print("\\n🎯 Next steps:")
     print("1. Evaluate detection performance")
     print("2. Train YOLOv11 for comparison")
