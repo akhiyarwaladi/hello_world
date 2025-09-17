@@ -128,7 +128,7 @@ python pipeline.py export --format journal    # Export hasil publikasi
 ```yaml
 models:
   yolov8_detection:
-    script: "python scripts/train_yolo_detection.py"
+    script: "python scripts/07_train_yolo_detection.py"
     type: "detection"
     args:
       epochs: 50

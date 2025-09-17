@@ -255,7 +255,7 @@ log "This will test both detection and classification training..."
 
 # Test detection training
 log "Testing YOLOv8 detection training (1 epoch)..."
-python scripts/10_train_yolo_detection.py \
+python pipeline.py train yolov8_detection --name setup_detection_run \
     --data data/detection_fixed/dataset.yaml \
     --epochs 40 \
     --batch 10 \
@@ -271,7 +271,7 @@ fi
 
 # Test classification training
 log "Testing classification training (1 epoch)..."
-python scripts/11_train_classification_crops.py \
+python pipeline.py train yolov8_classification --name setup_classification_run \
     --data data/classification_crops \
     --epochs 40 \
     --batch 10 \
@@ -378,12 +378,12 @@ echo ""
 echo "🚀 Ready for Production Training:"
 echo ""
 echo "# Full Detection Training (2-4 hours on CPU):"
-echo "python scripts/10_train_yolo_detection.py --epochs 30 --name yolov8_production"
+echo "python pipeline.py train yolov8_detection --epochs 30 --name yolov8_production"
 echo "python scripts/12_train_yolo11_detection.py --epochs 20 --name yolo11_production"
 echo "python scripts/13_train_rtdetr_detection.py --epochs 20 --name rtdetr_production"
 echo ""
 echo "# Full Classification Training (1-2 hours on CPU):"
-echo "python scripts/11_train_classification_crops.py --epochs 25 --name classification_production"
+echo "python pipeline.py train yolov8_classification --epochs 25 --name classification_production"
 echo ""
 echo "# Generate Final Research Report:"
 echo "python scripts/14_compare_models_performance.py --output results/final_comparison.md"

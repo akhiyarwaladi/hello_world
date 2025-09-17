@@ -285,9 +285,15 @@ def main():
 
     print("\nNext steps:")
     print("1. Train detection model:")
-    print(f"   python scripts/train_yolo_detection.py --data {det_output}/dataset.yaml")
+    print(
+        "   python pipeline.py train yolov8_detection "
+        f"--data {det_output}/dataset.yaml --name your_detection_run"
+    )
     print("2. Train classification model:")
-    print(f"   python scripts/train_classification_crops.py --data {cls_output}")
+    print(
+        "   python pipeline.py train yolov8_classification "
+        f"--data {cls_output} --name your_classification_run"
+    )
 
 if __name__ == "__main__":
     main()

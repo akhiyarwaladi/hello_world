@@ -73,9 +73,13 @@ def main():
     val_path = Path(args.data) / "val" / "parasite"
     test_path = Path(args.data) / "test" / "parasite"
 
-    train_count = len(list(train_path.glob("*.jpg")))
-    val_count = len(list(val_path.glob("*.jpg")))
-    test_count = len(list(test_path.glob("*.jpg")))
+    def count_images(path: Path) -> int:
+        supported = ("*.jpg", "*.jpeg", "*.png", "*.bmp")
+        return sum(len(list(path.glob(pattern))) for pattern in supported)
+
+    train_count = count_images(train_path)
+    val_count = count_images(val_path)
+    test_count = count_images(test_path)
 
     print(f"\\n📊 Dataset composition:")
     print(f"   Train: {train_count} images")

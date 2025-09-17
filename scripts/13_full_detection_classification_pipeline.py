@@ -23,7 +23,8 @@ def find_detection_model(detection_type, experiment_pattern="*"):
 
     # Detection type mapping
     detection_dirs = {
-        "yolo8": "yolo8_detection",
+        "yolo8": "yolov8_detection",
+        "yolo10": "yolov10_detection",
         "yolo11": "yolo11_detection",
         "rtdetr": "rtdetr_detection"
     }
@@ -46,11 +47,10 @@ def generate_crops_from_detection(model_path, detection_type, output_dir):
         return False
 
     cmd = [
-        "python", "scripts/12_generate_crops_from_detection.py",
+        "python", "scripts/10_crop_detections.py",
         "--model", model_path,
         "--input", "data/detection_multispecies",
         "--output", output_dir,
-        "--dataset_name", "multispecies",
         "--confidence", "0.25",
         "--crop_size", "128",
         "--create_yolo_structure"
@@ -120,11 +120,19 @@ def monitor_training(processes):
 def main():
     parser = argparse.ArgumentParser(description="Full Detection → Classification Pipeline")
     parser.add_argument("--detection_models", nargs="+",
-                       choices=["yolo8", "yolo11", "rtdetr", "all"],
+                       choices=["yolo8", "yolo10", "yolo11", "rtdetr", "all"],
                        default=["all"],
                        help="Detection models to process")
     parser.add_argument("--classification_models", nargs="+",
-                       choices=["yolo8", "yolo11", "resnet18", "efficientnet", "all"],
+                       choices=[
+                           "yolo8",
+                           "yolo11",
+                           "resnet18",
+                           "efficientnet",
+                           "densenet121",
+                           "mobilenet_v2",
+                           "all"
+                       ],
                        default=["all"],
                        help="Classification models to train")
     parser.add_argument("--monitor", action="store_true",
@@ -167,12 +175,26 @@ def main():
             "model": "efficientnet_b0",
             "epochs": 10,
             "batch": 8
+        },
+        "densenet121": {
+            "type": "pytorch",
+            "script": "scripts/11b_train_pytorch_classification.py",
+            "model": "densenet121",
+            "epochs": 10,
+            "batch": 8
+        },
+        "mobilenet_v2": {
+            "type": "pytorch",
+            "script": "scripts/11b_train_pytorch_classification.py",
+            "model": "mobilenet_v2",
+            "epochs": 10,
+            "batch": 8
         }
     }
 
     # Expand "all" selections
     if "all" in args.detection_models:
-        detection_models = ["yolo8", "yolo11", "rtdetr"]
+        detection_models = ["yolo8", "yolo10", "yolo11", "rtdetr"]
     else:
         detection_models = args.detection_models
 

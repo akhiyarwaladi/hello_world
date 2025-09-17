@@ -22,8 +22,8 @@ class LoggingIntegrator:
 
         # List of scripts to modify
         scripts_to_modify = [
-            "train_yolo_detection.py",
-            "train_classification_crops.py"
+            "07_train_yolo_detection.py",
+            "11_train_classification_crops.py"
         ]
 
         for script_name in scripts_to_modify:

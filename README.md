@@ -23,6 +23,29 @@
 - **Dataset Quality**: High-quality 1,242 parasite annotations with corrected coordinates
 - **Reproducible Pipeline**: Complete automation for research replication
 
+## 🚀 Unified Command-Line Interface
+
+`pipeline.py` kini membaca konfigurasi dari `config/models.yaml` sehingga Anda cukup memilih model yang sudah terdaftar.
+
+```bash
+# Lihat model yang siap dijalankan
+python pipeline.py list --detailed
+
+# Latih model sesuai konfigurasi (override parameter bila perlu)
+python pipeline.py train yolov8_detection --name demo_det
+python pipeline.py train yolov10_detection --name demo_det_v10 --set model=yolov10s.pt
+python pipeline.py train yolov8_classification --name demo_cls --set epochs=10
+python pipeline.py train pytorch_resnet18_classification --name demo_resnet
+
+# Gunakan --dry-run untuk melihat perintah tanpa mengeksekusi
+python pipeline.py train yolov11_detection --name debug --dry-run
+```
+
+Argumen umum yang bisa dioverride langsung: `--data`, `--epochs`, `--batch`, `--device`, `--imgsz`, `--model-weights`, atau gunakan `--set key=value` untuk opsi tambahan.
+
+**Deteksi yang tersedia:** `yolov8_detection`, `yolov10_detection`, `yolov11_detection`, `rtdetr_detection`  
+**Klasifikasi yang tersedia:** `yolov8_classification`, `yolov11_classification`, `pytorch_resnet18_classification`, `pytorch_efficientnet_b0_classification`, `pytorch_densenet121_classification`, `pytorch_mobilenet_v2_classification`
+
 ## 📁 Repository Structure
 
 ```
@@ -66,10 +89,15 @@ malaria-yolo-detection/
 │   ├── 04_convert_to_yolo.py       # Convert to YOLO format
 │   ├── 05_augment_data.py          # Data augmentation
 │   ├── 06_split_dataset.py         # Train/val/test split
-│   ├── 07_train_yolo.py            # YOLOv8 training script 🔄
-│   ├── 08_train_rtdetr.py          # RT-DETR training script
-│   ├── run_pipeline.py             # Manual pipeline execution
-│   ├── watch_pipeline.py           # Automated pipeline monitoring 🤖
+│   ├── 07_train_yolo_detection.py  # YOLOv8 detection training
+│   ├── 08_train_yolo11_detection.py# YOLOv11 detection training
+│   ├── 09_train_rtdetr_detection.py# RT-DETR detection training
+│   ├── 11_train_classification_crops.py  # YOLO classification training
+│   ├── 11b_train_pytorch_classification.py # Torch-based classifiers
+│   ├── 12_generate_crops_from_detection.py # Auto crop generation
+│   ├── 13_full_detection_classification_pipeline.py # Detection→classification orchestrator
+│   ├── run_full_pipeline.py        # Manual data pipeline execution
+│   └── watch_pipeline.py           # Automated pipeline monitoring 🤖
 │   └── utils/
 │       ├── __init__.py
 │       ├── download_utils.py       # Download helper functions
@@ -234,38 +262,38 @@ python scripts/01_download_datasets.py --dataset mp_idb,nih_cell
 python scripts/01_download_datasets.py --list-datasets
 ```
 
-### **Phase 2: Detection Dataset Preparation** ⏱️ ~10 mins
+### **Phase 2: Detection & Crop Dataset Preparation** ⏱️ ~10 mins
 ```bash
-# Parse MP-IDB with corrected bounding boxes
-python scripts/08_parse_mpid_detection.py --output-path data/detection_fixed
+# Bangun ulang dataset deteksi + klasifikasi multispecies lengkap
+python create_multispecies_dataset.py
 
-# Expected output:
-# - data/detection_fixed/images/ (103 images)
-# - data/detection_fixed/labels/ (103 YOLO labels)
-# - Total: 1,242 parasite bounding boxes
-```
+# atau gunakan deteksi terlatih untuk membuat crop baru
+python scripts/12_generate_crops_from_detection.py \
+    --model results/.../weights/best.pt \
+    --input data/detection_multispecies \
+    --output data/crops_from_yolo8_detection --create_yolo_structure
 
-### **Phase 3: Parasite Cropping** ⏱️ ~5 mins
-```bash
-# Extract individual parasites from detection boxes
-python scripts/09_crop_parasites_from_detection.py
-
-# Expected output:
-# - data/classification_crops/train/parasite/ (869 crops)
-# - data/classification_crops/val/parasite/ (186 crops)
-# - data/classification_crops/test/parasite/ (187 crops)
-# - Total: 1,242 cropped parasites (128x128px)
+# Output utama:
+# - data/detection_multispecies/ (YOLO detection format)
+# - data/classification_multispecies/ (species-aware crops)
+# - data/crops_from_*/yolo_classification/ (pipa deteksi→klasifikasi)
 ```
 
 ### **Phase 4: Model Training** ⏱️ ~2-8 hours
 ```bash
-# Detection Models
-python scripts/10_train_yolo_detection.py --epochs 30 --name yolov8_det
-python scripts/12_train_yolo11_detection.py --epochs 20 --name yolo11_det
-python scripts/13_train_rtdetr_detection.py --epochs 20 --name rtdetr_det
+# Detection models
+python pipeline.py train yolov8_detection --name yolov8_det --set epochs=30
+python pipeline.py train yolov10_detection --name yolov10_det --set epochs=30 --set model=yolov10s.pt
+python pipeline.py train yolov11_detection --name yolov11_det --set epochs=20
+python pipeline.py train rtdetr_detection --name rtdetr_det --set epochs=20
 
-# Classification Model
-python scripts/11_train_classification_crops.py --epochs 25 --name yolo8_cls
+# Classification models
+python pipeline.py train yolov8_classification --name yolo8_cls --set epochs=25
+python pipeline.py train yolov11_classification --name yolo11_cls --set epochs=25
+python pipeline.py train pytorch_resnet18_classification --name resnet18_cls --set epochs=25
+python pipeline.py train pytorch_efficientnet_b0_classification --name effnet_cls --set epochs=25
+python pipeline.py train pytorch_densenet121_classification --name densenet_cls --set epochs=25
+python pipeline.py train pytorch_mobilenet_v2_classification --name mobilenet_cls --set epochs=25
 ```
 
 ### **Phase 5: Performance Analysis** ⏱️ ~2 mins

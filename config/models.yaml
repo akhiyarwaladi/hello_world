@@ -6,6 +6,7 @@ models:
     script: "python scripts/07_train_yolo_detection.py"
     args:
       data: "data/detection_multispecies/dataset.yaml"
+      model_name: "yolov8_detection"
       epochs: 30
       batch: 8
       device: "cpu"
@@ -14,7 +15,23 @@ models:
       batch: 4
     description: "YOLOv8 detection for malaria parasites"
     # Output path for trained model weights
-    output_model_path: "results/current_experiments/training/detection/yolo8_detection/*/weights/best.pt"
+    output_model_path: "results/current_experiments/training/detection/yolov8_detection/*/weights/best.pt"
+
+  yolov10_detection:
+    type: "detection"
+    script: "python scripts/07_train_yolo_detection.py"
+    args:
+      data: "data/detection_multispecies/dataset.yaml"
+      model: "yolov10n.pt"
+      model_name: "yolov10_detection"
+      epochs: 30
+      batch: 8
+      device: "cpu"
+    validation_args:
+      epochs: 2
+      batch: 4
+    description: "YOLOv10 detection for malaria parasites"
+    output_model_path: "results/current_experiments/training/detection/yolov10_detection/*/weights/best.pt"
 
   yolov11_detection:
     type: "detection"
@@ -34,14 +51,13 @@ models:
 
   rtdetr_detection:
     type: "detection"
-    script: "yolo detect train"
+    script: "python scripts/09_train_rtdetr_detection.py"
     args:
       data: "data/detection_multispecies/dataset.yaml"
       model: "rtdetr-l.pt"
       epochs: 30
       batch: 4
       device: "cpu"
-      project: "results/pipeline_final"
     validation_args:
       epochs: 2
       batch: 2
@@ -63,18 +79,73 @@ models:
 
   yolov11_classification:
     type: "classification"
-    script: "yolo classify train"
+    script: "python scripts/11_train_classification_crops.py"
     args:
       data: "data/classification_multispecies"
       model: "yolo11n-cls.pt"
       epochs: 25
       batch: 8
       device: "cpu"
-      project: "results/pipeline_final"
     validation_args:
       epochs: 2
       batch: 4
     description: "YOLOv11 classification for malaria species"
+
+  pytorch_resnet18_classification:
+    type: "classification"
+    script: "python scripts/11b_train_pytorch_classification.py"
+    args:
+      data: "data/classification_multispecies"
+      model: "resnet18"
+      epochs: 25
+      batch: 8
+      device: "cpu"
+    validation_args:
+      epochs: 2
+      batch: 4
+    description: "PyTorch ResNet18 classification"
+
+  pytorch_efficientnet_b0_classification:
+    type: "classification"
+    script: "python scripts/11b_train_pytorch_classification.py"
+    args:
+      data: "data/classification_multispecies"
+      model: "efficientnet_b0"
+      epochs: 25
+      batch: 8
+      device: "cpu"
+    validation_args:
+      epochs: 2
+      batch: 4
+    description: "PyTorch EfficientNet-B0 classification"
+
+  pytorch_densenet121_classification:
+    type: "classification"
+    script: "python scripts/11b_train_pytorch_classification.py"
+    args:
+      data: "data/classification_multispecies"
+      model: "densenet121"
+      epochs: 25
+      batch: 8
+      device: "cpu"
+    validation_args:
+      epochs: 2
+      batch: 4
+    description: "PyTorch DenseNet121 classification"
+
+  pytorch_mobilenet_v2_classification:
+    type: "classification"
+    script: "python scripts/11b_train_pytorch_classification.py"
+    args:
+      data: "data/classification_multispecies"
+      model: "mobilenet_v2"
+      epochs: 25
+      batch: 8
+      device: "cpu"
+    validation_args:
+      epochs: 2
+      batch: 4
+    description: "PyTorch MobileNetV2 classification"
 
 # Integrated Detection + Classification Pipelines
 integrated_pipelines:
@@ -89,7 +160,10 @@ integrated_pipelines:
 
   yolov11_detection_multi_classification:
     detection_model: "yolov11_detection"
-    classification_models: ["yolov8_classification", "yolov11_classification"]
+    classification_models: [
+      "yolov8_classification",
+      "yolov11_classification"
+    ]
     crop_generation:
       script: "python scripts/12_generate_crops_from_detection.py"
       confidence: 0.25
@@ -98,7 +172,12 @@ integrated_pipelines:
 
   yolov11_detection_pytorch_classification:
     detection_model: "yolov11_detection"
-    classification_models: ["pytorch_resnet18", "pytorch_efficientnet_b0"]
+    classification_models: [
+      "pytorch_resnet18_classification",
+      "pytorch_efficientnet_b0_classification",
+      "pytorch_densenet121_classification",
+      "pytorch_mobilenet_v2_classification"
+    ]
     crop_generation:
       script: "python scripts/12_generate_crops_from_detection.py"
       confidence: 0.25
