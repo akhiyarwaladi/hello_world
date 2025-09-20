@@ -84,19 +84,19 @@ if [[ $AVAILABLE_STORAGE -lt 50 ]]; then
     warning "Available storage (${AVAILABLE_STORAGE}GB) < 50GB. May run out of space during setup."
 fi
 
-# Create virtual environment
-log "Creating Python virtual environment..."
-if [[ -d "venv" ]]; then
-    warning "Virtual environment already exists. Removing old environment..."
-    rm -rf venv
-fi
+## Create virtual environment
+#log "Creating Python virtual environment..."
+#if [[ -d "venv" ]]; then
+#    warning "Virtual environment already exists. Removing old environment..."
+#    rm -rf venv
+#fi
 
 #python3 -m venv venv
 #source venv/bin/activate
-success "Virtual environment created and activated"
+#success "Virtual environment created and activated"
 
 # Upgrade pip
-log "Upgrading pip..."
+#log "Upgrading pip..."
 #pip install --upgrade pip
 
 # Install dependencies

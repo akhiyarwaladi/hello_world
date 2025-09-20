@@ -1,0 +1,47 @@
+# Dataset Configuration for Malaria Detection Pipeline
+# This file configures various malaria datasets for download and processing
+
+datasets:
+  mp_idb:
+    name: "MP-IDB Malaria Parasite Image Database"
+    description: "Four-species malaria parasite dataset with annotations"
+    source: "GitHub"
+    url: "https://github.com/andrealoddo/MP-IDB-The-Malaria-Parasite-Image-Database-for-Image-Processing-and-Analysis.git"
+    species: ["Falciparum", "Malariae", "Ovale", "Vivax"]
+    total_images: 210
+    annotations: "CSV files with bounding boxes"
+    recommended: true
+
+  nih_cell:
+    name: "NIH Malaria Cell Images"
+    description: "Segmented cell images for binary classification"
+    source: "NIH"
+    url: "https://data.lhncbc.nlm.nih.gov/public/Malaria/cell_images.zip"
+    classes: ["Parasitized", "Uninfected"]
+    total_images: 27558
+    recommended: false
+
+  kaggle_nih:
+    name: "Kaggle NIH Dataset"
+    description: "Alternative source for NIH cell images"
+    source: "Kaggle"
+    dataset_id: "iarunava/cell-images-for-detecting-malaria"
+    classes: ["Parasitized", "Uninfected"]
+    total_images: 27558
+    recommended: false
+
+# Download settings
+download:
+  base_directory: "data/raw"
+  chunk_size: 8192
+  verify_ssl: true
+  skip_existing: true
+
+# Processing settings
+processing:
+  default_split:
+    train: 0.7
+    val: 0.15
+    test: 0.15
+  image_formats: [".jpg", ".jpeg", ".png", ".bmp", ".tiff"]
+  max_retries: 3
