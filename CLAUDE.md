@@ -33,13 +33,17 @@ python pipeline.py train yolov11_classification --name auto_yolov11_cls --data d
 
 ## ⚡ COMPLETE AUTOMATION - ONE COMMAND
 ```bash
-# NEW: TRUE FULL PIPELINE (trains detection first)
+# SINGLE MODEL: Train one detection model with classification
 python run_complete_pipeline.py --detection yolo8 --epochs-det 50 --epochs-cls 30
+
+# ALL MODELS: Train ALL detection models sequentially (YOLO8, YOLO11, RT-DETR)
+python run_all_models_pipeline.py --epochs-det 50 --epochs-cls 30
 
 # OLD: Bulk processing (assumes detection models already exist)
 python scripts/13_full_detection_classification_pipeline.py --detection yolo8
 ```
 **Full automation**: Runs all 3 stages sequentially with automatic data flow
+**All models**: Sequential execution of all detection models with classification
 
 ## 🔗 AUTOMATIC DATA FLOW BETWEEN STAGES
 
