@@ -30,11 +30,17 @@ class ClassificationDeepAnalyzer:
 
     def __init__(self,
                  model_path="results/current_experiments/training/classification/yolov8_classification/multi_pipeline_20250920_131500_yolo8_cls/weights/best.pt",
-                 test_data_path="data/crops_from_yolo8_multi_pipeline_20250920_131500_yolo8_det/yolo_classification/test"):
+                 test_data_path="data/crops_from_yolo8_multi_pipeline_20250920_131500_yolo8_det/yolo_classification/test",
+                 output_dir=None):
 
         self.model_path = Path(model_path)
         self.test_data_path = Path(test_data_path)
-        self.output_dir = Path(f"analysis_output_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
+
+        if output_dir:
+            self.output_dir = Path(output_dir)
+        else:
+            self.output_dir = Path(f"analysis_output_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
+
         self.output_dir.mkdir(exist_ok=True)
 
         # Species mapping based on journal paper
@@ -498,13 +504,32 @@ The actual model performance should be evaluated using Top-1 accuracy and per-cl
 
 def main():
     """Main function to run the analysis"""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Deep Classification Analysis for Malaria Detection")
+    parser.add_argument("--model", required=False,
+                       help="Path to classification model weights (.pt file)")
+    parser.add_argument("--test-data", required=False,
+                       help="Path to test data directory")
+    parser.add_argument("--output", required=False,
+                       help="Output directory for analysis results")
+
+    args = parser.parse_args()
+
     print("🔬 DEEP CLASSIFICATION ANALYSIS")
-    print("Investigating suspicious 100% top-5 accuracy in YOLOv8 classification")
     print("Following IEEE journal methodology for malaria classification")
     print("="*70)
 
-    # Initialize analyzer
-    analyzer = ClassificationDeepAnalyzer()
+    # Initialize analyzer with provided arguments
+    if args.model and args.test_data:
+        analyzer = ClassificationDeepAnalyzer(
+            model_path=args.model,
+            test_data_path=args.test_data,
+            output_dir=args.output
+        )
+    else:
+        # Use default paths if not provided
+        analyzer = ClassificationDeepAnalyzer()
 
     # Run complete analysis
     success = analyzer.run_complete_analysis()

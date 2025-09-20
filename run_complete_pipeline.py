@@ -65,7 +65,7 @@ def main():
 
     # STAGE 1: Train Detection Model
     cmd1 = [
-        "python", "pipeline.py", "train", detection_model,
+        "python3", "pipeline.py", "train", detection_model,
         "--name", det_exp_name,
         "--epochs", str(args.epochs_det)
     ]
@@ -82,7 +82,7 @@ def main():
     output_path = f"data/crops_from_{args.detection}_{det_exp_name}"
 
     cmd2 = [
-        "python", "scripts/training/10_crop_detections.py",
+        "python3", "scripts/training/10_crop_detections.py",
         "--model", model_path,
         "--input", input_path,
         "--output", output_path,
@@ -99,7 +99,7 @@ def main():
     crop_data_path = f"data/crops_from_{args.detection}_{det_exp_name}/yolo_classification"
 
     cmd3 = [
-        "python", "pipeline.py", "train", "yolov8_classification",
+        "python3", "pipeline.py", "train", "yolov8_classification",
         "--name", cls_exp_name,
         "--epochs", str(args.epochs_cls),
         "--data", crop_data_path

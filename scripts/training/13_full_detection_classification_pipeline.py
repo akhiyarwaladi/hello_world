@@ -47,7 +47,7 @@ def generate_crops_from_detection(model_path, detection_type, output_dir):
         return False
 
     cmd = [
-        "python", "scripts/10_crop_detections.py",
+        "python3", "scripts/10_crop_detections.py",
         "--model", model_path,
         "--input", "data/detection_multispecies",
         "--output", output_dir,
@@ -80,7 +80,7 @@ def train_classification_models(crop_data_path, detection_type, classification_m
         experiment_name = f"{detection_type}_det_to_{model_name.replace('-', '_')}_cls"
 
         cmd = [
-            "NNPACK_DISABLE=1", "python", script,
+            "NNPACK_DISABLE=1", "python3", script,
             "--data", crop_data_path,
             "--model", model_name,
             "--epochs", str(epochs),
