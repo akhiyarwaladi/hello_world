@@ -1,0 +1,45 @@
+{
+  "experiment_info": {
+    "detection_model": "YOLO8",
+    "classification_model": "YOLO8",
+    "detection_experiment": "multi_pipeline_20250920_194433_TEST_yolo8_det",
+    "classification_experiment": "multi_pipeline_20250920_194433_TEST_yolo8_yolo8_cls",
+    "timestamp": "2025-09-20 19:46:43"
+  },
+  "detection": {
+    "epochs": 2,
+    "mAP50": 0.24925,
+    "mAP50_95": 0.19103,
+    "precision": 0.0038,
+    "recall": 1.0
+  },
+  "classification": {
+    "model_type": "yolo8",
+    "epochs": 2,
+    "top1_accuracy": 0.57143,
+    "top5_accuracy": 1.0
+  },
+  "iou_analysis": {
+    "iou_0.3": {
+      "iou_threshold": 0.3,
+      "map50": 0.29190599984611737,
+      "map50_95": 0.18038921157417515,
+      "precision": 0.008687766878672017,
+      "recall": 0.9019607843137255
+    },
+    "iou_0.5": {
+      "iou_threshold": 0.5,
+      "map50": 0.264914950426263,
+      "map50_95": 0.1770288053313483,
+      "precision": 0.004336009864328589,
+      "recall": 1.0
+    },
+    "iou_0.7": {
+      "iou_threshold": 0.7,
+      "map50": 0.23970149032594285,
+      "map50_95": 0.17840170750048595,
+      "precision": 0.0037592730017119574,
+      "recall": 1.0
+    }
+  }
+}
