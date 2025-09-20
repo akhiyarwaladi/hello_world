@@ -54,14 +54,29 @@ models:
     script: "python scripts/training/09_train_rtdetr_detection.py"
     args:
       data: "data/integrated/yolo/dataset.yaml"
-      model: "rtdetr-l.pt"
-      epochs: 30
+      model: "rtdetr-s.pt"
+      epochs: 50
+      batch: 8
+      device: "cpu"
+    validation_args:
+      epochs: 5
       batch: 4
+    description: "RT-DETR detection for malaria parasites (Small model, optimized for small datasets)"
+
+  yolov12_detection:
+    type: "detection"
+    script: "python scripts/training/12_train_yolo12_detection.py"
+    args:
+      data: "data/integrated/yolo/dataset.yaml"
+      model: "yolo12n.pt"
+      epochs: 30
+      batch: 8
       device: "cpu"
     validation_args:
       epochs: 2
-      batch: 2
-    description: "RT-DETR detection for malaria parasites"
+      batch: 4
+    description: "YOLOv12 detection for malaria parasites (Attention-centric architecture)"
+    output_model_path: "results/current_experiments/training/detection/yolov12_detection/*/weights/best.pt"
 
   # Classification Models
   yolov8_classification:

@@ -29,7 +29,7 @@ def run_command(cmd, description):
 
 def main():
     parser = argparse.ArgumentParser(description="Complete Pipeline: Train Detection → Generate Crops → Train Classification")
-    parser.add_argument("--detection", choices=["yolo8", "yolo11", "rtdetr"], required=True,
+    parser.add_argument("--detection", choices=["yolo8", "yolo11", "yolo12", "rtdetr"], required=True,
                        help="Detection model to train")
     parser.add_argument("--epochs-det", type=int, default=50,
                        help="Epochs for detection training")
@@ -50,6 +50,7 @@ def main():
     detection_models = {
         "yolo8": "yolov8_detection",
         "yolo11": "yolov11_detection",
+        "yolo12": "yolov12_detection",
         "rtdetr": "rtdetr_detection"
     }
 
