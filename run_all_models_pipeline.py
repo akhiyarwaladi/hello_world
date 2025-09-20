@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 RUN ALL MODELS PIPELINE: Sequential execution of all detection models
-Runs YOLO8, YOLO11, and RT-DETR sequentially with classification for each
+Runs YOLO8, YOLO11, YOLO12, and RT-DETR sequentially with classification for each
 """
 
 import os
@@ -44,7 +44,7 @@ def main():
     print(f"Experiment Name: {args.experiment_name}")
 
     # All detection models to run
-    detection_models = ["yolo8", "yolo11", "rtdetr"]
+    detection_models = ["yolo8", "yolo11", "yolo12", "rtdetr"]
 
     successful_models = []
     failed_models = []
@@ -93,6 +93,7 @@ def main():
         model_mapping = {
             "yolo8": "yolov8_detection",
             "yolo11": "yolov11_detection",
+            "yolo12": "yolov12_detection",
             "rtdetr": "rtdetr_detection"
         }
         detection_model = model_mapping[model]

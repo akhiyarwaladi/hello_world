@@ -1,0 +1,11 @@
+model_type,experiment,epochs,training_time,mAP50,mAP50_95,precision,recall,path
+yolov8,full_pipeline_detection_test,10,753.85,0.7598,0.37084,0.70236,0.72727,results/current_experiments/validation/detection/yolov8_detection/full_pipeline_detection_test
+yolov8,validation_yolov8_detection_1757899629,2,87.4357,0.02436,0.00927,0.02515,0.6256,results/current_experiments/validation/detection/yolov8_detection/validation_yolov8_detection_1757899629
+yolov8,test_yolo8_det,1,173.686,0.01925,0.00743,0.01258,0.55981,results/current_experiments/validation/detection/yolov8_detection/test_yolo8_det
+yolov8,full_pipeline_test_detection,10,653.684,0.85219,0.41006,0.82893,0.83463,results/current_experiments/validation/detection/yolov8_detection/full_pipeline_test_detection
+yolov8,test_simplified_yolo8_det,1,41.2642,0.32018,0.17283,0.00358,1.0,results/current_experiments/validation/detection/yolov8_detection/test_simplified_yolo8_det
+yolov8,test_cleaned_scripts,1,67.5739,0.37394,0.17991,0.52723,0.33655,results/current_experiments/validation/detection/yolov8_detection/test_cleaned_scripts
+yolov8,test_all_models_yolo8_yolo8_det,1,41.6791,0.32018,0.17283,0.00358,1.0,results/current_experiments/validation/detection/yolov8_detection/test_all_models_yolo8_yolo8_det
+yolov8,test_organized_folders,1,53.8154,0.37394,0.17991,0.52723,0.33655,results/current_experiments/validation/detection/yolov8_detection/test_organized_folders
+yolo11,test_all_models_yolo11_yolo11_det,1,42.0305,0.27174,0.19749,0.00347,1.0,results/current_experiments/validation/detection/yolo11_detection/test_all_models_yolo11_yolo11_det
+rtdetr,test_all_models_rtdetr_rtdetr_det,1,377.432,0.01279,0.01029,0.00363,0.66667,results/current_experiments/validation/detection/rtdetr_detection/test_all_models_rtdetr_rtdetr_det
