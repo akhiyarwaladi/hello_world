@@ -9,6 +9,7 @@ import sys
 import argparse
 import cv2
 import numpy as np
+import subprocess
 from pathlib import Path
 from ultralytics import YOLO
 import pandas as pd
@@ -219,6 +220,8 @@ def main():
                        help="Name of source dataset for metadata")
     parser.add_argument("--create_yolo_structure", action="store_true",
                        help="Create YOLO classification directory structure")
+    parser.add_argument("--fix_classification_structure", action="store_true",
+                       help="Fix classification structure to use 4 malaria species classes")
 
     args = parser.parse_args()
 
@@ -261,6 +264,21 @@ def main():
             yolo_dir = create_yolo_classification_structure(
                 crops_dir, metadata, args.output
             )
+
+            # Fix classification structure if requested
+            if args.fix_classification_structure:
+                print(f"\n🔧 Fixing classification structure for 4 malaria species...")
+                fix_cmd = [
+                    "python", "fix_classification_structure.py",
+                    "--crop_data_path", args.output,
+                    "--input_path", args.input
+                ]
+
+                result = subprocess.run(fix_cmd, capture_output=False, text=True)
+                if result.returncode == 0:
+                    print(f"✅ Classification structure fixed successfully!")
+                else:
+                    print(f"❌ Failed to fix classification structure")
 
         print(f"\n🎉 Crop generation completed successfully!")
         print(f"📊 Results saved to: {args.output}")
