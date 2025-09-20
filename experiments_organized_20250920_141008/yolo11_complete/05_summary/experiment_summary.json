@@ -1,0 +1,17 @@
+{
+  "experiment_info": {
+    "model": "YOLO11",
+    "detection_experiment": "multi_pipeline_20250920_131500_yolo11_det",
+    "classification_experiment": "multi_pipeline_20250920_131500_yolo11_cls",
+    "organized_timestamp": "2025-09-20 14:10:11",
+    "original_experiment_pattern": "multi_pipeline_20250920_131500"
+  },
+  "detection": {
+    "epochs": 33,
+    "mAP50": 0.98464,
+    "mAP50_95": 0.97839,
+    "precision": 0.90993,
+    "recall": 0.93412,
+    "training_time_sec": 803.12
+  }
+}
