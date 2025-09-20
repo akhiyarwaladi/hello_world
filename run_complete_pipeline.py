@@ -10,6 +10,7 @@ import argparse
 import subprocess
 import time
 from pathlib import Path
+from datetime import datetime
 
 def run_command(cmd, description):
     """Run command with logging"""
@@ -40,11 +41,15 @@ def main():
 
     args = parser.parse_args()
 
+    # Add timestamp to experiment name for uniqueness
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    base_exp_name = f"{args.experiment_name}_{timestamp}"
+
     print("🎯 COMPLETE DETECTION → CLASSIFICATION PIPELINE")
     print(f"Detection Model: {args.detection}")
     print(f"Detection Epochs: {args.epochs_det}")
     print(f"Classification Epochs: {args.epochs_cls}")
-    print(f"Experiment Name: {args.experiment_name}")
+    print(f"Experiment Name: {base_exp_name}")
 
     # Model mapping
     detection_models = {
@@ -55,8 +60,8 @@ def main():
     }
 
     detection_model = detection_models[args.detection]
-    det_exp_name = f"{args.experiment_name}_{args.detection}_det"
-    cls_exp_name = f"{args.experiment_name}_{args.detection}_cls"
+    det_exp_name = f"{base_exp_name}_{args.detection}_det"
+    cls_exp_name = f"{base_exp_name}_{args.detection}_cls"
 
     # STAGE 1: Train Detection Model
     cmd1 = [
