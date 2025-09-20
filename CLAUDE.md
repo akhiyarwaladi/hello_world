@@ -215,6 +215,100 @@ config/models.yaml                       # Model configurations
 - **Advanced Monitoring**: Clear status tracking tools
 - **Error Resilience**: Continue on failures
 
+## 📁 Output Organization (CLEAN STRUCTURE)
+
+### Pipeline Outputs
+```
+results/current_experiments/
+├── training/           # Normal mode (full epochs)
+│   ├── detection/
+│   └── classification/
+└── validation/         # Test mode (--test-mode)
+    ├── detection/
+    └── classification/
+```
+
+### Analysis & Reports
+```
+experiments/            # Complete pipeline analyses
+├── multi_pipeline_*_complete/
+│   ├── analysis/
+│   │   ├── comprehensive_confusion_matrix.png
+│   │   ├── detailed_metrics.json
+│   │   ├── journal_style_analysis.md
+│   │   └── iou_variation/
+│   ├── experiment_summary.json
+│   └── experiment_summary.md
+```
+
+### Data Storage
+```
+data/
+├── crops_from_*_*/     # Generated crops from detection models
+├── integrated/         # Base datasets
+└── raw/               # Original downloaded data
+```
+
+**IMPORTANT**: All pipeline outputs now stay within designated folders:
+- ✅ `results/` - Training outputs
+- ✅ `experiments/` - Analysis reports
+- ✅ `data/` - Datasets and crops
+- ❌ No scattered folders in root directory
+
+## 🏗️ Complete Codebase Architecture
+
+### Core Pipeline Components
+```
+pipeline.py                          # Unified CLI interface
+run_complete_pipeline.py             # Single model automation
+run_multiple_models_pipeline.py      # Multi-model automation with analysis
+```
+
+### Directory Structure
+```
+├── config/                   # All configuration files
+│   ├── models.yaml          # Model definitions & parameters
+│   ├── datasets.yaml        # Dataset sources & classes
+│   └── results_structure.yaml # Results organization
+├── scripts/
+│   ├── data_setup/          # Dataset preparation (4 scripts)
+│   ├── training/            # All training scripts
+│   │   ├── 07_train_yolo_detection.py      # YOLOv8 detection
+│   │   ├── 08_train_yolo11_detection.py    # YOLOv11 detection
+│   │   ├── 09_train_rtdetr_detection.py    # RT-DETR detection
+│   │   ├── 10_crop_detections.py           # Stage 2: Crop generation
+│   │   ├── 11_train_classification_crops.py # YOLO classification
+│   │   ├── 11b_train_pytorch_classification.py # PyTorch models
+│   │   ├── 12_train_yolo12_detection.py    # YOLOv12 detection
+│   │   └── 13_full_detection_classification_pipeline.py # Bulk processing
+│   └── analysis/            # Standalone analysis tools
+│       ├── 14_compare_models_performance.py # Model comparison + IoU
+│       ├── classification_deep_analysis.py  # Classification analysis
+│       └── unified_journal_analysis.py     # Publication reports
+├── utils/                   # Utility functions
+│   ├── results_manager.py   # Auto results organization
+│   ├── experiment_logger.py # Comprehensive logging
+│   └── image_utils.py       # Image processing
+└── models/                  # Pre-trained model storage
+```
+
+### Available Models
+**Detection Models:**
+- YOLOv8 (`yolo8`) - Fast and accurate
+- YOLOv11 (`yolo11`) - Latest YOLO version
+- YOLOv12 (`yolo12`) - Newest YOLO variant
+- RT-DETR (`rtdetr`) - Transformer-based
+
+**Classification Models:**
+- YOLO Classification (`yolo8`, `yolo11`) - YOLO-based classifiers
+- PyTorch Models: ResNet18, EfficientNet-B0, DenseNet121, MobileNetV2
+
+### Auto-Discovery & Data Flow
+1. **Stage 1→2**: Detection models auto-discovered via pattern matching
+2. **Stage 2→3**: Crop data paths auto-passed to classification
+3. **Folder Routing**: `training/` vs `validation/` based on experiment names
+4. **Analysis Integration**: Standalone scripts can run independently
+
 ## 🚨 Important Notes for Claude
 
 ### 🆕 FRESH MACHINE SETUP (FROM ZERO TO RESULTS)
@@ -239,6 +333,26 @@ python run_multiple_models_pipeline.py --exclude rtdetr --epochs-det 40 --epochs
 
 # Alternative: Single model pipeline
 python run_complete_pipeline.py --detection yolo8 --epochs-det 40 --epochs-cls 30
+```
+
+## 📋 Recent Pipeline Commands Reference
+
+### Latest Multiple Classification Test
+```bash
+# Test mode dengan multiple classification models (YOLO8 + YOLO11)
+python3 run_multiple_models_pipeline.py --exclude-detection rtdetr --epochs-det 2 --epochs-cls 2 --test-mode --classification-models yolo8 yolo11
+```
+
+### Common Command Patterns
+```bash
+# Quick test mode (single classification)
+python3 run_multiple_models_pipeline.py --exclude-detection yolo11 yolo12 rtdetr --epochs-det 2 --epochs-cls 2 --test-mode --classification-models yolo8
+
+# Production training (exclude RT-DETR)
+python3 run_multiple_models_pipeline.py --exclude rtdetr --epochs-det 30 --epochs-cls 30
+
+# RT-DETR only test
+python3 run_multiple_models_pipeline.py --exclude-detection yolo8 yolo11 yolo12 --epochs-det 5 --epochs-cls 5 --test-mode --classification-models yolo8
 ```
 
 **NOTE**: The old `quick_setup_new_machine.sh` references missing scripts:

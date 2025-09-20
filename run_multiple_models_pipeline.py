@@ -258,8 +258,10 @@ def main():
     if args.test_mode:
         confidence_threshold = "0.01"  # Lower threshold for test mode with few epochs
         print("🧪 TEST MODE ENABLED")
+        print(f"🎯 Using confidence threshold: {confidence_threshold}")
     else:
         confidence_threshold = "0.25"
+        print(f"🎯 Using confidence threshold: {confidence_threshold}")
 
     # Add timestamp to experiment name for uniqueness
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
