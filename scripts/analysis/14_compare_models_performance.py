@@ -929,17 +929,161 @@ This analysis provides insights into the performance of different detection-clas
 
         print(f"📋 Comprehensive report generated: {self.output_dir}/performance_report.md")
 
+    def run_iou_analysis(self, model_path, output_dir, iou_thresholds=[0.3, 0.5, 0.7], data_yaml="data/integrated/yolo/data.yaml"):
+        """
+        Run IoU variation analysis on detection model
+
+        Args:
+            model_path: Path to detection model weights (.pt file)
+            output_dir: Directory to save results
+            iou_thresholds: List of IoU thresholds to test
+            data_yaml: Path to YOLO data.yaml file
+        """
+        try:
+            from ultralytics import YOLO
+            import json
+            import pandas as pd
+
+            # Create output directory
+            Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+            # Load detection model
+            model = YOLO(model_path)
+            print(f"📦 Loaded model: {model_path}")
+
+            results_summary = {}
+
+            for iou_thresh in iou_thresholds:
+                print(f"🎯 Testing IoU threshold: {iou_thresh}")
+
+                # Run validation on TEST SET
+                metrics = model.val(
+                    data=data_yaml,
+                    split='test',  # Use test set for independent evaluation
+                    iou=iou_thresh,
+                    verbose=False,
+                    save=False
+                )
+
+                # Extract key metrics
+                results_summary[f"iou_{iou_thresh:.1f}"] = {
+                    "iou_threshold": iou_thresh,
+                    "map50": float(metrics.box.map50),
+                    "map50_95": float(metrics.box.map),
+                    "precision": float(metrics.box.mp),
+                    "recall": float(metrics.box.mr)
+                }
+
+                print(f"   mAP@0.5: {metrics.box.map50:.3f}")
+                print(f"   mAP@0.5:0.95: {metrics.box.map:.3f}")
+                print(f"   Precision: {metrics.box.mp:.3f}")
+                print(f"   Recall: {metrics.box.mr:.3f}")
+
+            # Save results JSON
+            with open(Path(output_dir) / "iou_variation_results.json", 'w') as f:
+                json.dump(results_summary, f, indent=2)
+
+            # Create comparison table
+            comparison_data = []
+            for metrics in results_summary.values():
+                comparison_data.append({
+                    "IoU_Threshold": metrics["iou_threshold"],
+                    "mAP@0.5": f"{metrics['map50']:.3f}",
+                    "mAP@0.5:0.95": f"{metrics['map50_95']:.3f}",
+                    "Precision": f"{metrics['precision']:.3f}",
+                    "Recall": f"{metrics['recall']:.3f}"
+                })
+
+            pd.DataFrame(comparison_data).to_csv(Path(output_dir) / "iou_comparison_table.csv", index=False)
+
+            # Create markdown report
+            best_result = max(results_summary.values(), key=lambda x: x['map50'])
+
+            md_content = f"""# IoU Variation Analysis
+
+## Performance at Different IoU Thresholds (TEST SET)
+
+| IoU Threshold | mAP@0.5 | mAP@0.5:0.95 | Precision | Recall |
+|---------------|---------|--------------|-----------|--------|
+"""
+
+            for data in comparison_data:
+                md_content += f"| {data['IoU_Threshold']} | {data['mAP@0.5']} | {data['mAP@0.5:0.95']} | {data['Precision']} | {data['Recall']} |\n"
+
+            md_content += f"""
+## Summary
+- **Best Performance**: mAP@0.5={best_result['map50']:.3f} at IoU={best_result['iou_threshold']}
+- **Model**: {Path(model_path).name}
+- **Evaluation**: TEST SET (independent)
+
+## Files Generated
+- `iou_variation_results.json`: Raw metrics data
+- `iou_comparison_table.csv`: Comparison table
+- `iou_analysis_report.md`: This report
+"""
+
+            with open(Path(output_dir) / "iou_analysis_report.md", 'w') as f:
+                f.write(md_content)
+
+            print(f"\n✅ IoU analysis completed!")
+            print(f"📁 Results saved to: {output_dir}")
+            print(f"📊 Best mAP@0.5: {best_result['map50']:.3f} at IoU={best_result['iou_threshold']}")
+
+            return results_summary
+
+        except Exception as e:
+            print(f"❌ IoU analysis failed: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+
 def main():
     parser = argparse.ArgumentParser(description="Compare Malaria Detection Model Performance")
     parser.add_argument("--results_dir", default="results/current_experiments", help="Results directory")
     parser.add_argument("--monitor", action="store_true", help="Continuous monitoring mode")
     parser.add_argument("--report", action="store_true", help="Generate comprehensive report")
 
+    # IoU Analysis arguments
+    parser.add_argument("--iou-analysis", action="store_true", help="Run IoU variation analysis")
+    parser.add_argument("--model", help="Path to detection model for IoU analysis (.pt file)")
+    parser.add_argument("--output", help="Output directory for IoU analysis results")
+    parser.add_argument("--iou-thresholds", nargs="+", type=float, default=[0.3, 0.5, 0.7],
+                       help="IoU thresholds to test (default: 0.3 0.5 0.7)")
+    parser.add_argument("--data-yaml", default="data/integrated/yolo/data.yaml",
+                       help="Path to YOLO data.yaml file")
+
     args = parser.parse_args()
 
     analyzer = MalariaPerformanceAnalyzer(args.results_dir)
 
-    if args.monitor:
+    if args.iou_analysis:
+        # Run IoU analysis
+        if not args.model:
+            print("❌ --model is required for IoU analysis")
+            return 1
+        if not args.output:
+            print("❌ --output is required for IoU analysis")
+            return 1
+
+        print("🔬 IoU VARIATION ANALYSIS")
+        print(f"Model: {args.model}")
+        print(f"Output: {args.output}")
+        print(f"IoU Thresholds: {args.iou_thresholds}")
+
+        results = analyzer.run_iou_analysis(
+            model_path=args.model,
+            output_dir=args.output,
+            iou_thresholds=args.iou_thresholds,
+            data_yaml=args.data_yaml
+        )
+
+        if results:
+            print("\n🎉 IoU analysis completed successfully!")
+        else:
+            print("\n❌ IoU analysis failed!")
+            return 1
+
+    elif args.monitor:
         analyzer.monitor_active_experiments()
     elif args.report:
         analyzer.generate_comprehensive_report()

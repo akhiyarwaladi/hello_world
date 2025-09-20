@@ -1,0 +1,568 @@
+nohup: ignoring input
+============================================================
+YOLOV8_DETECTION MALARIA PARASITE DETECTION TRAINING
+============================================================
+📁 Using dataset: data/integrated/yolo/dataset.yaml
+🎯 Model: yolov8n.pt
+📊 Epochs: 2
+🖼️  Image size: 640
+📦 Batch size: 8
+💻 Device: cpu
+\n🚀 Loading yolov8n.pt model...
+\n⏱️  Starting detection training...
+Ultralytics 8.3.202 🚀 Python-3.12.3 torch-2.8.0+cu128 CPU (Intel Xeon CPU @ 2.20GHz)
+[34m[1mengine/trainer: [0magnostic_nms=False, amp=True, augment=False, auto_augment=randaugment, batch=8, bgr=0.0, box=7.5, cache=True, cfg=None, classes=None, close_mosaic=10, cls=0.5, compile=False, conf=None, copy_paste=0.0, copy_paste_mode=flip, cos_lr=False, cutmix=0.0, data=data/integrated/yolo/dataset.yaml, degrees=0.0, deterministic=True, device=cpu, dfl=1.5, dnn=False, dropout=0.0, dynamic=False, embed=None, epochs=2, erasing=0.4, exist_ok=True, fliplr=0.5, flipud=0.0, format=torchscript, fraction=1.0, freeze=None, half=False, hsv_h=0.015, hsv_s=0.7, hsv_v=0.4, imgsz=640, int8=False, iou=0.7, keras=False, kobj=1.0, line_width=None, lr0=0.01, lrf=0.01, mask_ratio=4, max_det=300, mixup=0.0, mode=train, model=yolov8n.pt, momentum=0.937, mosaic=1.0, multi_scale=False, name=multi_pipeline_20250920_164342_TEST_yolo8_det, nbs=64, nms=False, opset=None, optimize=False, optimizer=auto, overlap_mask=True, patience=10, perspective=0.0, plots=True, pose=12.0, pretrained=True, profile=False, project=results/current_experiments/validation/detection/yolov8_detection, rect=False, resume=False, retina_masks=False, save=True, save_conf=False, save_crop=False, save_dir=/home/akhiyarwaladi/hello_world/results/current_experiments/validation/detection/yolov8_detection/multi_pipeline_20250920_164342_TEST_yolo8_det, save_frames=False, save_json=False, save_period=10, save_txt=False, scale=0.5, seed=0, shear=0.0, show=False, show_boxes=True, show_conf=True, show_labels=True, simplify=True, single_cls=False, source=None, split=val, stream_buffer=False, task=detect, time=None, tracker=botsort.yaml, translate=0.1, val=True, verbose=True, vid_stride=1, visualize=False, warmup_bias_lr=0.1, warmup_epochs=3.0, warmup_momentum=0.8, weight_decay=0.0005, workers=4, workspace=None
+Overriding model.yaml nc=80 with nc=4
+
+                   from  n    params  module                                       arguments                     
+  0                  -1  1       464  ultralytics.nn.modules.conv.Conv             [3, 16, 3, 2]                 
+  1                  -1  1      4672  ultralytics.nn.modules.conv.Conv             [16, 32, 3, 2]                
+  2                  -1  1      7360  ultralytics.nn.modules.block.C2f             [32, 32, 1, True]             
+  3                  -1  1     18560  ultralytics.nn.modules.conv.Conv             [32, 64, 3, 2]                
+  4                  -1  2     49664  ultralytics.nn.modules.block.C2f             [64, 64, 2, True]             
+  5                  -1  1     73984  ultralytics.nn.modules.conv.Conv             [64, 128, 3, 2]               
+  6                  -1  2    197632  ultralytics.nn.modules.block.C2f             [128, 128, 2, True]           
+  7                  -1  1    295424  ultralytics.nn.modules.conv.Conv             [128, 256, 3, 2]              
+  8                  -1  1    460288  ultralytics.nn.modules.block.C2f             [256, 256, 1, True]           
+  9                  -1  1    164608  ultralytics.nn.modules.block.SPPF            [256, 256, 5]                 
+ 10                  -1  1         0  torch.nn.modules.upsampling.Upsample         [None, 2, 'nearest']          
+ 11             [-1, 6]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 12                  -1  1    148224  ultralytics.nn.modules.block.C2f             [384, 128, 1]                 
+ 13                  -1  1         0  torch.nn.modules.upsampling.Upsample         [None, 2, 'nearest']          
+ 14             [-1, 4]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 15                  -1  1     37248  ultralytics.nn.modules.block.C2f             [192, 64, 1]                  
+ 16                  -1  1     36992  ultralytics.nn.modules.conv.Conv             [64, 64, 3, 2]                
+ 17            [-1, 12]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 18                  -1  1    123648  ultralytics.nn.modules.block.C2f             [192, 128, 1]                 
+ 19                  -1  1    147712  ultralytics.nn.modules.conv.Conv             [128, 128, 3, 2]              
+ 20             [-1, 9]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 21                  -1  1    493056  ultralytics.nn.modules.block.C2f             [384, 256, 1]                 
+ 22        [15, 18, 21]  1    752092  ultralytics.nn.modules.head.Detect           [4, [64, 128, 256]]           
+Model summary: 129 layers, 3,011,628 parameters, 3,011,612 gradients, 8.2 GFLOPs
+
+Transferred 319/355 items from pretrained weights
+Freezing layer 'model.22.dfl.conv.weight'
+[34m[1mtrain: [0mFast image access ✅ (ping: 0.0±0.0 ms, read: 3383.4±754.2 MB/s, size: 116.7 KB)
+[K[34m[1mtrain: [0mScanning /home/akhiyarwaladi/hello_world/data/integrated/yolo/train/labels.cache... 140 images, 0 backgrounds, 0 corrupt: 100% ━━━━━━━━━━━━ 140/140 24.5Mit/s 0.0s[K[34m[1mtrain: [0mScanning /home/akhiyarwaladi/hello_world/data/integrated/yolo/train/labels.cache... 140 images, 0 backgrounds, 0 corrupt: 100% ━━━━━━━━━━━━ 140/140 3.1Mit/s 0.0s
+WARNING ⚠️ cache='ram' may produce non-deterministic training results. Consider cache='disk' as a deterministic alternative if your disk space allows.
+[K[34m[1mtrain: [0mCaching images (0.2GB RAM): 100% ━━━━━━━━━━━━ 140/140 1.8Kit/s 0.1s[K[34m[1mtrain: [0mCaching images (0.2GB RAM): 100% ━━━━━━━━━━━━ 140/140 1.8Kit/s 0.1s
+[34m[1malbumentations: [0mBlur(p=0.01, blur_limit=(3, 7)), MedianBlur(p=0.01, blur_limit=(3, 7)), ToGray(p=0.01, method='weighted_average', num_output_channels=3), CLAHE(p=0.01, clip_limit=(1.0, 4.0), tile_grid_size=(8, 8))
+[34m[1mval: [0mFast image access ✅ (ping: 0.0±0.0 ms, read: 3623.6±602.4 MB/s, size: 111.8 KB)
+[K[34m[1mval: [0mScanning /home/akhiyarwaladi/hello_world/data/integrated/yolo/val/labels.cache... 28 images, 0 backgrounds, 0 corrupt: 100% ━━━━━━━━━━━━ 28/28 11.7Mit/s 0.0s[K[34m[1mval: [0mScanning /home/akhiyarwaladi/hello_world/data/integrated/yolo/val/labels.cache... 28 images, 0 backgrounds, 0 corrupt: 100% ━━━━━━━━━━━━ 28/28 844.9Kit/s 0.0s
+WARNING ⚠️ cache='ram' may produce non-deterministic training results. Consider cache='disk' as a deterministic alternative if your disk space allows.
+[K[34m[1mval: [0mCaching images (0.0GB RAM): 100% ━━━━━━━━━━━━ 28/28 1.5Kit/s 0.0s[K[34m[1mval: [0mCaching images (0.0GB RAM): 100% ━━━━━━━━━━━━ 28/28 1.5Kit/s 0.0s
+Plotting labels to /home/akhiyarwaladi/hello_world/results/current_experiments/validation/detection/yolov8_detection/multi_pipeline_20250920_164342_TEST_yolo8_det/labels.jpg... 
+[34m[1moptimizer:[0m 'optimizer=auto' found, ignoring 'lr0=0.01' and 'momentum=0.937' and determining best 'optimizer', 'lr0' and 'momentum' automatically... 
+[34m[1moptimizer:[0m AdamW(lr=0.00125, momentum=0.9) with parameter groups 57 weight(decay=0.0), 64 weight(decay=0.0005), 63 bias(decay=0.0)
+Image sizes 640 train, 640 val
+Using 0 dataloader workers
+Logging results to [1m/home/akhiyarwaladi/hello_world/results/current_experiments/validation/detection/yolov8_detection/multi_pipeline_20250920_164342_TEST_yolo8_det[0m
+Starting training for 2 epochs...
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+[K        1/2         0G      2.131       3.38      2.899         23        640: 0% ──────────── 0/18  1.7s[K        1/2         0G      2.042      3.379      2.913         23        640: 6% ╸─────────── 1/18 0.2it/s 3.3s<1:26[K        1/2         0G      1.957       3.38       2.84         21        640: 11% ━─────────── 2/18 0.4it/s 4.6s<45.1s[K        1/2         0G      1.952      3.353      2.831         28        640: 17% ━━────────── 3/18 0.4it/s 6.1s<33.5s[K        1/2         0G      1.934      3.354       2.82         25        640: 22% ━━╸───────── 4/18 0.5it/s 7.6s<27.0s[K        1/2         0G      1.924      3.352      2.779         24        640: 28% ━━━───────── 5/18 0.6it/s 9.2s<23.4s[K        1/2         0G      1.912      3.367      2.768         20        640: 33% ━━━━──────── 6/18 0.6it/s 10.6s<20.0s[K        1/2         0G      1.843      3.342      2.708         26        640: 39% ━━━━╸─────── 7/18 0.6it/s 12.0s<17.3s[K        1/2         0G      1.786      3.318      2.657         26        640: 44% ━━━━━─────── 8/18 0.7it/s 13.3s<14.9s[K        1/2         0G      1.732      3.297      2.593         28        640: 50% ━━━━━━────── 9/18 0.7it/s 14.7s<13.1s[K        1/2         0G      1.694      3.283      2.535         23        640: 56% ━━━━━━╸───── 10/18 0.7it/s 16.1s<11.5s[K        1/2         0G      1.634      3.264      2.476         25        640: 61% ━━━━━━━───── 11/18 0.7it/s 17.5s<10.1s[K        1/2         0G      1.594      3.244       2.43         27        640: 67% ━━━━━━━━──── 12/18 0.7it/s 18.9s<8.5s[K        1/2         0G       1.56      3.233      2.386         22        640: 72% ━━━━━━━━╸─── 13/18 0.7it/s 20.2s<7.0s[K        1/2         0G      1.518      3.217      2.339         27        640: 78% ━━━━━━━━━─── 14/18 0.7it/s 21.6s<5.5s[K        1/2         0G      1.486      3.208      2.302         26        640: 83% ━━━━━━━━━━── 15/18 0.7it/s 22.9s<4.1s[K        1/2         0G      1.445      3.185      2.261         29        640: 89% ━━━━━━━━━━╸─ 16/18 0.7it/s 24.3s<2.7s[K        1/2         0G      1.411      3.171       2.23         11        640: 94% ━━━━━━━━━━━─ 17/18 0.9it/s 25.0s<1.1s[K        1/2         0G      1.411      3.171       2.23         11        640: 100% ━━━━━━━━━━━━ 18/18 0.7it/s 25.0s[K        1/2         0G      1.411      3.171       2.23         11        640: 100% ━━━━━━━━━━━━ 18/18 0.7it/s 25.0s
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 50% ━━━━━━────── 1/2 0.3it/s 1.0s<3.4s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 2/2 1.1it/s 1.8s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 2/2 1.1it/s 1.8s
+                   all         28         28    0.00359          1      0.285      0.153
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+[K        2/2         0G     0.5644      2.735      1.364         26        640: 0% ──────────── 0/18  1.4s[K        2/2         0G      0.566      2.744      1.395         27        640: 6% ╸─────────── 1/18 0.2it/s 2.8s<1:19[K        2/2         0G     0.5873      2.809      1.411         21        640: 11% ━─────────── 2/18 0.4it/s 4.1s<42.7s[K        2/2         0G     0.6283      2.792      1.445         28        640: 17% ━━────────── 3/18 0.5it/s 5.6s<31.7s[K        2/2         0G     0.6136      2.744      1.434         28        640: 22% ━━╸───────── 4/18 0.6it/s 6.9s<25.4s[K        2/2         0G     0.5763      2.738      1.412         24        640: 28% ━━━───────── 5/18 0.6it/s 8.3s<21.3s[K        2/2         0G     0.5748       2.71      1.405         26        640: 33% ━━━━──────── 6/18 0.6it/s 9.6s<18.5s[K        2/2         0G     0.5675      2.696      1.393         27        640: 39% ━━━━╸─────── 7/18 0.7it/s 11.0s<16.3s[K        2/2         0G     0.5626      2.678       1.39         23        640: 44% ━━━━━─────── 8/18 0.7it/s 12.3s<14.4s[K        2/2         0G      0.563      2.676      1.394         26        640: 50% ━━━━━━────── 9/18 0.7it/s 13.7s<12.8s[K        2/2         0G      0.554      2.653      1.382         27        640: 56% ━━━━━━╸───── 10/18 0.7it/s 15.1s<11.3s[K        2/2         0G     0.5717      2.653      1.389         21        640: 61% ━━━━━━━───── 11/18 0.7it/s 16.4s<9.6s[K        2/2         0G     0.5837      2.679      1.391         20        640: 67% ━━━━━━━━──── 12/18 0.7it/s 17.7s<8.2s[K        2/2         0G     0.5719      2.666      1.377         25        640: 72% ━━━━━━━━╸─── 13/18 0.7it/s 19.1s<6.8s[K        2/2         0G     0.5622      2.655      1.369         23        640: 78% ━━━━━━━━━─── 14/18 0.7it/s 20.4s<5.4s[K        2/2         0G      0.561      2.655      1.366         28        640: 83% ━━━━━━━━━━── 15/18 0.7it/s 21.8s<4.1s[K        2/2         0G      0.553      2.653      1.355         28        640: 89% ━━━━━━━━━━╸─ 16/18 0.7it/s 23.1s<2.7s[K        2/2         0G     0.5502      2.624       1.35         10        640: 94% ━━━━━━━━━━━─ 17/18 1.0it/s 23.8s<1.1s[K        2/2         0G     0.5502      2.624       1.35         10        640: 100% ━━━━━━━━━━━━ 18/18 0.8it/s 23.8s[K        2/2         0G     0.5502      2.624       1.35         10        640: 100% ━━━━━━━━━━━━ 18/18 0.8it/s 23.8s
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 50% ━━━━━━────── 1/2 0.3it/s 1.0s<3.2s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 2/2 1.2it/s 1.7s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 2/2 1.2it/s 1.7s
+                   all         28         28     0.0038          1      0.249      0.191
+
+2 epochs completed in 0.015 hours.
+Optimizer stripped from /home/akhiyarwaladi/hello_world/results/current_experiments/validation/detection/yolov8_detection/multi_pipeline_20250920_164342_TEST_yolo8_det/weights/last.pt, 6.2MB
+Optimizer stripped from /home/akhiyarwaladi/hello_world/results/current_experiments/validation/detection/yolov8_detection/multi_pipeline_20250920_164342_TEST_yolo8_det/weights/best.pt, 6.2MB
+
+Validating /home/akhiyarwaladi/hello_world/results/current_experiments/validation/detection/yolov8_detection/multi_pipeline_20250920_164342_TEST_yolo8_det/weights/best.pt...
+Ultralytics 8.3.202 🚀 Python-3.12.3 torch-2.8.0+cu128 CPU (Intel Xeon CPU @ 2.20GHz)
+Model summary (fused): 72 layers, 3,006,428 parameters, 0 gradients, 8.1 GFLOPs
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 50% ━━━━━━────── 1/2 0.3it/s 0.9s<3.0s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 2/2 1.2it/s 1.7s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 2/2 1.2it/s 1.7s
+                   all         28         28    0.00381          1      0.253      0.194
+          P_falciparum         15         15    0.00944          1       0.57      0.448
+            P_malariae          4          4    0.00154          1     0.0758     0.0637
+               P_ovale          5          5    0.00234          1      0.218      0.196
+               P_vivax          4          4    0.00193          1      0.147     0.0661
+Speed: 0.6ms preprocess, 50.4ms inference, 0.0ms loss, 3.2ms postprocess per image
+Results saved to [1m/home/akhiyarwaladi/hello_world/results/current_experiments/validation/detection/yolov8_detection/multi_pipeline_20250920_164342_TEST_yolo8_det[0m
+\n============================================================
+🎉 YOLOV8 DETECTION TRAINING COMPLETED!
+============================================================
+⏱️  Training time: 1.0 minutes
+📂 Results saved to: results/current_experiments/validation/detection/yolov8_detection/multi_pipeline_20250920_164342_TEST_yolo8_det
+\n📈 Training Results:
+   metrics/precision(B): 0.0038
+   metrics/recall(B): 1.0000
+   metrics/mAP50(B): 0.2527
+   metrics/mAP50-95(B): 0.1937
+\n✅ Best model saved: results/current_experiments/validation/detection/yolov8_detection/multi_pipeline_20250920_164342_TEST_yolo8_det/weights/best.pt
+\n🧪 Running validation...
+Ultralytics 8.3.202 🚀 Python-3.12.3 torch-2.8.0+cu128 CPU (Intel Xeon CPU @ 2.20GHz)
+Model summary (fused): 72 layers, 3,006,428 parameters, 0 gradients, 8.1 GFLOPs
+[34m[1mval: [0mFast image access ✅ (ping: 0.0±0.0 ms, read: 4053.9±953.2 MB/s, size: 134.6 KB)
+[K[34m[1mval: [0mScanning /home/akhiyarwaladi/hello_world/data/integrated/yolo/val/labels.cache... 28 images, 0 backgrounds, 0 corrupt: 100% ━━━━━━━━━━━━ 28/28 13.0Mit/s 0.0s[K[34m[1mval: [0mScanning /home/akhiyarwaladi/hello_world/data/integrated/yolo/val/labels.cache... 28 images, 0 backgrounds, 0 corrupt: 100% ━━━━━━━━━━━━ 28/28 863.5Kit/s 0.0s
+WARNING ⚠️ cache='ram' may produce non-deterministic training results. Consider cache='disk' as a deterministic alternative if your disk space allows.
+[K[34m[1mval: [0mCaching images (0.0GB RAM): 100% ━━━━━━━━━━━━ 28/28 1.5Kit/s 0.0s[K[34m[1mval: [0mCaching images (0.0GB RAM): 100% ━━━━━━━━━━━━ 28/28 1.5Kit/s 0.0s
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 25% ━━━───────── 1/4 0.7it/s 0.4s<4.4s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 50% ━━━━━━────── 2/4 1.1it/s 0.9s<1.8s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 75% ━━━━━━━━━─── 3/4 1.4it/s 1.4s<0.7s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 4/4 2.4it/s 1.7s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 4/4 2.4it/s 1.7s
+                   all         28         28    0.00381          1      0.253      0.194
+          P_falciparum         15         15    0.00944          1       0.57      0.448
+            P_malariae          4          4    0.00154          1     0.0758     0.0637
+               P_ovale          5          5    0.00234          1      0.218      0.196
+               P_vivax          4          4    0.00193          1      0.147     0.0661
+Speed: 0.6ms preprocess, 52.9ms inference, 0.0ms loss, 3.2ms postprocess per image
+Results saved to [1m/home/akhiyarwaladi/hello_world/results/current_experiments/validation/detection/yolov8_detection/multi_pipeline_20250920_164342_TEST_yolo8_det[0m
+\n📊 Validation Metrics:
+   mAP50: 0.2527
+   mAP50-95: 0.1937
+   Precision: 0.0038
+   Recall: 1.0000
+\n✅ yolov8_detection training completed successfully!
+\n🎯 Next steps:
+1. Evaluate detection performance
+2. Train YOLOv11 for comparison
+3. Train RT-DETR for comparison
+================================================================================
+Executing yolov8_detection using python script
+python scripts/training/07_train_yolo_detection.py --data data/integrated/yolo/dataset.yaml --model-name yolov8_detection --epochs 2 --batch 8 --device cpu --name multi_pipeline_20250920_164342_TEST_yolo8_det
+================================================================================
+============================================================
+YOLOV11 MALARIA PARASITE DETECTION TRAINING
+============================================================
+📁 Using dataset: data/integrated/yolo/dataset.yaml
+🎯 Model: yolo11n.pt
+📊 Epochs: 2
+🖼️  Image size: 640
+📦 Batch size: 8
+💻 Device: cpu
+\n🚀 Loading yolo11n.pt model...
+\n⏱️  Starting YOLOv11 detection training...
+Ultralytics 8.3.202 🚀 Python-3.12.3 torch-2.8.0+cu128 CPU (Intel Xeon CPU @ 2.20GHz)
+[34m[1mengine/trainer: [0magnostic_nms=False, amp=True, augment=False, auto_augment=randaugment, batch=8, bgr=0.0, box=7.5, cache=True, cfg=None, classes=None, close_mosaic=10, cls=0.5, compile=False, conf=None, copy_paste=0.0, copy_paste_mode=flip, cos_lr=False, cutmix=0.0, data=data/integrated/yolo/dataset.yaml, degrees=0.0, deterministic=True, device=cpu, dfl=1.5, dnn=False, dropout=0.0, dynamic=False, embed=None, epochs=2, erasing=0.4, exist_ok=True, fliplr=0.5, flipud=0.0, format=torchscript, fraction=1.0, freeze=None, half=False, hsv_h=0.015, hsv_s=0.7, hsv_v=0.4, imgsz=640, int8=False, iou=0.7, keras=False, kobj=1.0, line_width=None, lr0=0.01, lrf=0.01, mask_ratio=4, max_det=300, mixup=0.0, mode=train, model=yolo11n.pt, momentum=0.937, mosaic=1.0, multi_scale=False, name=multi_pipeline_20250920_164342_TEST_yolo11_det, nbs=64, nms=False, opset=None, optimize=False, optimizer=auto, overlap_mask=True, patience=10, perspective=0.0, plots=True, pose=12.0, pretrained=True, profile=False, project=results/current_experiments/validation/detection/yolo11_detection, rect=False, resume=False, retina_masks=False, save=True, save_conf=False, save_crop=False, save_dir=/home/akhiyarwaladi/hello_world/results/current_experiments/validation/detection/yolo11_detection/multi_pipeline_20250920_164342_TEST_yolo11_det, save_frames=False, save_json=False, save_period=10, save_txt=False, scale=0.5, seed=0, shear=0.0, show=False, show_boxes=True, show_conf=True, show_labels=True, simplify=True, single_cls=False, source=None, split=val, stream_buffer=False, task=detect, time=None, tracker=botsort.yaml, translate=0.1, val=True, verbose=True, vid_stride=1, visualize=False, warmup_bias_lr=0.1, warmup_epochs=3.0, warmup_momentum=0.8, weight_decay=0.0005, workers=4, workspace=None
+Overriding model.yaml nc=80 with nc=4
+
+                   from  n    params  module                                       arguments                     
+  0                  -1  1       464  ultralytics.nn.modules.conv.Conv             [3, 16, 3, 2]                 
+  1                  -1  1      4672  ultralytics.nn.modules.conv.Conv             [16, 32, 3, 2]                
+  2                  -1  1      6640  ultralytics.nn.modules.block.C3k2            [32, 64, 1, False, 0.25]      
+  3                  -1  1     36992  ultralytics.nn.modules.conv.Conv             [64, 64, 3, 2]                
+  4                  -1  1     26080  ultralytics.nn.modules.block.C3k2            [64, 128, 1, False, 0.25]     
+  5                  -1  1    147712  ultralytics.nn.modules.conv.Conv             [128, 128, 3, 2]              
+  6                  -1  1     87040  ultralytics.nn.modules.block.C3k2            [128, 128, 1, True]           
+  7                  -1  1    295424  ultralytics.nn.modules.conv.Conv             [128, 256, 3, 2]              
+  8                  -1  1    346112  ultralytics.nn.modules.block.C3k2            [256, 256, 1, True]           
+  9                  -1  1    164608  ultralytics.nn.modules.block.SPPF            [256, 256, 5]                 
+ 10                  -1  1    249728  ultralytics.nn.modules.block.C2PSA           [256, 256, 1]                 
+ 11                  -1  1         0  torch.nn.modules.upsampling.Upsample         [None, 2, 'nearest']          
+ 12             [-1, 6]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 13                  -1  1    111296  ultralytics.nn.modules.block.C3k2            [384, 128, 1, False]          
+ 14                  -1  1         0  torch.nn.modules.upsampling.Upsample         [None, 2, 'nearest']          
+ 15             [-1, 4]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 16                  -1  1     32096  ultralytics.nn.modules.block.C3k2            [256, 64, 1, False]           
+ 17                  -1  1     36992  ultralytics.nn.modules.conv.Conv             [64, 64, 3, 2]                
+ 18            [-1, 13]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 19                  -1  1     86720  ultralytics.nn.modules.block.C3k2            [192, 128, 1, False]          
+ 20                  -1  1    147712  ultralytics.nn.modules.conv.Conv             [128, 128, 3, 2]              
+ 21            [-1, 10]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 22                  -1  1    378880  ultralytics.nn.modules.block.C3k2            [384, 256, 1, True]           
+ 23        [16, 19, 22]  1    431452  ultralytics.nn.modules.head.Detect           [4, [64, 128, 256]]           
+YOLO11n summary: 181 layers, 2,590,620 parameters, 2,590,604 gradients, 6.4 GFLOPs
+
+Transferred 448/499 items from pretrained weights
+Freezing layer 'model.23.dfl.conv.weight'
+[34m[1mtrain: [0mFast image access ✅ (ping: 0.0±0.0 ms, read: 3341.2±821.5 MB/s, size: 116.7 KB)
+[K[34m[1mtrain: [0mScanning /home/akhiyarwaladi/hello_world/data/integrated/yolo/train/labels.cache... 140 images, 0 backgrounds, 0 corrupt: 100% ━━━━━━━━━━━━ 140/140 23.5Mit/s 0.0s[K[34m[1mtrain: [0mScanning /home/akhiyarwaladi/hello_world/data/integrated/yolo/train/labels.cache... 140 images, 0 backgrounds, 0 corrupt: 100% ━━━━━━━━━━━━ 140/140 2.9Mit/s 0.0s
+WARNING ⚠️ cache='ram' may produce non-deterministic training results. Consider cache='disk' as a deterministic alternative if your disk space allows.
+[K[34m[1mtrain: [0mCaching images (0.2GB RAM): 100% ━━━━━━━━━━━━ 140/140 1.8Kit/s 0.1s[K[34m[1mtrain: [0mCaching images (0.2GB RAM): 100% ━━━━━━━━━━━━ 140/140 1.7Kit/s 0.1s
+[34m[1malbumentations: [0mBlur(p=0.01, blur_limit=(3, 7)), MedianBlur(p=0.01, blur_limit=(3, 7)), ToGray(p=0.01, method='weighted_average', num_output_channels=3), CLAHE(p=0.01, clip_limit=(1.0, 4.0), tile_grid_size=(8, 8))
+[34m[1mval: [0mFast image access ✅ (ping: 0.0±0.0 ms, read: 3270.6±739.6 MB/s, size: 111.8 KB)
+[K[34m[1mval: [0mScanning /home/akhiyarwaladi/hello_world/data/integrated/yolo/val/labels.cache... 28 images, 0 backgrounds, 0 corrupt: 100% ━━━━━━━━━━━━ 28/28 10.7Mit/s 0.0s[K[34m[1mval: [0mScanning /home/akhiyarwaladi/hello_world/data/integrated/yolo/val/labels.cache... 28 images, 0 backgrounds, 0 corrupt: 100% ━━━━━━━━━━━━ 28/28 699.1Kit/s 0.0s
+WARNING ⚠️ cache='ram' may produce non-deterministic training results. Consider cache='disk' as a deterministic alternative if your disk space allows.
+[K[34m[1mval: [0mCaching images (0.0GB RAM): 100% ━━━━━━━━━━━━ 28/28 1.4Kit/s 0.0s[K[34m[1mval: [0mCaching images (0.0GB RAM): 100% ━━━━━━━━━━━━ 28/28 1.4Kit/s 0.0s
+Plotting labels to /home/akhiyarwaladi/hello_world/results/current_experiments/validation/detection/yolo11_detection/multi_pipeline_20250920_164342_TEST_yolo11_det/labels.jpg... 
+[34m[1moptimizer:[0m 'optimizer=auto' found, ignoring 'lr0=0.01' and 'momentum=0.937' and determining best 'optimizer', 'lr0' and 'momentum' automatically... 
+[34m[1moptimizer:[0m AdamW(lr=0.00125, momentum=0.9) with parameter groups 81 weight(decay=0.0), 88 weight(decay=0.0005), 87 bias(decay=0.0)
+Image sizes 640 train, 640 val
+Using 0 dataloader workers
+Logging results to [1m/home/akhiyarwaladi/hello_world/results/current_experiments/validation/detection/yolo11_detection/multi_pipeline_20250920_164342_TEST_yolo11_det[0m
+Starting training for 2 epochs...
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+[K        1/2         0G      2.261      3.395      3.029         23        640: 0% ──────────── 0/18  1.9s[K        1/2         0G      2.126      3.352      2.959         23        640: 6% ╸─────────── 1/18 0.2it/s 3.6s<1:34[K        1/2         0G      1.993      3.387      2.831         21        640: 11% ━─────────── 2/18 0.3it/s 5.1s<49.2s[K        1/2         0G      1.968      3.361      2.808         28        640: 17% ━━────────── 3/18 0.4it/s 6.6s<34.9s[K        1/2         0G      1.959      3.357      2.795         25        640: 22% ━━╸───────── 4/18 0.5it/s 8.1s<28.3s[K        1/2         0G      1.909      3.343      2.731         24        640: 28% ━━━───────── 5/18 0.5it/s 9.7s<24.0s[K        1/2         0G      1.863      3.353      2.713         20        640: 33% ━━━━──────── 6/18 0.6it/s 11.1s<20.3s[K        1/2         0G      1.819      3.324       2.67         26        640: 39% ━━━━╸─────── 7/18 0.5it/s 17.6s<23.9s[K        1/2         0G      1.754      3.299      2.614         26        640: 44% ━━━━━─────── 8/18 0.5it/s 19.0s<18.8s[K        1/2         0G      1.696      3.276      2.551         28        640: 50% ━━━━━━────── 9/18 0.4it/s 26.3s<21.7s[K        1/2         0G      1.654      3.269      2.489         23        640: 56% ━━━━━━╸───── 10/18 0.3it/s 43.7s<26.0s[K        1/2         0G      1.606      3.257      2.438         25        640: 61% ━━━━━━━───── 11/18 0.2it/s 1:04<30.4s[K        1/2         0G      1.567      3.239      2.389         27        640: 67% ━━━━━━━━──── 12/18 0.2it/s 1:20<33.4s[K        1/2         0G      1.526      3.229      2.343         22        640: 72% ━━━━━━━━╸─── 13/18 0.1it/s 1:40<35.6s[K        1/2         0G      1.486      3.213      2.296         27        640: 78% ━━━━━━━━━─── 14/18 0.1it/s 1:55<33.7s[K        1/2         0G      1.455      3.206      2.257         26        640: 83% ━━━━━━━━━━── 15/18 0.1it/s 2:14<30.5s[K        1/2         0G      1.411       3.19      2.213         29        640: 89% ━━━━━━━━━━╸─ 16/18 0.1it/s 2:30<22.7s[K        1/2         0G       1.38      3.184      2.181         11        640: 94% ━━━━━━━━━━━─ 17/18 0.1it/s 2:45<12.3s[K        1/2         0G       1.38      3.184      2.181         11        640: 100% ━━━━━━━━━━━━ 18/18 0.1it/s 2:45[K        1/2         0G       1.38      3.184      2.181         11        640: 100% ━━━━━━━━━━━━ 18/18 0.1it/s 2:45
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 50% ━━━━━━────── 1/2 0.0it/s 8.3s<27.7s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 2/2 0.1it/s 16.3s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 2/2 0.1it/s 16.3s
+                   all         28         28    0.00346          1      0.282      0.199
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+[K        2/2         0G     0.5084      2.916       1.38         26        640: 0% ──────────── 0/18  15.6s[K        2/2         0G      0.573      2.914       1.41         27        640: 6% ╸─────────── 1/18 0.0it/s 33.7s<17:05[K        2/2         0G     0.6409      2.976      1.465         21        640: 11% ━─────────── 2/18 0.0it/s 50.2s<8:58[K        2/2         0G     0.6678      2.953      1.488         28        640: 17% ━━────────── 3/18 0.0it/s 1:09<6:51[K        2/2         0G     0.6255      2.917      1.453         28        640: 22% ━━╸───────── 4/18 0.0it/s 1:27<5:30[K        2/2         0G     0.6044      2.906      1.439         24        640: 28% ━━━───────── 5/18 0.0it/s 1:46<4:43[K        2/2         0G     0.6092      2.899      1.432         26        640: 33% ━━━━──────── 6/18 0.1it/s 2:01<3:51[K        2/2         0G     0.5825      2.889       1.41         27        640: 39% ━━━━╸─────── 7/18 0.1it/s 2:15<3:10[K        2/2         0G     0.5785      2.882      1.402         23        640: 44% ━━━━━─────── 8/18 0.1it/s 2:30<2:47[K        2/2         0G     0.5832      2.879      1.403         26        640: 50% ━━━━━━────── 9/18 0.1it/s 2:51<2:41[K        2/2         0G     0.5729      2.867      1.387         27        640: 56% ━━━━━━╸───── 10/18 0.1it/s 3:11<2:26[K        2/2         0G     0.5775      2.871      1.387         21        640: 61% ━━━━━━━───── 11/18 0.1it/s 3:30<2:09[K        2/2         0G     0.5949      2.882       1.39         20        640: 67% ━━━━━━━━──── 12/18 0.1it/s 3:50<1:54[K        2/2         0G     0.5793      2.874      1.376         25        640: 72% ━━━━━━━━╸─── 13/18 0.1it/s 4:08<1:34[K        2/2         0G     0.5716      2.866      1.368         23        640: 78% ━━━━━━━━━─── 14/18 0.1it/s 4:25<1:13[K        2/2         0G     0.5669      2.864       1.36         28        640: 83% ━━━━━━━━━━── 15/18 0.1it/s 4:40<50.8s[K        2/2         0G     0.5557      2.857      1.348         28        640: 89% ━━━━━━━━━━╸─ 16/18 0.1it/s 4:56<33.4s[K        2/2         0G     0.5525      2.847      1.344         10        640: 94% ━━━━━━━━━━━─ 17/18 0.1it/s 5:10<15.9s[K        2/2         0G     0.5525      2.847      1.344         10        640: 100% ━━━━━━━━━━━━ 18/18 0.1it/s 5:10[K        2/2         0G     0.5525      2.847      1.344         10        640: 100% ━━━━━━━━━━━━ 18/18 0.1it/s 5:10
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 50% ━━━━━━────── 1/2 0.0it/s 7.3s<24.2s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 2/2 0.1it/s 14.5s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 2/2 0.1it/s 14.5s
+                   all         28         28    0.00379          1      0.397      0.297
+
+2 epochs completed in 0.141 hours.
+Optimizer stripped from /home/akhiyarwaladi/hello_world/results/current_experiments/validation/detection/yolo11_detection/multi_pipeline_20250920_164342_TEST_yolo11_det/weights/last.pt, 5.5MB
+Optimizer stripped from /home/akhiyarwaladi/hello_world/results/current_experiments/validation/detection/yolo11_detection/multi_pipeline_20250920_164342_TEST_yolo11_det/weights/best.pt, 5.5MB
+
+Validating /home/akhiyarwaladi/hello_world/results/current_experiments/validation/detection/yolo11_detection/multi_pipeline_20250920_164342_TEST_yolo11_det/weights/best.pt...
+Ultralytics 8.3.202 🚀 Python-3.12.3 torch-2.8.0+cu128 CPU (Intel Xeon CPU @ 2.20GHz)
+YOLO11n summary (fused): 100 layers, 2,582,932 parameters, 0 gradients, 6.3 GFLOPs
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 50% ━━━━━━────── 1/2 0.0it/s 6.1s<20.4s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 2/2 0.2it/s 10.1s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 2/2 0.2it/s 10.1s
+                   all         28         28     0.0038          1      0.397      0.298
+          P_falciparum         15         15    0.00665          1      0.813      0.661
+            P_malariae          4          4    0.00205          1      0.186       0.12
+               P_ovale          5          5    0.00147          1        0.5      0.341
+               P_vivax          4          4    0.00502          1     0.0874     0.0691
+Speed: 1.7ms preprocess, 330.5ms inference, 0.0ms loss, 16.6ms postprocess per image
+Results saved to [1m/home/akhiyarwaladi/hello_world/results/current_experiments/validation/detection/yolo11_detection/multi_pipeline_20250920_164342_TEST_yolo11_det[0m
+\n============================================================
+🎉 YOLOV11 DETECTION TRAINING COMPLETED!
+============================================================
+⏱️  Training time: 8.8 minutes
+📂 Results saved to: results/current_experiments/validation/detection/yolo11_detection/multi_pipeline_20250920_164342_TEST_yolo11_det
+\n📈 Training Results:
+   metrics/precision(B): 0.0038
+   metrics/recall(B): 1.0000
+   metrics/mAP50(B): 0.3967
+   metrics/mAP50-95(B): 0.2978
+\n✅ Best model saved: results/current_experiments/validation/detection/yolo11_detection/multi_pipeline_20250920_164342_TEST_yolo11_det/weights/best.pt
+\n🧪 Running validation...
+Ultralytics 8.3.202 🚀 Python-3.12.3 torch-2.8.0+cu128 CPU (Intel Xeon CPU @ 2.20GHz)
+YOLO11n summary (fused): 100 layers, 2,582,932 parameters, 0 gradients, 6.3 GFLOPs
+[34m[1mval: [0mFast image access ✅ (ping: 0.0±0.0 ms, read: 3004.9±544.7 MB/s, size: 134.6 KB)
+[K[34m[1mval: [0mScanning /home/akhiyarwaladi/hello_world/data/integrated/yolo/val/labels.cache... 28 images, 0 backgrounds, 0 corrupt: 100% ━━━━━━━━━━━━ 28/28 9.8Mit/s 0.0s[K[34m[1mval: [0mScanning /home/akhiyarwaladi/hello_world/data/integrated/yolo/val/labels.cache... 28 images, 0 backgrounds, 0 corrupt: 100% ━━━━━━━━━━━━ 28/28 652.4Kit/s 0.0s
+WARNING ⚠️ cache='ram' may produce non-deterministic training results. Consider cache='disk' as a deterministic alternative if your disk space allows.
+[K[34m[1mval: [0mCaching images (0.0GB RAM): 100% ━━━━━━━━━━━━ 28/28 461.5it/s 0.1s[K[34m[1mval: [0mCaching images (0.0GB RAM): 100% ━━━━━━━━━━━━ 28/28 460.8it/s 0.1s
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 25% ━━━───────── 1/4 0.1it/s 4.4s<43.9s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 50% ━━━━━━────── 2/4 0.2it/s 6.6s<11.0s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 75% ━━━━━━━━━─── 3/4 0.7it/s 7.2s<1.5s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 4/4 0.4it/s 10.8s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 4/4 0.4it/s 10.8s
+                   all         28         28     0.0038          1      0.397      0.298
+          P_falciparum         15         15    0.00665          1      0.813      0.661
+            P_malariae          4          4    0.00205          1      0.186       0.12
+               P_ovale          5          5    0.00147          1        0.5      0.341
+               P_vivax          4          4    0.00502          1     0.0874     0.0691
+Speed: 2.2ms preprocess, 358.1ms inference, 0.0ms loss, 15.0ms postprocess per image
+Results saved to [1m/home/akhiyarwaladi/hello_world/results/current_experiments/validation/detection/yolo11_detection/multi_pipeline_20250920_164342_TEST_yolo11_det[0m
+\n📊 Validation Metrics:
+   mAP50: 0.3967
+   mAP50-95: 0.2978
+   Precision: 0.0038
+   Recall: 1.0000
+\n✅ YOLOv11 detection training completed successfully!
+================================================================================
+Executing yolov11_detection using python script
+python scripts/training/08_train_yolo11_detection.py --data data/integrated/yolo/dataset.yaml --model yolo11n.pt --epochs 2 --batch 8 --device cpu --name multi_pipeline_20250920_164342_TEST_yolo11_det
+================================================================================
+============================================================
+YOLOV12 MALARIA PARASITE DETECTION TRAINING
+============================================================
+📁 Using dataset: data/integrated/yolo/dataset.yaml
+🎯 Model: yolo12n.pt
+📊 Epochs: 2
+🖼️  Image size: 640
+📦 Batch size: 8
+💻 Device: cpu
+
+🚀 Loading yolo12n.pt model...
+✅ YOLOv12 model loaded successfully!
+
+⏱️  Starting YOLOv12 detection training...
+Ultralytics 8.3.202 🚀 Python-3.12.3 torch-2.8.0+cu128 CPU (Intel Xeon CPU @ 2.20GHz)
+[34m[1mengine/trainer: [0magnostic_nms=False, amp=True, augment=False, auto_augment=randaugment, batch=8, bgr=0.0, box=7.5, cache=True, cfg=None, classes=None, close_mosaic=10, cls=0.5, compile=False, conf=None, copy_paste=0.0, copy_paste_mode=flip, cos_lr=False, cutmix=0.0, data=data/integrated/yolo/dataset.yaml, degrees=0.0, deterministic=True, device=cpu, dfl=1.5, dnn=False, dropout=0.0, dynamic=False, embed=None, epochs=2, erasing=0.4, exist_ok=True, fliplr=0.5, flipud=0.0, format=torchscript, fraction=1.0, freeze=None, half=False, hsv_h=0.015, hsv_s=0.7, hsv_v=0.4, imgsz=640, int8=False, iou=0.7, keras=False, kobj=1.0, line_width=None, lr0=0.01, lrf=0.01, mask_ratio=4, max_det=300, mixup=0.0, mode=train, model=yolo12n.pt, momentum=0.937, mosaic=1.0, multi_scale=False, name=multi_pipeline_20250920_164342_TEST_yolo12_det, nbs=64, nms=False, opset=None, optimize=False, optimizer=auto, overlap_mask=True, patience=10, perspective=0.0, plots=True, pose=12.0, pretrained=True, profile=False, project=results/current_experiments/validation/detection/yolo12_detection, rect=False, resume=False, retina_masks=False, save=True, save_conf=False, save_crop=False, save_dir=/home/akhiyarwaladi/hello_world/results/current_experiments/validation/detection/yolo12_detection/multi_pipeline_20250920_164342_TEST_yolo12_det, save_frames=False, save_json=False, save_period=10, save_txt=False, scale=0.5, seed=0, shear=0.0, show=False, show_boxes=True, show_conf=True, show_labels=True, simplify=True, single_cls=False, source=None, split=val, stream_buffer=False, task=detect, time=None, tracker=botsort.yaml, translate=0.1, val=True, verbose=True, vid_stride=1, visualize=False, warmup_bias_lr=0.1, warmup_epochs=3.0, warmup_momentum=0.8, weight_decay=0.0005, workers=4, workspace=None
+Overriding model.yaml nc=80 with nc=4
+
+                   from  n    params  module                                       arguments                     
+  0                  -1  1       464  ultralytics.nn.modules.conv.Conv             [3, 16, 3, 2]                 
+  1                  -1  1      4672  ultralytics.nn.modules.conv.Conv             [16, 32, 3, 2]                
+  2                  -1  1      6640  ultralytics.nn.modules.block.C3k2            [32, 64, 1, False, 0.25]      
+  3                  -1  1     36992  ultralytics.nn.modules.conv.Conv             [64, 64, 3, 2]                
+  4                  -1  1     26080  ultralytics.nn.modules.block.C3k2            [64, 128, 1, False, 0.25]     
+  5                  -1  1    147712  ultralytics.nn.modules.conv.Conv             [128, 128, 3, 2]              
+  6                  -1  2    180864  ultralytics.nn.modules.block.A2C2f           [128, 128, 2, True, 4]        
+  7                  -1  1    295424  ultralytics.nn.modules.conv.Conv             [128, 256, 3, 2]              
+  8                  -1  2    689408  ultralytics.nn.modules.block.A2C2f           [256, 256, 2, True, 1]        
+  9                  -1  1         0  torch.nn.modules.upsampling.Upsample         [None, 2, 'nearest']          
+ 10             [-1, 6]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 11                  -1  1     86912  ultralytics.nn.modules.block.A2C2f           [384, 128, 1, False, -1]      
+ 12                  -1  1         0  torch.nn.modules.upsampling.Upsample         [None, 2, 'nearest']          
+ 13             [-1, 4]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 14                  -1  1     24000  ultralytics.nn.modules.block.A2C2f           [256, 64, 1, False, -1]       
+ 15                  -1  1     36992  ultralytics.nn.modules.conv.Conv             [64, 64, 3, 2]                
+ 16            [-1, 11]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 17                  -1  1     74624  ultralytics.nn.modules.block.A2C2f           [192, 128, 1, False, -1]      
+ 18                  -1  1    147712  ultralytics.nn.modules.conv.Conv             [128, 128, 3, 2]              
+ 19             [-1, 8]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 20                  -1  1    378880  ultralytics.nn.modules.block.C3k2            [384, 256, 1, True]           
+ 21        [14, 17, 20]  1    431452  ultralytics.nn.modules.head.Detect           [4, [64, 128, 256]]           
+YOLOv12n summary: 272 layers, 2,568,828 parameters, 2,568,812 gradients, 6.5 GFLOPs
+
+Transferred 640/691 items from pretrained weights
+Freezing layer 'model.21.dfl.conv.weight'
+[34m[1mtrain: [0mFast image access ✅ (ping: 0.0±0.0 ms, read: 3408.4±850.8 MB/s, size: 116.7 KB)
+[K[34m[1mtrain: [0mScanning /home/akhiyarwaladi/hello_world/data/integrated/yolo/train/labels.cache... 140 images, 0 backgrounds, 0 corrupt: 100% ━━━━━━━━━━━━ 140/140 23.5Mit/s 0.0s[K[34m[1mtrain: [0mScanning /home/akhiyarwaladi/hello_world/data/integrated/yolo/train/labels.cache... 140 images, 0 backgrounds, 0 corrupt: 100% ━━━━━━━━━━━━ 140/140 3.0Mit/s 0.0s
+WARNING ⚠️ cache='ram' may produce non-deterministic training results. Consider cache='disk' as a deterministic alternative if your disk space allows.
+[K[34m[1mtrain: [0mCaching images (0.2GB RAM): 100% ━━━━━━━━━━━━ 140/140 1.7Kit/s 0.1s[K[34m[1mtrain: [0mCaching images (0.2GB RAM): 100% ━━━━━━━━━━━━ 140/140 1.7Kit/s 0.1s
+[34m[1malbumentations: [0mBlur(p=0.01, blur_limit=(3, 7)), MedianBlur(p=0.01, blur_limit=(3, 7)), ToGray(p=0.01, method='weighted_average', num_output_channels=3), CLAHE(p=0.01, clip_limit=(1.0, 4.0), tile_grid_size=(8, 8))
+[34m[1mval: [0mFast image access ✅ (ping: 0.0±0.0 ms, read: 3923.2±722.1 MB/s, size: 111.8 KB)
+[K[34m[1mval: [0mScanning /home/akhiyarwaladi/hello_world/data/integrated/yolo/val/labels.cache... 28 images, 0 backgrounds, 0 corrupt: 100% ━━━━━━━━━━━━ 28/28 10.7Mit/s 0.0s[K[34m[1mval: [0mScanning /home/akhiyarwaladi/hello_world/data/integrated/yolo/val/labels.cache... 28 images, 0 backgrounds, 0 corrupt: 100% ━━━━━━━━━━━━ 28/28 910.4Kit/s 0.0s
+WARNING ⚠️ cache='ram' may produce non-deterministic training results. Consider cache='disk' as a deterministic alternative if your disk space allows.
+[K[34m[1mval: [0mCaching images (0.0GB RAM): 100% ━━━━━━━━━━━━ 28/28 1.6Kit/s 0.0s[K[34m[1mval: [0mCaching images (0.0GB RAM): 100% ━━━━━━━━━━━━ 28/28 1.6Kit/s 0.0s
+Plotting labels to /home/akhiyarwaladi/hello_world/results/current_experiments/validation/detection/yolo12_detection/multi_pipeline_20250920_164342_TEST_yolo12_det/labels.jpg... 
+[34m[1moptimizer:[0m 'optimizer=auto' found, ignoring 'lr0=0.01' and 'momentum=0.937' and determining best 'optimizer', 'lr0' and 'momentum' automatically... 
+[34m[1moptimizer:[0m AdamW(lr=0.00125, momentum=0.9) with parameter groups 113 weight(decay=0.0), 120 weight(decay=0.0005), 119 bias(decay=0.0)
+Image sizes 640 train, 640 val
+Using 0 dataloader workers
+Logging results to [1m/home/akhiyarwaladi/hello_world/results/current_experiments/validation/detection/yolo12_detection/multi_pipeline_20250920_164342_TEST_yolo12_det[0m
+Starting training for 2 epochs...
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+[K        1/2         0G      1.788      3.411      2.746         23        640: 0% ──────────── 0/18  2.4s[K        1/2         0G      1.878       3.41      2.783         23        640: 6% ╸─────────── 1/18 0.1it/s 7.7s<5:02[K        1/2         0G      1.789      3.384      2.737         21        640: 11% ━─────────── 2/18 0.1it/s 11.7s<2:19[K        1/2         0G      1.776      3.346      2.731         28        640: 17% ━━────────── 3/18 0.1it/s 21.8s<2:16[K        1/2         0G      1.758      3.325      2.695         25        640: 22% ━━╸───────── 4/18 0.1it/s 44.3s<2:35[K        1/2         0G      1.714      3.329      2.643         24        640: 28% ━━━───────── 5/18 0.1it/s 1:11<2:54[K        1/2         0G      1.654      3.321      2.593         20        640: 33% ━━━━──────── 6/18 0.1it/s 1:36<3:08[K        1/2         0G      1.563      3.302       2.49         26        640: 39% ━━━━╸─────── 7/18 0.1it/s 2:01<3:14[K        1/2         0G      1.482       3.28      2.394         26        640: 44% ━━━━━─────── 8/18 0.1it/s 2:24<3:08[K        1/2         0G      1.408      3.262      2.309         28        640: 50% ━━━━━━────── 9/18 0.0it/s 2:52<3:08[K        1/2         0G      1.358      3.251      2.233         23        640: 56% ━━━━━━╸───── 10/18 0.0it/s 3:16<2:55[K        1/2         0G      1.299      3.238      2.168         25        640: 61% ━━━━━━━───── 11/18 0.0it/s 3:45<2:44[K        1/2         0G      1.254      3.223      2.106         27        640: 67% ━━━━━━━━──── 12/18 0.0it/s 4:09<2:22[K        1/2         0G      1.209      3.216      2.054         22        640: 72% ━━━━━━━━╸─── 13/18 0.0it/s 4:35<2:02[K        1/2         0G       1.16      3.197          2         27        640: 78% ━━━━━━━━━─── 14/18 0.0it/s 4:56<1:33[K        1/2         0G       1.12      3.186      1.955         26        640: 83% ━━━━━━━━━━── 15/18 0.0it/s 5:21<1:11[K        1/2         0G      1.074       3.17       1.91         29        640: 89% ━━━━━━━━━━╸─ 16/18 0.0it/s 5:45<47.2s[K        1/2         0G      1.052      3.162      1.884         11        640: 94% ━━━━━━━━━━━─ 17/18 0.0it/s 6:08<23.6s[K        1/2         0G      1.052      3.162      1.884         11        640: 100% ━━━━━━━━━━━━ 18/18 0.0it/s 6:08[K        1/2         0G      1.052      3.162      1.884         11        640: 100% ━━━━━━━━━━━━ 18/18 0.0it/s 6:08
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 50% ━━━━━━────── 1/2 0.0it/s 7.9s<26.2s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 2/2 0.1it/s 13.7s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 2/2 0.1it/s 13.7s
+                   all         28         28    0.00527          1       0.11     0.0296
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+[K        2/2         0G     0.3057        2.8      1.179         26        640: 0% ──────────── 0/18  24.1s[K        2/2         0G     0.3537      2.805      1.189         27        640: 6% ╸─────────── 1/18 0.0it/s 49.1s<23:41[K        2/2         0G     0.4123      2.852      1.245         21        640: 11% ━─────────── 2/18 0.0it/s 1:13<12:36[K        2/2         0G     0.4283      2.859      1.247         28        640: 17% ━━────────── 3/18 0.0it/s 1:42<9:58[K        2/2         0G      0.396      2.823      1.225         28        640: 22% ━━╸───────── 4/18 0.0it/s 2:05<7:42[K        2/2         0G      0.379      2.796      1.218         24        640: 28% ━━━───────── 5/18 0.0it/s 2:29<6:25[K        2/2         0G     0.3791      2.797      1.211         26        640: 33% ━━━━──────── 6/18 0.0it/s 2:55<5:41[K        2/2         0G     0.3647      2.782      1.194         27        640: 39% ━━━━╸─────── 7/18 0.0it/s 3:17<4:45[K        2/2         0G     0.3607      2.762      1.189         23        640: 44% ━━━━━─────── 8/18 0.0it/s 3:40<4:11[K        2/2         0G     0.3586      2.764       1.19         26        640: 50% ━━━━━━────── 9/18 0.0it/s 4:08<3:53[K        2/2         0G     0.3598      2.751      1.186         27        640: 56% ━━━━━━╸───── 10/18 0.0it/s 4:30<3:17[K        2/2         0G     0.3641       2.75      1.191         21        640: 61% ━━━━━━━───── 11/18 0.0it/s 4:54<2:52[K        2/2         0G     0.3732      2.751      1.196         20        640: 67% ━━━━━━━━──── 12/18 0.0it/s 5:19<2:27[K        2/2         0G     0.3659      2.745      1.188         25        640: 72% ━━━━━━━━╸─── 13/18 0.0it/s 5:41<1:59[K        2/2         0G     0.3644      2.736      1.185         23        640: 78% ━━━━━━━━━─── 14/18 0.0it/s 5:57<1:23[K        2/2         0G     0.3709      2.733      1.188         28        640: 83% ━━━━━━━━━━── 15/18 0.1it/s 6:10<52.4s[K        2/2         0G     0.3675      2.727       1.18         28        640: 89% ━━━━━━━━━━╸─ 16/18 0.2it/s 6:12<9.9s[K        2/2         0G     0.3669      2.715      1.174         10        640: 94% ━━━━━━━━━━━─ 17/18 0.5it/s 6:13<2.2s[K        2/2         0G     0.3669      2.715      1.174         10        640: 100% ━━━━━━━━━━━━ 18/18 0.0it/s 6:13[K        2/2         0G     0.3669      2.715      1.174         10        640: 100% ━━━━━━━━━━━━ 18/18 0.0it/s 6:13
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 50% ━━━━━━────── 1/2 0.0it/s 8.7s<29.0s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 2/2 0.1it/s 18.4s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 2/2 0.1it/s 18.4s
+                   all         28         28       0.01          1      0.504       0.41
+
+2 epochs completed in 0.216 hours.
+Optimizer stripped from /home/akhiyarwaladi/hello_world/results/current_experiments/validation/detection/yolo12_detection/multi_pipeline_20250920_164342_TEST_yolo12_det/weights/last.pt, 5.5MB
+Optimizer stripped from /home/akhiyarwaladi/hello_world/results/current_experiments/validation/detection/yolo12_detection/multi_pipeline_20250920_164342_TEST_yolo12_det/weights/best.pt, 5.5MB
+
+Validating /home/akhiyarwaladi/hello_world/results/current_experiments/validation/detection/yolo12_detection/multi_pipeline_20250920_164342_TEST_yolo12_det/weights/best.pt...
+Ultralytics 8.3.202 🚀 Python-3.12.3 torch-2.8.0+cu128 CPU (Intel Xeon CPU @ 2.20GHz)
+YOLOv12n summary (fused): 159 layers, 2,557,508 parameters, 0 gradients, 6.3 GFLOPs
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 50% ━━━━━━────── 1/2 0.3it/s 1.2s<3.9s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 2/2 0.9it/s 2.2s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 2/2 0.9it/s 2.2s
+                   all         28         28    0.00997          1      0.504       0.41
+          P_falciparum         15         15     0.0332          1      0.634      0.473
+            P_malariae          4          4    0.00378          1       0.56      0.504
+               P_ovale          5          5    0.00198          1      0.258      0.245
+               P_vivax          4          4   0.000917          1      0.563      0.416
+Speed: 0.7ms preprocess, 70.4ms inference, 0.0ms loss, 3.9ms postprocess per image
+Results saved to [1m/home/akhiyarwaladi/hello_world/results/current_experiments/validation/detection/yolo12_detection/multi_pipeline_20250920_164342_TEST_yolo12_det[0m
+
+============================================================
+🎉 YOLOV12 DETECTION TRAINING COMPLETED!
+============================================================
+⏱️  Training time: 13.1 minutes
+📂 Results saved to: results/current_experiments/validation/detection/yolo12_detection/multi_pipeline_20250920_164342_TEST_yolo12_det
+
+📈 Training Results:
+   metrics/precision(B): 0.0100
+   metrics/recall(B): 1.0000
+   metrics/mAP50(B): 0.5039
+   metrics/mAP50-95(B): 0.4098
+
+✅ Best model saved: results/current_experiments/validation/detection/yolo12_detection/multi_pipeline_20250920_164342_TEST_yolo12_det/weights/best.pt
+
+🧪 Running validation...
+Ultralytics 8.3.202 🚀 Python-3.12.3 torch-2.8.0+cu128 CPU (Intel Xeon CPU @ 2.20GHz)
+YOLOv12n summary (fused): 159 layers, 2,557,508 parameters, 0 gradients, 6.3 GFLOPs
+[34m[1mval: [0mFast image access ✅ (ping: 0.0±0.0 ms, read: 3437.1±469.2 MB/s, size: 134.6 KB)
+[K[34m[1mval: [0mScanning /home/akhiyarwaladi/hello_world/data/integrated/yolo/val/labels.cache... 28 images, 0 backgrounds, 0 corrupt: 100% ━━━━━━━━━━━━ 28/28 9.8Mit/s 0.0s[K[34m[1mval: [0mScanning /home/akhiyarwaladi/hello_world/data/integrated/yolo/val/labels.cache... 28 images, 0 backgrounds, 0 corrupt: 100% ━━━━━━━━━━━━ 28/28 762.6Kit/s 0.0s
+WARNING ⚠️ cache='ram' may produce non-deterministic training results. Consider cache='disk' as a deterministic alternative if your disk space allows.
+[K[34m[1mval: [0mCaching images (0.0GB RAM): 100% ━━━━━━━━━━━━ 28/28 1.4Kit/s 0.0s[K[34m[1mval: [0mCaching images (0.0GB RAM): 100% ━━━━━━━━━━━━ 28/28 1.4Kit/s 0.0s
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 25% ━━━───────── 1/4 0.5it/s 0.6s<5.9s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 50% ━━━━━━────── 2/4 0.8it/s 1.2s<2.4s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 75% ━━━━━━━━━─── 3/4 1.1it/s 1.8s<0.9s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 4/4 1.8it/s 2.2s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 4/4 1.8it/s 2.2s
+                   all         28         28    0.00997          1      0.504       0.41
+          P_falciparum         15         15     0.0332          1      0.634      0.473
+            P_malariae          4          4    0.00378          1       0.56      0.504
+               P_ovale          5          5    0.00198          1      0.258      0.245
+               P_vivax          4          4   0.000917          1      0.563      0.416
+Speed: 0.7ms preprocess, 68.7ms inference, 0.0ms loss, 4.1ms postprocess per image
+Results saved to [1m/home/akhiyarwaladi/hello_world/results/current_experiments/validation/detection/yolo12_detection/multi_pipeline_20250920_164342_TEST_yolo12_det[0m
+
+📊 Validation Metrics:
+   mAP50: 0.5039
+   mAP50-95: 0.4098
+   Precision: 0.0100
+   Recall: 1.0000
+
+✅ YOLOv12 detection training completed successfully!
+================================================================================
+Executing yolov12_detection using python script
+python scripts/training/12_train_yolo12_detection.py --data data/integrated/yolo/dataset.yaml --model yolo12n.pt --epochs 2 --batch 8 --device cpu --name multi_pipeline_20250920_164342_TEST_yolo12_det
+================================================================================
+🧪 TEST MODE ENABLED - Using lower confidence threshold for guaranteed crops
+🎯 MULTIPLE MODELS DETECTION → CLASSIFICATION PIPELINE
+🧪 RUNNING IN TEST MODE
+Detection models to run: yolo8, yolo11, yolo12
+Excluded detection models: rtdetr
+Classification models: yolo8
+Excluded classification models: None
+Detection Epochs: 2
+Classification Epochs: 2
+Crop Confidence Threshold: 0.05
+Experiment Base Name: multi_pipeline_20250920_164342_TEST
+
+🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯
+🎯 STARTING PIPELINE FOR YOLO8
+🧪 TEST MODE - Lower confidence for guaranteed crops
+🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯
+
+📊 STAGE 1: Training yolov8_detection
+
+============================================================
+🚀 STAGE 1: Training yolov8_detection
+============================================================
+Command: python3 pipeline.py train yolov8_detection --name multi_pipeline_20250920_164342_TEST_yolo8_det --epochs 2
+✅ STAGE 1: Training yolov8_detection - COMPLETED
+⏳ Waiting for file: results/current_experiments/training/detection/yolov8_detection/multi_pipeline_20250920_164342_TEST_yolo8_det/weights/best.pt
+   ⏱️ Attempt 1/40 - waiting 3s...
+   ⏱️ Attempt 2/40 - waiting 3s...
+   ⏱️ Attempt 3/40 - waiting 3s...
+   ⏱️ Attempt 4/40 - waiting 3s...
+   ⏱️ Attempt 5/40 - waiting 3s...
+   ⏱️ Attempt 6/40 - waiting 3s...
+   ⏱️ Attempt 7/40 - waiting 3s...
+   ⏱️ Attempt 8/40 - waiting 3s...
+   ⏱️ Attempt 9/40 - waiting 3s...
+   ⏱️ Attempt 10/40 - waiting 3s...
+   ⏱️ Attempt 11/40 - waiting 3s...
+   ⏱️ Attempt 12/40 - waiting 3s...
+   ⏱️ Attempt 13/40 - waiting 3s...
+   ⏱️ Attempt 14/40 - waiting 3s...
+   ⏱️ Attempt 15/40 - waiting 3s...
+   ⏱️ Attempt 16/40 - waiting 3s...
+   ⏱️ Attempt 17/40 - waiting 3s...
+   ⏱️ Attempt 18/40 - waiting 3s...
+   ⏱️ Attempt 19/40 - waiting 3s...
+   ⏱️ Attempt 20/40 - waiting 3s...
+   ⏱️ Attempt 21/40 - waiting 3s...
+   ⏱️ Attempt 22/40 - waiting 3s...
+   ⏱️ Attempt 23/40 - waiting 3s...
+   ⏱️ Attempt 24/40 - waiting 3s...
+   ⏱️ Attempt 25/40 - waiting 3s...
+   ⏱️ Attempt 26/40 - waiting 3s...
+   ⏱️ Attempt 27/40 - waiting 3s...
+   ⏱️ Attempt 28/40 - waiting 3s...
+   ⏱️ Attempt 29/40 - waiting 3s...
+   ⏱️ Attempt 30/40 - waiting 3s...
+   ⏱️ Attempt 31/40 - waiting 3s...
+   ⏱️ Attempt 32/40 - waiting 3s...
+   ⏱️ Attempt 33/40 - waiting 3s...
+   ⏱️ Attempt 34/40 - waiting 3s...
+   ⏱️ Attempt 35/40 - waiting 3s...
+   ⏱️ Attempt 36/40 - waiting 3s...
+   ⏱️ Attempt 37/40 - waiting 3s...
+   ⏱️ Attempt 38/40 - waiting 3s...
+   ⏱️ Attempt 39/40 - waiting 3s...
+   ⏱️ Attempt 40/40 - waiting 3s...
+❌ Timeout waiting for file: results/current_experiments/training/detection/yolov8_detection/multi_pipeline_20250920_164342_TEST_yolo8_det/weights/best.pt
+❌ Weights not found for yolo8: results/current_experiments/training/detection/yolov8_detection/multi_pipeline_20250920_164342_TEST_yolo8_det/weights/best.pt
+
+🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯
+🎯 STARTING PIPELINE FOR YOLO11
+🧪 TEST MODE - Lower confidence for guaranteed crops
+🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯
+
+📊 STAGE 1: Training yolov11_detection
+
+============================================================
+🚀 STAGE 1: Training yolov11_detection
+============================================================
+Command: python3 pipeline.py train yolov11_detection --name multi_pipeline_20250920_164342_TEST_yolo11_det --epochs 2
+✅ STAGE 1: Training yolov11_detection - COMPLETED
+⏳ Waiting for file: results/current_experiments/training/detection/yolov11_detection/multi_pipeline_20250920_164342_TEST_yolo11_det/weights/best.pt
+   ⏱️ Attempt 1/40 - waiting 3s...
+   ⏱️ Attempt 2/40 - waiting 3s...
+   ⏱️ Attempt 3/40 - waiting 3s...
+   ⏱️ Attempt 4/40 - waiting 3s...
+   ⏱️ Attempt 5/40 - waiting 3s...
+   ⏱️ Attempt 6/40 - waiting 3s...
+   ⏱️ Attempt 7/40 - waiting 3s...
+   ⏱️ Attempt 8/40 - waiting 3s...
+   ⏱️ Attempt 9/40 - waiting 3s...
+   ⏱️ Attempt 10/40 - waiting 3s...
+   ⏱️ Attempt 11/40 - waiting 3s...
+   ⏱️ Attempt 12/40 - waiting 3s...
+   ⏱️ Attempt 13/40 - waiting 3s...
+   ⏱️ Attempt 14/40 - waiting 3s...
+   ⏱️ Attempt 15/40 - waiting 3s...
+   ⏱️ Attempt 16/40 - waiting 3s...
+   ⏱️ Attempt 17/40 - waiting 3s...
+   ⏱️ Attempt 18/40 - waiting 3s...
+   ⏱️ Attempt 19/40 - waiting 3s...
+   ⏱️ Attempt 20/40 - waiting 3s...
+   ⏱️ Attempt 21/40 - waiting 3s...
+   ⏱️ Attempt 22/40 - waiting 3s...
+   ⏱️ Attempt 23/40 - waiting 3s...
+   ⏱️ Attempt 24/40 - waiting 3s...
+   ⏱️ Attempt 25/40 - waiting 3s...
+   ⏱️ Attempt 26/40 - waiting 3s...
+   ⏱️ Attempt 27/40 - waiting 3s...
+   ⏱️ Attempt 28/40 - waiting 3s...
+   ⏱️ Attempt 29/40 - waiting 3s...
+   ⏱️ Attempt 30/40 - waiting 3s...
+   ⏱️ Attempt 31/40 - waiting 3s...
+   ⏱️ Attempt 32/40 - waiting 3s...
+   ⏱️ Attempt 33/40 - waiting 3s...
+   ⏱️ Attempt 34/40 - waiting 3s...
+   ⏱️ Attempt 35/40 - waiting 3s...
+   ⏱️ Attempt 36/40 - waiting 3s...
+   ⏱️ Attempt 37/40 - waiting 3s...
+   ⏱️ Attempt 38/40 - waiting 3s...
+   ⏱️ Attempt 39/40 - waiting 3s...
+   ⏱️ Attempt 40/40 - waiting 3s...
+❌ Timeout waiting for file: results/current_experiments/training/detection/yolov11_detection/multi_pipeline_20250920_164342_TEST_yolo11_det/weights/best.pt
+❌ Weights not found for yolo11: results/current_experiments/training/detection/yolov11_detection/multi_pipeline_20250920_164342_TEST_yolo11_det/weights/best.pt
+
+🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯
+🎯 STARTING PIPELINE FOR YOLO12
+🧪 TEST MODE - Lower confidence for guaranteed crops
+🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯🎯
+
+📊 STAGE 1: Training yolov12_detection
+
+============================================================
+🚀 STAGE 1: Training yolov12_detection
+============================================================
+Command: python3 pipeline.py train yolov12_detection --name multi_pipeline_20250920_164342_TEST_yolo12_det --epochs 2
+✅ STAGE 1: Training yolov12_detection - COMPLETED
+⏳ Waiting for file: results/current_experiments/training/detection/yolov12_detection/multi_pipeline_20250920_164342_TEST_yolo12_det/weights/best.pt
+   ⏱️ Attempt 1/40 - waiting 3s...
+   ⏱️ Attempt 2/40 - waiting 3s...
+   ⏱️ Attempt 3/40 - waiting 3s...
+   ⏱️ Attempt 4/40 - waiting 3s...
+   ⏱️ Attempt 5/40 - waiting 3s...
+   ⏱️ Attempt 6/40 - waiting 3s...
+   ⏱️ Attempt 7/40 - waiting 3s...
+   ⏱️ Attempt 8/40 - waiting 3s...
+   ⏱️ Attempt 9/40 - waiting 3s...
+   ⏱️ Attempt 10/40 - waiting 3s...
+   ⏱️ Attempt 11/40 - waiting 3s...
+   ⏱️ Attempt 12/40 - waiting 3s...
+   ⏱️ Attempt 13/40 - waiting 3s...
+   ⏱️ Attempt 14/40 - waiting 3s...
+   ⏱️ Attempt 15/40 - waiting 3s...
+   ⏱️ Attempt 16/40 - waiting 3s...
+   ⏱️ Attempt 17/40 - waiting 3s...
+   ⏱️ Attempt 18/40 - waiting 3s...
+   ⏱️ Attempt 19/40 - waiting 3s...
+   ⏱️ Attempt 20/40 - waiting 3s...
+   ⏱️ Attempt 21/40 - waiting 3s...
+   ⏱️ Attempt 22/40 - waiting 3s...
+   ⏱️ Attempt 23/40 - waiting 3s...
+   ⏱️ Attempt 24/40 - waiting 3s...
+   ⏱️ Attempt 25/40 - waiting 3s...
+   ⏱️ Attempt 26/40 - waiting 3s...
+   ⏱️ Attempt 27/40 - waiting 3s...
+   ⏱️ Attempt 28/40 - waiting 3s...
+   ⏱️ Attempt 29/40 - waiting 3s...
+   ⏱️ Attempt 30/40 - waiting 3s...
+   ⏱️ Attempt 31/40 - waiting 3s...
+   ⏱️ Attempt 32/40 - waiting 3s...
+   ⏱️ Attempt 33/40 - waiting 3s...
+   ⏱️ Attempt 34/40 - waiting 3s...
+   ⏱️ Attempt 35/40 - waiting 3s...
+   ⏱️ Attempt 36/40 - waiting 3s...
+   ⏱️ Attempt 37/40 - waiting 3s...
+   ⏱️ Attempt 38/40 - waiting 3s...
+   ⏱️ Attempt 39/40 - waiting 3s...
+   ⏱️ Attempt 40/40 - waiting 3s...
+❌ Timeout waiting for file: results/current_experiments/training/detection/yolov12_detection/multi_pipeline_20250920_164342_TEST_yolo12_det/weights/best.pt
+❌ Weights not found for yolo12: results/current_experiments/training/detection/yolov12_detection/multi_pipeline_20250920_164342_TEST_yolo12_det/weights/best.pt
+
+🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉
+🎉 MULTIPLE MODELS PIPELINE FINISHED!
+🧪 TEST MODE COMPLETED
+🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉
+
+❌ FAILED MODELS (3):
+   ❌ yolo8 (weights missing)
+   ❌ yolo11 (weights missing)
+   ❌ yolo12 (weights missing)
+
+Total Success Rate: 0/3 detection models

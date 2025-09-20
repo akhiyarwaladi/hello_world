@@ -269,7 +269,7 @@ def main():
             if args.fix_classification_structure:
                 print(f"\n🔧 Fixing classification structure for 4 malaria species...")
                 fix_cmd = [
-                    "python", "fix_classification_structure.py",
+                    "python3", "fix_classification_structure.py",
                     "--crop_data_path", args.output,
                     "--input_path", args.input
                 ]
