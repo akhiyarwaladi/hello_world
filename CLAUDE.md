@@ -1,17 +1,23 @@
 # Malaria Detection Project - Context for Claude
 
 ## 🎯 Project Overview
-Comprehensive malaria detection system using YOLOv8, YOLOv11, and RT-DETR models for microscopy image analysis.
+Comprehensive malaria detection system using YOLOv8, YOLOv11, YOLOv12, and RT-DETR models for microscopy image analysis.
 
-**Current Status: ✅ PRODUCTION READY - 3-Stage Workflow Implemented**
+**Current Status: ✅ ADVANCED PIPELINE - Multiple Models with Exclusion Support**
+
+**Latest Update**: September 20, 2025 - Added advanced pipeline management with model exclusion/inclusion support
 
 ## 🚀 Simplified 3-Stage Workflow
 
 ### STAGE 1: Train Detection Model
 ```bash
-python pipeline.py train yolov8_detection --name auto_yolov8_det --epochs 50
-python pipeline.py train yolov11_detection --name auto_yolov11_det --epochs 30
-python pipeline.py train rtdetr_detection --name auto_rtdetr_det --epochs 50
+# Use venv for all commands
+source venv/bin/activate
+
+python pipeline.py train yolov8_detection --name auto_yolov8_det --epochs 40
+python pipeline.py train yolov11_detection --name auto_yolov11_det --epochs 40
+python pipeline.py train yolo12_detection --name auto_yolo12_det --epochs 40
+python pipeline.py train rtdetr_detection --name auto_rtdetr_det --epochs 40
 ```
 **Output**: `results/current_experiments/training/detection/[model_type]/[experiment_name]/weights/best.pt`
 
@@ -31,19 +37,43 @@ python pipeline.py train yolov11_classification --name auto_yolov11_cls --data d
 ```
 **Uses crop data**: Automatically uses crops generated from Stage 2
 
-## ⚡ COMPLETE AUTOMATION - ONE COMMAND
+## ⚡ COMPLETE AUTOMATION - ADVANCED PIPELINE COMMANDS
+
+### 🚀 NEW: Multiple Models with Exclusion Support
+```bash
+# ALL MODELS except specific ones (RECOMMENDED for large runs)
+source venv/bin/activate
+python run_multiple_models_pipeline.py --exclude rtdetr --epochs-det 40 --epochs-cls 30
+
+# INCLUDE only specific models
+python run_multiple_models_pipeline.py --include yolo8 yolo11 --epochs-det 40 --epochs-cls 30
+
+# ALL MODELS (no exclusions)
+python run_multiple_models_pipeline.py --epochs-det 40 --epochs-cls 30
+```
+
+### 🎯 Single Model Pipeline
 ```bash
 # SINGLE MODEL: Train one detection model with classification
-python run_complete_pipeline.py --detection yolo8 --epochs-det 50 --epochs-cls 30
-
-# ALL MODELS: Train ALL detection models sequentially (YOLO8, YOLO11, RT-DETR)
-python run_all_models_pipeline.py --epochs-det 50 --epochs-cls 30
-
-# OLD: Bulk processing (assumes detection models already exist)
-python scripts/13_full_detection_classification_pipeline.py --detection yolo8
+source venv/bin/activate
+python run_complete_pipeline.py --detection yolo8 --epochs-det 40 --epochs-cls 30
 ```
-**Full automation**: Runs all 3 stages sequentially with automatic data flow
-**All models**: Sequential execution of all detection models with classification
+
+### 📊 Monitoring & Status Tools
+```bash
+# Check training status clearly
+python scripts/check_training_status.py
+
+# Experiment management
+python scripts/experiment_manager.py
+```
+
+**NEW Features**:
+- **Model Exclusion**: Skip specific models (e.g., exclude RT-DETR)
+- **Model Inclusion**: Run only specific models
+- **Timestamp Naming**: Auto-generated unique experiment names
+- **Clear Monitoring**: Unambiguous training status tracking
+- **Error Handling**: Continue with other models if one fails
 
 ## 🔗 AUTOMATIC DATA FLOW BETWEEN STAGES
 
@@ -94,11 +124,13 @@ results/
 ### Detection Models (Stage 1)
 - `yolov8_detection` - Fast and accurate
 - `yolov11_detection` - Latest YOLO version
-- `rtdetr_detection` - Transformer-based
+- `yolo12_detection` - Newest YOLO version (experimental)
+- `rtdetr_detection` - Transformer-based (slower but high accuracy)
 
 ### Classification Models (Stage 3)
 - `yolov8_classification` - Species classification
 - `yolov11_classification` - Latest classifier
+- `pytorch_classification` - Various CNN architectures (ResNet, DenseNet, etc.)
 
 ## ⚡ Quick Commands
 
@@ -153,10 +185,12 @@ python scripts/03_integrate_datasets.py      # Integrate datasets
 
 ### Main Scripts (CORE WORKFLOW)
 ```
-run_complete_pipeline.py                 # TRUE full automation (all 3 stages)
+run_multiple_models_pipeline.py          # NEW: Multiple models with exclusion support
+run_complete_pipeline.py                 # Single model full automation (all 3 stages)
 pipeline.py                               # Main interface for training
 scripts/10_crop_detections.py            # Stage 2: Generate crops from detection
-scripts/13_full_detection_classification_pipeline.py  # Bulk processing (stage 2+3)
+scripts/check_training_status.py         # NEW: Clear training status monitoring
+scripts/experiment_manager.py            # NEW: Experiment organization & tracking
 ```
 
 ### Data Setup Scripts (if needed)
@@ -174,11 +208,42 @@ config/models.yaml                       # Model configurations
 
 ## 🎯 Current Workflow Status
 - **3-Stage Pipeline**: Detection → Crop → Classification
+- **Multiple Model Support**: Train all models with exclusions
+- **Timestamp Naming**: Clear experiment identification
 - **Full Automation**: Single command runs everything
 - **Organized Results**: Auto-organized folder structure
-- **Background Training**: Parallel processing supported
+- **Advanced Monitoring**: Clear status tracking tools
+- **Error Resilience**: Continue on failures
 
 ## 🚨 Important Notes for Claude
+
+### 🆕 FRESH MACHINE SETUP (FROM ZERO TO RESULTS)
+**Complete setup from fresh clone to results:**
+
+```bash
+# 1. Clone repository & setup environment
+git clone [repository-url]
+cd hello_world
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# 2. Setup data pipeline (4 steps) - CORRECTED PATH
+python scripts/data_setup/01_download_datasets.py --dataset mp_idb  # Download MP-IDB (~500MB)
+python scripts/data_setup/02_preprocess_data.py                     # Preprocess images
+python scripts/data_setup/03_integrate_datasets.py                  # Integrate datasets
+python scripts/data_setup/04_convert_to_yolo.py                     # Convert to YOLO format
+
+# 3. Run complete 3-stage workflow (RECOMMENDED)
+python run_multiple_models_pipeline.py --exclude rtdetr --epochs-det 40 --epochs-cls 30
+
+# Alternative: Single model pipeline
+python run_complete_pipeline.py --detection yolo8 --epochs-det 40 --epochs-cls 30
+```
+
+**NOTE**: The old `quick_setup_new_machine.sh` references missing scripts:
+- `scripts/08_parse_mpid_detection.py` ❌ → Use data_setup pipeline above ✅
+- `scripts/09_crop_parasites_from_detection.py` ❌ → Use `scripts/training/10_crop_detections.py` ✅
 
 ### CURRENT WORKFLOW - 3 STAGES WITH AUTOMATIC DATA FLOW
 1. **Train Detection Model** → `pipeline.py train [detection_model]` → saves to structured path
@@ -190,20 +255,27 @@ config/models.yaml                       # Model configurations
 - **Stage 2→3**: Crop data path auto-passed to classification training
 - **No manual path copying**: Everything connected through consistent folder structure
 
-### ONE-COMMAND FULL AUTOMATION (TRAINS ALL 3 STAGES)
+### RECOMMENDED COMMANDS (UPDATED)
 ```bash
-# TRUE FULL PIPELINE (trains detection first)
-python run_complete_pipeline.py --detection yolo8 --epochs-det 50 --epochs-cls 30
+# BEST: Multiple models with exclusion (current running)
+source venv/bin/activate
+python run_multiple_models_pipeline.py --exclude rtdetr --epochs-det 40 --epochs-cls 30
 
-# BULK PROCESSING (detection models must exist)
-python scripts/13_full_detection_classification_pipeline.py --detection yolo8
+# SINGLE MODEL pipeline
+python run_complete_pipeline.py --detection yolo8 --epochs-det 40 --epochs-cls 30
+
+# STATUS MONITORING
+python scripts/check_training_status.py
 ```
 
 ### Error Handling & Troubleshooting
+- **IMPORTANT**: Always use `source venv/bin/activate` before running any command
 - **Data issues**: Run `python scripts/01_download_datasets.py` first
 - **Memory issues**: Use `--batch 4` for CPU training
 - **Model not found**: Script auto-searches in structured paths, check experiment names
 - **Crop generation fails**: Check if detection model exists at expected path
+- **Training status**: Use `python scripts/check_training_status.py` for clear status
+- **Experiment tracking**: Use `python scripts/experiment_manager.py` for organization
 
 ### Data Flow Paths (AUTOMATIC)
 ```
@@ -228,12 +300,22 @@ classification training → --data automatically set to crop path
 
 ---
 
-## 🎉 Status: READY TO USE - FULLY AUTOMATED
+## 🎉 Status: ADVANCED PIPELINE - PRODUCTION READY
 
 ✅ **3-Stage workflow with automatic data flow**
+✅ **Multiple model support with exclusion/inclusion**
+✅ **Timestamp-based experiment naming (no ambiguity)**
+✅ **Advanced monitoring and status tracking**
+✅ **Error resilience and continuation**
 ✅ **Full automation available (one command)**
 ✅ **Auto folder organization**
 ✅ **Auto model/data discovery**
-✅ **No manual path management needed**
 
-**Use ONE command for complete automation or run 3 stages with automatic connections.**
+**CURRENT STATUS**: YOLOv8 training in progress (epoch 18/40), YOLOv11 and YOLOv12 queued, RT-DETR excluded.
+
+**LATEST FEATURES**:
+- Model exclusion: `--exclude rtdetr`
+- Model inclusion: `--include yolo8 yolo11`
+- Clear status monitoring
+- Experiment management tools
+- Virtual environment integration

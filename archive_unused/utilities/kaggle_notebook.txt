@@ -1,1 +1,0 @@
-https://www.kaggle.com/code/alexkhr/parasite-segmentation-yolo-11-mask-map50-0-8

@@ -1,0 +1,28 @@
+{
+  "detection": {
+    "yolo8": {
+      "model_name": "YOLOv8n",
+      "epochs": 29,
+      "final_mAP50": 0.995,
+      "final_mAP50_95": 0.97217,
+      "final_precision": 0.94807,
+      "final_recall": 0.95323,
+      "training_time": 716.882,
+      "box_loss": 0.16161,
+      "cls_loss": 0.7415,
+      "val_box_loss": 0.2567,
+      "val_cls_loss": 1.02271
+    }
+  },
+  "classification": {
+    "yolo8": {
+      "model_name": "YOLOv8n",
+      "epochs": 16,
+      "final_top1_acc": 0.85714,
+      "final_top5_acc": 1.0,
+      "training_time": 22.996,
+      "train_loss": 0.33613,
+      "val_loss": 0.36885
+    }
+  }
+}
