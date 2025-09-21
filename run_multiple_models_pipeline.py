@@ -232,10 +232,10 @@ def create_experiment_summary(exp_dir, model_key, det_exp_name, cls_exp_name, de
 def main():
     parser = argparse.ArgumentParser(description="Multiple Models Pipeline: Train multiple detection models → Generate Crops → Train Classification")
     parser.add_argument("--include", nargs="+",
-                       choices=["yolo8", "yolo10", "yolo11", "yolo12", "yolo13", "rtdetr"],
+                       choices=["yolo8", "yolo11", "rtdetr"],
                        help="Detection models to include (if not specified, includes all)")
     parser.add_argument("--exclude-detection", nargs="+",
-                       choices=["yolo8", "yolo10", "yolo11", "yolo12", "yolo13", "rtdetr"],
+                       choices=["yolo8", "yolo11", "rtdetr"],
                        default=[],
                        help="Detection models to exclude")
     parser.add_argument("--epochs-det", type=int, default=50,

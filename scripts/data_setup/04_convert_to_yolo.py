@@ -177,10 +177,10 @@ class MalariaYOLOConverter:
         """Create YOLO configuration files"""
         print("Creating YOLO configuration files...")
         
-        # Create data.yaml
+        # Create data.yaml with relative paths for cross-machine compatibility
         if task_type == "detect":
             data_config = {
-                'path': str(self.yolo_output_dir.absolute()),
+                'path': 'data/integrated/yolo',  # Relative path for portability
                 'train': 'train/images',
                 'val': 'val/images',
                 'test': 'test/images',
@@ -189,10 +189,10 @@ class MalariaYOLOConverter:
             }
         else:  # classify
             data_config = {
-                'path': str(self.yolo_output_dir.absolute()),
-                'train': str((self.yolo_output_dir / 'train').absolute()),
-                'val': str((self.yolo_output_dir / 'val').absolute()),
-                'test': str((self.yolo_output_dir / 'test').absolute()),
+                'path': 'data/integrated/yolo',  # Relative path for portability
+                'train': 'train',
+                'val': 'val',
+                'test': 'test',
                 'nc': len(self.class_names),
                 'names': list(self.class_names.values())
             }
