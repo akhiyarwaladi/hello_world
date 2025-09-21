@@ -245,6 +245,8 @@ def main():
                        help="Epochs for classification training")
     parser.add_argument("--experiment-name", default="multi_pipeline",
                        help="Base name for experiments")
+    parser.add_argument("--use-kaggle-dataset", action="store_true",
+                       help="Use Kaggle MP-IDB dataset instead of preprocessed dataset")
     parser.add_argument("--classification-models", nargs="+",
                        choices=["yolo8", "yolo11", "resnet18", "efficientnet", "densenet121", "mobilenet_v2", "all"],
                        default=["all"],
@@ -361,6 +363,21 @@ def main():
     print(f"Epochs: {args.epochs_det} det, {args.epochs_cls} cls")
     print(f"Confidence: {confidence_threshold}")
 
+    # Auto-setup Kaggle dataset if needed
+    if args.use_kaggle_dataset:
+        kaggle_ready_path = Path("data/kaggle_pipeline_ready/data.yaml")
+        if not kaggle_ready_path.exists():
+            print("🔧 Setting up Kaggle dataset for pipeline...")
+            import subprocess
+            result = subprocess.run([sys.executable, "setup_kaggle_for_pipeline.py"],
+                                  capture_output=True, text=True)
+            if result.returncode != 0:
+                print(f"❌ Failed to setup Kaggle dataset: {result.stderr}")
+                return
+        print(f"📊 Dataset: Kaggle MP-IDB Pipeline Ready (data/kaggle_pipeline_ready/)")
+    else:
+        print(f"📊 Dataset: Integrated (data/integrated/yolo/)")
+
     # Model mapping
     detection_models = {
         "yolo8": "yolov8_detection",
@@ -394,10 +411,16 @@ def main():
         elif detection_model == "rtdetr_detection":
             yolo_model = "rtdetr-l.pt"
 
+        # Choose dataset based on flag
+        if args.use_kaggle_dataset:
+            data_yaml = "data/kaggle_pipeline_ready/data.yaml"
+        else:
+            data_yaml = "data/integrated/yolo/data.yaml"
+
         cmd1 = [
             "yolo", "detect", "train",
             f"model={yolo_model}",
-            "data=data/integrated/yolo/data.yaml",
+            f"data={data_yaml}",
             f"epochs={args.epochs_det}",
             f"name={det_exp_name}",
             f"project={centralized_detection_path.parent}",
@@ -444,7 +467,11 @@ def main():
 
         # STAGE 2: Generate Crops
         print(f"\n🔄 STAGE 2: Generating crops for {model_key}")
-        input_path = "data/integrated/yolo"
+        # Use same dataset as training
+        if args.use_kaggle_dataset:
+            input_path = "data/kaggle_pipeline_ready"
+        else:
+            input_path = "data/integrated/yolo"
 
         # NEW: Use centralized crops path
         centralized_crops_path = results_manager.get_crops_path(model_key, det_exp_name)
