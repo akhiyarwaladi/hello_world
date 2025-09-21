@@ -461,7 +461,7 @@ def main():
         if detection_model == "yolov8_detection":
             yolo_model = "yolov8n.pt"
         elif detection_model == "yolov11_detection":
-            yolo_model = "yolov11n.pt"
+            yolo_model = "yolo11n.pt"
         elif detection_model == "yolov12_detection":
             yolo_model = "yolo12n.pt"  # Correct ultralytics naming convention
         elif detection_model == "rtdetr_detection":
