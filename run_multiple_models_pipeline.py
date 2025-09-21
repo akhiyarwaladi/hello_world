@@ -260,7 +260,7 @@ def main():
     args = parser.parse_args()
 
     # Determine which detection models to run
-    all_detection_models = ["yolo8", "yolo10", "yolo11", "yolo12", "yolo13", "rtdetr"]
+    all_detection_models = ["yolo8", "yolo11", "rtdetr"]
 
     if args.include:
         models_to_run = args.include
@@ -363,10 +363,7 @@ def main():
     # Model mapping
     detection_models = {
         "yolo8": "yolov8_detection",
-        "yolo10": "yolov10_detection",
         "yolo11": "yolov11_detection",
-        "yolo12": "yolov12_detection",
-        "yolo13": "yolov13_detection",
         "rtdetr": "rtdetr_detection"
     }
 
@@ -388,14 +385,8 @@ def main():
         # Direct YOLO training command
         if detection_model == "yolov8_detection":
             yolo_model = "yolov8n.pt"
-        elif detection_model == "yolov10_detection":
-            yolo_model = "yolov10n.pt"
         elif detection_model == "yolov11_detection":
             yolo_model = "yolov11n.pt"
-        elif detection_model == "yolov12_detection":
-            yolo_model = "yolov12n.pt"
-        elif detection_model == "yolov13_detection":
-            yolo_model = "yolov13n.pt"
         elif detection_model == "rtdetr_detection":
             yolo_model = "rtdetr-l.pt"
 
