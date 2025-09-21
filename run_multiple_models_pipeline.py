@@ -20,6 +20,18 @@ from datetime import datetime
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 from utils.results_manager import get_results_manager, get_experiment_path, get_crops_path, get_analysis_path
+from utils.pipeline_continue import (
+    check_completed_stages,
+    determine_next_stage,
+    validate_experiment_dir,
+    load_experiment_metadata,
+    save_experiment_metadata,
+    merge_parameters,
+    print_experiment_status,
+    list_available_experiments,
+    find_detection_models,
+    find_crop_data
+)
 
 # REMOVED: get_experiment_folder function - always use "training" for consistency
 # Test mode and production mode now use same folder structure
@@ -316,7 +328,70 @@ def main():
     parser.add_argument("--no-zip", action="store_true",
                        help="Skip creating ZIP archive of results (default: always create ZIP)")
 
+    # Continue/Resume functionality
+    parser.add_argument("--continue-from", type=str, metavar="EXPERIMENT_NAME",
+                       help="Continue from existing experiment (e.g., exp_multi_pipeline_20250921_144544)")
+    parser.add_argument("--start-stage", choices=["detection", "crop", "classification", "analysis"],
+                       help="Force start from specific stage (auto-detected if not specified)")
+    parser.add_argument("--list-experiments", action="store_true",
+                       help="List available experiments and exit")
+
     args = parser.parse_args()
+
+    # Handle special commands first
+    if args.list_experiments:
+        list_available_experiments()
+        return
+
+    # Handle continue/resume functionality
+    continue_mode = False
+    experiment_dir = None
+    start_stage = None
+
+    if args.continue_from:
+        continue_mode = True
+        experiment_name = args.continue_from
+
+        # Handle both with and without "results/" prefix
+        if experiment_name.startswith("results/"):
+            experiment_dir = experiment_name
+        else:
+            experiment_dir = f"results/{experiment_name}"
+
+        # Validate experiment exists
+        if not validate_experiment_dir(experiment_dir):
+            print("❌ Cannot continue from invalid experiment")
+            return
+
+        print(f"🔄 CONTINUE MODE: {experiment_name}")
+        print("=" * 60)
+
+        # Show current experiment status
+        print_experiment_status(experiment_dir)
+
+        # Load existing metadata and merge parameters
+        metadata = load_experiment_metadata(experiment_dir)
+        if metadata.get('original_args'):
+            original_args = metadata['original_args']
+            print("📋 Merging parameters with original experiment...")
+            merged_args_dict = merge_parameters(original_args, args)
+
+            # Create new args object with merged parameters
+            for key, value in merged_args_dict.items():
+                if hasattr(args, key):
+                    setattr(args, key, value)
+
+        # Check completed stages and determine where to start
+        completed_stages = check_completed_stages(experiment_dir)
+
+        if args.start_stage:
+            start_stage = args.start_stage
+            print(f"🎯 Force starting from stage: {start_stage}")
+        else:
+            start_stage = determine_next_stage(completed_stages)
+            print(f"🔄 Auto-determined next stage: {start_stage}")
+
+        print()
 
     # Determine which detection models to run
     all_detection_models = ["yolo8", "yolo11", "yolo12", "rtdetr"]
@@ -402,16 +477,23 @@ def main():
         confidence_threshold = "0.25"
         print(f"🎯 Using production confidence threshold: {confidence_threshold}")
 
-    # Add timestamp to experiment name for uniqueness
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    base_exp_name = f"{args.experiment_name}_{timestamp}"
+    # Handle experiment naming for continue vs new mode
+    if continue_mode:
+        # Use existing experiment directory
+        base_exp_name = Path(experiment_dir).name.replace("exp_", "")
+        results_manager = get_results_manager(pipeline_name=base_exp_name)
+        print(f"📁 CONTINUING: {experiment_dir}/")
+    else:
+        # Add timestamp to experiment name for uniqueness
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        base_exp_name = f"{args.experiment_name}_{timestamp}"
 
-    if args.test_mode:
-        base_exp_name += "_TEST"
+        if args.test_mode:
+            base_exp_name += "_TEST"
 
-    # NEW: Initialize centralized results manager
-    results_manager = get_results_manager(pipeline_name=base_exp_name)
-    print(f"📁 RESULTS: results/exp_{base_exp_name}/")
+        # NEW: Initialize centralized results manager
+        results_manager = get_results_manager(pipeline_name=base_exp_name)
+        print(f"📁 RESULTS: results/exp_{base_exp_name}/")
 
     print("🎯 MULTIPLE MODELS PIPELINE")
     print(f"Detection models: {', '.join(models_to_run)}")
@@ -451,258 +533,359 @@ def main():
         detection_model = detection_models[model_key]
         det_exp_name = f"{base_exp_name}_{model_key}_det"
 
-        # STAGE 1: Train Detection Model - DIRECT SAVE to centralized folder
-        print(f"\n📊 STAGE 1: Training {detection_model}")
-
-        # NEW: Get centralized path and train directly there using YOLO directly
-        centralized_detection_path = results_manager.get_experiment_path("training", detection_model, det_exp_name)
-
-        # Direct YOLO training command with auto-download for YOLOv12
-        if detection_model == "yolov8_detection":
-            yolo_model = "yolov8n.pt"
-        elif detection_model == "yolov11_detection":
-            yolo_model = "yolo11n.pt"
-        elif detection_model == "yolov12_detection":
-            yolo_model = "yolo12n.pt"  # Correct ultralytics naming convention
-        elif detection_model == "rtdetr_detection":
-            yolo_model = "rtdetr-l.pt"
-
-        # Choose dataset based on flag
-        if args.use_kaggle_dataset:
-            data_yaml = "data/kaggle_pipeline_ready/data.yaml"
-        else:
-            data_yaml = "data/integrated/yolo/data.yaml"
-
-        # Use optimized training for Kaggle dataset
-        if args.use_kaggle_dataset:
-            print("🎯 Using KAGGLE-OPTIMIZED training with full augmentation")
-            if not run_kaggle_optimized_training(yolo_model, data_yaml, args.epochs_det,
-                                                det_exp_name, centralized_detection_path):
-                failed_models.append(f"{model_key} (detection)")
-                continue
-        else:
-            cmd1 = [
-                "yolo", "detect", "train",
-                f"model={yolo_model}",
-                f"data={data_yaml}",
-                f"epochs={args.epochs_det}",
-                f"name={det_exp_name}",
-                f"project={centralized_detection_path.parent}",
-                "device=cpu"
-            ]
-
-            if not run_command(cmd1, f"Training {detection_model}"):
-                failed_models.append(f"{model_key} (detection)")
-                continue
-
-        # Wait for weights directly in centralized location
-        # Handle YOLO's automatic folder name increments (e.g., exp, exp2, exp3...)
-        def find_actual_model_path(base_path, exp_name):
-            """Find the actual folder created by YOLO (handles auto-increment)"""
-            parent_dir = base_path.parent
-
-            # Look for exact match first
-            exact_path = parent_dir / exp_name / "weights" / "best.pt"
-            if exact_path.exists():
-                return exact_path
-
-            # Look for numbered variants (exp2, exp3, etc.)
-            for i in range(2, 20):  # Check up to exp19
-                numbered_path = parent_dir / f"{exp_name}{i}" / "weights" / "best.pt"
-                if numbered_path.exists():
-                    return numbered_path
-
-            return None
-
-        model_path = find_actual_model_path(centralized_detection_path, det_exp_name)
-
-        if model_path is None:
-            # Fall back to waiting for the expected path
-            model_path = centralized_detection_path / "weights" / "best.pt"
-            if not wait_for_file(str(model_path), max_wait_seconds=120, check_interval=3):
-                failed_models.append(f"{model_key} (weights missing)")
-                continue
-        else:
-            print(f"✅ Found model at: {model_path}")
-            # Update centralized_detection_path to point to the actual directory
-            centralized_detection_path = model_path.parent.parent
-
-        print(f"✅ Detection model saved directly to: {centralized_detection_path}")
-
-        # STAGE 2: Generate Crops
-        print(f"\n🔄 STAGE 2: Generating crops for {model_key}")
-        # Use same dataset as training
-        if args.use_kaggle_dataset:
-            input_path = "data/kaggle_pipeline_ready"
-        else:
-            input_path = "data/integrated/yolo"
-
-        # NEW: Use centralized crops path
-        centralized_crops_path = results_manager.get_crops_path(model_key, det_exp_name)
-        output_path = str(centralized_crops_path)
-
-        cmd2 = [
-            "python3", "scripts/training/10_crop_detections.py",
-            "--model", model_path,
-            "--input", input_path,
-            "--output", output_path,
-            "--confidence", confidence_threshold,  # Use variable confidence
-            "--crop_size", "128",
-            "--create_yolo_structure",
-            "--fix_classification_structure"
-        ]
-
-        if not run_command(cmd2, f"Generating crops for {model_key}"):
-            failed_models.append(f"{model_key} (crops)")
-            continue
-
-        # Verify crop data in CENTRALIZED location
-        crop_data_path = centralized_crops_path / "crops"
-        if not crop_data_path.exists():
-            failed_models.append(f"{model_key} (crop data missing)")
-            continue
-
-        # Count crops
-        total_crops = 0
-        for split in ['train', 'val', 'test']:
-            split_path = Path(crop_data_path) / split
-            if split_path.exists():
-                for class_dir in split_path.iterdir():
-                    if class_dir.is_dir():
-                        total_crops += len(list(class_dir.glob("*.jpg")))
-
-        print(f"   📊 Generated {total_crops} crops")
-        if total_crops == 0:
-            failed_models.append(f"{model_key} (no crops generated)")
-            continue
-
-        # STAGE 3: Train Classification Models
-        print(f"\n📈 STAGE 3: Training classification for {model_key}")
+        # Initialize variables that may be used in later stages
+        model_path = None
+        centralized_detection_path = None
+        centralized_crops_path = None
+        crop_data_path = None
         classification_success = []
         classification_failed = []
 
-        for cls_model_name in selected_classification:
-            if cls_model_name not in classification_configs:
+        # STAGE 1: Train Detection Model - DIRECT SAVE to centralized folder
+        if start_stage in ['detection']:
+            print(f"\n📊 STAGE 1: Training {detection_model}")
+
+            # NEW: Get centralized path and train directly there using YOLO directly
+            centralized_detection_path = results_manager.get_experiment_path("training", detection_model, det_exp_name)
+        elif start_stage in ['crop', 'classification', 'analysis']:
+            print(f"\n⏭️  STAGE 1: Skipping detection training (start_stage={start_stage})")
+            # Try to find existing detection model
+            if continue_mode:
+                existing_models = find_detection_models(experiment_dir)
+                # Map model_key to detection model naming
+                if model_key == 'yolo8':
+                    model_type = 'yolov8'
+                elif model_key == 'yolo11':
+                    model_type = 'yolov11'
+                elif model_key == 'yolo12':
+                    model_type = 'yolov12'
+                elif model_key == 'rtdetr':
+                    model_type = 'rtdetr'
+                else:
+                    model_type = model_key
+
+                if model_type in existing_models:
+                    model_path = existing_models[model_type][0]  # Use first available model
+                    centralized_detection_path = model_path.parent.parent
+                    print(f"   ✅ Found existing model: {model_path}")
+                else:
+                    print(f"   ❌ No existing {model_type} model found")
+                    failed_models.append(f"{model_key} (no existing detection model)")
+                    continue
+            else:
+                print(f"   ❌ Cannot skip detection in non-continue mode")
+                failed_models.append(f"{model_key} (detection required)")
                 continue
 
-            cls_config = classification_configs[cls_model_name]
-            cls_exp_name = f"{base_exp_name}_{model_key}_{cls_model_name}_cls"
+        # Only run detection training if we're starting from detection stage
+        if start_stage == 'detection':
+            # Direct YOLO training command with auto-download for YOLOv12
+            if detection_model == "yolov8_detection":
+                yolo_model = "yolov8n.pt"
+            elif detection_model == "yolov11_detection":
+                yolo_model = "yolo11n.pt"
+            elif detection_model == "yolov12_detection":
+                yolo_model = "yolo12n.pt"  # Correct ultralytics naming convention
+            elif detection_model == "rtdetr_detection":
+                yolo_model = "rtdetr-l.pt"
 
-            print(f"   🚀 Training {cls_model_name.upper()}")
+            # Choose dataset based on flag
+            if args.use_kaggle_dataset:
+                data_yaml = "data/kaggle_pipeline_ready/data.yaml"
+            else:
+                data_yaml = "data/integrated/yolo/data.yaml"
 
-            # NEW: Get centralized path for classification
-            centralized_cls_path = results_manager.get_experiment_path("training", cls_config['model'], cls_exp_name)
-
-            if cls_config["type"] == "yolo":
-                # YOLO classification - direct training command
-                yolo_cls_model = "yolov8n-cls.pt" if "yolo8" in cls_model_name else "yolov11n-cls.pt"
-
-                cmd3 = [
-                    "yolo", "classify", "train",
-                    f"model={yolo_cls_model}",
-                    f"data={crop_data_path}",
-                    f"epochs={args.epochs_cls}",
-                    f"name={cls_exp_name}",
-                    f"project={centralized_cls_path.parent}",
+            # Use optimized training for Kaggle dataset
+            if args.use_kaggle_dataset:
+                print("🎯 Using KAGGLE-OPTIMIZED training with full augmentation")
+                if not run_kaggle_optimized_training(yolo_model, data_yaml, args.epochs_det,
+                                                    det_exp_name, centralized_detection_path):
+                    failed_models.append(f"{model_key} (detection)")
+                    continue
+            else:
+                cmd1 = [
+                    "yolo", "detect", "train",
+                    f"model={yolo_model}",
+                    f"data={data_yaml}",
+                    f"epochs={args.epochs_det}",
+                    f"name={det_exp_name}",
+                    f"project={centralized_detection_path.parent}",
                     "device=cpu"
                 ]
+
+                if not run_command(cmd1, f"Training {detection_model}"):
+                    failed_models.append(f"{model_key} (detection)")
+                    continue
+
+            # Wait for weights directly in centralized location
+            # Handle YOLO's automatic folder name increments (e.g., exp, exp2, exp3...)
+            def find_actual_model_path(base_path, exp_name):
+                """Find the actual folder created by YOLO (handles auto-increment)"""
+                parent_dir = base_path.parent
+
+                # Look for exact match first
+                exact_path = parent_dir / exp_name / "weights" / "best.pt"
+                if exact_path.exists():
+                    return exact_path
+
+                # Look for numbered variants (exp2, exp3, etc.)
+                for i in range(2, 20):  # Check up to exp19
+                    numbered_path = parent_dir / f"{exp_name}{i}" / "weights" / "best.pt"
+                    if numbered_path.exists():
+                        return numbered_path
+
+                return None
+
+            model_path = find_actual_model_path(centralized_detection_path, det_exp_name)
+
+            if model_path is None:
+                # Fall back to waiting for the expected path
+                model_path = centralized_detection_path / "weights" / "best.pt"
+                if not wait_for_file(str(model_path), max_wait_seconds=120, check_interval=3):
+                    failed_models.append(f"{model_key} (weights missing)")
+                    continue
             else:
-                # PyTorch classification - modify script to use centralized path
-                cmd3 = [
-                    "python3", cls_config["script"],
-                    "--data", str(crop_data_path),
-                    "--model", cls_config["model"],
-                    "--epochs", str(args.epochs_cls),
-                    "--batch", str(cls_config["batch"]),
-                    "--device", "cpu",
-                    "--name", cls_exp_name,
-                    "--save-dir", str(centralized_cls_path)  # Direct save to centralized
-                ]
+                print(f"✅ Found model at: {model_path}")
+                # Update centralized_detection_path to point to the actual directory
+                centralized_detection_path = model_path.parent.parent
 
-            if run_command(cmd3, f"Training {cls_model_name.upper()}"):
-                print(f"✅ Classification model saved directly to: {centralized_cls_path}")
-                classification_success.append(cls_model_name)
+            print(f"✅ Detection model saved directly to: {centralized_detection_path}")
+
+        # STAGE 2: Generate Crops
+        if start_stage in ['detection', 'crop']:
+            print(f"\n🔄 STAGE 2: Generating crops for {model_key}")
+
+            # Use same dataset as training
+            if args.use_kaggle_dataset:
+                input_path = "data/kaggle_pipeline_ready"
             else:
-                classification_failed.append(cls_model_name)
+                input_path = "data/integrated/yolo"
 
-        if not classification_success:
-            failed_models.append(f"{model_key} (all classification)")
-            continue
+            # NEW: Use centralized crops path
+            centralized_crops_path = results_manager.get_crops_path(model_key, det_exp_name)
+            output_path = str(centralized_crops_path)
 
-        # STAGE 4: Create Organized Analysis for each successful classification model
-        print(f"\n🔬 STAGE 4: Creating organized analysis for {model_key}")
-
-        for cls_model_name in classification_success:
-            cls_exp_name = f"{base_exp_name}_{model_key}_{cls_model_name}_cls"
-
-            # NEW: Use centralized analysis path
-            centralized_analysis_path = results_manager.get_analysis_path(f"{model_key}_{cls_model_name}_complete")
-            analysis_dir = str(centralized_analysis_path)
-
-            # Create directories
-            centralized_analysis_path.mkdir(parents=True, exist_ok=True)
-
-            # Find classification model in CENTRALIZED location
-            if cls_model_name in ["yolo8", "yolo11"]:
-                cls_config_name = "yolov8_classification" if cls_model_name == "yolo8" else "yolov11_classification"
-                # Look in centralized classification results
-                classification_model = results_manager.get_experiment_path("training", cls_config_name, cls_exp_name) / "weights" / "best.pt"
-            else:
-                # PyTorch models in centralized location - uses .pt extension
-                classification_model = results_manager.get_experiment_path("training", f"pytorch_classification_{cls_model_name}", cls_exp_name) / "best.pt"
-
-            # Use centralized test data path
-            test_data = centralized_crops_path / "yolo_classification" / "test"
-
-            # Check if paths exist before running analysis
-            if Path(classification_model).exists() and Path(test_data).exists():
-                print(f"   📊 Running analysis for {cls_model_name.upper()}")
-
-                # Use standalone classification analysis script
-                analysis_cmd = [
-                    "python3", "scripts/analysis/classification_deep_analysis.py",
-                    "--model", classification_model,
-                    "--test-data", test_data,
-                    "--output", analysis_dir
-                ]
-
-                run_command(analysis_cmd, f"Analysis for {cls_model_name.upper()}")
-
-        # STAGE 4B: IoU Variation Analysis (on TEST SET) - once per detection model
-        # Run IoU analysis in all modes to ensure complete pipeline validation
-        print(f"   📊 Running IoU variation analysis")
-
-        # Use CENTRALIZED detection model path
-        detection_model_centralized = centralized_detection_path / "weights" / "best.pt"
-
-        if detection_model_centralized.exists() and classification_success:
-            first_cls = classification_success[0]
-            # Use centralized analysis path for IoU
-            iou_analysis_path = results_manager.get_analysis_path(f"{model_key}_{first_cls}_iou_variation")
-            iou_analysis_dir = str(iou_analysis_path)
-            iou_analysis_path.mkdir(parents=True, exist_ok=True)
-
-            # Use standalone IoU analysis script
-            iou_cmd = [
-                "python3", "scripts/analysis/14_compare_models_performance.py",
-                "--iou-analysis",
-                "--model", str(detection_model_centralized),
-                "--output", iou_analysis_dir
+            cmd2 = [
+                "python3", "scripts/training/10_crop_detections.py",
+                "--model", model_path,
+                "--input", input_path,
+                "--output", output_path,
+                "--confidence", confidence_threshold,  # Use variable confidence
+                "--crop_size", "128",
+                "--create_yolo_structure",
+                "--fix_classification_structure"
             ]
 
-            if args.test_mode:
-                print(f"   🧪 Test mode: Running quick IoU analysis")
+            if not run_command(cmd2, f"Generating crops for {model_key}"):
+                failed_models.append(f"{model_key} (crops)")
+                continue
 
-            run_command(iou_cmd, f"IoU Analysis for {model_key}")
+            # Verify crop data in CENTRALIZED location
+            crop_data_path = centralized_crops_path / "crops"
+            if not crop_data_path.exists():
+                failed_models.append(f"{model_key} (crop data missing)")
+                continue
+
+            # Count crops
+            total_crops = 0
+            for split in ['train', 'val', 'test']:
+                split_path = Path(crop_data_path) / split
+                if split_path.exists():
+                    for class_dir in split_path.iterdir():
+                        if class_dir.is_dir():
+                            total_crops += len(list(class_dir.glob("*.jpg")))
+
+            print(f"   📊 Generated {total_crops} crops")
+            if total_crops == 0:
+                failed_models.append(f"{model_key} (no crops generated)")
+                continue
+        elif start_stage in ['classification', 'analysis']:
+            print(f"\n⏭️  STAGE 2: Skipping crop generation (start_stage={start_stage})")
+            # Try to find existing crop data
+            if continue_mode:
+                crop_dirs = find_crop_data(experiment_dir)
+                # Find crop data for this specific model
+                model_crop_dir = None
+                for crop_dir in crop_dirs:
+                    if model_key in crop_dir.name:
+                        model_crop_dir = crop_dir
+                        break
+
+                if model_crop_dir:
+                    centralized_crops_path = model_crop_dir
+                    crop_data_path = model_crop_dir / "crops"
+                    if not crop_data_path.exists():
+                        crop_data_path = model_crop_dir  # Direct structure
+                    print(f"   ✅ Found existing crop data: {crop_data_path}")
+                else:
+                    print(f"   ❌ No existing crop data found for {model_key}")
+                    failed_models.append(f"{model_key} (no existing crop data)")
+                    continue
+            else:
+                print(f"   ❌ Cannot skip crop generation in non-continue mode")
+                failed_models.append(f"{model_key} (crops required)")
+                continue
+
+        # STAGE 3: Train Classification Models
+        if start_stage in ['detection', 'crop', 'classification']:
+            print(f"\n📈 STAGE 3: Training classification for {model_key}")
+            classification_success = []
+            classification_failed = []
+
+            for cls_model_name in selected_classification:
+                if cls_model_name not in classification_configs:
+                    continue
+
+                cls_config = classification_configs[cls_model_name]
+                cls_exp_name = f"{base_exp_name}_{model_key}_{cls_model_name}_cls"
+
+                print(f"   🚀 Training {cls_model_name.upper()}")
+
+                # NEW: Get centralized path for classification
+                centralized_cls_path = results_manager.get_experiment_path("training", cls_config['model'], cls_exp_name)
+
+                if cls_config["type"] == "yolo":
+                    # YOLO classification - direct training command
+                    yolo_cls_model = "yolov8n-cls.pt" if "yolo8" in cls_model_name else "yolov11n-cls.pt"
+
+                    cmd3 = [
+                        "yolo", "classify", "train",
+                        f"model={yolo_cls_model}",
+                        f"data={crop_data_path}",
+                        f"epochs={args.epochs_cls}",
+                        f"name={cls_exp_name}",
+                        f"project={centralized_cls_path.parent}",
+                        "device=cpu"
+                    ]
+                else:
+                    # PyTorch classification - modify script to use centralized path
+                    cmd3 = [
+                        "python3", cls_config["script"],
+                        "--data", str(crop_data_path),
+                        "--model", cls_config["model"],
+                        "--epochs", str(args.epochs_cls),
+                        "--batch", str(cls_config["batch"]),
+                        "--device", "cpu",
+                        "--name", cls_exp_name,
+                        "--save-dir", str(centralized_cls_path)  # Direct save to centralized
+                    ]
+
+                if run_command(cmd3, f"Training {cls_model_name.upper()}"):
+                    print(f"✅ Classification model saved directly to: {centralized_cls_path}")
+                    classification_success.append(cls_model_name)
+                else:
+                    classification_failed.append(cls_model_name)
+
+            if not classification_success:
+                failed_models.append(f"{model_key} (all classification)")
+                continue
+        elif start_stage == 'analysis':
+            print(f"\n⏭️  STAGE 3: Skipping classification training (start_stage={start_stage})")
+            # Try to find existing classification models
+            if continue_mode:
+                # Look for existing classification models in the experiment
+                exp_path = Path(experiment_dir)
+                classification_success = []
+
+                # Look through all model type directories
+                for model_type_dir in (exp_path / "models").glob("*"):
+                    if model_type_dir.is_dir():
+                        # Look for experiment directories within each model type
+                        for exp_dir in model_type_dir.glob("*"):
+                            if exp_dir.is_dir() and model_key in exp_dir.name:
+                                # Extract the classification model name from the path
+                                cls_model_name = model_type_dir.name
+                                classification_success.append(cls_model_name)
+
+                if classification_success:
+                    print(f"   ✅ Found existing classification models: {classification_success}")
+                else:
+                    print(f"   ❌ No existing classification models found for {model_key}")
+                    failed_models.append(f"{model_key} (no existing classification models)")
+                    continue
+            else:
+                print(f"   ❌ Cannot skip classification in non-continue mode")
+                failed_models.append(f"{model_key} (classification required)")
+                continue
+
+        # STAGE 4: Create Organized Analysis for each successful classification model
+        if start_stage in ['detection', 'crop', 'classification', 'analysis']:
+            print(f"\n🔬 STAGE 4: Creating organized analysis for {model_key}")
         else:
-            print(f"   ⚠️ Skipping IoU analysis - detection model not found or no classification success")
+            print(f"\n⏭️  STAGE 4: Skipping analysis (start_stage={start_stage})")
 
-        # Create experiment summaries in centralized location
-        for cls_model_name in classification_success:
-            cls_exp_name = f"{base_exp_name}_{model_key}_{cls_model_name}_cls"
-            # Use centralized summary path
-            summary_path = results_manager.get_analysis_path(f"{model_key}_{cls_model_name}_complete")
-            create_experiment_summary(str(summary_path), model_key, det_exp_name, cls_exp_name, detection_model, cls_model_name)
+        if start_stage in ['detection', 'crop', 'classification', 'analysis']:
+            for cls_model_name in classification_success:
+                cls_exp_name = f"{base_exp_name}_{model_key}_{cls_model_name}_cls"
+
+                # NEW: Use centralized analysis path
+                centralized_analysis_path = results_manager.get_analysis_path(f"{model_key}_{cls_model_name}_complete")
+                analysis_dir = str(centralized_analysis_path)
+
+                # Create directories
+                centralized_analysis_path.mkdir(parents=True, exist_ok=True)
+
+                # Find classification model in CENTRALIZED location (do NOT create folders)
+                if cls_model_name in ["yolo8", "yolo11"]:
+                    cls_config_name = "yolov8_classification" if cls_model_name == "yolo8" else "yolov11_classification"
+                    # Look in centralized classification results
+                    classification_model = results_manager.find_experiment_path("training", cls_config_name, cls_exp_name) / "weights" / "best.pt"
+                else:
+                    # PyTorch models in centralized location - uses .pt extension
+                    classification_model = results_manager.find_experiment_path("training", f"pytorch_classification_{cls_model_name}", cls_exp_name) / "best.pt"
+
+                # Use centralized test data path
+                test_data = centralized_crops_path / "yolo_classification" / "test"
+
+                # Check if paths exist before running analysis
+                if Path(classification_model).exists() and Path(test_data).exists():
+                    print(f"   📊 Running analysis for {cls_model_name.upper()}")
+
+                    # Use standalone classification analysis script
+                    analysis_cmd = [
+                        "python3", "scripts/analysis/classification_deep_analysis.py",
+                        "--model", classification_model,
+                        "--test-data", test_data,
+                        "--output", analysis_dir
+                    ]
+
+                    run_command(analysis_cmd, f"Analysis for {cls_model_name.upper()}")
+
+            # STAGE 4B: IoU Variation Analysis (on TEST SET) - once per detection model
+            # Run IoU analysis in all modes to ensure complete pipeline validation
+            print(f"   📊 Running IoU variation analysis")
+
+            # Use CENTRALIZED detection model path
+            detection_model_centralized = centralized_detection_path / "weights" / "best.pt"
+
+            if detection_model_centralized.exists() and classification_success:
+                first_cls = classification_success[0]
+                # Use centralized analysis path for IoU
+                iou_analysis_path = results_manager.get_analysis_path(f"{model_key}_{first_cls}_iou_variation")
+                iou_analysis_dir = str(iou_analysis_path)
+                iou_analysis_path.mkdir(parents=True, exist_ok=True)
+
+                # Use standalone IoU analysis script
+                iou_cmd = [
+                    "python3", "scripts/analysis/14_compare_models_performance.py",
+                    "--iou-analysis",
+                    "--model", str(detection_model_centralized),
+                    "--output", iou_analysis_dir
+                ]
+
+                if args.test_mode:
+                    print(f"   🧪 Test mode: Running quick IoU analysis")
+
+                run_command(iou_cmd, f"IoU Analysis for {model_key}")
+            else:
+                print(f"   ⚠️ Skipping IoU analysis - detection model not found or no classification success")
+
+            # Create experiment summaries in centralized location
+            for cls_model_name in classification_success:
+                cls_exp_name = f"{base_exp_name}_{model_key}_{cls_model_name}_cls"
+                # Use centralized summary path
+                summary_path = results_manager.get_analysis_path(f"{model_key}_{cls_model_name}_complete")
+                create_experiment_summary(str(summary_path), model_key, det_exp_name, cls_exp_name, detection_model, cls_model_name)
 
         successful_models.append(f"{model_key} ({', '.join(classification_success)})")
         print(f"\n✅ {model_key.upper()} PIPELINE COMPLETED")

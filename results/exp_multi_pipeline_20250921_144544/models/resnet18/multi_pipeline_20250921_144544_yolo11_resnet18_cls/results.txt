@@ -1,0 +1,16 @@
+Model: resnet18
+Best Val Acc: 93.68%
+Test Acc: 94.53%
+Training Time: 2.8 min
+
+Classification Report:
+              precision    recall  f1-score   support
+
+P_falciparum       0.96      1.00      0.98       181
+  P_malariae       0.00      0.00      0.00         8
+     P_ovale       0.00      0.00      0.00         2
+     P_vivax       0.75      0.90      0.82        10
+
+    accuracy                           0.95       201
+   macro avg       0.43      0.47      0.45       201
+weighted avg       0.90      0.95      0.92       201

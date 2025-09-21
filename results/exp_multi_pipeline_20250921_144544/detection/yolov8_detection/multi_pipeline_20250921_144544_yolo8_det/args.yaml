@@ -1,8 +1,8 @@
 task: detect
 mode: train
-model: yolo11n.pt
+model: yolov8n.pt
 data: data/kaggle_pipeline_ready/data.yaml
-epochs: 3
+epochs: 30
 time: null
 patience: 15
 batch: 16
@@ -12,8 +12,8 @@ save_period: 10
 cache: false
 device: cpu
 workers: 4
-project: results/exp_multi_pipeline_20250921_144544/detection/yolov11_detection
-name: multi_pipeline_20250921_144544_yolo11_det
+project: results/exp_multi_pipeline_20250921_144544/detection/yolov8_detection
+name: multi_pipeline_20250921_144544_yolo8_det
 exist_ok: true
 pretrained: true
 optimizer: AdamW
@@ -103,4 +103,4 @@ auto_augment: randaugment
 erasing: 0.4
 cfg: null
 tracker: botsort.yaml
-save_dir: /home/akhiyarwaladi/fresh_machine_simulation/results/exp_multi_pipeline_20250921_144544/detection/yolov11_detection/multi_pipeline_20250921_144544_yolo11_det
+save_dir: /home/akhiyarwaladi/fresh_machine_simulation/results/exp_multi_pipeline_20250921_144544/detection/yolov8_detection/multi_pipeline_20250921_144544_yolo8_det
