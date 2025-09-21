@@ -1,9 +1,0 @@
-{
-  "experiment_info": {
-    "detection_model": "YOLO8",
-    "classification_model": "YOLO8",
-    "detection_experiment": "multi_pipeline_20250921_031921_TEST_yolo8_det",
-    "classification_experiment": "multi_pipeline_20250921_031921_TEST_yolo8_yolo8_cls",
-    "timestamp": "2025-09-21 03:26:21"
-  }
-}

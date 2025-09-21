@@ -2,7 +2,7 @@ task: detect
 mode: train
 model: yolov8n.pt
 data: data/integrated/yolo/data.yaml
-epochs: 30
+epochs: 1
 time: null
 patience: 100
 batch: 16
@@ -12,8 +12,8 @@ save_period: -1
 cache: false
 device: cpu
 workers: 8
-project: results_centralized_multi_pipeline_20250921_034916/detection/yolov8_detection
-name: multi_pipeline_20250921_034916_yolo8_det2
+project: results/exp_multi_pipeline_20250921_072043_TEST/detection/yolov8_detection
+name: multi_pipeline_20250921_072043_TEST_yolo8_det2
 exist_ok: false
 pretrained: true
 optimizer: auto
@@ -103,4 +103,4 @@ auto_augment: randaugment
 erasing: 0.4
 cfg: null
 tracker: botsort.yaml
-save_dir: /home/akhiyarwaladi/hello_world/results_centralized_multi_pipeline_20250921_034916/detection/yolov8_detection/multi_pipeline_20250921_034916_yolo8_det2
+save_dir: /home/akhiyarwaladi/hello_world/results/exp_multi_pipeline_20250921_072043_TEST/detection/yolov8_detection/multi_pipeline_20250921_072043_TEST_yolo8_det2
