@@ -47,6 +47,86 @@ def load_class_names(data_yaml_path="data/integrated/yolo/data.yaml"):
         # Default class names if file not found
         return ["P_falciparum", "P_vivax", "P_malariae", "P_ovale"]
 
+def get_species_from_raw_data_simple(image_filename):
+    """Simple approach: check which raw data folder contains the image"""
+    # ONLY for non-Falciparum species, use simple folder lookup
+    # Falciparum will use CSV for accurate mixed infection handling
+
+    species_folders = {
+        "P_vivax": "data/raw/mp_idb/Vivax",
+        "P_malariae": "data/raw/mp_idb/Malariae",
+        "P_ovale": "data/raw/mp_idb/Ovale"
+    }
+
+    for species, folder_path in species_folders.items():
+        folder = Path(folder_path)
+        if folder.exists():
+            for img_file in folder.rglob(image_filename):
+                print(f"📁 Simple folder lookup: {image_filename} → {species}")
+                return species
+
+    # If not found in other folders, assume it's Falciparum
+    # (which should be handled by CSV anyway)
+    print(f"📁 Default to Falciparum: {image_filename} → P_falciparum")
+    return "P_falciparum"
+
+def load_mp_idb_csv_data():
+    """Load MP-IDB CSV data for accurate Falciparum classification"""
+    csv_files = {
+        "P_falciparum": "data/raw/mp_idb/Falciparum/mp-idb-falciparum.csv",
+        "P_vivax": "data/raw/mp_idb/Vivax/mp-idb-vivax.csv",
+        "P_malariae": "data/raw/mp_idb/Malariae/mp-idb-malariae.csv",
+        "P_ovale": "data/raw/mp_idb/Ovale/mp-idb-ovale.csv"
+    }
+
+    annotations = {}
+    for species, csv_path in csv_files.items():
+        if Path(csv_path).exists():
+            try:
+                df = pd.read_csv(csv_path)
+                for _, row in df.iterrows():
+                    filename = row['filename']
+                    if filename not in annotations:
+                        annotations[filename] = []
+                    annotations[filename].append({
+                        'species': species,
+                        'bbox': [row['xmin'], row['ymin'], row['xmax'], row['ymax']],
+                        'parasite_type': row.get('parasite_type', 'unknown')
+                    })
+            except Exception as e:
+                print(f"Warning: Could not load {csv_path}: {e}")
+
+    return annotations
+
+def get_species_from_csv_overlap(image_filename, crop_coords, csv_annotations):
+    """Get species based on CSV ground truth using bbox overlap"""
+    if image_filename not in csv_annotations:
+        return None
+
+    crop_x1, crop_y1, crop_x2, crop_y2 = crop_coords
+    best_overlap = 0
+    best_species = None
+
+    for annotation in csv_annotations[image_filename]:
+        gt_x1, gt_y1, gt_x2, gt_y2 = annotation['bbox']
+
+        # Calculate overlap
+        overlap_x1 = max(crop_x1, gt_x1)
+        overlap_y1 = max(crop_y1, gt_y1)
+        overlap_x2 = min(crop_x2, gt_x2)
+        overlap_y2 = min(crop_y2, gt_y2)
+
+        if overlap_x1 < overlap_x2 and overlap_y1 < overlap_y2:
+            overlap_area = (overlap_x2 - overlap_x1) * (overlap_y2 - overlap_y1)
+            crop_area = (crop_x2 - crop_x1) * (crop_y2 - crop_y1)
+            overlap_ratio = overlap_area / crop_area if crop_area > 0 else 0
+
+            if overlap_ratio > best_overlap:
+                best_overlap = overlap_ratio
+                best_species = annotation['species']
+
+    return best_species if best_overlap > 0.3 else None  # Minimum 30% overlap
+
 def get_ground_truth_class(image_path, input_dir):
     """Get ground truth class for an image based on YOLO label file"""
     try:
@@ -148,8 +228,19 @@ def process_dataset(model, input_dir, output_dir, dataset_name, confidence=0.25,
     output_path = Path(output_dir)
 
     # Load class names for PyTorch structure
-    class_names = load_class_names()
-    print(f"📋 Using class names: {class_names}")
+    # For Kaggle dataset, use 4 malaria species regardless of detection model classes
+    if "kaggle" in str(input_dir).lower():
+        class_names = ["P_falciparum", "P_vivax", "P_malariae", "P_ovale"]
+        print(f"📋 Using Kaggle dataset class names: {class_names}")
+
+        # Load MP-IDB CSV annotations for accurate species classification
+        print("📋 Loading MP-IDB CSV annotations...")
+        csv_annotations = load_mp_idb_csv_data()
+        print(f"📋 Loaded annotations for {len(csv_annotations)} images")
+    else:
+        class_names = load_class_names()
+        print(f"📋 Using class names: {class_names}")
+        csv_annotations = None
 
     # Create output directories
     crops_dir = output_path / "crops"
@@ -193,18 +284,44 @@ def process_dataset(model, input_dir, output_dir, dataset_name, confidence=0.25,
             crops = detect_and_crop(model, image_path, confidence, crop_size)
             processed_count += 1
 
-            # Get ground truth class for this image
-            ground_truth_class = get_ground_truth_class(image_path, input_dir)
-
-            # Get class name for directory structure
-            if 0 <= ground_truth_class < len(class_names):
-                class_name = class_names[ground_truth_class]
-            else:
-                class_name = class_names[0]  # Default to first class
-
             for i, crop_data in enumerate(crops):
                 # Generate crop filename
                 crop_filename = f"{image_path.stem}_crop_{i:03d}.jpg"
+
+                # For Kaggle dataset, use simplified MP-IDB approach
+                if "kaggle" in str(input_dir).lower():
+                    # First try simple folder lookup (for Vivax, Malariae, Ovale)
+                    class_name = get_species_from_raw_data_simple(Path(image_path).name)
+
+                    # If not found in simple folders, try CSV for Falciparum (mixed infections)
+                    if class_name == "unknown" and csv_annotations:
+                        csv_species = get_species_from_csv_overlap(
+                            Path(image_path).name,
+                            crop_data['crop_coords'],
+                            csv_annotations
+                        )
+                        if csv_species:
+                            class_name = csv_species
+                            print(f"🎯 CSV Falciparum: {Path(image_path).name} crop {i} → {class_name}")
+                        else:
+                            class_name = "P_falciparum"  # Default Falciparum if CSV fails
+                            print(f"🔄 Default Falciparum: {Path(image_path).name} crop {i} → {class_name}")
+                    else:
+                        print(f"📁 Folder-based: {Path(image_path).name} crop {i} → {class_name}")
+                else:
+                    # Use original YOLO label-based classification
+                    ground_truth_class = get_ground_truth_class(image_path, input_dir)
+                    if 0 <= ground_truth_class < len(class_names):
+                        class_name = class_names[ground_truth_class]
+                    else:
+                        class_name = class_names[0]  # Default to first class
+
+                # Map class name to class ID
+                try:
+                    ground_truth_class = class_names.index(class_name)
+                except ValueError:
+                    ground_truth_class = 0  # Default to first class if not found
+                    class_name = class_names[0]
 
                 # Determine output path based on split and class (PyTorch ImageFolder structure)
                 if split == 'all':
@@ -281,26 +398,33 @@ def create_yolo_classification_structure(crops_dir, metadata_df, output_dir):
     """Create YOLO classification directory structure"""
     yolo_dir = Path(output_dir) / "yolo_classification"
 
-    # For now, create single class structure (all crops are "parasite")
-    # Later this can be extended to use species labels if available
+    # Load class names for proper species structure
+    class_names = load_class_names()
 
     for split in ['train', 'val', 'test']:
         split_crops = metadata_df[metadata_df['split'] == split]
         if len(split_crops) > 0:
-            # Create parasite class directory
-            class_dir = yolo_dir / split / "parasite"
-            class_dir.mkdir(parents=True, exist_ok=True)
+            # Group crops by ground truth class
+            for class_id in split_crops['ground_truth_class'].unique():
+                if 0 <= class_id < len(class_names):
+                    class_name = class_names[class_id]
+                    class_crops = split_crops[split_crops['ground_truth_class'] == class_id]
 
-            # Copy crops to class directory
-            for _, row in split_crops.iterrows():
-                src_path = Path(crops_dir) / split / row['crop_filename']
-                dst_path = class_dir / row['crop_filename']
+                    # Create class directory
+                    class_dir = yolo_dir / split / class_name
+                    class_dir.mkdir(parents=True, exist_ok=True)
 
-                if src_path.exists():
-                    import shutil
-                    shutil.copy2(src_path, dst_path)
+                    # Copy crops to class directory
+                    for _, row in class_crops.iterrows():
+                        src_path = Path(crops_dir) / split / class_name / row['crop_filename']
+                        dst_path = class_dir / row['crop_filename']
+
+                        if src_path.exists():
+                            import shutil
+                            shutil.copy2(src_path, dst_path)
 
     print(f"✅ YOLO classification structure created at: {yolo_dir}")
+    print(f"📊 Created structure with {len(class_names)} species classes")
     return yolo_dir
 
 def main():
