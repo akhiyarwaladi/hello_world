@@ -1,3 +1,0 @@
-experiment_name,path,status,has_weights,source,model_type,accuracy,model,training_time_min,has_confusion_matrix,has_training_curves
-yolo11_det_to_efficientnet,results/current_experiments/training/classification/pytorch_classification/yolo11_det_to_efficientnet,completed,True,yolo11_detection,YOLO,100.0,efficientnet_b0,47.8,True,True
-yolo11_det_to_resnet18,results/current_experiments/training/classification/pytorch_classification/yolo11_det_to_resnet18,completed,True,yolo11_detection,YOLO,100.0,resnet18,45.8,True,True

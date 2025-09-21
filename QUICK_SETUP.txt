@@ -1,0 +1,58 @@
+# =============================================================================
+# QUICK SETUP COMMANDS - COPY PASTE READY
+# Malaria Detection Pipeline - Fresh Machine Deployment
+# Verified Working: September 21, 2025
+# =============================================================================
+
+# COMPLETE SETUP (Copy seluruh block ini)
+git clone https://github.com/akhiyarwaladi/hello_world.git fresh_malaria_detection
+cd fresh_malaria_detection
+python3 -m venv venv
+source venv/bin/activate
+pip install ultralytics pyyaml requests tqdm pandas scikit-learn seaborn matplotlib gdown kaggle beautifulsoup4
+
+# DATA PIPELINE (Copy seluruh block ini)
+python scripts/data_setup/01_download_datasets.py --dataset mp_idb
+python scripts/data_setup/02_preprocess_data.py
+python scripts/data_setup/03_integrate_datasets.py
+python scripts/data_setup/04_convert_to_yolo.py
+
+# QUICK TEST (Copy salah satu)
+python run_multiple_models_pipeline.py --include yolo8 --epochs-det 2 --epochs-cls 2 --test-mode
+
+# PRODUCTION TRAINING (Copy salah satu yang diinginkan)
+
+# Option 1: Single Model (Tercepat - 2-3 jam)
+python run_multiple_models_pipeline.py --include yolo8 --epochs-det 30 --epochs-cls 30
+
+# Option 2: Multiple Models tanpa RT-DETR (Recommended - 4-6 jam)
+python run_multiple_models_pipeline.py --exclude rtdetr --epochs-det 30 --epochs-cls 30
+
+# Option 3: YOLOv12 Only (Latest model - 3-4 jam)
+python run_multiple_models_pipeline.py --include yolo12 --epochs-det 30 --epochs-cls 30
+
+# Option 4: All Models (Complete - 8-12 jam)
+python run_multiple_models_pipeline.py --epochs-det 30 --epochs-cls 30
+
+# =============================================================================
+# EXPECTED RESULTS
+# =============================================================================
+# ✅ Dataset: 1,398 objects extracted from 210 images
+# ✅ Models: Auto-download (YOLOv8: 6.2MB, YOLO11: auto, YOLOv12: 5.3MB)
+# ✅ Results: Clean organization in results/exp_*/
+# ✅ Training: Automatic detection → crop → classification pipeline
+
+# =============================================================================
+# TROUBLESHOOTING
+# =============================================================================
+# Error "module not found": pip install [missing_module]
+# Error "model not found": Check internet connection, models auto-download
+# Error "no space left": Check storage, need ~2GB free space
+# Error "permission denied": chmod +x scripts/data_setup/*.py
+
+# =============================================================================
+# SUPPORT
+# =============================================================================
+# Documentation: FRESH_MACHINE_DEPLOYMENT_VERIFIED.md
+# Issues: Check error messages, most are dependency-related
+# Contact: Project maintainer via GitHub issues
