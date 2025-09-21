@@ -190,6 +190,12 @@ def save_confusion_matrix(y_true, y_pred, class_names, save_path):
     plt.close()
 
 def main():
+    # Optimize PyTorch for multi-core CPU usage
+    import multiprocessing
+    num_cores = multiprocessing.cpu_count()
+    torch.set_num_threads(num_cores)
+    print(f"🚀 PyTorch using {num_cores} CPU threads for computation")
+
     parser = argparse.ArgumentParser(description="Train PyTorch Classification Models")
     parser.add_argument("--data", default="data/classification_multispecies",
                        help="Classification dataset root")
@@ -275,10 +281,14 @@ def main():
         transform=val_transform
     )
 
-    # Create data loaders
-    train_loader = DataLoader(train_dataset, batch_size=args.batch, shuffle=True, num_workers=2)
-    val_loader = DataLoader(val_dataset, batch_size=args.batch, shuffle=False, num_workers=2)
-    test_loader = DataLoader(test_dataset, batch_size=args.batch, shuffle=False, num_workers=2)
+    # Create data loaders - use all available CPU cores
+    import multiprocessing
+    num_workers = min(multiprocessing.cpu_count(), 4)  # Use all cores, max 4 for stability
+    print(f"🚀 Using {num_workers} workers for data loading")
+
+    train_loader = DataLoader(train_dataset, batch_size=args.batch, shuffle=True, num_workers=num_workers)
+    val_loader = DataLoader(val_dataset, batch_size=args.batch, shuffle=False, num_workers=num_workers)
+    test_loader = DataLoader(test_dataset, batch_size=args.batch, shuffle=False, num_workers=num_workers)
 
     # Get class names
     class_names = train_dataset.classes

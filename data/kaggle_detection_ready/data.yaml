@@ -1,0 +1,7 @@
+names:
+- parasite
+nc: 1
+path: /home/akhiyarwaladi/fresh_machine_simulation/data/kaggle_detection_ready
+test: test/images
+train: train/images
+val: val/images
