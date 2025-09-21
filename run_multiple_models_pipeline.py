@@ -34,6 +34,7 @@ def run_command(cmd, description):
     result = subprocess.run(cmd_str, capture_output=False, text=True)
     return result.returncode == 0
 
+
 def wait_for_file(file_path, max_wait_seconds=60, check_interval=2):
     """Wait for file to exist with size stability check"""
     print(f"⏳ Waiting for file: {file_path}")
@@ -232,10 +233,10 @@ def create_experiment_summary(exp_dir, model_key, det_exp_name, cls_exp_name, de
 def main():
     parser = argparse.ArgumentParser(description="Multiple Models Pipeline: Train multiple detection models → Generate Crops → Train Classification")
     parser.add_argument("--include", nargs="+",
-                       choices=["yolo8", "yolo11", "rtdetr"],
+                       choices=["yolo8", "yolo11", "yolo12", "rtdetr"],
                        help="Detection models to include (if not specified, includes all)")
     parser.add_argument("--exclude-detection", nargs="+",
-                       choices=["yolo8", "yolo11", "rtdetr"],
+                       choices=["yolo8", "yolo11", "yolo12", "rtdetr"],
                        default=[],
                        help="Detection models to exclude")
     parser.add_argument("--epochs-det", type=int, default=50,
@@ -260,7 +261,7 @@ def main():
     args = parser.parse_args()
 
     # Determine which detection models to run
-    all_detection_models = ["yolo8", "yolo11", "rtdetr"]
+    all_detection_models = ["yolo8", "yolo11", "yolo12", "rtdetr"]
 
     if args.include:
         models_to_run = args.include
@@ -364,6 +365,7 @@ def main():
     detection_models = {
         "yolo8": "yolov8_detection",
         "yolo11": "yolov11_detection",
+        "yolo12": "yolov12_detection",
         "rtdetr": "rtdetr_detection"
     }
 
@@ -382,11 +384,13 @@ def main():
         # NEW: Get centralized path and train directly there using YOLO directly
         centralized_detection_path = results_manager.get_experiment_path("training", detection_model, det_exp_name)
 
-        # Direct YOLO training command
+        # Direct YOLO training command with auto-download for YOLOv12
         if detection_model == "yolov8_detection":
             yolo_model = "yolov8n.pt"
         elif detection_model == "yolov11_detection":
             yolo_model = "yolov11n.pt"
+        elif detection_model == "yolov12_detection":
+            yolo_model = "yolo12n.pt"  # Correct ultralytics naming convention
         elif detection_model == "rtdetr_detection":
             yolo_model = "rtdetr-l.pt"
 
