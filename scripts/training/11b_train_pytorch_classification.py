@@ -190,11 +190,11 @@ def save_confusion_matrix(y_true, y_pred, class_names, save_path):
     plt.close()
 
 def main():
-    # Optimize PyTorch for multi-core CPU usage
+    # Optimize PyTorch for multi-core CPU usage (reserve 1 core for system)
     import multiprocessing
-    num_cores = multiprocessing.cpu_count()
+    num_cores = max(1, multiprocessing.cpu_count() - 1)  # Reserve 1 core for system
     torch.set_num_threads(num_cores)
-    print(f"🚀 PyTorch using {num_cores} CPU threads for computation")
+    print(f"🚀 PyTorch using {num_cores} CPU threads for computation (total cores: {multiprocessing.cpu_count()})")
 
     parser = argparse.ArgumentParser(description="Train PyTorch Classification Models")
     parser.add_argument("--data", default="data/classification_multispecies",

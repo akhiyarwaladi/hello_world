@@ -1,37 +1,9 @@
-Traceback (most recent call last):
-  File "/home/akhiyarwaladi/fresh_machine_simulation/run_multiple_models_pipeline.py", line 22, in <module>
-    from utils.results_manager import get_results_manager, get_experiment_path, get_crops_path, get_analysis_path
-  File "/home/akhiyarwaladi/fresh_machine_simulation/utils/__init__.py", line 6, in <module>
-    from .image_utils import *
-  File "/home/akhiyarwaladi/fresh_machine_simulation/utils/image_utils.py", line 15, in <module>
-    from sklearn.metrics import confusion_matrix
-  File "/home/akhiyarwaladi/fresh_machine_simulation/venv/lib/python3.12/site-packages/sklearn/__init__.py", line 73, in <module>
-    from .base import clone  # noqa: E402
-    ^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/akhiyarwaladi/fresh_machine_simulation/venv/lib/python3.12/site-packages/sklearn/base.py", line 19, in <module>
-    from .utils._metadata_requests import _MetadataRequester, _routing_enabled
-  File "/home/akhiyarwaladi/fresh_machine_simulation/venv/lib/python3.12/site-packages/sklearn/utils/__init__.py", line 9, in <module>
-    from ._chunking import gen_batches, gen_even_slices
-  File "/home/akhiyarwaladi/fresh_machine_simulation/venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py", line 11, in <module>
-    from ._param_validation import Interval, validate_params
-  File "/home/akhiyarwaladi/fresh_machine_simulation/venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py", line 14, in <module>
-    from scipy.sparse import csr_matrix, issparse
-  File "/home/akhiyarwaladi/fresh_machine_simulation/venv/lib/python3.12/site-packages/scipy/sparse/__init__.py", line 320, in <module>
-    from . import (
-  File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
-  File "<frozen importlib._bootstrap>", line 1322, in _find_and_load_unlocked
-  File "<frozen importlib._bootstrap>", line 1262, in _find_spec
-  File "<frozen importlib._bootstrap_external>", line 1528, in find_spec
-  File "<frozen importlib._bootstrap_external>", line 1502, in _get_spec
-  File "<frozen importlib._bootstrap_external>", line 1601, in find_spec
-  File "<frozen importlib._bootstrap_external>", line 147, in _path_stat
-KeyboardInterrupt
 🎯 Using production confidence threshold: 0.25
-📁 RESULTS: results/exp_multi_pipeline_20250921_142739/
+📁 RESULTS: results/exp_multi_pipeline_20250921_191455/
 🎯 MULTIPLE MODELS PIPELINE
-Detection models: yolo11
+Detection models: yolo11, yolo12
 Classification models: resnet18, efficientnet, densenet121, mobilenet_v2
-Epochs: 50 det, 30 cls
+Epochs: 45 det, 30 cls
 Confidence: 0.25
 📊 Dataset: Kaggle MP-IDB Pipeline Ready (data/kaggle_pipeline_ready/)
 
@@ -39,71 +11,58 @@ Confidence: 0.25
 
 📊 STAGE 1: Training yolov11_detection
 🎯 Using KAGGLE-OPTIMIZED training with full augmentation
-🎯 KAGGLE-OPTIMIZED TRAINING: yolov11n.pt
+🎯 KAGGLE-OPTIMIZED TRAINING: yolo11n.pt
    Full augmentation enabled
-   Epochs: 50
-   Output: results/exp_multi_pipeline_20250921_142739/detection/yolov11_detection/multi_pipeline_20250921_142739_yolo11_det
-❌ Kaggle optimized training failed: [Errno 2] No such file or directory: 'yolov11n.pt'
+   Epochs: 45
+   Output: results/exp_multi_pipeline_20250921_191455/detection/yolov11_detection/multi_pipeline_20250921_191455_yolo11_det
+Ultralytics 8.3.202 🚀 Python-3.12.3 torch-2.8.0+cu128 CPU (Intel Xeon CPU @ 2.20GHz)
+[34m[1mengine/trainer: [0magnostic_nms=False, amp=True, augment=True, auto_augment=randaugment, batch=16, bgr=0.0, box=7.5, cache=False, cfg=None, classes=None, close_mosaic=10, cls=0.5, compile=False, conf=None, copy_paste=0.2, copy_paste_mode=flip, cos_lr=False, cutmix=0.0, data=data/kaggle_pipeline_ready/data.yaml, degrees=45, deterministic=True, device=cpu, dfl=1.5, dnn=False, dropout=0.0, dynamic=False, embed=None, epochs=45, erasing=0.4, exist_ok=True, fliplr=0.5, flipud=0.5, format=torchscript, fraction=1.0, freeze=None, half=False, hsv_h=0.015, hsv_s=0.7, hsv_v=0.4, imgsz=640, int8=False, iou=0.7, keras=False, kobj=1.0, line_width=None, lr0=0.001, lrf=0.01, mask_ratio=4, max_det=300, mixup=0.2, mode=train, model=yolo11n.pt, momentum=0.937, mosaic=1.0, multi_scale=False, name=multi_pipeline_20250921_191455_yolo11_det, nbs=64, nms=False, opset=None, optimize=False, optimizer=AdamW, overlap_mask=True, patience=15, perspective=0.0, plots=True, pose=12.0, pretrained=True, profile=False, project=results/exp_multi_pipeline_20250921_191455/detection/yolov11_detection, rect=False, resume=False, retina_masks=False, save=True, save_conf=False, save_crop=False, save_dir=/home/akhiyarwaladi/fresh_machine_simulation/results/exp_multi_pipeline_20250921_191455/detection/yolov11_detection/multi_pipeline_20250921_191455_yolo11_det, save_frames=False, save_json=False, save_period=10, save_txt=False, scale=0.5, seed=0, shear=0.0, show=False, show_boxes=True, show_conf=True, show_labels=True, simplify=True, single_cls=False, source=None, split=val, stream_buffer=False, task=detect, time=None, tracker=botsort.yaml, translate=0.1, val=True, verbose=True, vid_stride=1, visualize=False, warmup_bias_lr=0.1, warmup_epochs=3.0, warmup_momentum=0.8, weight_decay=0.0005, workers=4, workspace=None
+Overriding model.yaml nc=80 with nc=1
 
-🎉 PIPELINE FINISHED
+                   from  n    params  module                                       arguments                     
+  0                  -1  1       464  ultralytics.nn.modules.conv.Conv             [3, 16, 3, 2]                 
+  1                  -1  1      4672  ultralytics.nn.modules.conv.Conv             [16, 32, 3, 2]                
+  2                  -1  1      6640  ultralytics.nn.modules.block.C3k2            [32, 64, 1, False, 0.25]      
+  3                  -1  1     36992  ultralytics.nn.modules.conv.Conv             [64, 64, 3, 2]                
+  4                  -1  1     26080  ultralytics.nn.modules.block.C3k2            [64, 128, 1, False, 0.25]     
+  5                  -1  1    147712  ultralytics.nn.modules.conv.Conv             [128, 128, 3, 2]              
+  6                  -1  1     87040  ultralytics.nn.modules.block.C3k2            [128, 128, 1, True]           
+  7                  -1  1    295424  ultralytics.nn.modules.conv.Conv             [128, 256, 3, 2]              
+  8                  -1  1    346112  ultralytics.nn.modules.block.C3k2            [256, 256, 1, True]           
+  9                  -1  1    164608  ultralytics.nn.modules.block.SPPF            [256, 256, 5]                 
+ 10                  -1  1    249728  ultralytics.nn.modules.block.C2PSA           [256, 256, 1]                 
+ 11                  -1  1         0  torch.nn.modules.upsampling.Upsample         [None, 2, 'nearest']          
+ 12             [-1, 6]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 13                  -1  1    111296  ultralytics.nn.modules.block.C3k2            [384, 128, 1, False]          
+ 14                  -1  1         0  torch.nn.modules.upsampling.Upsample         [None, 2, 'nearest']          
+ 15             [-1, 4]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 16                  -1  1     32096  ultralytics.nn.modules.block.C3k2            [256, 64, 1, False]           
+ 17                  -1  1     36992  ultralytics.nn.modules.conv.Conv             [64, 64, 3, 2]                
+ 18            [-1, 13]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 19                  -1  1     86720  ultralytics.nn.modules.block.C3k2            [192, 128, 1, False]          
+ 20                  -1  1    147712  ultralytics.nn.modules.conv.Conv             [128, 128, 3, 2]              
+ 21            [-1, 10]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 22                  -1  1    378880  ultralytics.nn.modules.block.C3k2            [384, 256, 1, True]           
+ 23        [16, 19, 22]  1    430867  ultralytics.nn.modules.head.Detect           [1, [64, 128, 256]]           
+YOLO11n summary: 181 layers, 2,590,035 parameters, 2,590,019 gradients, 6.4 GFLOPs
 
-❌ FAILED (1):
-   yolo11 (detection)
+Transferred 448/499 items from pretrained weights
+Freezing layer 'model.23.dfl.conv.weight'
+[34m[1mtrain: [0mFast image access ✅ (ping: 0.0±0.0 ms, read: 875.4±927.9 MB/s, size: 3377.1 KB)
+[K[34m[1mtrain: [0mScanning /home/akhiyarwaladi/fresh_machine_simulation/data/kaggle_pipeline_ready/train/labels.cache... 146 images, 0 backgrounds, 0 corrupt: 100% ━━━━━━━━━━━━ 146/146 17.5Mit/s 0.0s[K[34m[1mtrain: [0mScanning /home/akhiyarwaladi/fresh_machine_simulation/data/kaggle_pipeline_ready/train/labels.cache... 146 images, 0 backgrounds, 0 corrupt: 100% ━━━━━━━━━━━━ 146/146 2.0Mit/s 0.0s
+[34m[1mval: [0mFast image access ✅ (ping: 0.0±0.0 ms, read: 4675.1±1646.3 MB/s, size: 2843.2 KB)
+[K[34m[1mval: [0mScanning /home/akhiyarwaladi/fresh_machine_simulation/data/kaggle_pipeline_ready/val/labels.cache... 42 images, 0 backgrounds, 0 corrupt: 100% ━━━━━━━━━━━━ 42/42 8.8Mit/s 0.0s[K[34m[1mval: [0mScanning /home/akhiyarwaladi/fresh_machine_simulation/data/kaggle_pipeline_ready/val/labels.cache... 42 images, 0 backgrounds, 0 corrupt: 100% ━━━━━━━━━━━━ 42/42 952.2Kit/s 0.0s
+Plotting labels to /home/akhiyarwaladi/fresh_machine_simulation/results/exp_multi_pipeline_20250921_191455/detection/yolov11_detection/multi_pipeline_20250921_191455_yolo11_det/labels.jpg... 
+[34m[1moptimizer:[0m AdamW(lr=0.001, momentum=0.937) with parameter groups 81 weight(decay=0.0), 88 weight(decay=0.0005), 87 bias(decay=0.0)
+Image sizes 640 train, 640 val
+Using 0 dataloader workers
+Logging results to [1m/home/akhiyarwaladi/fresh_machine_simulation/results/exp_multi_pipeline_20250921_191455/detection/yolov11_detection/multi_pipeline_20250921_191455_yolo11_det[0m
+Starting training for 45 epochs...
 
-Success Rate: 0/1
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+[K       1/45         0G      3.421       4.36      1.701        273        640: 0% ──────────── 0/10  8.0s[K       1/45         0G      2.876      4.189      1.533        170        640: 10% ━─────────── 1/10 0.1it/s 13.2s<2:37[K       1/45         0G      2.653      4.007      1.413        198        640: 20% ━━────────── 2/10 0.1it/s 17.7s<1:15[K       1/45         0G      2.589      3.849      1.338        262        640: 30% ━━━╸──────── 3/10 0.1it/s 22.2s<49.3s[K       1/45         0G      2.528      3.702       1.28        291        640: 40% ━━━━╸─────── 4/10 0.2it/s 26.0s<33.9s[K       1/45         0G      2.517      3.568      1.274        274        640: 50% ━━━━━━────── 5/10 0.2it/s 30.1s<25.4s[K       1/45         0G      2.448       3.48      1.247        202        640: 60% ━━━━━━━───── 6/10 0.2it/s 34.0s<18.5s[K       1/45         0G      2.426      3.401       1.22        199        640: 70% ━━━━━━━━──── 7/10 0.2it/s 37.8s<13.1s[K       1/45         0G      2.376      3.299      1.198        178        640: 80% ━━━━━━━━━╸── 8/10 0.2it/s 41.6s<8.4s[K       1/45         0G      2.287      3.169      1.162         29        640: 90% ━━━━━━━━━━╸─ 9/10 0.5it/s 42.4s<1.8s[K       1/45         0G      2.287      3.169      1.162         29        640: 100% ━━━━━━━━━━━━ 10/10 0.2it/s 42.4s[K       1/45         0G      2.287      3.169      1.162         29        640: 100% ━━━━━━━━━━━━ 10/10 0.2it/s 42.4s
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 50% ━━━━━━────── 1/2 0.0it/s 6.4s<21.2s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 2/2 0.2it/s 8.3s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 2/2 0.2it/s 8.3s
+                   all         42        220     0.0135      0.773      0.094     0.0405
 
-⚠️ No successful experiments to zip
-🎯 Using production confidence threshold: 0.25
-📁 RESULTS: results/exp_multi_pipeline_20250921_143029/
-🎯 MULTIPLE MODELS PIPELINE
-Detection models: yolo11
-Classification models: resnet18, efficientnet, densenet121, mobilenet_v2
-Epochs: 50 det, 30 cls
-Confidence: 0.25
-📊 Dataset: Kaggle MP-IDB Pipeline Ready (data/kaggle_pipeline_ready/)
-
-🎯 STARTING YOLO11 PIPELINE
-
-📊 STAGE 1: Training yolov11_detection
-🎯 Using KAGGLE-OPTIMIZED training with full augmentation
-🎯 KAGGLE-OPTIMIZED TRAINING: yolov11n.pt
-   Full augmentation enabled
-   Epochs: 50
-   Output: results/exp_multi_pipeline_20250921_143029/detection/yolov11_detection/multi_pipeline_20250921_143029_yolo11_det
-❌ Kaggle optimized training failed: [Errno 2] No such file or directory: 'yolov11n.pt'
-
-🎉 PIPELINE FINISHED
-
-❌ FAILED (1):
-   yolo11 (detection)
-
-Success Rate: 0/1
-
-⚠️ No successful experiments to zip
-🎯 Using production confidence threshold: 0.25
-📁 RESULTS: results/exp_multi_pipeline_20250921_143140/
-🎯 MULTIPLE MODELS PIPELINE
-Detection models: yolo11
-Classification models: resnet18, efficientnet, densenet121, mobilenet_v2
-Epochs: 50 det, 30 cls
-Confidence: 0.25
-📊 Dataset: Kaggle MP-IDB Pipeline Ready (data/kaggle_pipeline_ready/)
-
-🎯 STARTING YOLO11 PIPELINE
-
-📊 STAGE 1: Training yolov11_detection
-🎯 Using KAGGLE-OPTIMIZED training with full augmentation
-🎯 KAGGLE-OPTIMIZED TRAINING: yolov11n.pt
-   Full augmentation enabled
-   Epochs: 50
-   Output: results/exp_multi_pipeline_20250921_143140/detection/yolov11_detection/multi_pipeline_20250921_143140_yolo11_det
-❌ Kaggle optimized training failed: [Errno 2] No such file or directory: 'yolov11n.pt'
-
-🎉 PIPELINE FINISHED
-
-❌ FAILED (1):
-   yolo11 (detection)
-
-Success Rate: 0/1
-
-⚠️ No successful experiments to zip
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+[K       2/45         0G      2.373      2.182      1.099        270        640: 0% ──────────── 0/10  3.4s[K       2/45         0G      2.214      2.133      1.078        215        640: 10% ━─────────── 1/10 0.1it/s 6.5s<1:34[K       2/45         0G      2.081      2.066      1.026        204        640: 20% ━━────────── 2/10 0.2it/s 9.5s<47.7s[K       2/45         0G      2.116      2.099       1.03        196        640: 30% ━━━╸──────── 3/10 0.2it/s 13.3s<35.9s[K       2/45         0G      2.062      2.038      1.033        192        640: 40% ━━━━╸─────── 4/10 0.2it/s 16.5s<26.1s[K       2/45         0G      2.098      2.008      1.038        260        640: 50% ━━━━━━────── 5/10 0.3it/s 19.9s<19.9s[K       2/45         0G      2.114      1.997      1.049        170        640: 60% ━━━━━━━───── 6/10 0.3it/s 23.6s<15.6s

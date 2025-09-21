@@ -18,8 +18,16 @@ from sklearn.metrics import confusion_matrix, classification_report
 import yaml
 
 class UnifiedJournalAnalyzer:
-    def __init__(self):
-        self.results_base = Path("results/current_experiments")
+    def __init__(self, centralized_experiment=None):
+        if centralized_experiment:
+            # Use centralized experiment directory
+            self.results_base = Path(f"results/{centralized_experiment}")
+            self.centralized_mode = True
+        else:
+            # Use distributed structure
+            self.results_base = Path("results/current_experiments")
+            self.centralized_mode = False
+
         self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         self.output_dir = Path(f"journal_analysis_{self.timestamp}")
         self.output_dir.mkdir(exist_ok=True)
@@ -48,6 +56,13 @@ class UnifiedJournalAnalyzer:
 
     def find_pipeline_experiments(self, timestamp_pattern="multi_pipeline_20250920_131500"):
         """Find completed pipeline experiments"""
+        if self.centralized_mode:
+            return self.find_centralized_experiments(timestamp_pattern)
+        else:
+            return self.find_distributed_experiments(timestamp_pattern)
+
+    def find_distributed_experiments(self, timestamp_pattern):
+        """Find experiments in distributed structure (results/current_experiments/)"""
         experiments = {}
 
         for model_key, model_config in self.model_info.items():
@@ -55,26 +70,112 @@ class UnifiedJournalAnalyzer:
             det_pattern = f"{timestamp_pattern}_{model_key}_det"
             det_path = self.results_base / "training" / "detection" / model_config['detection_dir'] / det_pattern
 
-            # Find classification results
+            # Find classification results - check both classification/ and models/ folders
             cls_pattern = f"{timestamp_pattern}_{model_key}_cls"
             cls_path = self.results_base / "training" / "classification" / model_config['classification_dir'] / cls_pattern
 
-            if det_path.exists() and cls_path.exists():
+            # NEW: Also check in models/ folder for PyTorch models
+            models_path = self.results_base / "training" / "models" / model_config['classification_dir'] / cls_pattern
+
+            # Use whichever classification path exists
+            final_cls_path = None
+            if cls_path.exists():
+                final_cls_path = cls_path
+            elif models_path.exists():
+                final_cls_path = models_path
+
+            if det_path.exists() and final_cls_path:
                 experiments[model_key] = {
                     'detection_path': det_path,
-                    'classification_path': cls_path,
+                    'classification_path': final_cls_path,
                     'detection_results': det_path / "results.csv",
-                    'classification_results': cls_path / "results.csv",
+                    'classification_results': final_cls_path / "results.csv",
                     'detection_args': det_path / "args.yaml",
-                    'classification_args': cls_path / "args.yaml"
+                    'classification_args': final_cls_path / "args.yaml"
                 }
                 print(f"✅ Found complete pipeline for {model_config['name']}")
+                print(f"   Classification found in: {final_cls_path.parent.parent.name}/{final_cls_path.parent.name}")
             else:
                 print(f"❌ Incomplete pipeline for {model_config['name']}")
                 if not det_path.exists():
                     print(f"   Missing detection: {det_path}")
-                if not cls_path.exists():
-                    print(f"   Missing classification: {cls_path}")
+                if not final_cls_path:
+                    print(f"   Missing classification in both:")
+                    print(f"     {cls_path}")
+                    print(f"     {models_path}")
+
+        return experiments
+
+    def find_centralized_experiments(self, timestamp_pattern):
+        """Find experiments in centralized structure (results/exp_name/)"""
+        experiments = {}
+
+        # In centralized mode, look for any completed models directly
+        detection_base = self.results_base / "detection"
+        models_base = self.results_base / "models"
+        classification_base = self.results_base / "classification"
+
+        if not detection_base.exists():
+            print(f"❌ No detection folder found in {self.results_base}")
+            return experiments
+
+        # Find all detection models
+        for det_model_dir in detection_base.iterdir():
+            if not det_model_dir.is_dir():
+                continue
+
+            model_type = det_model_dir.name.replace("_detection", "")
+
+            # Find detection experiments
+            for det_exp_dir in det_model_dir.iterdir():
+                if not det_exp_dir.is_dir() or not (det_exp_dir / "weights" / "best.pt").exists():
+                    continue
+
+                # Try to match with model_info or create dynamic entry
+                if model_type not in self.model_info:
+                    # Create dynamic model info for models not in predefined list
+                    self.model_info[model_type] = {
+                        'name': model_type.upper(),
+                        'detection_dir': det_model_dir.name,
+                        'classification_dir': 'dynamic',
+                        'color': '#333333',
+                        'marker': 'x'
+                    }
+
+                # Look for corresponding classification models
+                # Check both models/ and classification/ folders for any matching experiments
+                cls_models_found = []
+
+                # Check models/ folder (PyTorch models)
+                if models_base.exists():
+                    for cls_model_dir in models_base.iterdir():
+                        if cls_model_dir.is_dir():
+                            for cls_exp_dir in cls_model_dir.iterdir():
+                                if cls_exp_dir.is_dir() and (cls_exp_dir / "best.pt").exists():
+                                    cls_models_found.append(cls_exp_dir)
+
+                # Check classification/ folder (YOLO models)
+                if classification_base.exists():
+                    for cls_model_dir in classification_base.iterdir():
+                        if cls_model_dir.is_dir():
+                            for cls_exp_dir in cls_model_dir.iterdir():
+                                if cls_exp_dir.is_dir() and (cls_exp_dir / "weights" / "best.pt").exists():
+                                    cls_models_found.append(cls_exp_dir)
+
+                # Create experiment entries for each classification model found
+                for i, cls_path in enumerate(cls_models_found):
+                    exp_key = f"{model_type}_{cls_path.parent.name}_{i}" if len(cls_models_found) > 1 else f"{model_type}_{cls_path.parent.name}"
+
+                    experiments[exp_key] = {
+                        'detection_path': det_exp_dir,
+                        'classification_path': cls_path,
+                        'detection_results': det_exp_dir / "results.csv",
+                        'classification_results': cls_path / "results.txt",  # PyTorch models save as .txt
+                        'detection_args': det_exp_dir / "args.yaml",
+                        'classification_args': cls_path / "training_config.json"
+                    }
+
+                    print(f"✅ Found centralized pipeline: {det_model_dir.name} → {cls_path.parent.name}/{cls_path.name}")
 
         return experiments
 
@@ -82,10 +183,20 @@ class UnifiedJournalAnalyzer:
         """Analyze detection performance for both models"""
         detection_results = {}
 
-        plt.figure(figsize=(15, 5))
+        num_experiments = len(experiments)
+        if num_experiments == 0:
+            return {}
+
+        # Adjust figure layout based on number of experiments
+        if num_experiments <= 3:
+            fig_cols = num_experiments
+            plt.figure(figsize=(5 * fig_cols, 5))
+        else:
+            # For many experiments, create a summary plot instead
+            plt.figure(figsize=(15, 10))
 
         for i, (model_key, exp_data) in enumerate(experiments.items()):
-            model_config = self.model_info[model_key]
+            model_config = self.model_info.get(model_key, {'name': model_key, 'color': '#333333'})
 
             # Read detection results
             if exp_data['detection_results'].exists():
@@ -108,21 +219,26 @@ class UnifiedJournalAnalyzer:
                     'val_cls_loss': final_metrics.get('val/cls_loss', 0)
                 }
 
-                # Plot training curves
-                plt.subplot(1, 3, i+1)
-                plt.plot(df['epoch'], df['metrics/mAP50(B)'],
-                        color=model_config['color'], linewidth=2, label='mAP50')
-                plt.plot(df['epoch'], df['metrics/mAP50-95(B)'],
-                        color=model_config['color'], linewidth=2, linestyle='--', label='mAP50-95')
-                plt.title(f'{model_config["name"]} Detection Training')
-                plt.xlabel('Epoch')
-                plt.ylabel('mAP')
-                plt.legend()
-                plt.grid(True, alpha=0.3)
+                # Skip individual plots for too many experiments
+                if num_experiments <= 3:
+                    # Plot training curves
+                    plt.subplot(1, fig_cols, i+1)
+                    plt.plot(df['epoch'], df['metrics/mAP50(B)'],
+                            color=model_config['color'], linewidth=2, label='mAP50')
+                    plt.plot(df['epoch'], df['metrics/mAP50-95(B)'],
+                            color=model_config['color'], linewidth=2, linestyle='--', label='mAP50-95')
+                    plt.title(f'{model_config["name"]} Detection Training')
+                    plt.xlabel('Epoch')
+                    plt.ylabel('mAP')
+                    plt.legend()
+                    plt.grid(True, alpha=0.3)
 
-        # Comparison plot
+        # Comparison plot for all experiments
         if len(detection_results) > 1:
-            plt.subplot(1, 3, 3)
+            if num_experiments > 3:
+                plt.clf()  # Clear for single comparison plot
+                plt.figure(figsize=(15, 8))
+
             models = list(detection_results.keys())
             map50_values = [detection_results[m]['final_mAP50'] for m in models]
             map50_95_values = [detection_results[m]['final_mAP50_95'] for m in models]
@@ -136,7 +252,7 @@ class UnifiedJournalAnalyzer:
             plt.xlabel('Models')
             plt.ylabel('mAP')
             plt.title('Detection Performance Comparison')
-            plt.xticks(x, [self.model_info[m]['name'] for m in models])
+            plt.xticks(x, [detection_results[m]['model_name'] for m in models], rotation=45, ha='right')
             plt.legend()
             plt.grid(True, alpha=0.3)
 
@@ -153,36 +269,72 @@ class UnifiedJournalAnalyzer:
         plt.figure(figsize=(15, 10))
 
         for i, (model_key, exp_data) in enumerate(experiments.items()):
-            model_config = self.model_info[model_key]
+            model_config = self.model_info.get(model_key, {'name': model_key})
 
             # Read classification results
             if exp_data['classification_results'].exists():
-                df = pd.read_csv(exp_data['classification_results'])
+                cls_results_path = exp_data['classification_results']
 
-                # Get final metrics
-                final_metrics = df.iloc[-1]
+                if cls_results_path.suffix == '.csv':
+                    # YOLO results format
+                    df = pd.read_csv(cls_results_path)
+                    final_metrics = df.iloc[-1]
 
-                classification_results[model_key] = {
-                    'model_name': model_config['name'],
-                    'epochs': len(df),
-                    'final_top1_acc': final_metrics.get('metrics/accuracy_top1', 0),
-                    'final_top5_acc': final_metrics.get('metrics/accuracy_top5', 0),
-                    'training_time': final_metrics.get('time', 0),
-                    'train_loss': final_metrics.get('train/loss', 0),
-                    'val_loss': final_metrics.get('val/loss', 0)
-                }
+                    classification_results[model_key] = {
+                        'model_name': model_config['name'],
+                        'epochs': len(df),
+                        'final_top1_acc': final_metrics.get('metrics/accuracy_top1', 0),
+                        'final_top5_acc': final_metrics.get('metrics/accuracy_top5', 0),
+                        'training_time': final_metrics.get('time', 0),
+                        'train_loss': final_metrics.get('train/loss', 0),
+                        'val_loss': final_metrics.get('val/loss', 0)
+                    }
 
-                # Plot training curves - Top subplot
-                plt.subplot(2, 2, i+1)
-                plt.plot(df['epoch'], df['metrics/accuracy_top1'],
-                        color=model_config['color'], linewidth=2, label='Top-1 Accuracy')
-                plt.plot(df['epoch'], df['train/loss'],
-                        color=model_config['color'], linewidth=2, linestyle='--', alpha=0.7, label='Train Loss')
-                plt.title(f'{model_config["name"]} Classification Training')
-                plt.xlabel('Epoch')
-                plt.ylabel('Accuracy / Loss')
-                plt.legend()
-                plt.grid(True, alpha=0.3)
+                elif cls_results_path.suffix == '.txt':
+                    # PyTorch results format
+                    with open(cls_results_path, 'r') as f:
+                        lines = f.readlines()
+
+                    # Parse PyTorch results file
+                    model_name = None
+                    best_val_acc = 0
+                    test_acc = 0
+                    training_time = 0
+
+                    for line in lines:
+                        if line.startswith('Model:'):
+                            model_name = line.strip().split(': ')[1]
+                        elif line.startswith('Best Val Acc:'):
+                            best_val_acc = float(line.strip().split(': ')[1].replace('%', '')) / 100
+                        elif line.startswith('Test Acc:'):
+                            test_acc = float(line.strip().split(': ')[1].replace('%', '')) / 100
+                        elif line.startswith('Training Time:'):
+                            time_str = line.strip().split(': ')[1]
+                            if 'min' in time_str:
+                                training_time = float(time_str.replace(' min', '')) * 60
+
+                    classification_results[model_key] = {
+                        'model_name': model_name or model_config['name'],
+                        'epochs': 2,  # Default for PyTorch models (we don't have epoch info in results.txt)
+                        'final_top1_acc': test_acc,  # Use test accuracy as final accuracy
+                        'final_top5_acc': 0,  # Not available in PyTorch results
+                        'training_time': training_time,
+                        'train_loss': 0,  # Not available in simple results.txt
+                        'val_loss': 0   # Not available in simple results.txt
+                    }
+
+                # Plot training curves - Top subplot (only for YOLO models with CSV data)
+                if cls_results_path.suffix == '.csv' and len(classification_results) <= 2:
+                    plt.subplot(2, 2, i+1)
+                    plt.plot(df['epoch'], df['metrics/accuracy_top1'],
+                            color=model_config['color'], linewidth=2, label='Top-1 Accuracy')
+                    plt.plot(df['epoch'], df['train/loss'],
+                            color=model_config['color'], linewidth=2, linestyle='--', alpha=0.7, label='Train Loss')
+                    plt.title(f'{model_config["name"]} Classification Training')
+                    plt.xlabel('Epoch')
+                    plt.ylabel('Accuracy / Loss')
+                    plt.legend()
+                    plt.grid(True, alpha=0.3)
 
         # Comparison plots
         if len(classification_results) > 1:
@@ -191,9 +343,9 @@ class UnifiedJournalAnalyzer:
             # Accuracy comparison
             plt.subplot(2, 2, 3)
             top1_values = [classification_results[m]['final_top1_acc'] for m in models]
-            colors = [self.model_info[m]['color'] for m in models]
+            colors = [self.model_info.get(m, {'color': '#333333'})['color'] for m in models]
 
-            bars = plt.bar([self.model_info[m]['name'] for m in models], top1_values,
+            bars = plt.bar([self.model_info.get(m, {'name': m})['name'] for m in models], top1_values,
                           color=colors, alpha=0.8)
             plt.ylabel('Top-1 Accuracy')
             plt.title('Classification Accuracy Comparison')
@@ -218,7 +370,7 @@ class UnifiedJournalAnalyzer:
             plt.xlabel('Models')
             plt.ylabel('Training Time (minutes)')
             plt.title('Training Time Comparison')
-            plt.xticks(x, [self.model_info[m]['name'] for m in models])
+            plt.xticks(x, [self.model_info.get(m, {'name': m})['name'] for m in models], rotation=45, ha='right')
             plt.legend()
             plt.grid(True, alpha=0.3)
 
@@ -379,7 +531,23 @@ class UnifiedJournalAnalyzer:
         return self.analysis_results
 
 def main():
-    analyzer = UnifiedJournalAnalyzer()
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Unified Journal Analysis for Malaria Detection Pipeline")
+    parser.add_argument('--centralized-experiment', type=str,
+                       help='Name of centralized experiment directory (e.g., exp_multi_pipeline_20250921_144544)')
+    parser.add_argument('--timestamp-pattern', type=str, default="multi_pipeline_20250920_131500",
+                       help='Timestamp pattern for distributed experiments')
+
+    args = parser.parse_args()
+
+    if args.centralized_experiment:
+        print(f"🎯 Analyzing centralized experiment: {args.centralized_experiment}")
+        analyzer = UnifiedJournalAnalyzer(centralized_experiment=args.centralized_experiment)
+    else:
+        print(f"🎯 Analyzing distributed experiments with pattern: {args.timestamp_pattern}")
+        analyzer = UnifiedJournalAnalyzer()
+
     results = analyzer.run_complete_analysis()
     return results
 

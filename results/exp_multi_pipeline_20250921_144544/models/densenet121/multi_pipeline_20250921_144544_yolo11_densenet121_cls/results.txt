@@ -1,0 +1,16 @@
+Model: densenet121
+Best Val Acc: 93.68%
+Test Acc: 94.53%
+Training Time: 7.0 min
+
+Classification Report:
+              precision    recall  f1-score   support
+
+P_falciparum       0.97      1.00      0.99       181
+  P_malariae       1.00      0.50      0.67         8
+     P_ovale       0.25      1.00      0.40         2
+     P_vivax       1.00      0.30      0.46        10
+
+    accuracy                           0.95       201
+   macro avg       0.81      0.70      0.63       201
+weighted avg       0.97      0.95      0.94       201

@@ -542,7 +542,7 @@ def main():
         classification_failed = []
 
         # STAGE 1: Train Detection Model - DIRECT SAVE to centralized folder
-        if start_stage in ['detection']:
+        if start_stage is None or start_stage in ['detection']:
             print(f"\n📊 STAGE 1: Training {detection_model}")
 
             # NEW: Get centralized path and train directly there using YOLO directly
@@ -577,8 +577,8 @@ def main():
                 failed_models.append(f"{model_key} (detection required)")
                 continue
 
-        # Only run detection training if we're starting from detection stage
-        if start_stage == 'detection':
+        # Only run detection training if we're not skipping it
+        if start_stage is None or start_stage == 'detection':
             # Direct YOLO training command with auto-download for YOLOv12
             if detection_model == "yolov8_detection":
                 yolo_model = "yolov8n.pt"
@@ -652,7 +652,7 @@ def main():
             print(f"✅ Detection model saved directly to: {centralized_detection_path}")
 
         # STAGE 2: Generate Crops
-        if start_stage in ['detection', 'crop']:
+        if start_stage is None or start_stage in ['detection', 'crop']:
             print(f"\n🔄 STAGE 2: Generating crops for {model_key}")
 
             # Use same dataset as training
@@ -727,7 +727,7 @@ def main():
                 continue
 
         # STAGE 3: Train Classification Models
-        if start_stage in ['detection', 'crop', 'classification']:
+        if start_stage is None or start_stage in ['detection', 'crop', 'classification']:
             print(f"\n📈 STAGE 3: Training classification for {model_key}")
             classification_success = []
             classification_failed = []
@@ -809,12 +809,12 @@ def main():
                 continue
 
         # STAGE 4: Create Organized Analysis for each successful classification model
-        if start_stage in ['detection', 'crop', 'classification', 'analysis']:
+        if start_stage is None or start_stage in ['detection', 'crop', 'classification', 'analysis']:
             print(f"\n🔬 STAGE 4: Creating organized analysis for {model_key}")
         else:
             print(f"\n⏭️  STAGE 4: Skipping analysis (start_stage={start_stage})")
 
-        if start_stage in ['detection', 'crop', 'classification', 'analysis']:
+        if start_stage is None or start_stage in ['detection', 'crop', 'classification', 'analysis']:
             for cls_model_name in classification_success:
                 cls_exp_name = f"{base_exp_name}_{model_key}_{cls_model_name}_cls"
 
