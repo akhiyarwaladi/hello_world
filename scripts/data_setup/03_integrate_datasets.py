@@ -161,6 +161,15 @@ class MalariaDatasetIntegrator:
             for metric in quality_metrics:
                 if metric in row and pd.notna(row[metric]):
                     annotation[metric] = float(row[metric])
+
+            # Add bounding box information if available (from MP-IDB processing)
+            bbox_fields = ['bbox_x', 'bbox_y', 'bbox_w', 'bbox_h', 'original_bbox_x', 'original_bbox_y', 'original_bbox_w', 'original_bbox_h', 'object_id']
+            for field in bbox_fields:
+                if field in row and pd.notna(row[field]):
+                    if field.startswith('bbox_') or field.startswith('original_bbox_'):
+                        annotation[field] = float(row[field])
+                    else:
+                        annotation[field] = row[field]
             
             unified_annotations.append(annotation)
             
@@ -294,13 +303,31 @@ class MalariaDatasetIntegrator:
                 if src_image.exists():
                     shutil.copy2(src_image, dst_image)
                     
-                    # Create YOLO format label (for classification, just class ID)
+                    # Create YOLO format label for object detection
                     label_file = yolo_dir / split_name / "labels" / f"{annotation['image_id']:06d}.txt"
                     with open(label_file, 'w') as f:
-                        # For classification, YOLO format is just: class_id
-                        # For detection, it would be: class_id x_center y_center width height
-                        # Since this is cell-level classification, we assume full image
-                        f.write(f"{annotation['unified_class']} 0.5 0.5 1.0 1.0\\n")
+                        # Check if this annotation has bounding box info (from MP-IDB processing)
+                        if 'bbox_x' in annotation and 'bbox_y' in annotation:
+                            # Convert absolute coordinates to YOLO normalized format
+                            img_width = img_height = self.processed_data_dir.parent / "integrated" / "yolo" / "target_size"  # 640
+                            target_size = 640  # From preprocessing
+
+                            x_center = (annotation['bbox_x'] + annotation['bbox_w'] / 2) / target_size
+                            y_center = (annotation['bbox_y'] + annotation['bbox_h'] / 2) / target_size
+                            width = annotation['bbox_w'] / target_size
+                            height = annotation['bbox_h'] / target_size
+
+                            # Ensure values are within [0,1] range
+                            x_center = max(0.0, min(1.0, x_center))
+                            y_center = max(0.0, min(1.0, y_center))
+                            width = max(0.001, min(1.0, width))
+                            height = max(0.001, min(1.0, height))
+
+                            # Write YOLO detection format: class_id x_center y_center width height
+                            f.write(f"{annotation['unified_class']} {x_center:.6f} {y_center:.6f} {width:.6f} {height:.6f}\n")
+                        else:
+                            # Fallback for other datasets without bbox info - use full image
+                            f.write(f"{annotation['unified_class']} 0.5 0.5 1.0 1.0\n")
         
         # Create data.yaml file
         data_yaml = {

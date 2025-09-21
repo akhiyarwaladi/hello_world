@@ -1,6 +1,6 @@
 {
   "integration_summary": {
-    "total_images": 203,
+    "total_images": 1398,
     "num_classes": 6,
     "class_names": [
       "P_falciparum",
@@ -10,32 +10,32 @@
       "Mixed_infection",
       "Uninfected"
     ],
-    "integration_date": "2025-09-20T04:53:22.278004"
+    "integration_date": "2025-09-21T06:39:17.973808"
   },
   "class_distribution": {
-    "0": 104,
-    "2": 37,
-    "3": 29,
-    "1": 33
+    "0": 1267,
+    "2": 43,
+    "3": 33,
+    "1": 55
   },
   "dataset_distribution": {
-    "mp_idb": 203
+    "mp_idb": 1398
   },
   "split_sizes": {
-    "train": 140,
-    "val": 28,
-    "test": 35
+    "train": 977,
+    "val": 208,
+    "test": 213
   },
   "quality_statistics": {
-    "mean_quality_score": 80.32019704433498,
-    "std_quality_score": 18.26024562425191,
+    "mean_quality_score": 78.02932761087267,
+    "std_quality_score": 18.005324066830283,
     "min_quality_score": 45.0,
     "max_quality_score": 100.0
   },
   "class_distribution_named": {
-    "P_falciparum": 104,
-    "P_malariae": 37,
-    "P_ovale": 29,
-    "P_vivax": 33
+    "P_falciparum": 1267,
+    "P_malariae": 43,
+    "P_ovale": 33,
+    "P_vivax": 55
   }
 }
