@@ -125,6 +125,57 @@ class ResultsManager:
         model_path.mkdir(parents=True, exist_ok=True)
         return model_path
 
+    def find_experiment_path(self, experiment_type: str, model_name: str,
+                            experiment_name: str = None) -> Path:
+        """Find existing experiment path WITHOUT creating directories"""
+        if self.centralized_mode:
+            return self._find_centralized_path(experiment_type, model_name, experiment_name)
+
+        # ORIGINAL: Distributed structure
+        # Determine base directory based on experiment type
+        if experiment_type in ["production", "final", "completed"]:
+            base = self.base_dir / "completed_models"
+        elif experiment_type in ["validation", "test", "pipeline"]:
+            base = self.base_dir / "current_experiments" / "validation"
+        elif experiment_type in ["training", "model"]:
+            base = self.base_dir / "current_experiments" / "training"
+        else:
+            base = self.base_dir / "current_experiments"
+
+        # Create model-specific subdirectory
+        if "detection" in model_name.lower():
+            model_path = base / "detection" / model_name
+        elif "classification" in model_name.lower():
+            model_path = base / "classification" / model_name
+        else:
+            model_path = base / model_name
+
+        # Add experiment name if provided
+        if experiment_name:
+            model_path = model_path / experiment_name
+
+        # DO NOT create directories - just return path
+        return model_path
+
+    def _find_centralized_path(self, experiment_type: str, model_name: str,
+                              experiment_name: str = None) -> Path:
+        """Find centralized path WITHOUT creating directories"""
+
+        # Create organized structure within centralized folder
+        if "detection" in model_name.lower():
+            model_path = self.pipeline_dir / "detection" / model_name
+        elif "classification" in model_name.lower():
+            model_path = self.pipeline_dir / "classification" / model_name
+        else:
+            model_path = self.pipeline_dir / "models" / model_name
+
+        # Add experiment name if provided
+        if experiment_name:
+            model_path = model_path / experiment_name
+
+        # DO NOT create directories - just return path
+        return model_path
+
     def get_publication_path(self, publication_type: str = "journal") -> Path:
         """Get path for publication exports"""
         if self.centralized_mode:

@@ -3,9 +3,14 @@
 ## 🎯 Project Overview
 Comprehensive malaria detection system using YOLOv8, YOLOv11, YOLOv12, and RT-DETR models for microscopy image analysis.
 
-**Current Status: ✅ ADVANCED PIPELINE - Multiple Models with Exclusion Support**
+**Current Status: ✅ PRODUCTION READY - Complete Pipeline with Continue/Resume Support**
 
-**Latest Update**: September 20, 2025 - Added advanced pipeline management with model exclusion/inclusion support
+**Latest Update**: September 21, 2025 - Fixed continue functionality + added comprehensive experiment management + cleaned up documentation
+
+**Live Experiments**:
+- ✅ `exp_multi_pipeline_20250921_144544` - Complete (Detection+Crops+Classification+Analysis)
+- 🔄 Multiple YOLO12 training sessions ongoing
+- 🔄 YOLO8/YOLO11 production training (100 epochs) in progress
 
 ## 🚀 Simplified 3-Stage Workflow
 
@@ -74,6 +79,42 @@ python scripts/experiment_manager.py
 - **Timestamp Naming**: Auto-generated unique experiment names
 - **Clear Monitoring**: Unambiguous training status tracking
 - **Error Handling**: Continue with other models if one fails
+
+### 🔄 EXPERIMENT CONTINUE/RESUME FUNCTIONALITY
+```bash
+# List available experiments that can be continued
+python pipeline_manager.py list
+
+# Show detailed status of an experiment
+python pipeline_manager.py status exp_multi_pipeline_20250921_144544
+
+# Continue from analysis stage (SAFE - no overwrite)
+python run_multiple_models_pipeline.py --continue-from exp_multi_pipeline_20250921_144544 --start-stage analysis --include yolo11
+
+# Continue from detection stage (OVERWRITES detection model)
+python run_multiple_models_pipeline.py --continue-from exp_multi_pipeline_20250921_144544 --start-stage detection --include yolo11 --epochs-det 3 --epochs-cls 2
+
+# Continue from crop stage (OVERWRITES crops + classification)
+python run_multiple_models_pipeline.py --continue-from exp_multi_pipeline_20250921_144544 --start-stage crop --include yolo11 --epochs-cls 2
+
+# Continue from classification stage (OVERWRITES classification only)
+python run_multiple_models_pipeline.py --continue-from exp_multi_pipeline_20250921_144544 --start-stage classification --include yolo11 --epochs-cls 2
+```
+
+**Continue Behavior by Stage**:
+| Stage | What Gets Overwritten | Safe for Results? |
+|-------|----------------------|-------------------|
+| `analysis` | Nothing (analysis only) | ✅ SAFE |
+| `classification` | Classification models only | ⚠️ Overwrites classification |
+| `crop` | Crops + Classification | ⚠️ Overwrites crops & classification |
+| `detection` | Detection model (same path) | ⚠️ Overwrites detection model |
+
+**Management Tools**:
+- `pipeline_manager.py list` - Show all experiments with completion status
+- `pipeline_manager.py status EXPERIMENT` - Detailed experiment information
+- Auto-detects completed stages and recommends next stage
+- Smart parameter merging with conflict warnings
+- Validates experiment directory structure
 
 ## 🔗 AUTOMATIC DATA FLOW BETWEEN STAGES
 
