@@ -24,6 +24,62 @@ from utils.results_manager import get_results_manager, get_experiment_path, get_
 # REMOVED: get_experiment_folder function - always use "training" for consistency
 # Test mode and production mode now use same folder structure
 
+def run_kaggle_optimized_training(model_name, data_yaml, epochs, exp_name, centralized_path):
+    """Run optimized training with full augmentation for Kaggle dataset"""
+    from ultralytics import YOLO
+
+    try:
+        print(f"🎯 KAGGLE-OPTIMIZED TRAINING: {model_name}")
+        print(f"   Full augmentation enabled")
+        print(f"   Epochs: {epochs}")
+        print(f"   Output: {centralized_path}")
+
+        # Load model
+        model = YOLO(model_name)
+
+        # Train with FULL augmentation (same as kaggle_optimized_training.py)
+        results = model.train(
+            data=data_yaml,
+            epochs=epochs,
+            imgsz=640,
+            batch=16,
+            patience=15,
+            save=True,
+            save_period=10,
+            device='cpu',
+            workers=4,
+            exist_ok=True,
+            optimizer='AdamW',
+            lr0=0.001,
+
+            # FULL AUGMENTATION - Key difference for Kaggle dataset
+            augment=True,
+            hsv_h=0.015,
+            hsv_s=0.7,
+            hsv_v=0.4,
+            degrees=45,         # Rotation
+            scale=0.5,
+            flipud=0.5,         # Vertical flip
+            fliplr=0.5,         # Horizontal flip
+            mosaic=1.0,         # Mosaic
+            mixup=0.2,          # Mixup
+            copy_paste=0.2,     # Copy-paste
+
+            # Output settings
+            project=str(centralized_path.parent),
+            name=exp_name,
+            plots=True,
+            val=True,
+            verbose=True
+        )
+
+        print(f"✅ Kaggle optimized training completed: {exp_name}")
+        return True
+
+    except Exception as e:
+        print(f"❌ Kaggle optimized training failed: {e}")
+        return False
+
 def run_command(cmd, description):
     """Run command with logging"""
     print(f"\n🚀 {description}")
@@ -256,7 +312,7 @@ def main():
                        default=[],
                        help="Classification models to exclude")
     parser.add_argument("--test-mode", action="store_true",
-                       help="Enable test mode: lower confidence threshold for crops and faster settings")
+                       help="Enable test mode: faster settings with fewer epochs")
     parser.add_argument("--no-zip", action="store_true",
                        help="Skip creating ZIP archive of results (default: always create ZIP)")
 
@@ -339,9 +395,9 @@ def main():
 
     # Set test mode parameters
     if args.test_mode:
-        confidence_threshold = "0.001"  # Ultra-low threshold for test mode to ensure crop generation success
+        confidence_threshold = "0.25"  # Same as production mode and Kaggle script validation
         print("🧪 TEST MODE ENABLED")
-        print(f"🎯 Using ultra-low confidence threshold: {confidence_threshold}")
+        print(f"🎯 Using standard confidence threshold: {confidence_threshold}")
     else:
         confidence_threshold = "0.25"
         print(f"🎯 Using production confidence threshold: {confidence_threshold}")
@@ -417,19 +473,27 @@ def main():
         else:
             data_yaml = "data/integrated/yolo/data.yaml"
 
-        cmd1 = [
-            "yolo", "detect", "train",
-            f"model={yolo_model}",
-            f"data={data_yaml}",
-            f"epochs={args.epochs_det}",
-            f"name={det_exp_name}",
-            f"project={centralized_detection_path.parent}",
-            "device=cpu"
-        ]
+        # Use optimized training for Kaggle dataset
+        if args.use_kaggle_dataset:
+            print("🎯 Using KAGGLE-OPTIMIZED training with full augmentation")
+            if not run_kaggle_optimized_training(yolo_model, data_yaml, args.epochs_det,
+                                                det_exp_name, centralized_detection_path):
+                failed_models.append(f"{model_key} (detection)")
+                continue
+        else:
+            cmd1 = [
+                "yolo", "detect", "train",
+                f"model={yolo_model}",
+                f"data={data_yaml}",
+                f"epochs={args.epochs_det}",
+                f"name={det_exp_name}",
+                f"project={centralized_detection_path.parent}",
+                "device=cpu"
+            ]
 
-        if not run_command(cmd1, f"Training {detection_model}"):
-            failed_models.append(f"{model_key} (detection)")
-            continue
+            if not run_command(cmd1, f"Training {detection_model}"):
+                failed_models.append(f"{model_key} (detection)")
+                continue
 
         # Wait for weights directly in centralized location
         # Handle YOLO's automatic folder name increments (e.g., exp, exp2, exp3...)
