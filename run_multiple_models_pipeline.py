@@ -11,25 +11,27 @@ import subprocess
 import time
 import json
 import pandas as pd
+import shutil
+import zipfile
 from pathlib import Path
 from datetime import datetime
 
-def get_experiment_folder(experiment_name):
-    """Determine folder based on experiment name keywords"""
-    name_lower = experiment_name.lower()
-    if "production" in name_lower or "final" in name_lower:
-        return "production"
-    elif "validation" in name_lower or "test" in name_lower:
-        return "validation"
-    else:
-        return "training"
+# Add project root to path for imports
+project_root = Path(__file__).parent
+sys.path.insert(0, str(project_root))
+from utils.results_manager import get_results_manager, get_experiment_path, get_crops_path, get_analysis_path
+
+# REMOVED: get_experiment_folder function - always use "training" for consistency
+# Test mode and production mode now use same folder structure
 
 def run_command(cmd, description):
     """Run command with logging"""
     print(f"\n🚀 {description}")
-    print(f"Command: {' '.join(cmd)}")
+    # Convert all items to strings to handle Path objects
+    cmd_str = [str(item) for item in cmd]
+    print(f"Command: {' '.join(cmd_str)}")
 
-    result = subprocess.run(cmd, capture_output=False, text=True)
+    result = subprocess.run(cmd_str, capture_output=False, text=True)
     return result.returncode == 0
 
 def wait_for_file(file_path, max_wait_seconds=60, check_interval=2):
@@ -54,6 +56,79 @@ def wait_for_file(file_path, max_wait_seconds=60, check_interval=2):
     print(f"❌ Timeout waiting for file: {file_path}")
     return False
 
+# REMOVED: consolidate_and_zip_results function - using direct centralized save approach
+
+def create_centralized_zip(base_exp_name, results_manager):
+    """Create ZIP archive from centralized results folder"""
+    print(f"\n📦 CREATING ZIP ARCHIVE FROM CENTRALIZED RESULTS")
+
+    # The centralized folder is already created by results_manager
+    centralized_dir = results_manager.pipeline_dir
+
+    if not centralized_dir.exists():
+        print(f"❌ Centralized folder not found: {centralized_dir}")
+        return None, None
+
+    # Create master summary in centralized folder
+    master_summary = {
+        "experiment_name": base_exp_name,
+        "timestamp": datetime.now().isoformat(),
+        "pipeline_type": "centralized_results",
+        "folder_structure": {
+            "detection": len(list((centralized_dir / "detection").glob("*"))) if (centralized_dir / "detection").exists() else 0,
+            "classification": len(list((centralized_dir / "classification").glob("*"))) if (centralized_dir / "classification").exists() else 0,
+            "crop_data": len(list((centralized_dir / "crop_data").glob("*"))) if (centralized_dir / "crop_data").exists() else 0,
+            "analysis": len(list((centralized_dir / "analysis").glob("*"))) if (centralized_dir / "analysis").exists() else 0
+        }
+    }
+
+    with open(centralized_dir / "master_summary.json", "w") as f:
+        json.dump(master_summary, f, indent=2)
+
+    # Create README
+    readme_content = f"""# Centralized Pipeline Results: {base_exp_name}
+
+## Summary
+- **Generated**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+- **Pipeline Type**: Centralized Results (Direct Save)
+- **Total Components**: {sum(master_summary['folder_structure'].values())}
+
+## Folder Structure
+- `detection/` - Detection model results and weights
+- `classification/` - Classification model results and weights
+- `crop_data/` - Generated crop datasets
+- `analysis/` - Analysis results and visualizations
+- `master_summary.json` - Detailed summary
+
+## Key Features
+This archive contains results from a CENTRALIZED pipeline run where all components
+were saved directly to this folder structure (not copied afterward).
+
+All model weights, training logs, analysis results, and generated datasets are
+organized in a clean hierarchy for easy access and distribution.
+"""
+
+    with open(centralized_dir / "README.md", "w") as f:
+        f.write(readme_content)
+
+    # Create ZIP archive
+    zip_filename = f"{centralized_dir.name}.zip"
+    if Path(zip_filename).exists():
+        Path(zip_filename).unlink()
+
+    print(f"📦 Creating ZIP archive: {zip_filename}")
+    with zipfile.ZipFile(zip_filename, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        for file_path in centralized_dir.rglob('*'):
+            if file_path.is_file():
+                arcname = file_path.relative_to(centralized_dir.parent)
+                zipf.write(file_path, arcname)
+
+    # Calculate size
+    zip_size = Path(zip_filename).stat().st_size / (1024 * 1024)  # MB
+    print(f"✅ ZIP created: {zip_filename} ({zip_size:.1f} MB)")
+
+    return zip_filename, str(centralized_dir)
+
 def create_experiment_summary(exp_dir, model_key, det_exp_name, cls_exp_name, detection_model, cls_model_name="yolo8"):
     """Create experiment summary"""
     try:
@@ -67,10 +142,13 @@ def create_experiment_summary(exp_dir, model_key, det_exp_name, cls_exp_name, de
             }
         }
 
-        # Get detection results
-        det_folder = get_experiment_folder(det_exp_name)
-        det_results_path = f"results/current_experiments/{det_folder}/detection/{detection_model}/{det_exp_name}/results.csv"
-        if Path(det_results_path).exists():
+        # Get detection results from centralized location
+        # Use results manager to get centralized paths
+        results_manager = get_results_manager()
+        centralized_det_path = results_manager.get_experiment_path("training", detection_model, det_exp_name)
+        det_results_path = centralized_det_path / "results.csv"
+
+        if det_results_path.exists():
             det_df = pd.read_csv(det_results_path)
             final_det = det_df.iloc[-1]
             summary_data["detection"] = {
@@ -81,13 +159,14 @@ def create_experiment_summary(exp_dir, model_key, det_exp_name, cls_exp_name, de
                 "recall": float(final_det.get('metrics/recall(B)', 0))
             }
 
-        # Get classification results
-        cls_folder = get_experiment_folder(cls_exp_name)
+        # Get classification results from centralized location
         if cls_model_name in ["yolo8", "yolo11"]:
             cls_config_name = "yolov8_classification" if cls_model_name == "yolo8" else "yolov11_classification"
-            cls_results_path = f"results/current_experiments/{cls_folder}/classification/{cls_config_name}/{cls_exp_name}/results.csv"
+            centralized_cls_path = results_manager.get_experiment_path("training", cls_config_name, cls_exp_name)
+            cls_results_path = centralized_cls_path / "results.csv"
         else:
-            cls_results_path = f"results/current_experiments/training/pytorch_classification/{cls_model_name}/{cls_exp_name}/results.csv"
+            centralized_cls_path = results_manager.get_experiment_path("training", f"pytorch_classification_{cls_model_name}", cls_exp_name)
+            cls_results_path = centralized_cls_path / "results.csv"
 
         if Path(cls_results_path).exists():
             cls_df = pd.read_csv(cls_results_path)
@@ -138,9 +217,10 @@ def create_experiment_summary(exp_dir, model_key, det_exp_name, cls_exp_name, de
 - **Top-1 Accuracy**: {summary_data.get('classification', {}).get('top1_accuracy', 0):.3f}
 - **Top-5 Accuracy**: {summary_data.get('classification', {}).get('top5_accuracy', 0):.3f}
 
-## Results Locations
-- **Detection**: results/current_experiments/{"validation" if "TEST" in det_exp_name else "training"}/detection/{detection_model}/{det_exp_name}/
-- **Crops**: data/crops_from_{model_key}_{det_exp_name}/
+## Results Locations (CENTRALIZED)
+- **Detection**: {centralized_det_path}/
+- **Classification**: {centralized_cls_path}/
+- **Crops**: {results_manager.get_crops_path(model_key, det_exp_name)}/
 """
 
         with open(f"{exp_dir}/experiment_summary.md", 'w') as f:
@@ -166,14 +246,16 @@ def main():
                        help="Base name for experiments")
     parser.add_argument("--classification-models", nargs="+",
                        choices=["yolo8", "yolo11", "resnet18", "efficientnet", "densenet121", "mobilenet_v2", "all"],
-                       default=["yolo8"],
-                       help="Classification models to train (default: yolo8)")
+                       default=["all"],
+                       help="Classification models to train (default: all)")
     parser.add_argument("--exclude-classification", nargs="+",
                        choices=["yolo8", "yolo11", "resnet18", "efficientnet", "densenet121", "mobilenet_v2"],
                        default=[],
                        help="Classification models to exclude")
     parser.add_argument("--test-mode", action="store_true",
                        help="Enable test mode: lower confidence threshold for crops and faster settings")
+    parser.add_argument("--no-zip", action="store_true",
+                       help="Skip creating ZIP archive of results (default: always create ZIP)")
 
     args = parser.parse_args()
 
@@ -196,14 +278,12 @@ def main():
     classification_configs = {
         "yolo8": {
             "type": "yolo",
-            "script": "pipeline.py",
             "model": "yolov8_classification",
             "epochs": 30,
             "batch": 4
         },
         "yolo11": {
-            "type": "yolo", 
-            "script": "pipeline.py",
+            "type": "yolo",
             "model": "yolov11_classification",
             "epochs": 30,
             "batch": 4
@@ -256,19 +336,23 @@ def main():
 
     # Set test mode parameters
     if args.test_mode:
-        confidence_threshold = "0.01"  # Lower threshold for test mode with few epochs
+        confidence_threshold = "0.001"  # Ultra-low threshold for test mode to ensure crop generation success
         print("🧪 TEST MODE ENABLED")
-        print(f"🎯 Using confidence threshold: {confidence_threshold}")
+        print(f"🎯 Using ultra-low confidence threshold: {confidence_threshold}")
     else:
         confidence_threshold = "0.25"
-        print(f"🎯 Using confidence threshold: {confidence_threshold}")
+        print(f"🎯 Using production confidence threshold: {confidence_threshold}")
 
     # Add timestamp to experiment name for uniqueness
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     base_exp_name = f"{args.experiment_name}_{timestamp}"
-    
+
     if args.test_mode:
         base_exp_name += "_TEST"
+
+    # NEW: Initialize centralized results manager
+    results_manager = get_results_manager(pipeline_name=base_exp_name)
+    print(f"📁 CENTRALIZED RESULTS: results_centralized_{base_exp_name}/")
 
     print("🎯 MULTIPLE MODELS PIPELINE")
     print(f"Detection models: {', '.join(models_to_run)}")
@@ -293,30 +377,77 @@ def main():
         detection_model = detection_models[model_key]
         det_exp_name = f"{base_exp_name}_{model_key}_det"
 
-        # STAGE 1: Train Detection Model
+        # STAGE 1: Train Detection Model - DIRECT SAVE to centralized folder
         print(f"\n📊 STAGE 1: Training {detection_model}")
+
+        # NEW: Get centralized path and train directly there using YOLO directly
+        centralized_detection_path = results_manager.get_experiment_path("training", detection_model, det_exp_name)
+
+        # Direct YOLO training command
+        if detection_model == "yolov8_detection":
+            yolo_model = "yolov8n.pt"
+        elif detection_model == "yolov11_detection":
+            yolo_model = "yolov11n.pt"
+        elif detection_model == "yolov12_detection":
+            yolo_model = "yolov12n.pt"
+        elif detection_model == "rtdetr_detection":
+            yolo_model = "rtdetr-l.pt"
+
         cmd1 = [
-            "python3", "pipeline.py", "train", detection_model,
-            "--name", det_exp_name,
-            "--epochs", str(args.epochs_det)
+            "yolo", "detect", "train",
+            f"model={yolo_model}",
+            "data=data/integrated/yolo/data.yaml",
+            f"epochs={args.epochs_det}",
+            f"name={det_exp_name}",
+            f"project={centralized_detection_path.parent}",
+            "device=cpu"
         ]
 
         if not run_command(cmd1, f"Training {detection_model}"):
             failed_models.append(f"{model_key} (detection)")
             continue
 
-        # Wait for weights
-        det_folder = get_experiment_folder(det_exp_name)
-        model_path = f"results/current_experiments/{det_folder}/detection/{detection_model}/{det_exp_name}/weights/best.pt"
+        # Wait for weights directly in centralized location
+        # Handle YOLO's automatic folder name increments (e.g., exp, exp2, exp3...)
+        def find_actual_model_path(base_path, exp_name):
+            """Find the actual folder created by YOLO (handles auto-increment)"""
+            parent_dir = base_path.parent
 
-        if not wait_for_file(model_path, max_wait_seconds=120, check_interval=3):
-            failed_models.append(f"{model_key} (weights missing)")
-            continue
+            # Look for exact match first
+            exact_path = parent_dir / exp_name / "weights" / "best.pt"
+            if exact_path.exists():
+                return exact_path
+
+            # Look for numbered variants (exp2, exp3, etc.)
+            for i in range(2, 20):  # Check up to exp19
+                numbered_path = parent_dir / f"{exp_name}{i}" / "weights" / "best.pt"
+                if numbered_path.exists():
+                    return numbered_path
+
+            return None
+
+        model_path = find_actual_model_path(centralized_detection_path, det_exp_name)
+
+        if model_path is None:
+            # Fall back to waiting for the expected path
+            model_path = centralized_detection_path / "weights" / "best.pt"
+            if not wait_for_file(str(model_path), max_wait_seconds=120, check_interval=3):
+                failed_models.append(f"{model_key} (weights missing)")
+                continue
+        else:
+            print(f"✅ Found model at: {model_path}")
+            # Update centralized_detection_path to point to the actual directory
+            centralized_detection_path = model_path.parent.parent
+
+        print(f"✅ Detection model saved directly to: {centralized_detection_path}")
 
         # STAGE 2: Generate Crops
         print(f"\n🔄 STAGE 2: Generating crops for {model_key}")
         input_path = "data/integrated/yolo"
-        output_path = f"data/crops_from_{model_key}_{det_exp_name}"
+
+        # NEW: Use centralized crops path
+        centralized_crops_path = results_manager.get_crops_path(model_key, det_exp_name)
+        output_path = str(centralized_crops_path)
 
         cmd2 = [
             "python3", "scripts/training/10_crop_detections.py",
@@ -333,9 +464,9 @@ def main():
             failed_models.append(f"{model_key} (crops)")
             continue
 
-        # Verify crop data
-        crop_data_path = f"data/crops_from_{model_key}_{det_exp_name}/yolo_classification"
-        if not Path(crop_data_path).exists():
+        # Verify crop data in CENTRALIZED location
+        crop_data_path = centralized_crops_path / "crops"
+        if not crop_data_path.exists():
             failed_models.append(f"{model_key} (crop data missing)")
             continue
 
@@ -367,27 +498,37 @@ def main():
 
             print(f"   🚀 Training {cls_model_name.upper()}")
 
+            # NEW: Get centralized path for classification
+            centralized_cls_path = results_manager.get_experiment_path("training", cls_config['model'], cls_exp_name)
+
             if cls_config["type"] == "yolo":
-                # YOLO classification using pipeline.py
+                # YOLO classification - direct training command
+                yolo_cls_model = "yolov8n-cls.pt" if "yolo8" in cls_model_name else "yolov11n-cls.pt"
+
                 cmd3 = [
-                    "python3", "pipeline.py", "train", cls_config["model"],
-                    "--name", cls_exp_name,
-                    "--epochs", str(args.epochs_cls),
-                    "--data", crop_data_path
+                    "yolo", "classify", "train",
+                    f"model={yolo_cls_model}",
+                    f"data={crop_data_path}",
+                    f"epochs={args.epochs_cls}",
+                    f"name={cls_exp_name}",
+                    f"project={centralized_cls_path.parent}",
+                    "device=cpu"
                 ]
             else:
-                # PyTorch classification using specialized script
+                # PyTorch classification - modify script to use centralized path
                 cmd3 = [
                     "python3", cls_config["script"],
-                    "--data", crop_data_path,
+                    "--data", str(crop_data_path),
                     "--model", cls_config["model"],
                     "--epochs", str(args.epochs_cls),
                     "--batch", str(cls_config["batch"]),
                     "--device", "cpu",
-                    "--name", cls_exp_name
+                    "--name", cls_exp_name,
+                    "--save-dir", str(centralized_cls_path)  # Direct save to centralized
                 ]
 
             if run_command(cmd3, f"Training {cls_model_name.upper()}"):
+                print(f"✅ Classification model saved directly to: {centralized_cls_path}")
                 classification_success.append(cls_model_name)
             else:
                 classification_failed.append(cls_model_name)
@@ -402,25 +543,24 @@ def main():
         for cls_model_name in classification_success:
             cls_exp_name = f"{base_exp_name}_{model_key}_{cls_model_name}_cls"
 
-            # Create experiment directory structure
-            exp_dir = f"experiments/{base_exp_name}_{model_key}_{cls_model_name}_complete"
-            analysis_dir = f"{exp_dir}/analysis"
+            # NEW: Use centralized analysis path
+            centralized_analysis_path = results_manager.get_analysis_path(f"{model_key}_{cls_model_name}_complete")
+            analysis_dir = str(centralized_analysis_path)
 
             # Create directories
-            for dir_path in [exp_dir, analysis_dir]:
-                Path(dir_path).mkdir(parents=True, exist_ok=True)
+            centralized_analysis_path.mkdir(parents=True, exist_ok=True)
 
-            # Run unified analysis for this specific experiment
-            cls_folder = get_experiment_folder(cls_exp_name)
-
+            # Find classification model in CENTRALIZED location
             if cls_model_name in ["yolo8", "yolo11"]:
                 cls_config_name = "yolov8_classification" if cls_model_name == "yolo8" else "yolov11_classification"
-                classification_model = f"results/current_experiments/{cls_folder}/classification/{cls_config_name}/{cls_exp_name}/weights/best.pt"
+                # Look in centralized classification results
+                classification_model = results_manager.get_experiment_path("training", cls_config_name, cls_exp_name) / "weights" / "best.pt"
             else:
-                # PyTorch models always in training folder (hardcoded in script)
-                classification_model = f"results/current_experiments/training/pytorch_classification/{cls_model_name}/{cls_exp_name}/best_model.pth"
+                # PyTorch models in centralized location - uses .pt extension
+                classification_model = results_manager.get_experiment_path("training", f"pytorch_classification_{cls_model_name}", cls_exp_name) / "best.pt"
 
-            test_data = f"data/crops_from_{model_key}_{det_exp_name}/yolo_classification/test"
+            # Use centralized test data path
+            test_data = centralized_crops_path / "yolo_classification" / "test"
 
             # Check if paths exist before running analysis
             if Path(classification_model).exists() and Path(test_data).exists():
@@ -439,20 +579,22 @@ def main():
         # STAGE 4B: IoU Variation Analysis (on TEST SET) - once per detection model
         # Run IoU analysis in all modes to ensure complete pipeline validation
         print(f"   📊 Running IoU variation analysis")
-        det_folder = get_experiment_folder(det_exp_name)
-        detection_model_path = f"results/current_experiments/{det_folder}/detection/{detection_model}/{det_exp_name}/weights/best.pt"
 
-        if Path(detection_model_path).exists() and classification_success:
+        # Use CENTRALIZED detection model path
+        detection_model_centralized = centralized_detection_path / "weights" / "best.pt"
+
+        if detection_model_centralized.exists() and classification_success:
             first_cls = classification_success[0]
-            exp_dir_for_iou = f"experiments/{base_exp_name}_{model_key}_{first_cls}_complete"
-            iou_analysis_dir = f"{exp_dir_for_iou}/analysis/iou_variation"
-            Path(iou_analysis_dir).mkdir(parents=True, exist_ok=True)
+            # Use centralized analysis path for IoU
+            iou_analysis_path = results_manager.get_analysis_path(f"{model_key}_{first_cls}_iou_variation")
+            iou_analysis_dir = str(iou_analysis_path)
+            iou_analysis_path.mkdir(parents=True, exist_ok=True)
 
             # Use standalone IoU analysis script
             iou_cmd = [
                 "python3", "scripts/analysis/14_compare_models_performance.py",
                 "--iou-analysis",
-                "--model", detection_model_path,
+                "--model", str(detection_model_centralized),
                 "--output", iou_analysis_dir
             ]
 
@@ -463,11 +605,12 @@ def main():
         else:
             print(f"   ⚠️ Skipping IoU analysis - detection model not found or no classification success")
 
-        # Create experiment summaries
+        # Create experiment summaries in centralized location
         for cls_model_name in classification_success:
             cls_exp_name = f"{base_exp_name}_{model_key}_{cls_model_name}_cls"
-            exp_dir = f"experiments/{base_exp_name}_{model_key}_{cls_model_name}_complete"
-            create_experiment_summary(exp_dir, model_key, det_exp_name, cls_exp_name, detection_model, cls_model_name)
+            # Use centralized summary path
+            summary_path = results_manager.get_analysis_path(f"{model_key}_{cls_model_name}_complete")
+            create_experiment_summary(str(summary_path), model_key, det_exp_name, cls_exp_name, detection_model, cls_model_name)
 
         successful_models.append(f"{model_key} ({', '.join(classification_success)})")
         print(f"\n✅ {model_key.upper()} PIPELINE COMPLETED")
@@ -485,6 +628,24 @@ def main():
         for model in failed_models:
             print(f"   {model}")
     print(f"\nSuccess Rate: {len(successful_models)}/{len(models_to_run)}")
+
+    # STAGE 5: Create ZIP from centralized results (automatic by default)
+    if not args.no_zip and successful_models:
+        try:
+            zip_filename, centralized_dir = create_centralized_zip(base_exp_name, results_manager)
+            if zip_filename:
+                print(f"\n🎯 FINAL DELIVERABLE:")
+                print(f"📦 Download: {zip_filename}")
+                print(f"📁 Or browse: {centralized_dir}/")
+            else:
+                print(f"❌ Failed to create ZIP archive")
+        except Exception as e:
+            print(f"❌ Failed to create ZIP: {e}")
+    elif not args.no_zip:
+        print(f"\n⚠️ No successful experiments to zip")
+    else:
+        print(f"\n📁 Results saved in centralized structure:")
+        print(f"✅ All results: {results_manager.pipeline_dir}/")
 
 if __name__ == "__main__":
     main()

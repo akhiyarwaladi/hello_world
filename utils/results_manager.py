@@ -14,10 +14,22 @@ from typing import Dict, List, Optional, Tuple
 class ResultsManager:
     """Manages organized folder structure for experiment results"""
 
-    def __init__(self, config_path: str = "config/results_structure.yaml"):
+    def __init__(self, config_path: str = "config/results_structure.yaml", pipeline_name: str = None):
         self.config_path = Path(config_path)
         self.config = self._load_config()
         self.base_dir = Path(self.config.get("results_structure", {}).get("base_dir", "results"))
+
+        # NEW: Support for centralized pipeline results
+        self.pipeline_name = pipeline_name
+        self.centralized_mode = pipeline_name is not None
+
+        if self.centralized_mode:
+            # Use centralized folder for this pipeline
+            self.pipeline_dir = Path(f"results_centralized_{pipeline_name}")
+            self.pipeline_dir.mkdir(exist_ok=True)
+        else:
+            # Original distributed structure
+            self.pipeline_dir = None
 
         # Create directory structure
         self._initialize_directories()
@@ -64,6 +76,11 @@ class ResultsManager:
                           experiment_name: str = None) -> Path:
         """Get appropriate path for experiment based on type"""
 
+        # NEW: Use centralized structure if in centralized mode
+        if self.centralized_mode:
+            return self._get_centralized_path(experiment_type, model_name, experiment_name)
+
+        # ORIGINAL: Distributed structure
         # Determine base directory based on experiment type
         if experiment_type in ["production", "final", "completed"]:
             base = self.base_dir / "completed_models"
@@ -89,11 +106,51 @@ class ResultsManager:
         model_path.mkdir(parents=True, exist_ok=True)
         return model_path
 
+    def _get_centralized_path(self, experiment_type: str, model_name: str,
+                            experiment_name: str = None) -> Path:
+        """Get centralized path for pipeline results"""
+
+        # Create organized structure within centralized folder
+        if "detection" in model_name.lower():
+            model_path = self.pipeline_dir / "detection" / model_name
+        elif "classification" in model_name.lower():
+            model_path = self.pipeline_dir / "classification" / model_name
+        else:
+            model_path = self.pipeline_dir / "models" / model_name
+
+        # Add experiment name if provided
+        if experiment_name:
+            model_path = model_path / experiment_name
+
+        model_path.mkdir(parents=True, exist_ok=True)
+        return model_path
+
     def get_publication_path(self, publication_type: str = "journal") -> Path:
         """Get path for publication exports"""
-        pub_path = self.base_dir / "publications" / publication_type
+        if self.centralized_mode:
+            pub_path = self.pipeline_dir / "publications" / publication_type
+        else:
+            pub_path = self.base_dir / "publications" / publication_type
         pub_path.mkdir(parents=True, exist_ok=True)
         return pub_path
+
+    def get_crops_path(self, detection_model: str, experiment_name: str) -> Path:
+        """Get path for generated crops"""
+        if self.centralized_mode:
+            crops_path = self.pipeline_dir / "crop_data" / f"crops_from_{detection_model}_{experiment_name}"
+        else:
+            crops_path = Path(f"data/crops_from_{detection_model}_{experiment_name}")
+        crops_path.mkdir(parents=True, exist_ok=True)
+        return crops_path
+
+    def get_analysis_path(self, analysis_type: str = "general") -> Path:
+        """Get path for analysis results"""
+        if self.centralized_mode:
+            analysis_path = self.pipeline_dir / "analysis" / analysis_type
+        else:
+            analysis_path = self.base_dir / "analysis" / analysis_type
+        analysis_path.mkdir(parents=True, exist_ok=True)
+        return analysis_path
 
     def promote_to_completed(self, current_path: Path, model_performance: Dict) -> Path:
         """Move experiment to completed models if meets criteria"""
@@ -207,17 +264,27 @@ class ResultsManager:
                     pass
 
 # Convenience functions
-def get_results_manager() -> ResultsManager:
-    """Get default results manager instance"""
-    return ResultsManager()
+def get_results_manager(pipeline_name: str = None) -> ResultsManager:
+    """Get results manager instance (centralized if pipeline_name provided)"""
+    return ResultsManager(pipeline_name=pipeline_name)
 
 def get_experiment_path(experiment_type: str, model_name: str,
-                       experiment_name: str = None) -> Path:
-    """Get experiment path using default results manager"""
-    manager = get_results_manager()
+                       experiment_name: str = None, pipeline_name: str = None) -> Path:
+    """Get experiment path using results manager"""
+    manager = get_results_manager(pipeline_name)
     return manager.get_experiment_path(experiment_type, model_name, experiment_name)
 
-def get_publication_path(publication_type: str = "journal") -> Path:
-    """Get publication path using default results manager"""
-    manager = get_results_manager()
+def get_publication_path(publication_type: str = "journal", pipeline_name: str = None) -> Path:
+    """Get publication path using results manager"""
+    manager = get_results_manager(pipeline_name)
     return manager.get_publication_path(publication_type)
+
+def get_crops_path(detection_model: str, experiment_name: str, pipeline_name: str = None) -> Path:
+    """Get crops path using results manager"""
+    manager = get_results_manager(pipeline_name)
+    return manager.get_crops_path(detection_model, experiment_name)
+
+def get_analysis_path(analysis_type: str = "general", pipeline_name: str = None) -> Path:
+    """Get analysis path using results manager"""
+    manager = get_results_manager(pipeline_name)
+    return manager.get_analysis_path(analysis_type)

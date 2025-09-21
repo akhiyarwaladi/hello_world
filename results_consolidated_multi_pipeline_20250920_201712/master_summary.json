@@ -1,0 +1,14 @@
+{
+  "experiment_name": "multi_pipeline_20250920_201712",
+  "timestamp": "2025-09-21T02:32:54.871538",
+  "successful_models": [
+    "yolo8"
+  ],
+  "total_experiments": 6,
+  "included_files": {
+    "experiments": 6,
+    "detection_results": 92,
+    "classification_results": 68,
+    "crop_data": 1
+  }
+}

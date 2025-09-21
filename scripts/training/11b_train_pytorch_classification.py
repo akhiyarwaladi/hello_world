@@ -214,6 +214,8 @@ def main():
                        help="Experiment name")
     parser.add_argument("--pretrained", action="store_true", default=True,
                        help="Use pretrained weights")
+    parser.add_argument("--save-dir", default=None,
+                       help="Override default save directory for centralized results")
 
     args = parser.parse_args()
 
@@ -222,14 +224,19 @@ def main():
     print("=" * 60)
 
     # Initialize Results Manager for organized folder structure
-    results_manager = ResultsManager()
-
-    # Get organized experiment path
-    experiment_path = results_manager.get_experiment_path(
-        experiment_type="training",
-        model_name="pytorch_classification",
-        experiment_name=args.name
-    )
+    # Use custom save directory if provided, otherwise use results manager
+    if args.save_dir:
+        experiment_path = Path(args.save_dir)
+        print(f"📁 Using custom save directory: {experiment_path}")
+    else:
+        results_manager = ResultsManager()
+        # Get organized experiment path with consistent naming
+        model_name = f"pytorch_classification_{args.model}"  # Include model name for consistency
+        experiment_path = results_manager.get_experiment_path(
+            experiment_type="training",
+            model_name=model_name,
+            experiment_name=args.name
+        )
 
     experiment_path.mkdir(parents=True, exist_ok=True)
 
