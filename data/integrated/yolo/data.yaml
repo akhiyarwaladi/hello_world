@@ -6,7 +6,7 @@ names:
 - Mixed_infection
 - Uninfected
 nc: 6
-path: data/integrated/yolo
+path: /home/akhiyarwaladi/hello_world/data/integrated/yolo
 test: test/images
 train: train/images
 val: val/images

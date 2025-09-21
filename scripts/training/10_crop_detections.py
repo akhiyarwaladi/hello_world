@@ -21,6 +21,22 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 from utils.results_manager import ResultsManager
 
+def _cleanup_empty_class_folders(crops_dir):
+    """Remove empty class folders to avoid YOLO class count mismatch"""
+    import os
+    removed_count = 0
+    for split in ['train', 'val', 'test']:
+        split_dir = crops_dir / split
+        if split_dir.exists():
+            for class_folder in split_dir.iterdir():
+                if class_folder.is_dir():
+                    # Check if folder is empty
+                    if not any(class_folder.iterdir()):
+                        class_folder.rmdir()
+                        removed_count += 1
+    if removed_count > 0:
+        print(f"🧹 Removed {removed_count} empty class folders to avoid YOLO class count mismatch")
+
 def load_class_names(data_yaml_path="data/integrated/yolo/data.yaml"):
     """Load class names from YOLO data.yaml file"""
     try:
@@ -252,6 +268,9 @@ def process_dataset(model, input_dir, output_dir, dataset_name, confidence=0.25,
                 if 0 <= class_id < len(class_names):
                     class_name = class_names[class_id]
                     print(f"      {class_name} (class {class_id}): {count} crops")
+
+        # Clean up empty class folders to avoid YOLO class count mismatch
+        _cleanup_empty_class_folders(crops_dir)
 
         return metadata_df
     else:

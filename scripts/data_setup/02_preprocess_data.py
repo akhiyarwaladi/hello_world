@@ -257,56 +257,115 @@ class MalariaDataPreprocessor:
                 # Not a species directory; skip (e.g., .git, scripts)
                 continue
 
-            # Prefer images under 'img' subfolder if exists
-            img_root = sp_dir / 'img'
-            search_root = img_root if img_root.exists() else sp_dir
+            # Get image and ground truth directories
+            img_dir = sp_dir / 'img'
+            gt_dir = sp_dir / 'gt'
 
+            if not img_dir.exists() or not gt_dir.exists():
+                print(f"  Missing img or gt directory in {sp_dir}")
+                continue
+
+            # Get all image files
             image_files: List[Path] = []
             for ext in ['*.jpg', '*.jpeg', '*.png', '*.tiff', '*.bmp', '*.JPG', '*.PNG']:
-                image_files.extend(list(search_root.rglob(ext)))
+                image_files.extend(list(img_dir.glob(ext)))
 
             if not image_files:
-                print(f"  No images found under {sp_dir}")
+                print(f"  No images found in {img_dir}")
                 continue
 
             print(f"  Processing {len(image_files)} images for {species} from {sp_dir.name}...")
+            object_count = 0
 
             for img_path in tqdm(image_files, desc=f"Processing {sp_dir.name}"):
+                # Find corresponding ground truth mask
+                gt_path = gt_dir / img_path.name
+                if not gt_path.exists():
+                    print(f"    Warning: No GT mask for {img_path.name}")
+                    continue
+
                 # Check quality
                 is_good, quality_score, metrics = self.check_image_quality(img_path)
                 if not is_good:
                     self.stats['total_rejected'] += 1
                     continue
 
-                # Load and process image
+                # Load original image and ground truth mask
                 img = cv2.imread(str(img_path))
-                if img is None:
+                gt_mask = cv2.imread(str(gt_path), cv2.IMREAD_GRAYSCALE)
+
+                if img is None or gt_mask is None:
                     continue
 
-                # Resize and normalize
-                img_resized = self.resize_and_pad(img, self.target_size)
-                img_enhanced = self.normalize_image(img_resized)
+                # Find connected components in mask (individual parasites)
+                # Threshold mask to binary
+                _, binary_mask = cv2.threshold(gt_mask, 127, 255, cv2.THRESH_BINARY)
 
-                # Save processed image
-                output_filename = f"mp_idb_{species}_{img_path.stem}.jpg"
-                output_path = self.processed_data_dir / "images" / output_filename
-                output_path.parent.mkdir(parents=True, exist_ok=True)
-                cv2.imwrite(str(output_path), img_enhanced, [cv2.IMWRITE_JPEG_QUALITY, 95])
+                # Find contours (individual objects)
+                contours, _ = cv2.findContours(binary_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-                # Record sample info
-                sample_info = {
-                    'image_path': str(output_path.relative_to(self.processed_data_dir)),
-                    'original_path': str(img_path),
-                    'dataset': 'mp_idb',
-                    'class': 'infected',
-                    'species': species,
-                    'quality_score': quality_score,
-                    'original_size': f"{img.shape[1]}x{img.shape[0]}",
-                    'processed_size': f"{self.target_size}x{self.target_size}",
-                    **metrics
-                }
-                processed_samples.append(sample_info)
-                self.stats['total_processed'] += 1
+                # Process each detected object as separate sample
+                for obj_idx, contour in enumerate(contours):
+                    # Get bounding box for this object
+                    x, y, w, h = cv2.boundingRect(contour)
+
+                    # Skip very small objects (noise)
+                    if w < 10 or h < 10:
+                        continue
+
+                    # Extract and process full image (we'll store bbox info for YOLO conversion)
+                    img_resized = self.resize_and_pad(img, self.target_size)
+                    img_enhanced = self.normalize_image(img_resized)
+
+                    # Calculate scaling factors for bbox coordinates
+                    original_h, original_w = img.shape[:2]
+                    scale = self.target_size / max(original_h, original_w)
+                    new_h, new_w = int(original_h * scale), int(original_w * scale)
+
+                    # Calculate padding offsets
+                    pad_h = self.target_size - new_h
+                    pad_w = self.target_size - new_w
+                    offset_x = pad_w // 2
+                    offset_y = pad_h // 2
+
+                    # Convert bbox to scaled coordinates
+                    scaled_x = int(x * scale) + offset_x
+                    scaled_y = int(y * scale) + offset_y
+                    scaled_w = int(w * scale)
+                    scaled_h = int(h * scale)
+
+                    # Save processed image with object index
+                    output_filename = f"mp_idb_{species}_{img_path.stem}_obj{obj_idx:02d}.jpg"
+                    output_path = self.processed_data_dir / "images" / output_filename
+                    output_path.parent.mkdir(parents=True, exist_ok=True)
+                    cv2.imwrite(str(output_path), img_enhanced, [cv2.IMWRITE_JPEG_QUALITY, 95])
+
+                    # Record sample info with bounding box
+                    sample_info = {
+                        'image_path': str(output_path.relative_to(self.processed_data_dir)),
+                        'original_path': str(img_path),
+                        'dataset': 'mp_idb',
+                        'class': 'infected',
+                        'species': species,
+                        'quality_score': quality_score,
+                        'original_size': f"{img.shape[1]}x{img.shape[0]}",
+                        'processed_size': f"{self.target_size}x{self.target_size}",
+                        'object_id': f"{img_path.stem}_obj{obj_idx:02d}",
+                        'bbox_x': scaled_x,
+                        'bbox_y': scaled_y,
+                        'bbox_w': scaled_w,
+                        'bbox_h': scaled_h,
+                        'original_bbox_x': x,
+                        'original_bbox_y': y,
+                        'original_bbox_w': w,
+                        'original_bbox_h': h,
+                        **metrics
+                    }
+                    processed_samples.append(sample_info)
+                    self.stats['total_processed'] += 1
+                    object_count += 1
+
+            print(f"    Extracted {object_count} individual objects from {len(image_files)} images")
 
         return processed_samples
     

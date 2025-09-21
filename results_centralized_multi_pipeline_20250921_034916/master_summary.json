@@ -1,0 +1,11 @@
+{
+  "experiment_name": "multi_pipeline_20250921_034916",
+  "timestamp": "2025-09-21T04:28:07.798219",
+  "pipeline_type": "centralized_results",
+  "folder_structure": {
+    "detection": 3,
+    "classification": 4,
+    "crop_data": 1,
+    "analysis": 5
+  }
+}
