@@ -24,9 +24,9 @@ class ResultsManager:
         self.centralized_mode = pipeline_name is not None
 
         if self.centralized_mode:
-            # Use centralized folder for this pipeline
-            self.pipeline_dir = Path(f"results_centralized_{pipeline_name}")
-            self.pipeline_dir.mkdir(exist_ok=True)
+            # Use centralized folder inside results directory with shorter name
+            self.pipeline_dir = self.base_dir / f"exp_{pipeline_name}"
+            self.pipeline_dir.mkdir(parents=True, exist_ok=True)
         else:
             # Original distributed structure
             self.pipeline_dir = None

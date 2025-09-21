@@ -352,7 +352,7 @@ def main():
 
     # NEW: Initialize centralized results manager
     results_manager = get_results_manager(pipeline_name=base_exp_name)
-    print(f"📁 CENTRALIZED RESULTS: results_centralized_{base_exp_name}/")
+    print(f"📁 RESULTS: results/exp_{base_exp_name}/")
 
     print("🎯 MULTIPLE MODELS PIPELINE")
     print(f"Detection models: {', '.join(models_to_run)}")
