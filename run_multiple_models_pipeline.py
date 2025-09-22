@@ -62,20 +62,22 @@ def run_kaggle_optimized_training(model_name, data_yaml, epochs, exp_name, centr
             workers=4,
             exist_ok=True,
             optimizer='AdamW',
-            lr0=0.001,
+            lr0=0.0005,         # Reduced learning rate for stability
+            weight_decay=0.0005, # L2 regularization
+            warmup_epochs=5,     # Warmup for stability
 
-            # FULL AUGMENTATION - Key difference for Kaggle dataset
+            # CONSERVATIVE AUGMENTATION - Prevent overfitting on small dataset
             augment=True,
-            hsv_h=0.015,
-            hsv_s=0.7,
-            hsv_v=0.4,
-            degrees=45,         # Rotation
-            scale=0.5,
-            flipud=0.5,         # Vertical flip
-            fliplr=0.5,         # Horizontal flip
-            mosaic=1.0,         # Mosaic
-            mixup=0.2,          # Mixup
-            copy_paste=0.2,     # Copy-paste
+            hsv_h=0.010,        # Reduced color augmentation
+            hsv_s=0.5,          # Reduced saturation change
+            hsv_v=0.3,          # Reduced brightness change
+            degrees=15,         # Reduced rotation (45→15)
+            scale=0.3,          # Reduced scaling
+            flipud=0.0,         # No vertical flip (can confuse parasite orientation)
+            fliplr=0.5,         # Keep horizontal flip
+            mosaic=0.5,         # Reduced mosaic (1.0→0.5)
+            mixup=0.0,          # Disable mixup (too aggressive for small dataset)
+            copy_paste=0.0,     # Disable copy_paste (too aggressive)
 
             # Output settings
             project=str(centralized_path.parent),
@@ -316,11 +318,11 @@ def main():
     parser.add_argument("--use-kaggle-dataset", action="store_true",
                        help="Use Kaggle MP-IDB dataset instead of preprocessed dataset")
     parser.add_argument("--classification-models", nargs="+",
-                       choices=["yolo8", "yolo11", "resnet18", "efficientnet", "densenet121", "mobilenet_v2", "all"],
+                       choices=["densenet121", "efficientnet_b1", "resnet50", "mobilenet_v3_large", "vit_b_16", "resnet101", "all"],
                        default=["all"],
-                       help="Classification models to train (default: all)")
+                       help="6 optimized classification models (2024): DenseNet121, EfficientNet-B1, ResNet50, MobileNetV3-Large, ViT-B16, ResNet101")
     parser.add_argument("--exclude-classification", nargs="+",
-                       choices=["yolo8", "yolo11", "resnet18", "efficientnet", "densenet121", "mobilenet_v2"],
+                       choices=["densenet121", "efficientnet_b1", "resnet50", "mobilenet_v3_large", "vit_b_16", "resnet101"],
                        default=[],
                        help="Classification models to exclude")
     parser.add_argument("--test-mode", action="store_true",
@@ -408,34 +410,8 @@ def main():
         print("❌ No detection models to run after exclusions!")
         return
 
-    # Define classification models
+    # Define classification models - 6 OPTIMIZED MODELS (2024)
     classification_configs = {
-        #"yolo8": {
-        #    "type": "yolo",
-        #    "model": "yolov8_classification",
-        #    "epochs": 30,
-        #    "batch": 4
-        #},
-        #"yolo11": {
-        #    "type": "yolo",
-        #    "model": "yolov11_classification",
-        #    "epochs": 30,
-        #    "batch": 4
-        #},
-        "resnet18": {
-            "type": "pytorch",
-            "script": "scripts/training/11b_train_pytorch_classification.py",
-            "model": "resnet18",
-            "epochs": 30,
-            "batch": 8
-        },
-        "efficientnet": {
-            "type": "pytorch",
-            "script": "scripts/training/11b_train_pytorch_classification.py",
-            "model": "efficientnet_b0",
-            "epochs": 30,
-            "batch": 8
-        },
         "densenet121": {
             "type": "pytorch",
             "script": "scripts/training/11b_train_pytorch_classification.py",
@@ -443,10 +419,38 @@ def main():
             "epochs": 30,
             "batch": 8
         },
-        "mobilenet_v2": {
+        "efficientnet_b1": {
             "type": "pytorch",
             "script": "scripts/training/11b_train_pytorch_classification.py",
-            "model": "mobilenet_v2",
+            "model": "efficientnet_b1",
+            "epochs": 30,
+            "batch": 8
+        },
+        "resnet50": {
+            "type": "pytorch",
+            "script": "scripts/training/11b_train_pytorch_classification.py",
+            "model": "resnet50",
+            "epochs": 30,
+            "batch": 8
+        },
+        "mobilenet_v3_large": {
+            "type": "pytorch",
+            "script": "scripts/training/11b_train_pytorch_classification.py",
+            "model": "mobilenet_v3_large",
+            "epochs": 30,
+            "batch": 8
+        },
+        "vit_b_16": {
+            "type": "pytorch",
+            "script": "scripts/training/11b_train_pytorch_classification.py",
+            "model": "vit_b_16",
+            "epochs": 30,
+            "batch": 8
+        },
+        "resnet101": {
+            "type": "pytorch",
+            "script": "scripts/training/11b_train_pytorch_classification.py",
+            "model": "resnet101",
             "epochs": 30,
             "batch": 8
         }
