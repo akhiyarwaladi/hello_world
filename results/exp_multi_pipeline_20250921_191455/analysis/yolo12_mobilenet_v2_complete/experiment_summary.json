@@ -1,0 +1,9 @@
+{
+  "experiment_info": {
+    "detection_model": "YOLO12",
+    "classification_model": "MOBILENET_V2",
+    "detection_experiment": "multi_pipeline_20250921_191455_yolo12_det",
+    "classification_experiment": "multi_pipeline_20250921_191455_yolo12_mobilenet_v2_cls",
+    "timestamp": "2025-09-21 22:50:42"
+  }
+}

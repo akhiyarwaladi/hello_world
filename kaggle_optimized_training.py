@@ -63,22 +63,22 @@ def train_kaggle_optimized(model_type="yolo12"):
         workers=4,
         exist_ok=True,
         optimizer='AdamW',        # Same as Kaggle
-        lr0=0.001,               # Same as Kaggle
+        lr0=0.0005,         # Reduced learning rate for stability (same as pipeline)
         warmup_epochs=5,         # Warmup for training stability
         weight_decay=0.0005,     # L2 regularization for better generalization
 
-        # FULL AUGMENTATION - Exact same as Kaggle script
-        augment=True,            # ← Key difference!
-        hsv_h=0.015,            # HSV color augmentation
-        hsv_s=0.7,
-        hsv_v=0.4,
-        degrees=45,             # Rotation (vs 0.0 in pipeline)
-        scale=0.5,              # Scaling
-        flipud=0.5,             # Vertical flip (vs 0.0 in pipeline)
-        fliplr=0.5,             # Horizontal flip
-        mosaic=1.0,             # Mosaic augmentation
-        mixup=0.2,              # Mixup (vs 0.0 in pipeline)
-        copy_paste=0.2,         # Copy-paste (vs 0.0 in pipeline)
+        # CONSERVATIVE AUGMENTATION - Same as pipeline function
+        augment=True,
+        hsv_h=0.010,        # Reduced color augmentation
+        hsv_s=0.5,          # Reduced saturation change
+        hsv_v=0.3,          # Reduced brightness change
+        degrees=15,         # Reduced rotation (45→15)
+        scale=0.3,          # Reduced scaling
+        flipud=0.0,         # No vertical flip (can confuse parasite orientation)
+        fliplr=0.5,         # Keep horizontal flip
+        mosaic=0.5,         # Reduced mosaic (1.0→0.5)
+        mixup=0.0,          # Disable mixup (too aggressive for small dataset)
+        copy_paste=0.0,     # Disable copy_paste (too aggressive)
 
         # Output settings - centralized structure
         project=str(detection_dir),
