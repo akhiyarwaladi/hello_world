@@ -55,6 +55,10 @@ python run_multiple_models_pipeline.py --include yolo8 yolo11 --epochs-det 40 --
 
 # ALL MODELS (no exclusions)
 python run_multiple_models_pipeline.py --epochs-det 40 --epochs-cls 30
+
+# 🆕 KAGGLE DATASET: Use optimized Kaggle MP-IDB dataset (RECOMMENDED)
+python run_multiple_models_pipeline.py --use-kaggle-dataset --exclude rtdetr --epochs-det 40 --epochs-cls 30
+python run_multiple_models_pipeline.py --use-kaggle-dataset --include yolo12 --epochs-det 3 --epochs-cls 3
 ```
 
 ### 🎯 Single Model Pipeline
@@ -391,6 +395,11 @@ python3 run_multiple_models_pipeline.py --exclude-detection yolo11 yolo12 rtdetr
 
 # Production training (exclude RT-DETR)
 python3 run_multiple_models_pipeline.py --exclude rtdetr --epochs-det 30 --epochs-cls 30
+
+# 🆕 KAGGLE DATASET with specific models (RECOMMENDED)
+python3 run_multiple_models_pipeline.py --use-kaggle-dataset --include yolo12 --epochs-det 3 --epochs-cls 3
+python3 run_multiple_models_pipeline.py --use-kaggle-dataset --include yolo11 --epochs-det 50 --epochs-cls 30
+python3 run_multiple_models_pipeline.py --use-kaggle-dataset --exclude rtdetr --epochs-det 40 --epochs-cls 30
 
 # RT-DETR only test
 python3 run_multiple_models_pipeline.py --exclude-detection yolo8 yolo11 yolo12 --epochs-det 5 --epochs-cls 5 --test-mode --classification-models yolo8

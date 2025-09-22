@@ -55,7 +55,7 @@ def run_kaggle_optimized_training(model_name, data_yaml, epochs, exp_name, centr
             epochs=epochs,
             imgsz=640,
             batch=16,
-            patience=15,
+            patience=50,
             save=True,
             save_period=10,
             device='cpu',
@@ -583,7 +583,7 @@ def main():
             if detection_model == "yolov8_detection":
                 yolo_model = "yolov8n.pt"
             elif detection_model == "yolov11_detection":
-                yolo_model = "yolo11n.pt"
+                yolo_model = "yolo11m.pt"
             elif detection_model == "yolov12_detection":
                 yolo_model = "yolo12n.pt"  # Correct ultralytics naming convention
             elif detection_model == "rtdetr_detection":

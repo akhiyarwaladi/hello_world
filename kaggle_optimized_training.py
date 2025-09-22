@@ -25,12 +25,12 @@ def train_kaggle_optimized(model_type="yolo12"):
 
     # Support both YOLOv11 and YOLOv12
     if model_type == "yolo11":
-        MODEL_NAME = "yolo11n"  # YOLOv11 nano
+        MODEL_NAME = "yolo11m"  # YOLOv11 medium (higher accuracy, slower training)
     else:
         MODEL_NAME = "yolo12n"  # YOLOv12 - latest and best
     EPOCHS = 100
     IMGSZ = 640
-    BATCH_SIZE = 16
+    BATCH_SIZE = 16  # CPU training can handle larger batch size
 
     # Use centralized pipeline structure
     import datetime
@@ -56,7 +56,7 @@ def train_kaggle_optimized(model_type="yolo12"):
         epochs=EPOCHS,
         imgsz=IMGSZ,
         batch=BATCH_SIZE,
-        patience=15,              # Same as Kaggle
+        patience=50,              # Increased from 15 to allow training until epoch 49+ (historical best: 89.15% at epoch 49)
         save=True,
         save_period=10,
         device='cpu',
@@ -64,6 +64,8 @@ def train_kaggle_optimized(model_type="yolo12"):
         exist_ok=True,
         optimizer='AdamW',        # Same as Kaggle
         lr0=0.001,               # Same as Kaggle
+        warmup_epochs=5,         # Warmup for training stability
+        weight_decay=0.0005,     # L2 regularization for better generalization
 
         # FULL AUGMENTATION - Exact same as Kaggle script
         augment=True,            # ← Key difference!
