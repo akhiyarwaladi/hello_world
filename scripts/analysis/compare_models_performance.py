@@ -944,15 +944,17 @@ This analysis provides insights into the performance of different detection-clas
             from ultralytics import YOLO
             import json
             import pandas as pd
-            # Import smart dataset detector
-            import sys
-            sys.path.append(str(Path(__file__).parent))
-            from smart_dataset_detector import get_consistent_dataset_for_analysis
-
             # Auto-detect dataset if not provided
             if data_yaml is None:
                 print("🔍 Auto-detecting training dataset...")
-                data_yaml = get_consistent_dataset_for_analysis(model_path)
+                # Prioritize Kaggle dataset
+                kaggle_path = "data/kaggle_pipeline_ready/data.yaml"
+                if os.path.exists(kaggle_path):
+                    data_yaml = kaggle_path
+                elif os.path.exists("data/integrated/data.yaml"):
+                    data_yaml = "data/integrated/data.yaml"
+                else:
+                    data_yaml = "data/yolo/data.yaml"
                 print(f"✅ Using consistent dataset: {data_yaml}")
             else:
                 print(f"📁 Using specified dataset: {data_yaml}")

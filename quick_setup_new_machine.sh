@@ -289,7 +289,7 @@ fi
 log "📊 PHASE 6: Performance Analysis Test"
 
 log "Testing performance analysis system..."
-python scripts/14_compare_models_performance.py \
+python scripts/analysis/compare_models_performance.py \
     --output results/setup_test_report.md || error "Performance analysis test failed"
 
 if [[ -f "results/setup_test_report.md" ]]; then
@@ -386,7 +386,7 @@ echo "# Full Classification Training (1-2 hours on CPU):"
 echo "python pipeline.py train yolov8_classification --epochs 25 --name classification_production"
 echo ""
 echo "# Generate Final Research Report:"
-echo "python scripts/14_compare_models_performance.py --output results/final_comparison.md"
+echo "python scripts/analysis/compare_models_performance.py --output results/final_comparison.md"
 echo ""
 echo "📄 Documentation Files Created:"
 echo "  • setup_verification.md - Detailed verification checklist"

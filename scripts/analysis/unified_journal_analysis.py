@@ -19,7 +19,20 @@ import yaml
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from smart_dataset_detector import get_consistent_dataset_for_analysis
+
+def get_consistent_dataset_for_analysis(model_path):
+    """Get consistent dataset for analysis - prioritize Kaggle dataset"""
+    kaggle_path = "data/kaggle_pipeline_ready/data.yaml"
+    if os.path.exists(kaggle_path):
+        return kaggle_path
+
+    # Fallback to integrated dataset
+    integrated_path = "data/integrated/data.yaml"
+    if os.path.exists(integrated_path):
+        return integrated_path
+
+    # Default fallback
+    return "data/yolo/data.yaml"
 
 class UnifiedJournalAnalyzer:
     def __init__(self, centralized_experiment=None, ieee_compliant=True):
