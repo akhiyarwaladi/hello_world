@@ -377,7 +377,7 @@ pip install -r requirements.txt
 
 # METHOD A: Kaggle Dataset (RECOMMENDED - Ready to train, 690MB)
 python scripts/data_setup/01_download_datasets.py --dataset kaggle_mp_idb
-python scripts/data_setup/setup_kaggle_dataset.py
+python scripts/data_setup/setup_kaggle_for_pipeline.py
 
 # METHOD B: Original MP-IDB (Requires processing, 500MB)
 python scripts/data_setup/01_download_datasets.py --dataset mp_idb
@@ -399,7 +399,7 @@ python run_complete_pipeline.py --detection yolo8 --epochs-det 40 --epochs-cls 3
 **🎯 RECOMMENDED PATH for Fresh Machine:**
 1. Setup environment & Kaggle API
 2. Download: `--dataset kaggle_mp_idb` (690MB, ready-to-use)
-3. Setup: `setup_kaggle_dataset.py` (splits & formats data)
+3. Setup: `scripts/data_setup/setup_kaggle_for_pipeline.py` (splits & formats data)
 4. Train: `--use-kaggle-dataset` flag (all models, ~2-3 hours)
 
 ## 📋 Recent Pipeline Commands Reference

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Setup Kaggle MP-IDB dataset for training with our pipeline.
-This script prepares the Kaggle dataset to be compatible with our run_multiple_models_pipeline.py
+Setup Kaggle MP-IDB original dataset for pipeline use.
+Creates train/val/test splits and converts to single-class detection.
 """
 
 import os
@@ -11,19 +11,22 @@ import random
 from pathlib import Path
 from sklearn.model_selection import train_test_split
 
-def setup_kaggle_dataset():
-    """Setup Kaggle dataset for detection training"""
+def setup_kaggle_for_pipeline():
+    """Setup Kaggle dataset for pipeline use"""
 
-    print("🚀 Setting up Kaggle MP-IDB dataset...")
+    print("🚀 Setting up Kaggle MP-IDB original dataset for pipeline...")
 
     # Paths
     kaggle_source = Path("data/kaggle_dataset/MP-IDB-YOLO")
-    output_dir = Path("data/kaggle_detection_ready")
+    output_dir = Path("data/kaggle_pipeline_ready")
 
     if not kaggle_source.exists():
         print(f"❌ Kaggle dataset not found at {kaggle_source}")
-        print("Please run: kaggle datasets download rayhanadi/yolo-formatted-mp-idb-malaria-dataset")
         return False
+
+    # Remove existing output if exists
+    if output_dir.exists():
+        shutil.rmtree(output_dir)
 
     # Create output structure
     output_dir.mkdir(exist_ok=True)
@@ -112,15 +115,15 @@ def setup_kaggle_dataset():
         return converted_count
 
     # Convert all labels to single-class detection format
-    print("🔄 Converting segmentation masks to bounding boxes...")
+    print("🔄 Converting segmentation polygons to bounding boxes...")
     train_objects = convert_to_single_class_detection(train_label_dir)
     val_objects = convert_to_single_class_detection(val_label_dir)
     test_objects = convert_to_single_class_detection(test_label_dir)
 
     total_objects = train_objects + val_objects + test_objects
-    print(f"✅ Converted {total_objects} objects ({train_objects} train, {val_objects} val, {test_objects} test)")
+    print(f"✅ Converted {total_objects} polygons to bounding boxes ({train_objects} train, {val_objects} val, {test_objects} test)")
 
-    # Create data.yaml
+    # Create data.yaml for pipeline
     yaml_content = {
         'path': str(output_dir.absolute()),
         'train': 'train/images',
@@ -142,9 +145,9 @@ def setup_kaggle_dataset():
     print(f"   Val: {len(val_files)} images, {val_objects} objects")
     print(f"   Test: {len(test_files)} images, {test_objects} objects")
     print(f"   Classes: 1 (parasite detection)")
-    print(f"🎯 Dataset ready for training at: {output_dir}")
+    print(f"🎯 Dataset ready for pipeline at: {output_dir}")
 
     return str(yaml_path)
 
 if __name__ == "__main__":
-    setup_kaggle_dataset()
+    setup_kaggle_for_pipeline()

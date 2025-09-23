@@ -17,7 +17,7 @@ source venv/bin/activate
 
 # RECOMMENDED: Download Kaggle YOLO dataset (ready-to-use)
 python scripts/data_setup/01_download_datasets.py --dataset kaggle_mp_idb
-python scripts/data_setup/setup_kaggle_dataset.py
+python scripts/data_setup/setup_kaggle_for_pipeline.py
 
 # Alternative: Original MP-IDB (requires processing)
 # python scripts/data_setup/01_download_datasets.py --dataset mp_idb
@@ -41,11 +41,10 @@ Results saved in `results/current_experiments/` and `experiments/`
 📦 malaria-detection/
 ├── 🔥 run_multiple_models_pipeline.py     # Main pipeline interface (RECOMMENDED)
 ├── 📋 pipeline_manager.py                 # Pipeline management & continue functionality
-├── 🛠️ setup_kaggle_for_pipeline.py       # Kaggle dataset setup helper
 ├── 📂 scripts/
 │   ├── 📁 data_setup/                     # Step 1: Data preparation
 │   │   ├── 01_download_datasets.py        # Download datasets (includes Kaggle)
-│   │   ├── setup_kaggle_dataset.py        # Setup Kaggle YOLO dataset
+│   │   ├── setup_kaggle_for_pipeline.py   # Setup Kaggle YOLO dataset
 │   │   ├── 02_preprocess_data.py          # Clean and process images
 │   │   ├── 03_integrate_datasets.py       # Combine multiple datasets
 │   │   ├── 04_convert_to_yolo.py          # Convert to YOLO format
