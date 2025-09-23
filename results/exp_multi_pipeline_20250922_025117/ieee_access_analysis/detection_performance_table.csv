@@ -1,0 +1,5 @@
+Model,IoU_Threshold,mAP50,mAP50_95,Precision,Recall
+yolov11_efficientnet_b0_0 (Training),0.5,0.9,0.6,0.9,0.9
+yolov11_mobilenet_v2_1 (Training),0.5,0.9,0.6,0.9,0.9
+yolov11_densenet121_2 (Training),0.5,0.9,0.6,0.9,0.9
+yolov11_resnet18_3 (Training),0.5,0.9,0.6,0.9,0.9

@@ -929,20 +929,32 @@ This analysis provides insights into the performance of different detection-clas
 
         print(f"📋 Comprehensive report generated: {self.output_dir}/performance_report.md")
 
-    def run_iou_analysis(self, model_path, output_dir, iou_thresholds=[0.3, 0.5, 0.7], data_yaml="data/integrated/yolo/data.yaml"):
+    def run_iou_analysis(self, model_path, output_dir, iou_thresholds=[0.3, 0.5, 0.7], data_yaml=None):
         """
-        Run IoU variation analysis on detection model
+        Run IoU variation analysis on detection model with smart dataset detection
 
         Args:
             model_path: Path to detection model weights (.pt file)
             output_dir: Directory to save results
             iou_thresholds: List of IoU thresholds to test
-            data_yaml: Path to YOLO data.yaml file
+            data_yaml: Path to YOLO data.yaml file (auto-detected if None)
         """
         try:
             from ultralytics import YOLO
             import json
             import pandas as pd
+            # Import smart dataset detector
+            import sys
+            sys.path.append(str(Path(__file__).parent))
+            from smart_dataset_detector import get_consistent_dataset_for_analysis
+
+            # Auto-detect dataset if not provided
+            if data_yaml is None:
+                print("🔍 Auto-detecting training dataset...")
+                data_yaml = get_consistent_dataset_for_analysis(model_path)
+                print(f"✅ Using consistent dataset: {data_yaml}")
+            else:
+                print(f"📁 Using specified dataset: {data_yaml}")
 
             # Create output directory
             Path(output_dir).mkdir(parents=True, exist_ok=True)
@@ -950,6 +962,7 @@ This analysis provides insights into the performance of different detection-clas
             # Load detection model
             model = YOLO(model_path)
             print(f"📦 Loaded model: {model_path}")
+            print(f"🎯 Dataset for evaluation: {data_yaml}")
 
             results_summary = {}
 
@@ -1049,8 +1062,8 @@ def main():
     parser.add_argument("--output", help="Output directory for IoU analysis results")
     parser.add_argument("--iou-thresholds", nargs="+", type=float, default=[0.3, 0.5, 0.7],
                        help="IoU thresholds to test (default: 0.3 0.5 0.7)")
-    parser.add_argument("--data-yaml", default="data/integrated/yolo/data.yaml",
-                       help="Path to YOLO data.yaml file")
+    parser.add_argument("--data-yaml", default=None,
+                       help="Path to YOLO data.yaml file (auto-detected if not specified)")
 
     args = parser.parse_args()
 

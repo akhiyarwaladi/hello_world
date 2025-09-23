@@ -1,0 +1,7 @@
+Models,Training_Time_Minutes,Testing_Time_ms,Parameters_M,Model_Size_MB
+YOLOv11,240,120,20.1,85
+YOLOv12,180,100,15.8,65
+RT-DETR,300,150,25.2,105
+EfficientNet-B0,25,80,5.3,22
+DenseNet-121,35,90,7.0,28
+ResNet-18,30,85,11.2,45

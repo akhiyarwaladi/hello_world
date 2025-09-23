@@ -884,6 +884,19 @@ def main():
             else:
                 print(f"   ⚠️ Skipping IoU analysis - detection model not found or no classification success")
 
+            # STAGE 4C: IEEE Access Compliant Analysis (Journal Ready)
+            if args.continue_from and classification_success:
+                print(f"   📋 Running IEEE Access compliant analysis")
+                ieee_cmd = [
+                    "python3", "scripts/analysis/unified_journal_analysis.py",
+                    "--centralized-experiment", args.continue_from
+                ]
+                try:
+                    run_command(ieee_cmd, f"IEEE Analysis for {args.continue_from}")
+                    print(f"   ✅ IEEE compliant analysis completed")
+                except Exception as e:
+                    print(f"   ⚠️ IEEE analysis failed: {e}")
+
             # Create experiment summaries in centralized location
             for cls_model_name in classification_success:
                 cls_exp_name = f"{base_exp_name}_{model_key}_{cls_model_name}_cls"
