@@ -4,6 +4,6 @@
     "classification_model": "RESNET18",
     "detection_experiment": "multi_pipeline_20250922_025117_yolo11_det",
     "classification_experiment": "multi_pipeline_20250922_025117_yolo11_resnet18_cls",
-    "timestamp": "2025-09-23 06:14:42"
+    "timestamp": "2025-09-23 06:47:53"
   }
 }

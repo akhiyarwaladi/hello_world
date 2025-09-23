@@ -1,11 +1,11 @@
 {
   "experiment_name": "multi_pipeline_20250922_025117",
-  "timestamp": "2025-09-23T06:14:42.382466",
+  "timestamp": "2025-09-23T06:47:53.485228",
   "pipeline_type": "centralized_results",
   "folder_structure": {
     "detection": 1,
     "classification": 0,
     "crop_data": 2,
-    "analysis": 5
+    "analysis": 6
   }
 }
