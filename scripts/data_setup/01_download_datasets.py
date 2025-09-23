@@ -160,16 +160,16 @@ class MalariaDatasetDownloader:
         print("\n" + "="*50)
         print("Downloading Kaggle NIH Dataset...")
         print("="*50)
-        
+
         if self.kaggle_api is None:
             print("⚠ Kaggle API not configured. Skipping Kaggle datasets.")
             return
-        
+
         dataset_dir = self.base_dir / "kaggle_nih"
         dataset_dir.mkdir(exist_ok=True)
-        
+
         dataset_name = "iarunava/cell-images-for-detecting-malaria"
-        
+
         try:
             self.kaggle_api.dataset_download_files(
                 dataset_name,
@@ -179,6 +179,45 @@ class MalariaDatasetDownloader:
             print(f"✓ Kaggle dataset downloaded to {dataset_dir}")
         except Exception as e:
             print(f"⚠ Failed to download Kaggle dataset: {e}")
+
+    def download_kaggle_mp_idb_yolo(self):
+        """Download YOLO-formatted MP-IDB dataset from Kaggle"""
+        print("\n" + "="*50)
+        print("Downloading Kaggle MP-IDB YOLO Dataset...")
+        print("="*50)
+
+        if self.kaggle_api is None:
+            print("⚠ Kaggle API not configured. Using command line approach...")
+            print("Please run: kaggle datasets download rayhanadi/yolo-formatted-mp-idb-malaria-dataset")
+            return False
+
+        dataset_dir = self.base_dir.parent / "kaggle_dataset"
+        dataset_dir.mkdir(exist_ok=True)
+
+        dataset_name = "rayhanadi/yolo-formatted-mp-idb-malaria-dataset"
+
+        try:
+            print(f"📥 Downloading {dataset_name}...")
+            self.kaggle_api.dataset_download_files(
+                dataset_name,
+                path=str(dataset_dir),
+                unzip=True
+            )
+            print(f"✓ Kaggle MP-IDB YOLO dataset downloaded to {dataset_dir}")
+
+            # Check if extraction was successful
+            expected_path = dataset_dir / "MP-IDB-YOLO"
+            if expected_path.exists():
+                print(f"✓ Dataset extracted successfully at {expected_path}")
+                print(f"📊 Ready for use with --use-kaggle-dataset flag")
+            else:
+                print(f"⚠ Expected folder 'MP-IDB-YOLO' not found after extraction")
+
+            return True
+        except Exception as e:
+            print(f"❌ Failed to download Kaggle MP-IDB YOLO dataset: {e}")
+            print("💡 Try manual download: kaggle datasets download rayhanadi/yolo-formatted-mp-idb-malaria-dataset")
+            return False
     
     def download_plasmoID(self):
         """Information for PlasmoID dataset"""
@@ -277,6 +316,7 @@ class MalariaDatasetDownloader:
         self.download_nih_thick_smears()
         self.download_mp_idb()
         self.download_kaggle_dataset()
+        self.download_kaggle_mp_idb_yolo()
         
         # Provide information for manual downloads
         self.download_bbbc041()
@@ -318,14 +358,15 @@ Examples:
   python scripts/01_download_datasets.py --list-datasets
 
 Available datasets:
-  mp_idb      - MP-IDB whole slide images (RECOMMENDED for detection research)
-  nih_cell    - NIH segmented cell images
-  nih_thick   - NIH thick smear images 
-  kaggle_nih  - Kaggle NIH cell dataset
-  bbbc041     - BBBC041 P. vivax stages
-  plasmoID    - PlasmoID Indonesian dataset
-  iml         - IML P. vivax lifecycle
-  all         - Download all datasets
+  kaggle_mp_idb - Kaggle MP-IDB YOLO dataset (RECOMMENDED for pipeline)
+  mp_idb        - MP-IDB whole slide images (original research)
+  nih_cell      - NIH segmented cell images
+  nih_thick     - NIH thick smear images
+  kaggle_nih    - Kaggle NIH cell dataset
+  bbbc041       - BBBC041 P. vivax stages
+  plasmoID      - PlasmoID Indonesian dataset
+  iml           - IML P. vivax lifecycle
+  all           - Download all datasets
         """)
     
     parser.add_argument(
@@ -367,9 +408,11 @@ Available datasets:
     if args.list_datasets:
         print("Available datasets for malaria detection research:")
         print("=" * 60)
-        print("🎯 RECOMMENDED for Two-Step Classification Research:")
-        print("  mp_idb      - MP-IDB whole slide images (103 images, 1,242 parasites)")
-        print("                Required for detection → classification pipeline")
+        print("🎯 RECOMMENDED for Pipeline Use:")
+        print("  kaggle_mp_idb - Kaggle MP-IDB YOLO dataset (ready for training)")
+        print("                  Pre-formatted for --use-kaggle-dataset flag")
+        print("  mp_idb        - MP-IDB whole slide images (103 images, 1,242 parasites)")
+        print("                  Requires processing for detection → classification pipeline")
         print()
         print("📊 Additional Research Datasets:")
         print("  nih_cell    - NIH segmented cell images (27k+ cells)")
@@ -406,6 +449,7 @@ Available datasets:
     # Mapping of dataset names to download methods (FIXED method names)
     dataset_methods = {
         'mp_idb': ('MP-IDB Whole Slide Images', downloader.download_mp_idb),
+        'kaggle_mp_idb': ('Kaggle MP-IDB YOLO Dataset', downloader.download_kaggle_mp_idb_yolo),
         'nih_cell': ('NIH Cell Images', downloader.download_nih_cell_images),
         'nih_thick': ('NIH Thick Smears', downloader.download_nih_thick_smears),
         'kaggle_nih': ('Kaggle NIH Dataset', downloader.download_kaggle_dataset),

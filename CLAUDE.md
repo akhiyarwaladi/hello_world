@@ -357,28 +357,50 @@ run_multiple_models_pipeline.py      # Multi-model automation with analysis
 ## 🚨 Important Notes for Claude
 
 ### 🆕 FRESH MACHINE SETUP (FROM ZERO TO RESULTS)
-**Complete setup from fresh clone to results:**
+**Complete setup from fresh clone to results - UPDATED INSTRUCTIONS:**
 
 ```bash
 # 1. Clone repository & setup environment
 git clone [repository-url]
-cd hello_world
+cd fresh_machine_simulation
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-# 2. Setup data pipeline (4 steps) - CORRECTED PATH
-python scripts/data_setup/01_download_datasets.py --dataset mp_idb  # Download MP-IDB (~500MB)
-python scripts/data_setup/02_preprocess_data.py                     # Preprocess images
-python scripts/data_setup/03_integrate_datasets.py                  # Integrate datasets
-python scripts/data_setup/04_convert_to_yolo.py                     # Convert to YOLO format
+# 2. Configure Kaggle API (REQUIRED for dataset download)
+# Setup your Kaggle API credentials first:
+# - Download kaggle.json from https://www.kaggle.com/settings
+# - Place it in ~/.kaggle/kaggle.json
+# - Run: chmod 600 ~/.kaggle/kaggle.json
 
-# 3. Run complete 3-stage workflow (RECOMMENDED)
+# 3. Download & Setup Dataset - CHOOSE ONE METHOD:
+
+# METHOD A: Kaggle Dataset (RECOMMENDED - Ready to train, 690MB)
+python scripts/data_setup/01_download_datasets.py --dataset kaggle_mp_idb
+python scripts/data_setup/setup_kaggle_dataset.py
+
+# METHOD B: Original MP-IDB (Requires processing, 500MB)
+python scripts/data_setup/01_download_datasets.py --dataset mp_idb
+python scripts/data_setup/02_preprocess_data.py
+python scripts/data_setup/03_integrate_datasets.py
+python scripts/data_setup/04_convert_to_yolo.py
+
+# 4. Run Complete Pipeline (FINAL STEP)
+# Using Kaggle dataset (if Method A):
+python run_multiple_models_pipeline.py --use-kaggle-dataset --exclude rtdetr --epochs-det 40 --epochs-cls 30
+
+# Using processed MP-IDB (if Method B):
 python run_multiple_models_pipeline.py --exclude rtdetr --epochs-det 40 --epochs-cls 30
 
 # Alternative: Single model pipeline
 python run_complete_pipeline.py --detection yolo8 --epochs-det 40 --epochs-cls 30
 ```
+
+**🎯 RECOMMENDED PATH for Fresh Machine:**
+1. Setup environment & Kaggle API
+2. Download: `--dataset kaggle_mp_idb` (690MB, ready-to-use)
+3. Setup: `setup_kaggle_dataset.py` (splits & formats data)
+4. Train: `--use-kaggle-dataset` flag (all models, ~2-3 hours)
 
 ## 📋 Recent Pipeline Commands Reference
 
