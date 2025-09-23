@@ -491,8 +491,10 @@ def main():
             # Fix classification structure if requested
             if args.fix_classification_structure:
                 print(f"\n🔧 Fixing classification structure for 4 malaria species...")
+                # Use relative path to fix_classification_structure.py in same directory
+                fix_script_path = Path(__file__).parent / "13_fix_classification_structure.py"
                 fix_cmd = [
-                    "python3", "fix_classification_structure.py",
+                    "python3", str(fix_script_path),
                     "--crop_data_path", args.output,
                     "--input_path", args.input
                 ]

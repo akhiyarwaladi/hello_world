@@ -414,42 +414,42 @@ def main():
     classification_configs = {
         "densenet121": {
             "type": "pytorch",
-            "script": "scripts/training/11b_train_pytorch_classification.py",
+            "script": "scripts/training/12_train_pytorch_classification.py",
             "model": "densenet121",
             "epochs": 30,
             "batch": 8
         },
         "efficientnet_b1": {
             "type": "pytorch",
-            "script": "scripts/training/11b_train_pytorch_classification.py",
+            "script": "scripts/training/12_train_pytorch_classification.py",
             "model": "efficientnet_b1",
             "epochs": 30,
             "batch": 8
         },
         "resnet50": {
             "type": "pytorch",
-            "script": "scripts/training/11b_train_pytorch_classification.py",
+            "script": "scripts/training/12_train_pytorch_classification.py",
             "model": "resnet50",
             "epochs": 30,
             "batch": 8
         },
         "mobilenet_v3_large": {
             "type": "pytorch",
-            "script": "scripts/training/11b_train_pytorch_classification.py",
+            "script": "scripts/training/12_train_pytorch_classification.py",
             "model": "mobilenet_v3_large",
             "epochs": 30,
             "batch": 8
         },
         "vit_b_16": {
             "type": "pytorch",
-            "script": "scripts/training/11b_train_pytorch_classification.py",
+            "script": "scripts/training/12_train_pytorch_classification.py",
             "model": "vit_b_16",
             "epochs": 30,
             "batch": 8
         },
         "resnet101": {
             "type": "pytorch",
-            "script": "scripts/training/11b_train_pytorch_classification.py",
+            "script": "scripts/training/12_train_pytorch_classification.py",
             "model": "resnet101",
             "epochs": 30,
             "batch": 8
@@ -511,7 +511,7 @@ def main():
         if not kaggle_ready_path.exists():
             print("🔧 Setting up Kaggle dataset for pipeline...")
             import subprocess
-            result = subprocess.run([sys.executable, "scripts/data_setup/setup_kaggle_for_pipeline.py"],
+            result = subprocess.run([sys.executable, "scripts/data_setup/07_setup_kaggle_for_pipeline.py"],
                                   capture_output=True, text=True)
             if result.returncode != 0:
                 print(f"❌ Failed to setup Kaggle dataset: {result.stderr}")
@@ -585,11 +585,11 @@ def main():
         if start_stage is None or start_stage == 'detection':
             # Direct YOLO training command with auto-download for YOLOv10, YOLOv11, YOLOv12
             if detection_model == "yolov10_detection":
-                yolo_model = "yolov10n.pt"  # YOLOv10 nano
+                yolo_model = "yolov10m.pt"  # YOLOv10 medium
             elif detection_model == "yolov11_detection":
                 yolo_model = "yolo11m.pt"
             elif detection_model == "yolov12_detection":
-                yolo_model = "yolo12n.pt"  # Correct ultralytics naming convention
+                yolo_model = "yolo12m.pt"  # YOLOv12 medium
             elif detection_model == "rtdetr_detection":
                 yolo_model = "rtdetr-l.pt"
 
@@ -670,7 +670,7 @@ def main():
             output_path = str(centralized_crops_path)
 
             cmd2 = [
-                "python3", "scripts/training/10_crop_detections.py",
+                "python3", "scripts/training/11_crop_detections.py",
                 "--model", model_path,
                 "--input", input_path,
                 "--output", output_path,
@@ -871,7 +871,7 @@ def main():
 
                 # Use standalone IoU analysis script
                 iou_cmd = [
-                    "python3", "scripts/analysis/14_compare_models_performance.py",
+                    "python3", "scripts/analysis/compare_models_performance.py",
                     "--iou-analysis",
                     "--model", str(detection_model_centralized),
                     "--output", iou_analysis_dir

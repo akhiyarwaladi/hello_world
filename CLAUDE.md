@@ -5,7 +5,14 @@ Comprehensive malaria detection system using YOLOv8, YOLOv11, YOLOv12, and RT-DE
 
 **Current Status: ✅ PRODUCTION READY - Complete Pipeline with Continue/Resume Support**
 
-**Latest Update**: September 21, 2025 - Fixed continue functionality + added comprehensive experiment management + cleaned up documentation
+**Latest Update**: September 23, 2025 - Major codebase cleanup + medium model upgrade + fixed broken imports
+
+**Latest Cleanup (Sep 23, 2025)**:
+- ✅ Fixed broken imports in analysis scripts
+- ✅ Removed 5 unused scripts and 3 unused config files
+- ✅ Cleaned up empty crop folders
+- ✅ Medium model upgrade (YOLOv10m, YOLOv11m, YOLOv12m)
+- ✅ Updated documentation to reflect current state
 
 **Live Experiments**:
 - ✅ `exp_multi_pipeline_20250921_144544` - Complete (Detection+Crops+Classification+Analysis)
@@ -28,9 +35,9 @@ python pipeline.py train rtdetr_detection --name auto_rtdetr_det --epochs 40
 
 ### STAGE 2: Generate Crops from Detection
 ```bash
-python scripts/10_crop_detections.py --model yolo8 --experiment auto_yolov8_det
-python scripts/10_crop_detections.py --model yolo11 --experiment auto_yolov11_det
-python scripts/10_crop_detections.py --model rtdetr --experiment auto_rtdetr_det
+python scripts/training/11_crop_detections.py --model yolo8 --experiment auto_yolov8_det
+python scripts/training/11_crop_detections.py --model yolo11 --experiment auto_yolov11_det
+python scripts/training/11_crop_detections.py --model rtdetr --experiment auto_rtdetr_det
 ```
 **Auto-finds model**: Automatically locates detection model from Stage 1
 **Output**: `data/crops_from_[detection_type]_[experiment]/`
@@ -71,10 +78,10 @@ python run_complete_pipeline.py --detection yolo8 --epochs-det 40 --epochs-cls 3
 ### 📊 Monitoring & Status Tools
 ```bash
 # Check training status clearly
-python scripts/check_training_status.py
+python scripts/monitoring/training_status.py
 
 # Experiment management
-python scripts/experiment_manager.py
+python scripts/monitoring/experiment_manager.py
 ```
 
 **NEW Features**:
@@ -211,7 +218,7 @@ python pipeline.py train yolov8_detection --name my_detector --epochs 50
 # → results/current_experiments/training/detection/yolov8_detection/my_detector/weights/best.pt
 
 # Stage 2: Generate crops (auto-finds model from stage 1)
-python scripts/10_crop_detections.py --model yolo8 --experiment my_detector
+python scripts/training/11_crop_detections.py --model yolo8 --experiment my_detector
 # → data/crops_from_yolo8_my_detector/
 
 # Stage 3: Train classification (use crops from stage 2)
@@ -233,9 +240,9 @@ python scripts/03_integrate_datasets.py      # Integrate datasets
 run_multiple_models_pipeline.py          # NEW: Multiple models with exclusion support
 run_complete_pipeline.py                 # Single model full automation (all 3 stages)
 pipeline.py                               # Main interface for training
-scripts/10_crop_detections.py            # Stage 2: Generate crops from detection
-scripts/check_training_status.py         # NEW: Clear training status monitoring
-scripts/experiment_manager.py            # NEW: Experiment organization & tracking
+scripts/training/11_crop_detections.py            # Stage 2: Generate crops from detection
+scripts/monitoring/training_status.py         # NEW: Clear training status monitoring
+scripts/monitoring/experiment_manager.py            # NEW: Experiment organization & tracking
 ```
 
 ### Data Setup Scripts (if needed)
@@ -321,13 +328,13 @@ run_multiple_models_pipeline.py      # Multi-model automation with analysis
 │   │   ├── 07_train_yolo_detection.py      # YOLOv8 detection
 │   │   ├── 08_train_yolo11_detection.py    # YOLOv11 detection
 │   │   ├── 09_train_rtdetr_detection.py    # RT-DETR detection
-│   │   ├── 10_crop_detections.py           # Stage 2: Crop generation
+│   │   ├── 11_crop_detections.py           # Stage 2: Crop generation
 │   │   ├── 11_train_classification_crops.py # YOLO classification
-│   │   ├── 11b_train_pytorch_classification.py # PyTorch models
+│   │   ├── 12_train_pytorch_classification.py # PyTorch models
 │   │   ├── 12_train_yolo12_detection.py    # YOLOv12 detection
 │   │   └── 13_full_detection_classification_pipeline.py # Bulk processing
 │   └── analysis/            # Standalone analysis tools
-│       ├── 14_compare_models_performance.py # Model comparison + IoU
+│       ├── compare_models_performance.py # Model comparison + IoU
 │       ├── classification_deep_analysis.py  # Classification analysis
 │       └── unified_journal_analysis.py     # Publication reports
 ├── utils/                   # Utility functions
@@ -377,7 +384,7 @@ pip install -r requirements.txt
 
 # METHOD A: Kaggle Dataset (RECOMMENDED - Ready to train, 690MB)
 python scripts/data_setup/01_download_datasets.py --dataset kaggle_mp_idb
-python scripts/data_setup/setup_kaggle_for_pipeline.py
+python scripts/data_setup/07_setup_kaggle_for_pipeline.py
 
 # METHOD B: Original MP-IDB (Requires processing, 500MB)
 python scripts/data_setup/01_download_datasets.py --dataset mp_idb
@@ -399,7 +406,7 @@ python run_complete_pipeline.py --detection yolo8 --epochs-det 40 --epochs-cls 3
 **🎯 RECOMMENDED PATH for Fresh Machine:**
 1. Setup environment & Kaggle API
 2. Download: `--dataset kaggle_mp_idb` (690MB, ready-to-use)
-3. Setup: `scripts/data_setup/setup_kaggle_for_pipeline.py` (splits & formats data)
+3. Setup: `scripts/data_setup/07_setup_kaggle_for_pipeline.py` (splits & formats data)
 4. Train: `--use-kaggle-dataset` flag (all models, ~2-3 hours)
 
 ## 📋 Recent Pipeline Commands Reference
@@ -429,11 +436,11 @@ python3 run_multiple_models_pipeline.py --exclude-detection yolo8 yolo11 yolo12 
 
 **NOTE**: The old `quick_setup_new_machine.sh` references missing scripts:
 - `scripts/08_parse_mpid_detection.py` ❌ → Use data_setup pipeline above ✅
-- `scripts/09_crop_parasites_from_detection.py` ❌ → Use `scripts/training/10_crop_detections.py` ✅
+- `scripts/09_crop_parasites_from_detection.py` ❌ → Use `scripts/training/11_crop_detections.py` ✅
 
 ### CURRENT WORKFLOW - 3 STAGES WITH AUTOMATIC DATA FLOW
 1. **Train Detection Model** → `pipeline.py train [detection_model]` → saves to structured path
-2. **Generate Crops** → `scripts/10_crop_detections.py` → auto-finds detection model → generates crops
+2. **Generate Crops** → `scripts/training/11_crop_detections.py` → auto-finds detection model → generates crops
 3. **Train Classification** → `pipeline.py train [classification_model]` → uses crop data from stage 2
 
 ### AUTOMATIC DATA CONNECTIONS
@@ -451,7 +458,7 @@ python run_multiple_models_pipeline.py --exclude rtdetr --epochs-det 40 --epochs
 python run_complete_pipeline.py --detection yolo8 --epochs-det 40 --epochs-cls 30
 
 # STATUS MONITORING
-python scripts/check_training_status.py
+python scripts/monitoring/training_status.py
 ```
 
 ### Error Handling & Troubleshooting
@@ -460,8 +467,8 @@ python scripts/check_training_status.py
 - **Memory issues**: Use `--batch 4` for CPU training
 - **Model not found**: Script auto-searches in structured paths, check experiment names
 - **Crop generation fails**: Check if detection model exists at expected path
-- **Training status**: Use `python scripts/check_training_status.py` for clear status
-- **Experiment tracking**: Use `python scripts/experiment_manager.py` for organization
+- **Training status**: Use `python scripts/monitoring/training_status.py` for clear status
+- **Experiment tracking**: Use `python scripts/monitoring/experiment_manager.py` for organization
 
 ### Data Flow Paths (AUTOMATIC)
 ```
