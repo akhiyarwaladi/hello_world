@@ -10,99 +10,114 @@ Automatically detects malaria parasites in blood smear images and classifies the
 
 ## 🚀 Quick Start (3 Steps)
 
-### 1. Download Data
+### 1. Setup & Download Data
 ```bash
+# Setup environment
 source venv/bin/activate
-python scripts/data_setup/01_download_datasets.py --dataset mp_idb
+
+# RECOMMENDED: Download Kaggle YOLO dataset (ready-to-use)
+python scripts/data_setup/01_download_datasets.py --dataset kaggle_mp_idb
+python scripts/data_setup/setup_kaggle_dataset.py
+
+# Alternative: Original MP-IDB (requires processing)
+# python scripts/data_setup/01_download_datasets.py --dataset mp_idb
 ```
 
 ### 2. Run Complete Pipeline
 ```bash
-# Train detection → generate crops → train classification (all automatic)
-python run_complete_pipeline.py --detection yolo8 --epochs-det 50 --epochs-cls 30
+# Using Kaggle dataset (RECOMMENDED) - Multiple models automation
+python run_multiple_models_pipeline.py --use-kaggle-dataset --exclude rtdetr --epochs-det 40 --epochs-cls 30
+
+# Alternative: Single model only
+python run_multiple_models_pipeline.py --use-kaggle-dataset --include yolo8 --epochs-det 40 --epochs-cls 30
 ```
 
 ### 3. Check Results
-Results saved in `results/current_experiments/`
+Results saved in `results/current_experiments/` and `experiments/`
 
 ## 📁 Project Structure (Organized & Clean)
 
 ```
 📦 malaria-detection/
-├── 🎮 pipeline.py                    # Main interface for training models
-├── 🚀 run_complete_pipeline.py       # Full automation (recommended)
+├── 🔥 run_multiple_models_pipeline.py     # Main pipeline interface (RECOMMENDED)
+├── 📋 pipeline_manager.py                 # Pipeline management & continue functionality
+├── 🛠️ setup_kaggle_for_pipeline.py       # Kaggle dataset setup helper
 ├── 📂 scripts/
-│   ├── 📁 data_setup/                # Step 1: Data preparation
-│   │   ├── 01_download_datasets.py   # Download MP-IDB dataset
-│   │   ├── 02_preprocess_data.py     # Clean and process images
-│   │   ├── 03_integrate_datasets.py  # Combine multiple datasets
-│   │   ├── 04_convert_to_yolo.py     # Convert to YOLO format
-│   │   ├── 05_augment_data.py        # Data augmentation
-│   │   └── 06_split_dataset.py       # Train/val/test split
-│   ├── 📁 training/                  # Step 2-3: Model training
-│   │   ├── 07_train_yolo_detection.py    # YOLOv8 detection
-│   │   ├── 08_train_yolo11_detection.py  # YOLOv11 detection
-│   │   ├── 09_train_rtdetr_detection.py  # RT-DETR detection
-│   │   ├── 10_crop_detections.py         # Generate crops from detection
-│   │   ├── 11_train_classification_crops.py     # Train YOLO classification
-│   │   ├── 11b_train_pytorch_classification.py  # PyTorch classifiers
-│   │   └── 13_full_detection_classification_pipeline.py  # Bulk automation
-│   └── 📁 analysis/                  # Performance analysis
+│   ├── 📁 data_setup/                     # Step 1: Data preparation
+│   │   ├── 01_download_datasets.py        # Download datasets (includes Kaggle)
+│   │   ├── setup_kaggle_dataset.py        # Setup Kaggle YOLO dataset
+│   │   ├── 02_preprocess_data.py          # Clean and process images
+│   │   ├── 03_integrate_datasets.py       # Combine multiple datasets
+│   │   ├── 04_convert_to_yolo.py          # Convert to YOLO format
+│   │   ├── 05_augment_data.py             # Data augmentation
+│   │   └── 06_split_dataset.py            # Train/val/test split
+│   └── 📁 training/                       # Step 2-3: Model training
+│       ├── 10_crop_detections.py          # Generate crops from detection
+│       └── 11b_train_pytorch_classification.py  # PyTorch classifiers
+│   └── 📁 analysis/                       # Performance analysis
 │       └── 14_compare_models_performance.py
-├── 📂 config/                        # All configurations
-│   ├── models.yaml                   # Model settings
-│   ├── datasets.yaml                 # Data configurations
-│   ├── dataset_config.yaml           # Download settings
-│   ├── class_names.yaml              # Class definitions
-│   └── results_structure.yaml        # Results organization
-├── 📂 data/                          # All datasets and results
-│   └── raw/mp_idb/                   # Downloaded MP-IDB dataset
-└── 📂 archive_unused/                # Complex analysis files (archived)
+├── 📂 config/                             # All configurations
+│   ├── models.yaml                        # Model settings
+│   ├── datasets.yaml                      # Data configurations
+│   └── dataset_config.yaml                # Download settings
+├── 📂 data/                               # All datasets and results
+│   ├── raw/mp_idb/                        # Downloaded MP-IDB dataset
+│   └── kaggle_dataset/                    # Kaggle YOLO dataset
+└── 📂 results/                            # Training results and analysis
 ```
 
 ## 🔄 Three Ways to Use
 
-### Option 1: 🎯 Full Automation (EASIEST)
+### Option 1: 🔥 Multiple Models Pipeline (RECOMMENDED)
 ```bash
-# Everything automatic: detection training → crop generation → classification training
-python run_complete_pipeline.py --detection yolo8 --epochs-det 50 --epochs-cls 30
+# Train all models (exclude slow RT-DETR) with Kaggle dataset
+python run_multiple_models_pipeline.py --use-kaggle-dataset --exclude rtdetr --epochs-det 40 --epochs-cls 30
+
+# Include specific models only
+python run_multiple_models_pipeline.py --use-kaggle-dataset --include yolo8 yolo11 --epochs-det 40 --epochs-cls 30
 ```
 
-### Option 2: ⚙️ Manual 3-Stage Control
+### Option 2: 🎯 Single Model Only
 ```bash
-# Stage 1: Train detection model
-python pipeline.py train yolov8_detection --name my_detector --epochs 50
-
-# Stage 2: Generate crops (auto-finds detection model)
-python scripts/training/10_crop_detections.py --model yolo8 --experiment my_detector
-
-# Stage 3: Train classification (auto-uses crops)
-python pipeline.py train yolov8_classification --name my_classifier --epochs 30
+# Train only specific model: detection training → crop generation → classification training
+python run_multiple_models_pipeline.py --use-kaggle-dataset --include yolo8 --epochs-det 40 --epochs-cls 30
 ```
 
-### Option 3: 🔧 Custom Training
+### Option 3: ⚙️ Manual 3-Stage Control
 ```bash
-# List all available models
-python pipeline.py list
+# Stage 1: Use single model pipeline with specific settings
+python run_multiple_models_pipeline.py --include yolo8 --epochs-det 50 --epochs-cls 30
 
-# Train specific models with custom parameters
-python pipeline.py train rtdetr_detection --name rtdetr_test --epochs 100 --batch 8
+# Alternative: Use individual training scripts
+# Stage 2: Generate crops (if needed separately)
+python scripts/training/10_crop_detections.py --model yolo8 --input data/kaggle_detection_ready/test/images --output data/manual_crops
+
+# Stage 3: Train classification on custom crops
+python scripts/training/11b_train_pytorch_classification.py --data data/manual_crops
+```
+
+### Option 4: 🔧 Custom Training
+```bash
+# View pipeline management and continue options
+python pipeline_manager.py list
+
+# Custom training with specific parameters
+python run_multiple_models_pipeline.py --include rtdetr --epochs-det 100 --epochs-cls 50 --test-mode
 ```
 
 ## 📊 Available Models
 
 **Detection Models (Stage 1):**
-- `yolov8_detection` - Fast and accurate
+- `yolov8_detection` - Fast and accurate (RECOMMENDED)
 - `yolov11_detection` - Latest YOLO version
-- `rtdetr_detection` - Transformer-based
+- `yolo12_detection` - Newest YOLO variant
+- `rtdetr_detection` - Transformer-based (slower)
 
 **Classification Models (Stage 3):**
-- `yolov8_classification` - YOLO classifier
+- `yolov8_classification` - YOLO classifier (RECOMMENDED)
 - `yolov11_classification` - Latest YOLO classifier
-- `pytorch_resnet18_classification` - ResNet18
-- `pytorch_densenet121_classification` - DenseNet121
-- `pytorch_efficientnet_b0_classification` - EfficientNet-B0
-- `pytorch_mobilenet_v2_classification` - MobileNetV2
+- `pytorch_classification` - Multiple CNN architectures:
+  - ResNet18, DenseNet121, EfficientNet-B0, MobileNetV2
 
 ## 📈 Workflow Explained
 
@@ -141,14 +156,13 @@ results/current_experiments/
 - **05_augment_data.py** - Apply data augmentation
 - **06_split_dataset.py** - Create train/val/test splits
 
-### Training Scripts (`scripts/training/`)
-- **07_train_yolo_detection.py** - Train YOLOv8 detection
-- **08_train_yolo11_detection.py** - Train YOLOv11 detection
-- **09_train_rtdetr_detection.py** - Train RT-DETR detection
-- **10_crop_detections.py** - Generate crops from detection results
-- **11_train_classification_crops.py** - Train YOLO classification
-- **11b_train_pytorch_classification.py** - Train PyTorch classifiers
-- **13_full_detection_classification_pipeline.py** - Bulk automation
+### Training Scripts (`scripts/`)
+- **training/10_crop_detections.py** - Generate crops from detection results
+- **training/11b_train_pytorch_classification.py** - Train PyTorch classifiers
+- **Main Pipeline Interface:**
+  - `run_multiple_models_pipeline.py` - Primary automation interface
+  - `pipeline_manager.py` - Experiment management & continue functionality
+  - `setup_kaggle_for_pipeline.py` - Dataset setup helper
 
 ### Analysis Scripts (`scripts/analysis/`)
 - **14_compare_models_performance.py** - Generate performance comparison
@@ -156,19 +170,22 @@ results/current_experiments/
 ## 💡 Tips
 
 **For First Time Use:**
-1. Start with `mp_idb` dataset (most important)
-2. Use `run_complete_pipeline.py` for simplicity
-3. Try `yolo8` models first (good balance of speed/accuracy)
+1. Setup Kaggle API credentials first (required for dataset download)
+2. Start with `kaggle_mp_idb` dataset (ready-to-use, RECOMMENDED)
+3. Use `run_multiple_models_pipeline.py` for comprehensive results
+4. Exclude RT-DETR initially (`--exclude rtdetr`) as it's slower
 
 **For Research:**
-- Use different detection models and compare results
-- Experiment with epoch numbers (detection: 50-100, classification: 30-50)
-- Check `results/` folder for training logs and model weights
+- Use multiple models pipeline to compare all approaches
+- Experiment with epoch numbers (detection: 40-100, classification: 30-50)
+- Check `results/` and `experiments/` folders for comprehensive analysis
+- Use `--use-kaggle-dataset` flag for optimized dataset
 
 **Troubleshooting:**
+- If Kaggle download fails: Setup API credentials in `~/.kaggle/kaggle.json`
 - If models not found: Check experiment names match between stages
 - If out of memory: Reduce batch size with `--batch 4`
-- If data missing: Re-run download script
+- If data missing: Re-run download script with correct dataset name
 
 ## 🎓 Based on Research
 Implementation follows the two-stage approach from:
