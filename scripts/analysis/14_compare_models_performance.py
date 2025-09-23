@@ -27,8 +27,9 @@ class MalariaPerformanceAnalyzer:
     def __init__(self, results_base_dir="results/current_experiments"):
         self.results_base_dir = Path(results_base_dir)
         self.timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.output_dir = Path(f"analysis_results_{self.timestamp}")
-        self.output_dir.mkdir(exist_ok=True)
+        self.default_output_dir = Path(f"analysis_results_{self.timestamp}")
+        self.output_dir = self.default_output_dir  # Set default, will be overridden if output specified
+        # Don't create folder by default - only when needed
 
         # Define our experiment combinations
         self.detection_methods = ["yolo8", "yolo11", "rtdetr", "ground_truth"]
