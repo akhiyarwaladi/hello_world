@@ -511,7 +511,7 @@ def main():
         if not kaggle_ready_path.exists():
             print("🔧 Setting up Kaggle dataset for pipeline...")
             import subprocess
-            result = subprocess.run([sys.executable, "setup_kaggle_for_pipeline.py"],
+            result = subprocess.run([sys.executable, "scripts/data_setup/setup_kaggle_for_pipeline.py"],
                                   capture_output=True, text=True)
             if result.returncode != 0:
                 print(f"❌ Failed to setup Kaggle dataset: {result.stderr}")
