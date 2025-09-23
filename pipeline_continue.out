@@ -3699,3 +3699,420 @@ Val Loss: 0.3468, Val Acc: 90.69%
 
 Epoch 7/30
 ------------------------------
+Train Loss: 0.0385, Train Acc: 98.66%
+Val Loss: 0.4559, Val Acc: 91.90%
+💾 Saved best model (Val Acc: 91.90%)
+
+Epoch 8/30
+------------------------------
+Train Loss: 0.0444, Train Acc: 98.69%
+Val Loss: 0.2165, Val Acc: 92.31%
+💾 Saved best model (Val Acc: 92.31%)
+
+Epoch 9/30
+------------------------------
+Train Loss: 0.0373, Train Acc: 98.79%
+Val Loss: 0.2736, Val Acc: 92.31%
+
+Epoch 10/30
+------------------------------
+Train Loss: 0.0373, Train Acc: 98.69%
+Val Loss: 0.3613, Val Acc: 91.09%
+
+Epoch 11/30
+------------------------------
+Train Loss: 0.0262, Train Acc: 99.02%
+Val Loss: 0.2323, Val Acc: 92.31%
+
+Epoch 12/30
+------------------------------
+Train Loss: 0.0254, Train Acc: 98.99%
+Val Loss: 0.2579, Val Acc: 93.52%
+💾 Saved best model (Val Acc: 93.52%)
+
+Epoch 13/30
+------------------------------
+Train Loss: 0.0240, Train Acc: 99.16%
+Val Loss: 0.1390, Val Acc: 95.14%
+💾 Saved best model (Val Acc: 95.14%)
+
+Epoch 14/30
+------------------------------
+Train Loss: 0.0297, Train Acc: 99.02%
+Val Loss: 0.2922, Val Acc: 91.90%
+
+Epoch 15/30
+------------------------------
+Train Loss: 0.0224, Train Acc: 99.09%
+Val Loss: 0.1481, Val Acc: 94.33%
+
+Epoch 16/30
+------------------------------
+Train Loss: 0.0216, Train Acc: 99.16%
+Val Loss: 0.2446, Val Acc: 92.31%
+
+Epoch 17/30
+------------------------------
+Train Loss: 0.0254, Train Acc: 99.10%
+Val Loss: 0.2355, Val Acc: 94.74%
+
+Epoch 18/30
+------------------------------
+Train Loss: 0.0205, Train Acc: 99.24%
+Val Loss: 0.1712, Val Acc: 93.93%
+
+Epoch 19/30
+------------------------------
+Train Loss: 0.0214, Train Acc: 99.15%
+Val Loss: 0.1470, Val Acc: 94.33%
+
+Epoch 20/30
+------------------------------
+Train Loss: 0.0209, Train Acc: 99.23%
+Val Loss: 0.1412, Val Acc: 95.14%
+
+Epoch 21/30
+------------------------------
+Train Loss: 0.0161, Train Acc: 99.35%
+Val Loss: 0.1624, Val Acc: 94.33%
+
+Epoch 22/30
+------------------------------
+Train Loss: 0.0161, Train Acc: 99.34%
+Val Loss: 0.1559, Val Acc: 94.33%
+
+Epoch 23/30
+------------------------------
+Train Loss: 0.0138, Train Acc: 99.44%
+Val Loss: 0.1127, Val Acc: 95.95%
+💾 Saved best model (Val Acc: 95.95%)
+
+Epoch 24/30
+------------------------------
+Train Loss: 0.0162, Train Acc: 99.38%
+Val Loss: 0.1475, Val Acc: 92.71%
+
+Epoch 25/30
+------------------------------
+Train Loss: 0.0136, Train Acc: 99.52%
+Val Loss: 0.1121, Val Acc: 95.14%
+
+Epoch 26/30
+------------------------------
+Train Loss: 0.0136, Train Acc: 99.50%
+Val Loss: 0.0992, Val Acc: 95.55%
+
+Epoch 27/30
+------------------------------
+Train Loss: 0.0148, Train Acc: 99.46%
+Val Loss: 0.1857, Val Acc: 92.31%
+
+Epoch 28/30
+------------------------------
+Train Loss: 0.0137, Train Acc: 99.49%
+Val Loss: 0.2922, Val Acc: 91.50%
+
+Epoch 29/30
+------------------------------
+Train Loss: 0.0144, Train Acc: 99.52%
+Val Loss: 0.1438, Val Acc: 94.74%
+
+Epoch 30/30
+------------------------------
+Train Loss: 0.0113, Train Acc: 99.60%
+Val Loss: 0.0926, Val Acc: 96.36%
+💾 Saved best model (Val Acc: 96.36%)
+
+============================================================
+🎉 PYTORCH CLASSIFICATION TRAINING COMPLETED!
+============================================================
+⏱️  Training time: 427.7 minutes
+📂 Results saved to: results/exp_multi_pipeline_20250922_025117/models/densenet121/multi_pipeline_20250922_025117_yolo11_densenet121_cls
+🏆 Best validation accuracy: 96.36%
+
+🧪 Running test evaluation...
+
+📊 Test Results:
+   Test Accuracy: 95.96%
+   Test Loss: 0.1544
+Traceback (most recent call last):
+  File "/home/akhiyarwaladi/fresh_machine_simulation/scripts/training/11b_train_pytorch_classification.py", line 448, in <module>
+    main()
+  File "/home/akhiyarwaladi/fresh_machine_simulation/scripts/training/11b_train_pytorch_classification.py", line 399, in main
+    report = classification_report(test_labels, test_preds, target_names=class_names)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/akhiyarwaladi/fresh_machine_simulation/venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py", line 218, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/akhiyarwaladi/fresh_machine_simulation/venv/lib/python3.12/site-packages/sklearn/metrics/_classification.py", line 2970, in classification_report
+    raise ValueError(
+ValueError: Number of classes, 4, does not match size of target_names, 5. Try specifying the labels parameter
+🚀 PyTorch using 7 CPU threads for computation (total cores: 8)
+============================================================
+PYTORCH PARASITE CLASSIFICATION TRAINING
+============================================================
+📁 Using custom save directory: results/exp_multi_pipeline_20250922_025117/models/mobilenet_v2/multi_pipeline_20250922_025117_yolo11_mobilenet_v2_cls
+📁 Using dataset: results/exp_multi_pipeline_20250922_025117/crop_data/crops_from_yolo11_multi_pipeline_20250922_025117_yolo11_det/crops
+🎯 Model: mobilenet_v2
+📊 Epochs: 30
+🖼️  Image size: 224
+📦 Batch size: 8
+💻 Device: cpu
+🧠 Learning rate: 0.001
+🚀 Using 4 workers for data loading
+
+📊 Dataset composition:
+   Classes: ['P_falciparum', 'P_malariae', 'P_ovale', 'P_vivax', 'parasit']
+   Train: 7258 images
+   Val: 247 images
+   Test: 198 images
+
+🚀 Loading mobilenet_v2 model...
+📈 Total parameters: 2,230,277
+🎓 Trainable parameters: 2,230,277
+
+⏱️  Starting training...
+
+Epoch 1/30
+------------------------------
+Train Loss: 0.1224, Train Acc: 96.86%
+Val Loss: 0.4380, Val Acc: 87.04%
+💾 Saved best model (Val Acc: 87.04%)
+
+Epoch 2/30
+------------------------------
+Train Loss: 0.0732, Train Acc: 98.17%
+Val Loss: 0.3300, Val Acc: 91.90%
+💾 Saved best model (Val Acc: 91.90%)
+
+Epoch 3/30
+------------------------------
+Train Loss: 0.0596, Train Acc: 98.40%
+Val Loss: 0.2546, Val Acc: 89.07%
+
+Epoch 4/30
+------------------------------
+Train Loss: 0.0396, Train Acc: 98.90%
+Val Loss: 0.2679, Val Acc: 93.52%
+💾 Saved best model (Val Acc: 93.52%)
+
+Epoch 5/30
+------------------------------
+Train Loss: 0.0618, Train Acc: 98.55%
+Val Loss: 0.6835, Val Acc: 86.23%
+
+Epoch 6/30
+------------------------------
+Train Loss: 0.0589, Train Acc: 98.54%
+Val Loss: 0.2990, Val Acc: 93.52%
+
+Epoch 7/30
+------------------------------
+Train Loss: 0.0546, Train Acc: 98.53%
+Val Loss: 0.5396, Val Acc: 86.23%
+
+Epoch 8/30
+------------------------------
+Train Loss: 0.0544, Train Acc: 98.70%
+Val Loss: 0.2642, Val Acc: 93.12%
+
+Epoch 9/30
+------------------------------
+Train Loss: 0.0449, Train Acc: 98.75%
+Val Loss: 0.3443, Val Acc: 88.26%
+
+Epoch 10/30
+------------------------------
+Train Loss: 0.0321, Train Acc: 98.97%
+Val Loss: 0.5822, Val Acc: 87.04%
+
+Epoch 11/30
+------------------------------
+Train Loss: 0.0269, Train Acc: 98.95%
+Val Loss: 0.2065, Val Acc: 93.12%
+
+Epoch 12/30
+------------------------------
+Train Loss: 0.0242, Train Acc: 99.12%
+Val Loss: 0.2149, Val Acc: 93.12%
+
+Epoch 13/30
+------------------------------
+Train Loss: 0.0293, Train Acc: 99.01%
+Val Loss: 0.2600, Val Acc: 87.04%
+
+Epoch 14/30
+------------------------------
+Train Loss: 0.0270, Train Acc: 98.94%
+Val Loss: 0.2000, Val Acc: 93.52%
+
+Epoch 15/30
+------------------------------
+Train Loss: 0.0221, Train Acc: 99.10%
+Val Loss: 0.2781, Val Acc: 90.69%
+
+Epoch 16/30
+------------------------------
+Train Loss: 0.0248, Train Acc: 99.06%
+Val Loss: 0.1640, Val Acc: 94.33%
+💾 Saved best model (Val Acc: 94.33%)
+
+Epoch 17/30
+------------------------------
+Train Loss: 0.0241, Train Acc: 99.06%
+Val Loss: 0.1920, Val Acc: 91.90%
+
+Epoch 18/30
+------------------------------
+Train Loss: 0.0222, Train Acc: 99.08%
+Val Loss: 0.2239, Val Acc: 92.31%
+
+Epoch 19/30
+------------------------------
+Train Loss: 0.0252, Train Acc: 99.06%
+Val Loss: 0.1766, Val Acc: 94.33%
+
+Epoch 20/30
+------------------------------
+Train Loss: 0.0225, Train Acc: 99.09%
+Val Loss: 0.1713, Val Acc: 94.33%
+
+Epoch 21/30
+------------------------------
+Train Loss: 0.0182, Train Acc: 99.27%
+Val Loss: 0.2224, Val Acc: 93.12%
+
+Epoch 22/30
+------------------------------
+Train Loss: 0.0205, Train Acc: 99.24%
+Val Loss: 0.1745, Val Acc: 94.33%
+
+Epoch 23/30
+------------------------------
+Train Loss: 0.0164, Train Acc: 99.24%
+Val Loss: 0.2331, Val Acc: 91.50%
+
+Epoch 24/30
+------------------------------
+Train Loss: 0.0167, Train Acc: 99.30%
+Val Loss: 0.2149, Val Acc: 92.71%
+
+Epoch 25/30
+------------------------------
+Train Loss: 0.0173, Train Acc: 99.26%
+Val Loss: 0.1043, Val Acc: 95.95%
+💾 Saved best model (Val Acc: 95.95%)
+
+Epoch 26/30
+------------------------------
+Train Loss: 0.0155, Train Acc: 99.37%
+Val Loss: 0.2169, Val Acc: 93.52%
+
+Epoch 27/30
+------------------------------
+Train Loss: 0.0164, Train Acc: 99.24%
+Val Loss: 0.1326, Val Acc: 96.36%
+💾 Saved best model (Val Acc: 96.36%)
+
+Epoch 28/30
+------------------------------
+Train Loss: 0.0159, Train Acc: 99.24%
+Val Loss: 0.2372, Val Acc: 91.50%
+
+Epoch 29/30
+------------------------------
+Train Loss: 0.0179, Train Acc: 99.26%
+Val Loss: 0.1460, Val Acc: 94.33%
+
+Epoch 30/30
+------------------------------
+Train Loss: 0.0152, Train Acc: 99.38%
+Val Loss: 0.1675, Val Acc: 95.55%
+
+============================================================
+🎉 PYTORCH CLASSIFICATION TRAINING COMPLETED!
+============================================================
+⏱️  Training time: 130.7 minutes
+📂 Results saved to: results/exp_multi_pipeline_20250922_025117/models/mobilenet_v2/multi_pipeline_20250922_025117_yolo11_mobilenet_v2_cls
+🏆 Best validation accuracy: 96.36%
+
+🧪 Running test evaluation...
+
+📊 Test Results:
+   Test Accuracy: 95.45%
+   Test Loss: 0.1585
+Traceback (most recent call last):
+  File "/home/akhiyarwaladi/fresh_machine_simulation/scripts/training/11b_train_pytorch_classification.py", line 448, in <module>
+    main()
+  File "/home/akhiyarwaladi/fresh_machine_simulation/scripts/training/11b_train_pytorch_classification.py", line 399, in main
+    report = classification_report(test_labels, test_preds, target_names=class_names)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/akhiyarwaladi/fresh_machine_simulation/venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py", line 218, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/akhiyarwaladi/fresh_machine_simulation/venv/lib/python3.12/site-packages/sklearn/metrics/_classification.py", line 2970, in classification_report
+    raise ValueError(
+ValueError: Number of classes, 4, does not match size of target_names, 5. Try specifying the labels parameter
+🔄 CONTINUE MODE: exp_multi_pipeline_20250922_025117
+============================================================
+📊 Experiment Status: results/exp_multi_pipeline_20250922_025117
+============================================================
+Stage Completion:
+  ✅ Detection
+  ✅ Crop
+  ❌ Classification
+  ❌ Analysis
+
+Available Detection Models:
+  📁 yolov11: 1 model(s)
+Crop Data: 2 dataset(s)
+🎯 Recommended next stage: classification
+
+🎯 Force starting from stage: crop
+
+🎯 Using production confidence threshold: 0.25
+📁 CONTINUING: results/exp_multi_pipeline_20250922_025117/
+🎯 MULTIPLE MODELS PIPELINE
+Detection models: yolo11
+Classification models: resnet18, efficientnet, densenet121, mobilenet_v2
+Epochs: 50 det, 30 cls
+Confidence: 0.25
+📊 Dataset: Kaggle MP-IDB Pipeline Ready (data/kaggle_pipeline_ready/)
+
+🎯 STARTING YOLO11 PIPELINE
+
+⏭️  STAGE 1: Skipping detection training (start_stage=crop)
+   ✅ Found existing model: results/exp_multi_pipeline_20250922_025117/detection/yolov11_detection/multi_pipeline_20250922_025117_yolo11_det/weights/best.pt
+
+🔄 STAGE 2: Generating crops for yolo11
+
+🚀 Generating crops for yolo11
+Command: python3 scripts/training/10_crop_detections.py --model results/exp_multi_pipeline_20250922_025117/detection/yolov11_detection/multi_pipeline_20250922_025117_yolo11_det/weights/best.pt --input data/kaggle_pipeline_ready --output results/exp_multi_pipeline_20250922_025117/crop_data/crops_from_yolo11_multi_pipeline_20250922_025117_yolo11_det --confidence 0.25 --crop_size 128 --create_yolo_structure --fix_classification_structure
+   📊 Generated 7703 crops
+
+📈 STAGE 3: Training classification for yolo11
+   🚀 Training RESNET18
+
+🚀 Training RESNET18
+Command: python3 scripts/training/11b_train_pytorch_classification.py --data results/exp_multi_pipeline_20250922_025117/crop_data/crops_from_yolo11_multi_pipeline_20250922_025117_yolo11_det/crops --model resnet18 --epochs 30 --batch 8 --device cpu --name multi_pipeline_20250922_025117_yolo11_resnet18_cls --save-dir results/exp_multi_pipeline_20250922_025117/models/resnet18/multi_pipeline_20250922_025117_yolo11_resnet18_cls
+   🚀 Training EFFICIENTNET
+
+🚀 Training EFFICIENTNET
+Command: python3 scripts/training/11b_train_pytorch_classification.py --data results/exp_multi_pipeline_20250922_025117/crop_data/crops_from_yolo11_multi_pipeline_20250922_025117_yolo11_det/crops --model efficientnet_b0 --epochs 30 --batch 8 --device cpu --name multi_pipeline_20250922_025117_yolo11_efficientnet_cls --save-dir results/exp_multi_pipeline_20250922_025117/models/efficientnet_b0/multi_pipeline_20250922_025117_yolo11_efficientnet_cls
+   🚀 Training DENSENET121
+
+🚀 Training DENSENET121
+Command: python3 scripts/training/11b_train_pytorch_classification.py --data results/exp_multi_pipeline_20250922_025117/crop_data/crops_from_yolo11_multi_pipeline_20250922_025117_yolo11_det/crops --model densenet121 --epochs 30 --batch 8 --device cpu --name multi_pipeline_20250922_025117_yolo11_densenet121_cls --save-dir results/exp_multi_pipeline_20250922_025117/models/densenet121/multi_pipeline_20250922_025117_yolo11_densenet121_cls
+   🚀 Training MOBILENET_V2
+
+🚀 Training MOBILENET_V2
+Command: python3 scripts/training/11b_train_pytorch_classification.py --data results/exp_multi_pipeline_20250922_025117/crop_data/crops_from_yolo11_multi_pipeline_20250922_025117_yolo11_det/crops --model mobilenet_v2 --epochs 30 --batch 8 --device cpu --name multi_pipeline_20250922_025117_yolo11_mobilenet_v2_cls --save-dir results/exp_multi_pipeline_20250922_025117/models/mobilenet_v2/multi_pipeline_20250922_025117_yolo11_mobilenet_v2_cls
+
+🎉 PIPELINE FINISHED
+
+❌ FAILED (1):
+   yolo11 (all classification)
+
+Success Rate: 0/1
+
+⚠️ No successful experiments to zip

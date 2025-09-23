@@ -1,0 +1,3 @@
+Model,Experiment,Epochs,Best Epoch,mAP50,mAP50-95,Precision,Recall,Box Loss,Cls Loss,Training Time (min)
+yolov12,multi_pipeline_20250921_191455_yolo12_det,45,42,0.883,0.548,0.819,0.867,1.4661,0.9956,702.5
+yolov11,multi_pipeline_20250921_191455_yolo11_det,20,4,0.502,0.452,1.000,0.005,2.2875,3.1686,115.7
