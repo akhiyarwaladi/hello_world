@@ -89,7 +89,7 @@ triton==3.4.0
 typing-inspection==0.4.1
 typing_extensions==4.15.0
 tzdata==2025.2
-ultralytics==8.3.199
+ultralytics==8.3.202
 ultralytics-thop==2.0.17
 urllib3==2.5.0
 webencodings==0.5.1
