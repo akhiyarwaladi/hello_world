@@ -396,7 +396,7 @@ def main():
         print()
 
     # Determine which detection models to run
-    all_detection_models = ["yolo8", "yolo11", "yolo12", "rtdetr"]
+    all_detection_models = ["yolo10", "yolo11", "yolo12", "rtdetr"]
 
     if args.include:
         models_to_run = args.include
@@ -522,7 +522,7 @@ def main():
 
     # Model mapping
     detection_models = {
-        "yolo8": "yolov8_detection",
+        "yolo10": "yolov10_detection",
         "yolo11": "yolov11_detection",
         "yolo12": "yolov12_detection",
         "rtdetr": "rtdetr_detection"
@@ -557,8 +557,8 @@ def main():
             if continue_mode:
                 existing_models = find_detection_models(experiment_dir)
                 # Map model_key to detection model naming
-                if model_key == 'yolo8':
-                    model_type = 'yolov8'
+                if model_key == 'yolo10':
+                    model_type = 'yolov10'
                 elif model_key == 'yolo11':
                     model_type = 'yolov11'
                 elif model_key == 'yolo12':
@@ -583,9 +583,9 @@ def main():
 
         # Only run detection training if we're not skipping it
         if start_stage is None or start_stage == 'detection':
-            # Direct YOLO training command with auto-download for YOLOv12
-            if detection_model == "yolov8_detection":
-                yolo_model = "yolov8n.pt"
+            # Direct YOLO training command with auto-download for YOLOv10, YOLOv11, YOLOv12
+            if detection_model == "yolov10_detection":
+                yolo_model = "yolov10n.pt"  # YOLOv10 nano
             elif detection_model == "yolov11_detection":
                 yolo_model = "yolo11m.pt"
             elif detection_model == "yolov12_detection":
