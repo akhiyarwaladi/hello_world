@@ -84,6 +84,17 @@ def get_model(model_name, num_classes=4, pretrained=True):
         # Modify final layer
         model.classifier = nn.Linear(model.classifier.in_features, num_classes)
 
+    elif model_name.startswith('convnext'):
+        if model_name == 'convnext_tiny':
+            model = models.convnext_tiny(weights='IMAGENET1K_V1' if pretrained else None)
+        elif model_name == 'convnext_small':
+            model = models.convnext_small(weights='IMAGENET1K_V1' if pretrained else None)
+        else:
+            raise ValueError(f"Unknown ConvNeXt model: {model_name}")
+
+        # Modify final layer
+        model.classifier[2] = nn.Linear(model.classifier[2].in_features, num_classes)
+
     elif model_name.startswith('vit'):
         if model_name == 'vit_b_16':
             model = models.vit_b_16(weights='IMAGENET1K_V1' if pretrained else None)
@@ -190,9 +201,9 @@ def save_confusion_matrix(y_true, y_pred, class_names, save_path):
     plt.close()
 
 def main():
-    # Optimize PyTorch for multi-core CPU usage (reserve 1 core for system)
+    # Optimize PyTorch for multi-core CPU usage (conservative for stability)
     import multiprocessing
-    num_cores = max(1, multiprocessing.cpu_count() - 1)  # Reserve 1 core for system
+    num_cores = max(1, min(4, multiprocessing.cpu_count() - 2))  # Max 4 cores, leave 2 for system
     torch.set_num_threads(num_cores)
     print(f"🚀 PyTorch using {num_cores} CPU threads for computation (total cores: {multiprocessing.cpu_count()})")
 
@@ -200,11 +211,12 @@ def main():
     parser.add_argument("--data", default="data/classification_multispecies",
                        help="Classification dataset root")
     parser.add_argument("--model", default="resnet18",
-                       choices=['resnet18', 'resnet34', 'resnet50', 'resnet101',
+                       choices=['resnet18', 'resnet34', 'resnet101',  # Removed resnet50 (duplicate)
                                'efficientnet_b0', 'efficientnet_b1', 'efficientnet_b2', 'efficientnet_b3',
                                'mobilenet_v2', 'mobilenet_v3_small', 'mobilenet_v3_large',
                                'densenet121', 'densenet161', 'densenet169',
-                               'vit_b_16', 'vit_b_32'],
+                               'convnext_tiny', 'convnext_small',  # Added ConvNeXt for speed
+                               'vit_b_16', 'vit_b_32'],  # Keep ViT but optimize CPU usage
                        help="Model architecture")
     parser.add_argument("--epochs", type=int, default=10,
                        help="Number of epochs")
@@ -283,7 +295,7 @@ def main():
 
     # Create data loaders - use all available CPU cores
     import multiprocessing
-    num_workers = min(multiprocessing.cpu_count(), 4)  # Use all cores, max 4 for stability
+    num_workers = min(2, multiprocessing.cpu_count() - 2)  # Conservative worker count
     print(f"🚀 Using {num_workers} workers for data loading")
 
     train_loader = DataLoader(train_dataset, batch_size=args.batch, shuffle=True, num_workers=num_workers)
@@ -322,6 +334,11 @@ def main():
     val_losses = []
     val_accuracies = []
 
+    # Create results.csv file for epoch tracking (like detection models)
+    results_csv_path = experiment_path / "results.csv"
+    with open(results_csv_path, 'w') as f:
+        f.write("epoch,train_loss,train_acc,val_loss,val_acc\n")
+
     print("\n⏱️  Starting training...")
     start_time = time.time()
 
@@ -345,6 +362,10 @@ def main():
         train_accuracies.append(train_acc)
         val_losses.append(val_loss)
         val_accuracies.append(val_acc)
+
+        # Save epoch results to CSV (like detection models)
+        with open(results_csv_path, 'a') as f:
+            f.write(f"{epoch+1},{train_loss:.6f},{train_acc:.2f},{val_loss:.6f},{val_acc:.2f}\n")
 
         print(f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2f}%")
         print(f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2f}%")

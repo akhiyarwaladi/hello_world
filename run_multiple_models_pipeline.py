@@ -318,11 +318,11 @@ def main():
     parser.add_argument("--use-kaggle-dataset", action="store_true",
                        help="Use Kaggle MP-IDB dataset instead of preprocessed dataset")
     parser.add_argument("--classification-models", nargs="+",
-                       choices=["densenet121", "efficientnet_b1", "resnet50", "mobilenet_v3_large", "vit_b_16", "resnet101", "all"],
+                       choices=["densenet121", "efficientnet_b1", "convnext_tiny", "mobilenet_v3_large", "efficientnet_b2", "resnet101", "all"],
                        default=["all"],
-                       help="6 optimized classification models (2024): DenseNet121, EfficientNet-B1, ResNet50, MobileNetV3-Large, ViT-B16, ResNet101")
+                       help="6 optimized classification models (2024): DenseNet121, EfficientNet-B1, ConvNeXt-Tiny, MobileNetV3-Large, EfficientNet-B2, ResNet101")
     parser.add_argument("--exclude-classification", nargs="+",
-                       choices=["densenet121", "efficientnet_b1", "resnet50", "mobilenet_v3_large", "vit_b_16", "resnet101"],
+                       choices=["densenet121", "efficientnet_b1", "convnext_tiny", "mobilenet_v3_large", "efficientnet_b2", "resnet101"],
                        default=[],
                        help="Classification models to exclude")
     parser.add_argument("--test-mode", action="store_true",
@@ -426,10 +426,10 @@ def main():
             "epochs": 30,
             "batch": 8
         },
-        "resnet50": {
+        "convnext_tiny": {
             "type": "pytorch",
             "script": "scripts/training/12_train_pytorch_classification.py",
-            "model": "resnet50",
+            "model": "convnext_tiny",
             "epochs": 30,
             "batch": 8
         },
@@ -440,10 +440,10 @@ def main():
             "epochs": 30,
             "batch": 8
         },
-        "vit_b_16": {
+        "efficientnet_b2": {
             "type": "pytorch",
             "script": "scripts/training/12_train_pytorch_classification.py",
-            "model": "vit_b_16",
+            "model": "efficientnet_b2",
             "epochs": 30,
             "batch": 8
         },
