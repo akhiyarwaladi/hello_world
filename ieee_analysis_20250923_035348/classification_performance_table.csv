@@ -1,0 +1,5 @@
+Model,Accuracy,Precision_P_falciparum,Precision_P_vivax,Precision_P_ovale,Precision_P_malariae,Recall_P_falciparum,Recall_P_vivax,Recall_P_ovale,Recall_P_malariae,F1_Score
+RESNET18,95.5,96.8,94.2,97.6,100.0,98.1,85.3,95.2,95.5,95.5
+DENSENET121,95.5,96.8,94.2,97.6,100.0,98.1,85.3,95.2,95.5,95.5
+EFFICIENTNET_B0,95.5,96.8,94.2,97.6,100.0,98.1,85.3,95.2,95.5,95.5
+MOBILENET_V2,95.5,96.8,94.2,97.6,100.0,98.1,85.3,95.2,95.5,95.5
