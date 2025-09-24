@@ -37,7 +37,7 @@ class ResultsManager:
     def _load_config(self) -> Dict:
         """Load results structure configuration"""
         if not self.config_path.exists():
-            print(f"⚠️  Warning: Config file {self.config_path} not found, using defaults")
+            print(f"[WARNING] Config file {self.config_path} not found, using defaults")
             return self._get_default_config()
 
         with open(self.config_path, 'r') as f:

@@ -26,8 +26,8 @@ def check_detection_model_status(exp_path):
                     status.append({
                         "Detection_Model": detection_type.name.replace("_detection", ""),
                         "Experiment": model_folder.name,
-                        "Status": "✅ COMPLETED" if results_path.exists() else "🔄 TRAINING",
-                        "Weights": "✅" if weights_path.exists() else "❌",
+                        "Status": "[DONE] COMPLETED" if results_path.exists() else "[TRAIN] TRAINING",
+                        "Weights": "[OK]" if weights_path.exists() else "[NONE]",
                         "Last_Modified": datetime.fromtimestamp(weights_path.stat().st_mtime).strftime("%H:%M:%S")
                     })
 
@@ -90,7 +90,7 @@ def check_classification_models_status(exp_path):
                         "Detection_Model": detection_model,
                         "Classification_Model": model_type.name,
                         "Experiment": model_folder.name,
-                        "Status": "✅ COMPLETED" if results_file.exists() else ("🔄 TRAINING" if best_pt.exists() else "❌ NOT_STARTED"),
+                        "Status": "[DONE] COMPLETED" if results_file.exists() else ("[TRAIN] TRAINING" if best_pt.exists() else "[NONE] NOT_STARTED"),
                         "Test_Accuracy": test_acc,
                         "Training_Time": training_time,
                         "Last_Modified": datetime.fromtimestamp(best_pt.stat().st_mtime).strftime("%H:%M:%S") if best_pt.exists() else "N/A"
@@ -110,7 +110,7 @@ def create_results_matrix(classification_status):
         columns='Classification_Model',
         values='Test_Accuracy',
         aggfunc='first',
-        fill_value='❌'
+        fill_value='[NONE]'
     )
 
     return matrix
@@ -123,7 +123,7 @@ def monitor_experiment_status(experiment_name=None):
         results_path = Path("results")
         exp_folders = [f for f in results_path.glob("exp_*") if f.is_dir()]
         if not exp_folders:
-            print("❌ No experiments found!")
+            print("[ERROR] No experiments found!")
             return
 
         exp_path = max(exp_folders, key=lambda x: x.stat().st_mtime)
@@ -132,7 +132,7 @@ def monitor_experiment_status(experiment_name=None):
         exp_path = Path("results") / experiment_name
 
     if not exp_path.exists():
-        print(f"❌ Experiment {experiment_name} not found!")
+        print(f"[ERROR] Experiment {experiment_name} not found!")
         return
 
     print(f"\n🔍 MONITORING EXPERIMENT: {experiment_name}")
@@ -160,9 +160,9 @@ def monitor_experiment_status(experiment_name=None):
         total = len(classification_status)
 
         print(f"\n📈 PROGRESS SUMMARY:")
-        print(f"   ✅ Completed: {completed}/{total} ({completed/total*100:.1f}%)")
+        print(f"   [DONE] Completed: {completed}/{total} ({completed/total*100:.1f}%)")
         print(f"   🔄 Training: {training}/{total}")
-        print(f"   ❌ Not Started: {total-completed-training}/{total}")
+        print(f"   [NONE] Not Started: {total-completed-training}/{total}")
 
         # Results matrix (only completed models)
         completed_results = [s for s in classification_status if "COMPLETED" in s['Status']]

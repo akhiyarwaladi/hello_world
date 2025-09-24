@@ -58,17 +58,43 @@ def get_species_from_raw_data_simple(image_filename):
         "P_ovale": "data/raw/mp_idb/Ovale"
     }
 
-    for species, folder_path in species_folders.items():
-        folder = Path(folder_path)
-        if folder.exists():
-            for img_file in folder.rglob(image_filename):
-                print(f"📁 Simple folder lookup: {image_filename} → {species}")
-                return species
+    # Check if MP-IDB folders exist
+    mp_idb_available = any(Path(folder).exists() for folder in species_folders.values())
 
-    # If not found in other folders, assume it's Falciparum
-    # (which should be handled by CSV anyway)
-    print(f"📁 Default to Falciparum: {image_filename} → P_falciparum")
+    if mp_idb_available:
+        # Use MP-IDB folder structure
+        for species, folder_path in species_folders.items():
+            folder = Path(folder_path)
+            if folder.exists():
+                for img_file in folder.rglob(image_filename):
+                    print(f"MP-IDB folder lookup: {image_filename} → {species}")
+                    return species
+    else:
+        # Use Kaggle filename patterns when MP-IDB not available
+        filename_lower = image_filename.lower()
+
+        # Extract stage suffix (after last dash before .jpg)
+        if '-' in filename_lower and '.jpg' in filename_lower:
+            stage_part = filename_lower.split('-')[-1].replace('.jpg', '')
+
+            # Map based on predominant stage
+            if stage_part.startswith('t') and '_' not in stage_part:
+                # Pure Trophozoite → P_vivax
+                print(f"Kaggle pattern T: {image_filename} → P_vivax")
+                return "P_vivax"
+            elif stage_part.startswith('g') and '_' not in stage_part:
+                # Pure Gametocyte → P_malariae
+                print(f"Kaggle pattern G: {image_filename} → P_malariae")
+                return "P_malariae"
+            elif stage_part.startswith('s') and '_' not in stage_part:
+                # Pure Schizont → P_ovale
+                print(f"Kaggle pattern S: {image_filename} → P_ovale")
+                return "P_ovale"
+
+    # Default to P_falciparum for Ring stages or mixed stages
+    print(f"Default to Falciparum: {image_filename} → P_falciparum")
     return "P_falciparum"
+
 
 def load_mp_idb_csv_data():
     """Load MP-IDB CSV data for accurate Falciparum classification"""
@@ -231,15 +257,15 @@ def process_dataset(model, input_dir, output_dir, dataset_name, confidence=0.25,
     # For Kaggle dataset, use 4 malaria species regardless of detection model classes
     if "kaggle" in str(input_dir).lower():
         class_names = ["P_falciparum", "P_vivax", "P_malariae", "P_ovale"]
-        print(f"📋 Using Kaggle dataset class names: {class_names}")
+        print(f"[INFO] Using Kaggle dataset class names: {class_names}")
 
         # Load MP-IDB CSV annotations for accurate species classification
-        print("📋 Loading MP-IDB CSV annotations...")
+        print("[INFO] Loading MP-IDB CSV annotations...")
         csv_annotations = load_mp_idb_csv_data()
-        print(f"📋 Loaded annotations for {len(csv_annotations)} images")
+        print(f"[INFO] Loaded annotations for {len(csv_annotations)} images")
     else:
         class_names = load_class_names()
-        print(f"📋 Using class names: {class_names}")
+        print(f"[INFO] Using class names: {class_names}")
         csv_annotations = None
 
     # Create output directories
@@ -357,7 +383,7 @@ def process_dataset(model, input_dir, output_dir, dataset_name, confidence=0.25,
                 crop_count += 1
 
         except Exception as e:
-            print(f"❌ Error processing {image_path}: {e}")
+            print(f"[ERROR] Error processing {image_path}: {e}")
             continue
 
     # Save metadata
@@ -365,7 +391,7 @@ def process_dataset(model, input_dir, output_dir, dataset_name, confidence=0.25,
         metadata_df = pd.DataFrame(metadata)
         metadata_df.to_csv(output_path / 'crop_metadata.csv', index=False)
 
-        print(f"\n✅ Processing completed:")
+        print(f"\n[SUCCESS] Processing completed:")
         print(f"   📸 Images processed: {processed_count}")
         print(f"   ✂️  Crops generated: {crop_count}")
         print(f"   📊 Average crops per image: {crop_count/processed_count:.2f}")
@@ -391,7 +417,7 @@ def process_dataset(model, input_dir, output_dir, dataset_name, confidence=0.25,
 
         return metadata_df
     else:
-        print("❌ No crops were generated!")
+        print("[ERROR] No crops were generated!")
         return None
 
 def create_yolo_classification_structure(crops_dir, metadata_df, output_dir):
@@ -423,8 +449,8 @@ def create_yolo_classification_structure(crops_dir, metadata_df, output_dir):
                             import shutil
                             shutil.copy2(src_path, dst_path)
 
-    print(f"✅ YOLO classification structure created at: {yolo_dir}")
-    print(f"📊 Created structure with {len(class_names)} species classes")
+    print(f"[SUCCESS] YOLO classification structure created at: {yolo_dir}")
+    print(f"[INFO] Created structure with {len(class_names)} species classes")
     return yolo_dir
 
 def main():
@@ -454,11 +480,11 @@ def main():
 
     # Validate inputs
     if not Path(args.model).exists():
-        print(f"❌ Model not found: {args.model}")
+        print(f"[ERROR] Model not found: {args.model}")
         return
 
     if not Path(args.input).exists():
-        print(f"❌ Input directory not found: {args.input}")
+        print(f"[ERROR] Input directory not found: {args.input}")
         return
 
     print(f"🎯 Detection model: {args.model}")
@@ -501,15 +527,15 @@ def main():
 
                 result = subprocess.run(fix_cmd, capture_output=False, text=True)
                 if result.returncode == 0:
-                    print(f"✅ Classification structure fixed successfully!")
+                    print(f"[SUCCESS] Classification structure fixed successfully!")
                 else:
-                    print(f"❌ Failed to fix classification structure")
+                    print(f"[ERROR] Failed to fix classification structure")
 
         print(f"\n🎉 Crop generation completed successfully!")
         print(f"📊 Results saved to: {args.output}")
 
     except Exception as e:
-        print(f"❌ Error during processing: {e}")
+        print(f"[ERROR] Error during processing: {e}")
         return
 
 if __name__ == "__main__":

@@ -63,14 +63,14 @@ class ClassificationDeepAnalyzer:
         # Load YOLO classification model
         try:
             self.model = YOLO(str(self.model_path))
-            print(f"✅ Model loaded successfully")
+            print(f"[SUCCESS] Model loaded successfully")
         except Exception as e:
-            print(f"❌ Error loading model: {e}")
+            print(f"[ERROR] Error loading model: {e}")
             return False
 
         # Load test dataset structure
         if not self.test_data_path.exists():
-            print(f"❌ Test data path not found: {self.test_data_path}")
+            print(f"[ERROR] Test data path not found: {self.test_data_path}")
             return False
 
         # Get test images by class
@@ -97,8 +97,8 @@ class ClassificationDeepAnalyzer:
                 self.test_labels.append(class_idx)
                 self.test_paths.append(str(img_path))
 
-        print(f"✅ Total test images: {len(self.test_paths)}")
-        print(f"✅ Class distribution: {dict(zip(class_dirs, [len(self.test_images[d.name]) for d in class_dirs]))}")
+        print(f"[SUCCESS] Total test images: {len(self.test_paths)}")
+        print(f"[SUCCESS] Class distribution: {dict(zip(class_dirs, [len(self.test_images[d.name]) for d in class_dirs]))}")
 
         return True
 
@@ -138,20 +138,20 @@ class ClassificationDeepAnalyzer:
                         confidences.append(confidence)
                         top5_predictions.append((top5_idx, top5_probs))
                     else:
-                        print(f"⚠️ No probabilities for {img_path}")
+                        print(f"[WARNING] No probabilities for {img_path}")
                         predictions.append(-1)
                         true_labels.append(true_label)
                         confidences.append(0.0)
                         top5_predictions.append(([], []))
                 else:
-                    print(f"⚠️ No results for {img_path}")
+                    print(f"[WARNING] No results for {img_path}")
                     predictions.append(-1)
                     true_labels.append(true_label)
                     confidences.append(0.0)
                     top5_predictions.append(([], []))
 
             except Exception as e:
-                print(f"❌ Error processing {img_path}: {e}")
+                print(f"[ERROR] Error processing {img_path}: {e}")
                 predictions.append(-1)
                 true_labels.append(true_label)
                 confidences.append(0.0)
@@ -163,7 +163,7 @@ class ClassificationDeepAnalyzer:
         self.confidences = np.array(confidences)
         self.top5_predictions = top5_predictions
 
-        print(f"✅ Inference completed on {len(predictions)} images")
+        print(f"[SUCCESS] Inference completed on {len(predictions)} images")
 
         # Calculate basic metrics
         valid_mask = self.predictions != -1
@@ -238,7 +238,7 @@ class ClassificationDeepAnalyzer:
         valid_true_labels = self.true_labels[valid_mask]
 
         if len(valid_predictions) == 0:
-            print("❌ No valid predictions for confusion matrix")
+            print("[ERROR] No valid predictions for confusion matrix")
             return
 
         # Create confusion matrix
@@ -348,7 +348,7 @@ class ClassificationDeepAnalyzer:
         with open(self.output_dir / 'detailed_metrics.json', 'w') as f:
             json.dump(detailed_metrics, f, indent=2)
 
-        print(f"✅ Comprehensive confusion matrix saved to {self.output_dir}")
+        print(f"[SUCCESS] Comprehensive confusion matrix saved to {self.output_dir}")
 
         # Print summary following journal format
         print("\n📋 DETAILED CLASSIFICATION REPORT:")
@@ -468,7 +468,7 @@ The actual model performance should be evaluated using Top-1 accuracy and per-cl
         with open(self.output_dir / 'journal_style_analysis.md', 'w') as f:
             f.write(report)
 
-        print(f"✅ Journal-style analysis saved to {self.output_dir}/journal_style_analysis.md")
+        print(f"[SUCCESS] Journal-style analysis saved to {self.output_dir}/journal_style_analysis.md")
 
         return report
 
@@ -535,10 +535,10 @@ def main():
     success = analyzer.run_complete_analysis()
 
     if success:
-        print("\n✅ Analysis completed successfully!")
+        print("\n[SUCCESS] Analysis completed successfully!")
         print("Check the generated reports for detailed findings.")
     else:
-        print("\n❌ Analysis failed!")
+        print("\n[ERROR] Analysis failed!")
         return 1
 
     return 0

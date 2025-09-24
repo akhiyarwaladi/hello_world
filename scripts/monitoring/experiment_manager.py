@@ -47,7 +47,7 @@ class ExperimentManager:
         with open(exp_path / "experiment_metadata.json", "w") as f:
             json.dump(metadata, f, indent=2)
 
-        print(f"✅ Created experiment: {experiment_name}")
+        print(f"[SUCCESS] Created experiment: {experiment_name}")
         print(f"📁 Location: {exp_path}")
 
         return exp_path, experiment_name
@@ -58,7 +58,7 @@ class ExperimentManager:
         metadata_file = exp_path / "experiment_metadata.json"
 
         if not metadata_file.exists():
-            print(f"❌ No metadata found for {exp_path}")
+            print(f"[ERROR] No metadata found for {exp_path}")
             return False
 
         # Load metadata
@@ -94,7 +94,7 @@ class ExperimentManager:
         target_path = target_dir / exp_path.name
         shutil.move(str(exp_path), str(target_path))
 
-        status_icon = "✅" if success else "❌"
+        status_icon = "[OK]" if success else "[FAIL]"
         print(f"{status_icon} Experiment marked as {'completed' if success else 'failed'}")
         print(f"📁 Moved to: {target_path}")
 
@@ -127,7 +127,7 @@ class ExperimentManager:
                             if weights_exist and results_exist:
                                 print(f"   Status: 🔄 Training (weights saved)")
                             elif results_exist:
-                                print(f"   Status: ⚠️  Training (no weights yet)")
+                                print(f"   Status: [WARNING] Training (no weights yet)")
                             else:
                                 print(f"   Status: 🚀 Starting")
 
@@ -142,7 +142,7 @@ class ExperimentManager:
 
     def list_completed_experiments(self, limit=10):
         """List recently completed experiments"""
-        print(f"\n✅ COMPLETED EXPERIMENTS (last {limit}):")
+        print(f"\n[SUCCESS] COMPLETED EXPERIMENTS (last {limit}):")
         print("=" * 50)
 
         completed_experiments = []
@@ -161,8 +161,8 @@ class ExperimentManager:
         completed_experiments.sort(key=lambda x: x.get("completed_at", ""), reverse=True)
 
         for i, exp in enumerate(completed_experiments[:limit]):
-            status_icon = "✅" if exp["status"] == "completed" else "❌"
-            weights_icon = "💾" if exp.get("weights_saved", False) else "❌"
+            status_icon = "[OK]" if exp["status"] == "completed" else "[FAIL]"
+            weights_icon = "[SAVE]" if exp.get("weights_saved", False) else "[NONE]"
 
             print(f"{i+1}. {status_icon} {exp['experiment_name']}")
             print(f"   Model: {exp['model_type']}")
@@ -198,7 +198,7 @@ class ExperimentManager:
                                     self._add_metadata_to_old_experiment(exp_dir, model_type.name, category)
                                     cleanup_count += 1
 
-        print(f"✅ Processed {cleanup_count} old experiments")
+        print(f"[SUCCESS] Processed {cleanup_count} old experiments")
         print("=" * 50)
 
     def _add_metadata_to_old_experiment(self, exp_path, model_type, category):

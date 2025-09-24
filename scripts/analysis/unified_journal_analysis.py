@@ -117,10 +117,10 @@ class UnifiedJournalAnalyzer:
                     'detection_args': det_path / "args.yaml",
                     'classification_args': final_cls_path / "args.yaml"
                 }
-                print(f"✅ Found complete pipeline for {model_config['name']}")
+                print(f"[SUCCESS] Found complete pipeline for {model_config['name']}")
                 print(f"   Classification found in: {final_cls_path.parent.parent.name}/{final_cls_path.parent.name}")
             else:
-                print(f"❌ Incomplete pipeline for {model_config['name']}")
+                print(f"[ERROR] Incomplete pipeline for {model_config['name']}")
                 if not det_path.exists():
                     print(f"   Missing detection: {det_path}")
                 if not final_cls_path:
@@ -140,7 +140,7 @@ class UnifiedJournalAnalyzer:
         classification_base = self.results_base / "classification"
 
         if not detection_base.exists():
-            print(f"❌ No detection folder found in {self.results_base}")
+            print(f"[ERROR] No detection folder found in {self.results_base}")
             return experiments
 
         # Find all detection models
@@ -200,7 +200,7 @@ class UnifiedJournalAnalyzer:
                         'classification_args': cls_path / "training_config.json"
                     }
 
-                    print(f"✅ Found centralized pipeline: {det_model_dir.name} → {cls_path.parent.name}/{cls_path.name}")
+                    print(f"[SUCCESS] Found centralized pipeline: {det_model_dir.name} -> {cls_path.parent.name}/{cls_path.name}")
 
         return experiments
 
@@ -351,7 +351,7 @@ class UnifiedJournalAnalyzer:
                     }
             else:
                 # No results file found - create placeholder with model name
-                print(f"⚠️  No classification results found for {model_key}")
+                print(f"[WARNING] No classification results found for {model_key}")
                 classification_results[model_key] = {
                     'model_name': model_config['name'],
                     'epochs': 0,
@@ -422,7 +422,7 @@ class UnifiedJournalAnalyzer:
     def create_ieee_detection_table(self, iou_results=None):
         """Create IEEE Table 8 equivalent - Detection Performance"""
         if not hasattr(self, 'analysis_results') or 'detection' not in self.analysis_results:
-            print("❌ No detection results available")
+            print("[ERROR] No detection results available")
             return None
 
         detection_data = []
@@ -459,7 +459,7 @@ class UnifiedJournalAnalyzer:
     def create_ieee_classification_table(self):
         """Create IEEE Table 9 equivalent - Classification Performance"""
         if not hasattr(self, 'analysis_results') or 'classification' not in self.analysis_results:
-            print("❌ No classification results available")
+            print("[ERROR] No classification results available")
             return None
 
         classification_data = []
@@ -595,7 +595,7 @@ class UnifiedJournalAnalyzer:
     def create_journal_comparison_table(self):
         """Create IEEE journal style comparison table"""
         if not hasattr(self, 'analysis_results') or not self.analysis_results:
-            print("❌ No analysis results available")
+            print("[ERROR] No analysis results available")
             return
 
         # Create comprehensive comparison table
@@ -672,7 +672,7 @@ class UnifiedJournalAnalyzer:
                             shutil.rmtree(temp_output, ignore_errors=True)
 
                     except Exception as e:
-                        print(f"⚠️  IoU analysis failed for {model_key}: {e}")
+                        print(f"[WARNING] IoU analysis failed for {model_key}: {e}")
 
         return iou_results
 
@@ -830,10 +830,10 @@ class UnifiedJournalAnalyzer:
         experiments = self.find_pipeline_experiments()
 
         if not experiments:
-            print("❌ No completed pipeline experiments found!")
+            print("[ERROR] No completed pipeline experiments found!")
             return
 
-        print(f"✅ Found {len(experiments)} completed pipelines")
+        print(f"[SUCCESS] Found {len(experiments)} completed pipelines")
 
         # Analyze detection performance
         print("📊 Analyzing detection performance...")
@@ -930,12 +930,12 @@ def main():
     ieee_mode = args.ieee_compliant and not args.basic_analysis
 
     if args.centralized_experiment:
-        print(f"🎯 Analyzing centralized experiment: {args.centralized_experiment}")
-        print(f"📊 Analysis Mode: {'IEEE Access 2024 Compliant' if ieee_mode else 'Basic Journal Analysis'}")
+        print(f"[TARGET] Analyzing centralized experiment: {args.centralized_experiment}")
+        print(f"[INFO] Analysis Mode: {'IEEE Access 2024 Compliant' if ieee_mode else 'Basic Journal Analysis'}")
         analyzer = UnifiedJournalAnalyzer(centralized_experiment=args.centralized_experiment, ieee_compliant=ieee_mode)
     else:
-        print(f"🎯 Analyzing distributed experiments with pattern: {args.timestamp_pattern}")
-        print(f"📊 Analysis Mode: {'IEEE Access 2024 Compliant' if ieee_mode else 'Basic Journal Analysis'}")
+        print(f"[TARGET] Analyzing distributed experiments with pattern: {args.timestamp_pattern}")
+        print(f"[INFO] Analysis Mode: {'IEEE Access 2024 Compliant' if ieee_mode else 'Basic Journal Analysis'}")
         analyzer = UnifiedJournalAnalyzer(ieee_compliant=ieee_mode)
 
     results = analyzer.run_complete_analysis()

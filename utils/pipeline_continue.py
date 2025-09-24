@@ -246,7 +246,7 @@ def merge_parameters(original_args: Dict, new_args) -> Dict:
 
     # Show warnings for critical changes
     if critical_changes:
-        print("⚠️  Parameter changes detected:")
+        print("[WARNING] Parameter changes detected:")
         for change in critical_changes:
             print(f"   {change}")
         print()
@@ -271,11 +271,11 @@ def validate_experiment_dir(experiment_dir: str) -> bool:
     exp_path = Path(experiment_dir)
 
     if not exp_path.exists():
-        print(f"❌ Experiment directory not found: {experiment_dir}")
+        print(f"[ERROR] Experiment directory not found: {experiment_dir}")
         return False
 
     if not exp_path.is_dir():
-        print(f"❌ Path is not a directory: {experiment_dir}")
+        print(f"[ERROR] Path is not a directory: {experiment_dir}")
         return False
 
     # Check if it looks like an experiment directory
@@ -283,7 +283,7 @@ def validate_experiment_dir(experiment_dir: str) -> bool:
     has_any_subdir = any((exp_path / subdir).exists() for subdir in expected_subdirs)
 
     if not has_any_subdir:
-        print(f"⚠️  Directory doesn't appear to be an experiment (no detection/crop_data/models dirs)")
+        print(f"[WARNING] Directory doesn't appear to be an experiment (no detection/crop_data/models dirs)")
         print(f"   Contents: {[item.name for item in exp_path.iterdir()]}")
 
         confirm = input("Continue anyway? (y/n): ")
@@ -336,7 +336,7 @@ def print_experiment_status(experiment_dir: str):
     Args:
         experiment_dir: Path to experiment directory
     """
-    print(f"📊 Experiment Status: {experiment_dir}")
+    print(f"[STATUS] Experiment Status: {experiment_dir}")
     print("=" * 60)
 
     # Load metadata
@@ -351,7 +351,7 @@ def print_experiment_status(experiment_dir: str):
     stages = check_completed_stages(experiment_dir)
     print("Stage Completion:")
     for stage, completed in stages.items():
-        status = "✅" if completed else "❌"
+        status = "[OK]" if completed else "[MISSING]"
         print(f"  {status} {stage.capitalize()}")
 
     print()
@@ -361,7 +361,7 @@ def print_experiment_status(experiment_dir: str):
     if models:
         print("Available Detection Models:")
         for model_type, paths in models.items():
-            print(f"  📁 {model_type}: {len(paths)} model(s)")
+            print(f"  [MODELS] {model_type}: {len(paths)} model(s)")
 
     # Show crop data
     crop_dirs = find_crop_data(experiment_dir)
@@ -370,7 +370,7 @@ def print_experiment_status(experiment_dir: str):
 
     # Determine next stage
     next_stage = determine_next_stage(stages)
-    print(f"🎯 Recommended next stage: {next_stage}")
+    print(f"[NEXT] Recommended next stage: {next_stage}")
     print()
 
 def list_available_experiments():
@@ -381,7 +381,7 @@ def list_available_experiments():
         print("No experiments found in results/ directory")
         return
 
-    print("📁 Available Experiments:")
+    print("[EXPERIMENTS] Available Experiments:")
     print("=" * 50)
 
     for exp in experiments[:10]:  # Show latest 10
