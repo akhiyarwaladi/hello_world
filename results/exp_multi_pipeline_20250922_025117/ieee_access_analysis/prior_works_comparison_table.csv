@@ -1,6 +1,0 @@
-Reference,Method,Species,Dataset,mAP50,Accuracy,Notes
-Yang et al. [19],YOLOv2,P. vivax,Custom,79.22,71.34,Single species detection
-Zedda et al. [50],YOLOv5,P. falciparum,MP-IDB,,84.6,Detection only
-Liu et al. [51],YOLOv5,Multi-species,Custom,,90.8,AIDMAN system
-Krishnadas et al. [30],YOLOv5,4 species,MP-IDB,78.0,78.5,Classification + detection
-This Study,YOLOv11 + DenseNet-121,4 species,Kaggle MP-IDB,0.9,95.0,Two-stage optimized pipeline

@@ -55,7 +55,7 @@ def handle_list_command(args):
         print("No experiments found in results/ directory")
         return
 
-    print("📁 Available Experiments for Continuation:")
+    print("Available Experiments for Continuation:")
     print("=" * 60)
 
     limit = None if args.all else 10
@@ -69,11 +69,11 @@ def handle_list_command(args):
 
         # Color coding based on completion
         if completed_count == 0:
-            status_icon = "🔴"  # No progress
+            status_icon = "[NONE]"  # No progress
         elif completed_count == 4:
-            status_icon = "✅"  # Complete
+            status_icon = "[DONE]"  # Complete
         else:
-            status_icon = "🟡"  # In progress
+            status_icon = "[PARTIAL]"  # In progress
 
         print(f"  {status_icon} {exp}")
         print(f"     Progress: {completed_count}/4 stages")
@@ -106,7 +106,7 @@ def handle_status_command(args):
         experiment_path = f"results/{experiment_name}"
 
     if not Path(experiment_path).exists():
-        print(f"❌ Experiment not found: {experiment_path}")
+        print(f"[ERROR] Experiment not found: {experiment_path}")
 
         # Suggest similar experiments
         available = get_available_experiments()
@@ -127,7 +127,7 @@ def handle_status_command(args):
     next_stage = determine_next_stage(stages)
 
     if next_stage != 'analysis' or not all(stages.values()):
-        print("💡 To continue this experiment:")
+        print("To continue this experiment:")
         if next_stage == 'analysis':
             print(f"python run_multiple_models_pipeline.py --continue-from {experiment_name}")
         else:
@@ -159,21 +159,21 @@ def handle_clean_command(args):
             incomplete_experiments.append(exp)
 
     if not empty_experiments and not incomplete_experiments:
-        print("✅ No experiments need cleaning")
+        print("[SUCCESS] No experiments need cleaning")
         return
 
-    print("🧹 Cleanup Analysis:")
+    print("Cleanup Analysis:")
     print("=" * 50)
 
     if empty_experiments:
-        print(f"📁 Empty experiments (no progress): {len(empty_experiments)}")
+        print(f"Empty experiments (no progress): {len(empty_experiments)}")
         for exp in empty_experiments[:5]:  # Show first 5
             print(f"  - {exp}")
         if len(empty_experiments) > 5:
             print(f"  ... and {len(empty_experiments) - 5} more")
 
     if incomplete_experiments:
-        print(f"📁 Incomplete experiments (partial progress): {len(incomplete_experiments)}")
+        print(f"Incomplete experiments (partial progress): {len(incomplete_experiments)}")
         for exp in incomplete_experiments[:5]:  # Show first 5
             exp_path = Path("results") / exp
             stages = check_completed_stages(str(exp_path))
@@ -183,10 +183,10 @@ def handle_clean_command(args):
             print(f"  ... and {len(incomplete_experiments) - 5} more")
 
     if args.dry_run:
-        print("\n🔍 This is a dry run. No files were deleted.")
+        print("\nThis is a dry run. No files were deleted.")
         print("Remove --dry-run to actually clean up empty experiments.")
     else:
-        print("\n⚠️  Cleanup not yet implemented for safety.")
+        print("\n[WARNING] Cleanup not yet implemented for safety.")
         print("Manual cleanup recommended:")
         if empty_experiments:
             print("For empty experiments:")

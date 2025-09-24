@@ -1,5 +1,0 @@
-Model,Architecture,Accuracy,Species_Coverage,Training_Time_min
-yolov11_efficientnet_b0_0,yolov11_efficientnet_b0_0,95.0%,"4 (P. falciparum, P. vivax, P. ovale, P. malariae)",0.0
-yolov11_mobilenet_v2_1,yolov11_mobilenet_v2_1,95.0%,"4 (P. falciparum, P. vivax, P. ovale, P. malariae)",0.0
-yolov11_densenet121_2,yolov11_densenet121_2,95.0%,"4 (P. falciparum, P. vivax, P. ovale, P. malariae)",0.0
-yolov11_resnet18_3,yolov11_resnet18_3,95.0%,"4 (P. falciparum, P. vivax, P. ovale, P. malariae)",0.0

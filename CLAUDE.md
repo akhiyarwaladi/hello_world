@@ -411,6 +411,44 @@ python run_complete_pipeline.py --detection yolo8 --epochs-det 40 --epochs-cls 3
 
 ## 📋 Recent Pipeline Commands Reference
 
+### ⚠️ CRITICAL: --use-kaggle-dataset Flag Documentation
+
+**IMPORTANT**: When using continue/resume functionality, the `--use-kaggle-dataset` flag MUST be included to ensure proper dataset path selection.
+
+#### **Problem Identified (Sept 24, 2025)**:
+```bash
+# ❌ WRONG - Will use wrong dataset path (data/integrated/yolo - empty)
+python run_multiple_models_pipeline.py --continue-from exp_multi_pipeline_20250924_181414 --start-stage crop --include yolo11 --epochs-cls 3
+
+# ✅ CORRECT - Uses proper Kaggle dataset (data/kaggle_pipeline_ready - with images)
+python run_multiple_models_pipeline.py --continue-from exp_multi_pipeline_20250924_181414 --start-stage crop --include yolo11 --epochs-cls 3 --use-kaggle-dataset
+```
+
+#### **Results Comparison**:
+| Command | Dataset Path | Images Found | Crop Generation | Status |
+|---------|-------------|--------------|----------------|---------|
+| Without `--use-kaggle-dataset` | `data/integrated/yolo` | 0 images | ❌ FAILED | FileNotFoundError |
+| With `--use-kaggle-dataset` | `data/kaggle_pipeline_ready` | 209 images | ✅ SUCCESS | 100% complete |
+
+#### **Continue/Resume Commands (UPDATED)**:
+```bash
+# ✅ ALWAYS include --use-kaggle-dataset for continue operations
+python run_multiple_models_pipeline.py --continue-from EXPERIMENT_NAME --start-stage STAGE --use-kaggle-dataset
+
+# ✅ Examples with proper flag
+python run_multiple_models_pipeline.py --continue-from exp_multi_pipeline_20250924_181414 --start-stage crop --include yolo11 --epochs-cls 3 --use-kaggle-dataset
+python run_multiple_models_pipeline.py --continue-from exp_multi_pipeline_20250924_181414 --start-stage analysis --use-kaggle-dataset --include yolo11
+```
+
+#### **Dataset Path Logic in Code**:
+```python
+# From run_multiple_models_pipeline.py lines 664-667:
+if args.use_kaggle_dataset:
+    input_path = "data/kaggle_pipeline_ready"    # ✅ Has images
+else:
+    input_path = "data/integrated/yolo"          # ❌ Empty folder
+```
+
 ### Latest Multiple Classification Test
 ```bash
 # Test mode dengan multiple classification models (YOLO8 + YOLO11)

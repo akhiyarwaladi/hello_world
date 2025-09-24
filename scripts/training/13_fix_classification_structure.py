@@ -90,8 +90,8 @@ def main():
     # Save updated metadata
     df.to_csv(metadata_file, index=False)
 
-    print(f"\n✅ Classification structure fixed!")
-    print(f"📂 New structure: {yolo_class_dir}")
+    print(f"\n[SUCCESS] Classification structure fixed!")
+    print(f"[STRUCTURE] New structure: {yolo_class_dir}")
 
     # Show final structure
     for split in ['train', 'val', 'test']:

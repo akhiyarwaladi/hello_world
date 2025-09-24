@@ -41,8 +41,8 @@ class MalariaPerformanceAnalyzer:
         self.results_summary = {}
         self.detailed_results = []
 
-        print(f"📊 Performance Analyzer initialized")
-        print(f"📂 Output directory: {self.output_dir}")
+        print(f"[INFO] Performance Analyzer initialized")
+        print(f"[INFO] Output directory: {self.output_dir}")
 
     def scan_completed_experiments(self):
         """Scan for completed training experiments"""
@@ -139,7 +139,7 @@ class MalariaPerformanceAnalyzer:
 
                     break
                 except Exception as e:
-                    print(f"⚠️ Error reading {results_file}: {e}")
+                    print(f"[WARNING] Error reading {results_file}: {e}")
 
         # Try to get training time from args.yaml
         args_file = experiment_path / "args.yaml"
@@ -155,14 +155,14 @@ class MalariaPerformanceAnalyzer:
                     if 'imgsz' in args_data:
                         metrics['image_size'] = args_data['imgsz']
             except Exception as e:
-                print(f"⚠️ Error reading args.yaml: {e}")
+                print(f"[WARNING] Error reading args.yaml: {e}")
 
         return metrics
 
     def scan_experiment_results(self):
         """Scan all experiment directories for results"""
 
-        print("🔍 Scanning experiment results...")
+        print("[SCAN] Scanning experiment results...")
 
         # Detection experiments
         detection_dir = self.results_dir / "detection"
@@ -188,7 +188,7 @@ class MalariaPerformanceAnalyzer:
         """Create markdown report comparing all models"""
 
         if not self.comparison_data:
-            print("❌ No comparison data available")
+            print("[ERROR] No comparison data available")
             return
 
         # Create DataFrame
@@ -330,20 +330,20 @@ Based on the preliminary results:
         with open(output_file, 'w') as f:
             f.write(report)
 
-        print(f"✅ Comparison report saved to: {output_file}")
+        print(f"[SUCCESS] Comparison report saved to: {output_file}")
 
         # Also save raw data as JSON
         json_file = output_file.with_suffix('.json')
         with open(json_file, 'w') as f:
             json.dump(self.comparison_data, f, indent=2)
 
-        print(f"✅ Raw comparison data saved to: {json_file}")
+        print(f"[SUCCESS] Raw comparison data saved to: {json_file}")
 
     def create_performance_plots(self, output_dir: str = "results/plots"):
         """Create performance visualization plots"""
 
         if not self.comparison_data:
-            print("❌ No comparison data available for plotting")
+            print("[ERROR] No comparison data available for plotting")
             return
 
         output_path = Path(output_dir)
@@ -370,7 +370,7 @@ Based on the preliminary results:
             plt.savefig(plot_file, dpi=300, bbox_inches='tight')
             plt.close()
 
-            print(f"✅ Detection performance plot saved to: {plot_file}")
+            print(f"[SUCCESS] Detection performance plot saved to: {plot_file}")
 
         # Classification performance plot
         classification_df = df[df['task'] == 'classification'].copy()
@@ -388,7 +388,7 @@ Based on the preliminary results:
             plt.savefig(plot_file, dpi=300, bbox_inches='tight')
             plt.close()
 
-            print(f"✅ Classification performance plot saved to: {plot_file}")
+            print(f"[SUCCESS] Classification performance plot saved to: {plot_file}")
 
     def _analyze_classification_experiment(self, exp_dir):
         """Analyze YOLO classification experiment"""
@@ -428,11 +428,11 @@ Based on the preliminary results:
                     'timestamp': exp_dir.stat().st_mtime
                 }
             except Exception as e:
-                print(f"⚠️  Error reading results for {exp_name}: {e}")
+                print(f"[WARNING] Error reading results for {exp_name}: {e}")
                 return None
 
         except Exception as e:
-            print(f"⚠️  Error analyzing {exp_dir.name}: {e}")
+            print(f"[WARNING] Error analyzing {exp_dir.name}: {e}")
             return None
 
     def _analyze_detection_experiment(self, exp_dir):
@@ -472,11 +472,11 @@ Based on the preliminary results:
                     'timestamp': exp_dir.stat().st_mtime
                 }
             except Exception as e:
-                print(f"⚠️  Error reading results for {exp_name}: {e}")
+                print(f"[WARNING] Error reading results for {exp_name}: {e}")
                 return None
 
         except Exception as e:
-            print(f"⚠️  Error analyzing detection {exp_dir.name}: {e}")
+            print(f"[WARNING] Error analyzing detection {exp_dir.name}: {e}")
             return None
 
     def _analyze_pytorch_experiment(self, exp_dir):
@@ -517,11 +517,11 @@ Based on the preliminary results:
                     'timestamp': exp_dir.stat().st_mtime
                 }
             except Exception as e:
-                print(f"⚠️  Error reading results for {exp_name}: {e}")
+                print(f"[WARNING] Error reading results for {exp_name}: {e}")
                 return None
 
         except Exception as e:
-            print(f"⚠️  Error analyzing PyTorch {exp_dir.name}: {e}")
+            print(f"[WARNING] Error analyzing PyTorch {exp_dir.name}: {e}")
             return None
 
     def _parse_experiment_name(self, exp_name):
@@ -594,7 +594,7 @@ Based on the preliminary results:
     def create_performance_comparison(self, experiments):
         """Create comprehensive performance comparison"""
         if not experiments:
-            print("❌ No experiments to compare")
+            print("[ERROR] No experiments to compare")
             return
 
         # Convert to DataFrame for easier analysis
@@ -617,11 +617,11 @@ Based on the preliminary results:
         # Create time analysis
         self._create_time_analysis(df)
 
-        print(f"✅ Performance analysis complete! Results saved to {self.output_dir}")
+        print(f"[SUCCESS] Performance analysis complete! Results saved to {self.output_dir}")
 
     def _create_summary_statistics(self, df):
         """Create summary statistics"""
-        print("📈 Creating summary statistics...")
+        print("[STATS] Creating summary statistics...")
 
         # Overall statistics
         summary = {
@@ -955,9 +955,9 @@ This analysis provides insights into the performance of different detection-clas
                     data_yaml = "data/integrated/data.yaml"
                 else:
                     data_yaml = "data/yolo/data.yaml"
-                print(f"✅ Using consistent dataset: {data_yaml}")
+                print(f"[SUCCESS] Using consistent dataset: {data_yaml}")
             else:
-                print(f"📁 Using specified dataset: {data_yaml}")
+                print(f"[DATA] Using specified dataset: {data_yaml}")
 
             # Create output directory
             Path(output_dir).mkdir(parents=True, exist_ok=True)
@@ -1041,14 +1041,14 @@ This analysis provides insights into the performance of different detection-clas
             with open(Path(output_dir) / "iou_analysis_report.md", 'w') as f:
                 f.write(md_content)
 
-            print(f"\n✅ IoU analysis completed!")
-            print(f"📁 Results saved to: {output_dir}")
-            print(f"📊 Best mAP@0.5: {best_result['map50']:.3f} at IoU={best_result['iou_threshold']}")
+            print(f"\n[SUCCESS] IoU analysis completed!")
+            print(f"[SAVE] Results saved to: {output_dir}")
+            print(f"[BEST] Best mAP@0.5: {best_result['map50']:.3f} at IoU={best_result['iou_threshold']}")
 
             return results_summary
 
         except Exception as e:
-            print(f"❌ IoU analysis failed: {e}")
+            print(f"[ERROR] IoU analysis failed: {e}")
             import traceback
             traceback.print_exc()
             return None
@@ -1075,13 +1075,13 @@ def main():
     if args.iou_analysis:
         # Run IoU analysis
         if not args.model:
-            print("❌ --model is required for IoU analysis")
+            print("[ERROR] --model is required for IoU analysis")
             return 1
         if not args.output:
-            print("❌ --output is required for IoU analysis")
+            print("[ERROR] --output is required for IoU analysis")
             return 1
 
-        print("🔬 IoU VARIATION ANALYSIS")
+        print("[IOI] IoU VARIATION ANALYSIS")
         print(f"Model: {args.model}")
         print(f"Output: {args.output}")
         print(f"IoU Thresholds: {args.iou_thresholds}")
@@ -1094,9 +1094,9 @@ def main():
         )
 
         if results:
-            print("\n🎉 IoU analysis completed successfully!")
+            print("\n[SUCCESS] IoU analysis completed successfully!")
         else:
-            print("\n❌ IoU analysis failed!")
+            print("\n[ERROR] IoU analysis failed!")
             return 1
 
     elif args.monitor:
@@ -1109,7 +1109,7 @@ def main():
             analyzer.create_performance_comparison(experiments)
             analyzer.generate_comprehensive_report()
         else:
-            print("❌ No completed experiments found")
+            print("[ERROR] No completed experiments found")
 
 if __name__ == "__main__":
     main()

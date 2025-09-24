@@ -84,7 +84,7 @@ def main():
         status = status_info["status"]
 
         if status == "completed":
-            print(f"✅ {model_name}: COMPLETED")
+            print(f"[SUCCESS] {model_name}: COMPLETED")
             best_file = next((f for f in status_info["files"] if "best" in f["name"]), None)
             if best_file:
                 print(f"   📁 Best model: {best_file['size_mb']}MB, saved {best_file['modified']}")
@@ -111,7 +111,7 @@ def main():
             print()
 
     print("=" * 50)
-    print("✅ Status check complete - No ambiguity!")
+    print("[SUCCESS] Status check complete - No ambiguity!")
 
 if __name__ == "__main__":
     main()

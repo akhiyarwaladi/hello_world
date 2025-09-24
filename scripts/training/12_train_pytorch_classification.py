@@ -201,11 +201,17 @@ def save_confusion_matrix(y_true, y_pred, class_names, save_path):
     plt.close()
 
 def main():
-    # Optimize PyTorch for multi-core CPU usage (conservative for stability)
+    # Optimize PyTorch threading (GPU uses fewer CPU threads)
     import multiprocessing
-    num_cores = max(1, min(4, multiprocessing.cpu_count() - 2))  # Max 4 cores, leave 2 for system
+    total_cores = multiprocessing.cpu_count()
+    if torch.cuda.is_available():
+        num_cores = max(1, min(8, total_cores // 2))  # GPU: Use half cores for efficiency
+        print(f"[GPU] PyTorch using {num_cores} CPU threads for computation (total cores: {total_cores})")
+    else:
+        num_cores = max(1, min(16, total_cores - 4))  # CPU: Use more cores, leave 4 for system
+        print(f"[CPU] PyTorch using {num_cores} CPU threads for computation (total cores: {total_cores})")
+
     torch.set_num_threads(num_cores)
-    print(f"🚀 PyTorch using {num_cores} CPU threads for computation (total cores: {multiprocessing.cpu_count()})")
 
     parser = argparse.ArgumentParser(description="Train PyTorch Classification Models")
     parser.add_argument("--data", default="data/classification_multispecies",
@@ -226,8 +232,8 @@ def main():
                        help="Learning rate")
     parser.add_argument("--image_size", type=int, default=224,
                        help="Input image size")
-    parser.add_argument("--device", default="cpu",
-                       help="Device (cpu or cuda)")
+    parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu",
+                       help="Device (auto-detect: cuda if available, else cpu)")
     parser.add_argument("--name", default="pytorch_classification",
                        help="Experiment name")
     parser.add_argument("--pretrained", action="store_true", default=True,
@@ -245,7 +251,7 @@ def main():
     # Use custom save directory if provided, otherwise use results manager
     if args.save_dir:
         experiment_path = Path(args.save_dir)
-        print(f"📁 Using custom save directory: {experiment_path}")
+        print(f"[SAVE] Using custom save directory: {experiment_path}")
     else:
         results_manager = ResultsManager()
         # Get organized experiment path with consistent naming
@@ -260,16 +266,16 @@ def main():
 
     # Check if data exists
     if not Path(args.data).exists():
-        print(f"❌ Dataset directory not found: {args.data}")
+        print(f"[ERROR] Dataset directory not found: {args.data}")
         return
 
-    print(f"📁 Using dataset: {args.data}")
-    print(f"🎯 Model: {args.model}")
-    print(f"📊 Epochs: {args.epochs}")
-    print(f"🖼️  Image size: {args.image_size}")
-    print(f"📦 Batch size: {args.batch}")
-    print(f"💻 Device: {args.device}")
-    print(f"🧠 Learning rate: {args.lr}")
+    print(f"[DATA] Using dataset: {args.data}")
+    print(f"[MODEL] Model: {args.model}")
+    print(f"[TRAIN] Epochs: {args.epochs}")
+    print(f"[IMG] Image size: {args.image_size}")
+    print(f"[BATCH] Batch size: {args.batch}")
+    print(f"[DEVICE] Device: {args.device}")
+    print(f"[LR] Learning rate: {args.lr}")
 
     # Setup device
     device = torch.device(args.device)
@@ -293,10 +299,15 @@ def main():
         transform=val_transform
     )
 
-    # Create data loaders - use all available CPU cores
+    # Create data loaders - optimize for GPU/CPU usage
     import multiprocessing
-    num_workers = min(2, multiprocessing.cpu_count() - 2)  # Conservative worker count
-    print(f"🚀 Using {num_workers} workers for data loading")
+    total_cores = multiprocessing.cpu_count()
+    if torch.cuda.is_available():
+        num_workers = min(8, max(4, total_cores // 4))  # GPU: More workers for data loading
+        print(f"[GPU] Using {num_workers} workers for data loading")
+    else:
+        num_workers = min(4, max(2, total_cores // 8))  # CPU: Fewer workers to avoid competition
+        print(f"[CPU] Using {num_workers} workers for data loading")
 
     train_loader = DataLoader(train_dataset, batch_size=args.batch, shuffle=True, num_workers=num_workers)
     val_loader = DataLoader(val_dataset, batch_size=args.batch, shuffle=False, num_workers=num_workers)
@@ -306,22 +317,22 @@ def main():
     class_names = train_dataset.classes
     num_classes = len(class_names)
 
-    print(f"\n📊 Dataset composition:")
+    print(f"\n[DATASET] Dataset composition:")
     print(f"   Classes: {class_names}")
     print(f"   Train: {len(train_dataset)} images")
     print(f"   Val: {len(val_dataset)} images")
     print(f"   Test: {len(test_dataset)} images")
 
     # Initialize model
-    print(f"\n🚀 Loading {args.model} model...")
+    print(f"\n[LOAD] Loading {args.model} model...")
     model = get_model(args.model, num_classes, args.pretrained)
     model = model.to(device)
 
     # Print model info
     total_params = sum(p.numel() for p in model.parameters())
     trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    print(f"📈 Total parameters: {total_params:,}")
-    print(f"🎓 Trainable parameters: {trainable_params:,}")
+    print(f"[MODEL] Total parameters: {total_params:,}")
+    print(f"[MODEL] Trainable parameters: {trainable_params:,}")
 
     # Setup training
     criterion = nn.CrossEntropyLoss()
@@ -339,7 +350,7 @@ def main():
     with open(results_csv_path, 'w') as f:
         f.write("epoch,train_loss,train_acc,val_loss,val_acc\n")
 
-    print("\n⏱️  Starting training...")
+    print("\n[TIMER] Starting training...")
     start_time = time.time()
 
     best_val_acc = 0.0
@@ -381,7 +392,7 @@ def main():
                 'model_name': args.model,
                 'class_names': class_names
             }, experiment_path / 'best.pt')
-            print(f"💾 Saved best model (Val Acc: {val_acc:.2f}%)")
+            print(f"[SAVE] Saved best model (Val Acc: {val_acc:.2f}%)")
 
     # Save final model
     torch.save({
@@ -397,7 +408,7 @@ def main():
     training_time = end_time - start_time
 
     print("\n" + "=" * 60)
-    print("🎉 PYTORCH CLASSIFICATION TRAINING COMPLETED!")
+    print("[DONE] PYTORCH CLASSIFICATION TRAINING COMPLETED!")
     print("=" * 60)
     print(f"⏱️  Training time: {training_time/60:.1f} minutes")
     print(f"📂 Results saved to: {experiment_path}")
@@ -412,13 +423,13 @@ def main():
 
     test_loss, test_acc, test_preds, test_labels = validate_epoch(model, test_loader, criterion, device)
 
-    print(f"\n📊 Test Results:")
+    print(f"\n[TEST] Test Results:")
     print(f"   Test Accuracy: {test_acc:.2f}%")
     print(f"   Test Loss: {test_loss:.4f}")
 
     # Generate classification report
     report = classification_report(test_labels, test_preds, target_names=class_names)
-    print(f"\n📈 Classification Report:")
+    print(f"\n[REPORT] Classification Report:")
     print(report)
 
     # Save results
@@ -457,8 +468,8 @@ def main():
     plt.savefig(experiment_path / 'training_curves.png', dpi=150, bbox_inches='tight')
     plt.close()
 
-    print(f"\n✅ {args.model} classification training completed successfully!")
-    print(f"📊 Results summary:")
+    print(f"\n[DONE] {args.model} classification training completed successfully!")
+    print(f"[SUMMARY] Results summary:")
     print(f"   - Model: {args.model}")
     print(f"   - Classes: {len(class_names)}")
     print(f"   - Best Val Acc: {best_val_acc:.2f}%")

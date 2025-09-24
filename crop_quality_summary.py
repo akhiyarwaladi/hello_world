@@ -93,7 +93,7 @@ def create_summary_visualization():
    • Images with IoU > 0.5: {images_good_iou}/21 ({images_good_iou/21*100:.1f}%)
    • Images with IoU > 0.7: {images_excellent_iou}/21 ({images_excellent_iou/21*100:.1f}%)
 
-⚠️ Potential Issues:
+[WARNING] Potential Issues:
    • Over-detection cases: {over_detection_images}
    • Problem images: {(df['avg_iou'] < 0.5).sum()}
 
@@ -127,13 +127,13 @@ The investigation into crop generation quality has revealed **GOOD overall perfo
 
 ## 📊 Key Findings
 
-### ✅ STRENGTHS
+### [SUCCESS] STRENGTHS
 1. **High Detection Recall**: Model successfully finds 102.4% of labeled objects
 2. **Excellent Coverage**: 95.2% of images achieve IoU > 0.5 threshold
 3. **Consistent Performance**: Only 1 true problem case identified
 4. **Good Localization**: Mean IoU of 68.1% indicates reasonable bounding box accuracy
 
-### ⚠️ AREAS FOR IMPROVEMENT
+### [WARNING] AREAS FOR IMPROVEMENT
 1. **Over-Detection**: {over_detection_images} images show >20% more predictions than ground truth
 2. **Precision Opportunities**: 19.4% of predictions are false positives
 3. **IoU Optimization**: Only {images_excellent_iou}/21 images (42.9%) achieve excellent IoU > 0.7
@@ -191,7 +191,7 @@ The detection model is successfully generating crops that should work well for c
     with open('crop_quality_analysis/detailed_analysis_report.md', 'w') as f:
         f.write(report)
 
-    print("✅ Summary visualization and detailed report created!")
+    print("[SUCCESS] Summary visualization and detailed report created!")
     print("📁 Files generated:")
     print("   • crop_quality_analysis/comprehensive_summary.png")
     print("   • crop_quality_analysis/detailed_analysis_report.md")

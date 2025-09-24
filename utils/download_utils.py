@@ -294,7 +294,7 @@ def check_disk_space(path: Path, required_bytes: int) -> bool:
         print(f"Available space: {free_gb:.2f} GB")
         
         if free_bytes < required_bytes:
-            print("⚠️ Insufficient disk space!")
+            print("[WARNING] Insufficient disk space!")
             return False
         
         return True

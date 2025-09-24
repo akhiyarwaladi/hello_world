@@ -51,7 +51,7 @@ def analyze_detection_classification_mapping(exp_path):
                             "path": str(model_folder),
                             "weights": str(weights_path),
                             "mAP50": map50,
-                            "status": "✅ COMPLETED" if weights_path.exists() else "🔄 TRAINING"
+                            "status": "[DONE] COMPLETED" if weights_path.exists() else "[TRAIN] TRAINING"
                         }
 
                         print(f"   {det_type:>10}: {exp_name} → mAP50: {map50}")
@@ -120,12 +120,12 @@ def analyze_detection_classification_mapping(exp_path):
                         "path": str(model_folder),
                         "test_accuracy": test_acc,
                         "training_time": training_time,
-                        "status": "✅ COMPLETED" if results_file.exists() else ("🔄 TRAINING" if best_pt.exists() else "❌ NOT_STARTED")
+                        "status": "[DONE] COMPLETED" if results_file.exists() else ("[TRAIN] TRAINING" if best_pt.exists() else "[NONE] NOT_STARTED")
                     })
 
     # 3. GROUPED DISPLAY BY DETECTION MODEL
     for det_model in sorted(classification_models.keys()):
-        det_info = detection_models.get(det_model, {"mAP50": "N/A", "status": "❌ NOT_FOUND"})
+        det_info = detection_models.get(det_model, {"mAP50": "N/A", "status": "[ERROR] NOT_FOUND"})
 
         print(f"\n🔸 DETECTION: {det_model.upper()} (mAP50: {det_info['mAP50']}) {det_info['status']}")
         print(f"   └─ Classification Models:")
@@ -133,7 +133,7 @@ def analyze_detection_classification_mapping(exp_path):
         cls_models = classification_models[det_model]
         for i, cls_model in enumerate(sorted(cls_models, key=lambda x: x['classification_type'])):
             connector = "├─" if i < len(cls_models) - 1 else "└─"
-            status_icon = "✅" if "COMPLETED" in cls_model['status'] else ("🔄" if "TRAINING" in cls_model['status'] else "❌")
+            status_icon = "[OK]" if "COMPLETED" in cls_model['status'] else ("[PROC]" if "TRAINING" in cls_model['status'] else "[NONE]")
 
             print(f"      {connector} {cls_model['classification_type']:>15}: {cls_model['test_accuracy']:>8} {status_icon}")
 
@@ -153,7 +153,7 @@ def analyze_detection_classification_mapping(exp_path):
             if accuracy != "N/A" and "%" in accuracy:
                 row_data[cls_type] = accuracy
             else:
-                row_data[cls_type] = "🔄" if "TRAINING" in cls_model['status'] else "❌"
+                row_data[cls_type] = "[PROC]" if "TRAINING" in cls_model['status'] else "[NONE]"
         matrix_data.append(row_data)
 
     # Display matrix
@@ -164,7 +164,7 @@ def analyze_detection_classification_mapping(exp_path):
         # Fill missing values
         for col in sorted(all_cls_types):
             if col not in df_matrix.columns:
-                df_matrix[col] = "❌"
+                df_matrix[col] = "[NONE]"
 
         # Reorder columns
         df_matrix = df_matrix[sorted(all_cls_types)]
@@ -193,7 +193,7 @@ def main():
     results_path = Path("results")
     exp_folders = [f for f in results_path.glob("exp_*") if f.is_dir()]
     if not exp_folders:
-        print("❌ No experiments found!")
+        print("[ERROR] No experiments found!")
         return
 
     exp_path = max(exp_folders, key=lambda x: x.stat().st_mtime)

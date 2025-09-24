@@ -71,7 +71,7 @@ def analyze_crop_quality():
 
     # Load model
     if not os.path.exists(model_path):
-        print(f"❌ Model not found: {model_path}")
+        print(f"[ERROR] Model not found: {model_path}")
         return
 
     print("🤖 Loading detection model...")
@@ -92,7 +92,7 @@ def analyze_crop_quality():
         image_path = os.path.join(test_images_dir, image_file)
         image = cv2.imread(image_path)
         if image is None:
-            print(f"❌ Could not load image: {image_path}")
+            print(f"[ERROR] Could not load image: {image_path}")
             continue
 
         img_height, img_width = image.shape[:2]
@@ -102,14 +102,14 @@ def analyze_crop_quality():
         gt_boxes = load_ground_truth_boxes(label_file)
 
         if not gt_boxes:
-            print(f"⚠️  No ground truth boxes for {image_file}")
+            print(f"[WARNING] No ground truth boxes for {image_file}")
             continue
 
         # Run detection
         results = model(image_path, conf=0.25)
 
         if not results or len(results) == 0:
-            print(f"⚠️  No detections for {image_file}")
+            print(f"[WARNING] No detections for {image_file}")
             continue
 
         pred_boxes = []
@@ -212,7 +212,7 @@ def analyze_crop_quality():
     print(f"  Images with avg IoU > 0.5: {(df['avg_iou'] > 0.5).sum()}/{len(df)} ({(df['avg_iou'] > 0.5).mean()*100:.1f}%)")
     print(f"  Images with avg IoU > 0.7: {(df['avg_iou'] > 0.7).sum()}/{len(df)} ({(df['avg_iou'] > 0.7).mean()*100:.1f}%)")
 
-    print(f"\n⚠️  PROBLEM CASES IDENTIFIED: {len(problem_cases)}")
+    print(f"\n[WARNING] PROBLEM CASES IDENTIFIED: {len(problem_cases)}")
     for i, case in enumerate(problem_cases[:10]):  # Show top 10
         print(f"  {i+1}. {case['image']}: IoU={case['avg_iou']:.3f}, Recall={case['recall']:.3f}, GT={case['gt_count']}, Pred={case['pred_count']}")
 
@@ -261,24 +261,24 @@ def analyze_crop_quality():
         plt.savefig(f"{output_dir}/problem_case_{i+1}_{stats['image']}.png", dpi=150, bbox_inches='tight')
         plt.close()
 
-    print(f"\n✅ Analysis complete! Results saved to '{output_dir}/' directory")
+    print(f"\n[SUCCESS] Analysis complete! Results saved to '{output_dir}/' directory")
 
     # Specific crop quality insights
     print(f"\n🔍 CROP QUALITY INSIGHTS:")
 
     low_iou_images = df[df['avg_iou'] < 0.5]
     if len(low_iou_images) > 0:
-        print(f"  ⚠️  {len(low_iou_images)} images have low average IoU (<0.5)")
+        print(f"  [WARNING] {len(low_iou_images)} images have low average IoU (<0.5)")
         print(f"     This suggests detection accuracy issues that affect crop quality")
 
     low_recall_images = df[df['recall'] < 0.7]
     if len(low_recall_images) > 0:
-        print(f"  ⚠️  {len(low_recall_images)} images have low recall (<0.7)")
+        print(f"  [WARNING] {len(low_recall_images)} images have low recall (<0.7)")
         print(f"     Missing detections = missing crops in classification dataset")
 
     over_detection = df[df['pred_count'] > df['gt_count'] * 1.5]
     if len(over_detection) > 0:
-        print(f"  ⚠️  {len(over_detection)} images have significant over-detection")
+        print(f"  [WARNING] {len(over_detection)} images have significant over-detection")
         print(f"     False positives = noisy/incorrect crops in classification dataset")
 
     print(f"\n💡 RECOMMENDATIONS:")
