@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 Multiple Models Pipeline: Train detection models -> Generate crops -> Train classification
 Automatically handles folder routing based on experiment names
@@ -13,6 +13,7 @@ import json
 import pandas as pd
 import shutil
 import zipfile
+import torch
 from pathlib import Path
 from datetime import datetime
 
@@ -54,12 +55,12 @@ def run_kaggle_optimized_training(model_name, data_yaml, epochs, exp_name, centr
             data=data_yaml,
             epochs=epochs,
             imgsz=640,
-            batch=16,
+            batch=8,             # Reduced batch size for stability
             patience=50,
             save=True,
             save_period=10,
-            device='cpu',
-            workers=4,
+            device='cuda' if torch.cuda.is_available() else 'cpu',  # Auto-detect GPU
+            workers=2,           # Reduced workers for stability
             exist_ok=True,
             optimizer='AdamW',
             lr0=0.0005,         # Reduced learning rate for stability
@@ -670,7 +671,7 @@ def main():
             output_path = str(centralized_crops_path)
 
             cmd2 = [
-                "python3", "scripts/training/11_crop_detections.py",
+                "python", "scripts/training/11_crop_detections.py",
                 "--model", model_path,
                 "--input", input_path,
                 "--output", output_path,
@@ -764,7 +765,7 @@ def main():
                 else:
                     # PyTorch classification - modify script to use centralized path
                     cmd3 = [
-                        "python3", cls_config["script"],
+                        "python", cls_config["script"],
                         "--data", str(crop_data_path),
                         "--model", cls_config["model"],
                         "--epochs", str(args.epochs_cls),
@@ -847,7 +848,7 @@ def main():
 
                     # Use standalone classification analysis script
                     analysis_cmd = [
-                        "python3", "scripts/analysis/classification_deep_analysis.py",
+                        "python", "scripts/analysis/classification_deep_analysis.py",
                         "--model", classification_model,
                         "--test-data", test_data,
                         "--output", analysis_dir
@@ -871,7 +872,7 @@ def main():
 
                 # Use standalone IoU analysis script
                 iou_cmd = [
-                    "python3", "scripts/analysis/compare_models_performance.py",
+                    "python", "scripts/analysis/compare_models_performance.py",
                     "--iou-analysis",
                     "--model", str(detection_model_centralized),
                     "--output", iou_analysis_dir
@@ -888,7 +889,7 @@ def main():
             if args.continue_from and classification_success:
                 print(f"   [INFO] Running IEEE Access compliant analysis")
                 ieee_cmd = [
-                    "python3", "scripts/analysis/unified_journal_analysis.py",
+                    "python", "scripts/analysis/unified_journal_analysis.py",
                     "--centralized-experiment", args.continue_from
                 ]
                 try:
