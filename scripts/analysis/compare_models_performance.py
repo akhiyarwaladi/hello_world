@@ -79,7 +79,7 @@ class MalariaPerformanceAnalyzer:
                         if exp_info:
                             completed_experiments.append(exp_info)
 
-        print(f"📋 Found {len(completed_experiments)} completed experiments")
+        print(f"Found {len(completed_experiments)} completed experiments")
         return completed_experiments
 
     def extract_yolo_metrics(self, experiment_path: Path) -> dict:
@@ -182,7 +182,7 @@ class MalariaPerformanceAnalyzer:
                     metrics['task'] = 'classification'
                     self.comparison_data.append(metrics)
 
-        print(f"✓ Found {len(self.comparison_data)} experiments")
+        print(f"Found {len(self.comparison_data)} experiments")
 
     def create_comparison_report(self, output_path: str = "results/model_comparison_report.md"):
         """Create markdown report comparing all models"""
@@ -313,10 +313,10 @@ Based on the preliminary results:
 - **Image Preprocessing**: CLAHE enhancement, normalization
 
 ### Data Quality Improvements
-- ✅ **Bounding Box Correction**: Fixed coordinate mapping from MP-IDB CSV annotations
-- ✅ **Ground Truth Validation**: Used binary masks for accurate parasite localization
-- ✅ **Proper Cropping**: Individual parasite cells for classification
-- ✅ **Dataset Ready**: 1,242 cropped parasites, 103 detection images
+- **Bounding Box Correction**: Fixed coordinate mapping from MP-IDB CSV annotations
+- **Ground Truth Validation**: Used binary masks for accurate parasite localization
+- **Proper Cropping**: Individual parasite cells for classification
+- **Dataset Ready**: 1,242 cropped parasites, 103 detection images
 
 ---
 
@@ -603,7 +603,7 @@ Based on the preliminary results:
         # Save detailed results
         df.to_csv(self.output_dir / "detailed_results.csv", index=False)
 
-        print(f"📊 Creating performance comparison for {len(df)} experiments")
+        print(f"Creating performance comparison for {len(df)} experiments")
 
         # Create summary statistics
         self._create_summary_statistics(df)
@@ -666,7 +666,7 @@ Based on the preliminary results:
             json.dump(summary, f, indent=2, default=str)
 
         # Print key findings
-        print("\n🎯 Key Findings:")
+        print("\nKey Findings:")
         print(f"  • Total experiments: {summary['total_experiments']}")
         if 'classification_performance' in summary:
             print(f"  • Best classification accuracy: {summary['classification_performance']['best_accuracy']:.3f}")
@@ -677,7 +677,7 @@ Based on the preliminary results:
 
     def _create_performance_plots(self, df):
         """Create performance visualization plots"""
-        print("📊 Creating performance plots...")
+        print("Creating performance plots...")
 
         # Set up the plotting style
         plt.style.use('default')
@@ -760,7 +760,7 @@ Based on the preliminary results:
 
     def _create_combination_matrix(self, df):
         """Create detection-classification combination matrix"""
-        print("🎯 Creating combination matrix...")
+        print("Creating combination matrix...")
 
         cls_df = df[df['experiment_type'].isin(['yolo_classification', 'pytorch_classification'])]
         if cls_df.empty:
@@ -818,7 +818,7 @@ Based on the preliminary results:
 
     def _create_time_analysis(self, df):
         """Create training time analysis"""
-        print("⏱️  Creating time analysis...")
+        print("Creating time analysis...")
 
         # Filter experiments with training time data
         time_df = df[df['training_time_min'].notna()] if 'training_time_min' in df.columns else pd.DataFrame()
@@ -844,13 +844,13 @@ Based on the preliminary results:
 
     def monitor_active_experiments(self):
         """Monitor active experiments and generate real-time reports"""
-        print("🔍 Monitoring active experiments...")
+        print("Monitoring active experiments...")
 
         while True:
             experiments = self.scan_completed_experiments()
             if experiments:
                 self.create_performance_comparison(experiments)
-                print(f"📊 Updated analysis with {len(experiments)} experiments")
+                print(f"Updated analysis with {len(experiments)} experiments")
 
             # Wait for 300 seconds (5 minutes) before next check
             import time
@@ -928,7 +928,7 @@ This analysis provides insights into the performance of different detection-clas
         with open(self.output_dir / "performance_report.md", 'w') as f:
             f.write(report_content)
 
-        print(f"📋 Comprehensive report generated: {self.output_dir}/performance_report.md")
+        print(f"Comprehensive report generated: {self.output_dir}/performance_report.md")
 
     def run_iou_analysis(self, model_path, output_dir, iou_thresholds=[0.3, 0.5, 0.7], data_yaml=None):
         """
@@ -946,7 +946,7 @@ This analysis provides insights into the performance of different detection-clas
             import pandas as pd
             # Auto-detect dataset if not provided
             if data_yaml is None:
-                print("🔍 Auto-detecting training dataset...")
+                print("Auto-detecting training dataset...")
                 # Prioritize Kaggle dataset
                 kaggle_path = "data/kaggle_pipeline_ready/data.yaml"
                 if os.path.exists(kaggle_path):
@@ -964,13 +964,13 @@ This analysis provides insights into the performance of different detection-clas
 
             # Load detection model
             model = YOLO(model_path)
-            print(f"📦 Loaded model: {model_path}")
-            print(f"🎯 Dataset for evaluation: {data_yaml}")
+            print(f"Loaded model: {model_path}")
+            print(f"Dataset for evaluation: {data_yaml}")
 
             results_summary = {}
 
             for iou_thresh in iou_thresholds:
-                print(f"🎯 Testing IoU threshold: {iou_thresh}")
+                print(f"Testing IoU threshold: {iou_thresh}")
 
                 # Run validation on TEST SET
                 metrics = model.val(

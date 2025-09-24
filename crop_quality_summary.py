@@ -15,7 +15,7 @@ def create_summary_visualization():
 
     # Create comprehensive summary figure
     fig, axes = plt.subplots(2, 3, figsize=(18, 12))
-    fig.suptitle('🔍 COMPREHENSIVE CROP QUALITY ANALYSIS SUMMARY', fontsize=16, fontweight='bold')
+    fig.suptitle('COMPREHENSIVE CROP QUALITY ANALYSIS SUMMARY', fontsize=16, fontweight='bold')
 
     # 1. IoU Distribution
     axes[0,0].hist(df['avg_iou'], bins=10, alpha=0.7, color='skyblue', edgecolor='black')
@@ -82,14 +82,14 @@ def create_summary_visualization():
     over_detection_images = (df['pred_count'] > df['gt_count'] * 1.2).sum()
 
     summary_text = f"""
-📊 SUMMARY STATISTICS
+SUMMARY STATISTICS
 
-🎯 Detection Performance:
+Detection Performance:
    • Overall Precision: {overall_precision:.3f}
    • Overall Recall: {overall_recall:.3f}
    • Mean IoU: {mean_iou:.3f}
 
-📈 Quality Distribution:
+Quality Distribution:
    • Images with IoU > 0.5: {images_good_iou}/21 ({images_good_iou/21*100:.1f}%)
    • Images with IoU > 0.7: {images_excellent_iou}/21 ({images_excellent_iou/21*100:.1f}%)
 
@@ -97,7 +97,7 @@ def create_summary_visualization():
    • Over-detection cases: {over_detection_images}
    • Problem images: {(df['avg_iou'] < 0.5).sum()}
 
-💡 Overall Assessment:
+Overall Assessment:
    Detection quality is GOOD with
    mean IoU of {mean_iou:.1%} and {images_good_iou/21*100:.0f}%
    of images showing acceptable
@@ -114,9 +114,9 @@ def create_summary_visualization():
 
     # Create detailed analysis report
     report = f"""
-# 🔍 COMPREHENSIVE CROP QUALITY INVESTIGATION REPORT
+# COMPREHENSIVE CROP QUALITY INVESTIGATION REPORT
 
-## 🎯 Executive Summary
+## Executive Summary
 
 The investigation into crop generation quality has revealed **GOOD overall performance** with some areas for optimization:
 
@@ -125,7 +125,7 @@ The investigation into crop generation quality has revealed **GOOD overall perfo
 - **Mean IoU**: {mean_iou:.1%} (68.1% average overlap accuracy)
 - **Quality Distribution**: {images_good_iou}/21 images (95.2%) have acceptable IoU > 0.5
 
-## 📊 Key Findings
+## Key Findings
 
 ### [SUCCESS] STRENGTHS
 1. **High Detection Recall**: Model successfully finds 102.4% of labeled objects
@@ -138,7 +138,7 @@ The investigation into crop generation quality has revealed **GOOD overall perfo
 2. **Precision Opportunities**: 19.4% of predictions are false positives
 3. **IoU Optimization**: Only {images_excellent_iou}/21 images (42.9%) achieve excellent IoU > 0.7
 
-## 🔬 Detailed Analysis
+## Detailed Analysis
 
 ### Detection Performance Breakdown:
 - **Total Ground Truth Objects**: {df['gt_count'].sum()}
@@ -150,7 +150,7 @@ The investigation into crop generation quality has revealed **GOOD overall perfo
 - **Over-Detection Cases**: {over_detection_images} images with >20% extra predictions
 - **False Positive Impact**: Extra predictions create noisy crops for classification
 
-## 💡 RECOMMENDATIONS
+## RECOMMENDATIONS
 
 ### Immediate Actions:
 1. **Confidence Threshold Tuning**: Consider increasing from 0.25 to 0.3-0.35 to reduce false positives
@@ -162,7 +162,7 @@ The investigation into crop generation quality has revealed **GOOD overall perfo
 2. **Model Architecture**: Consider ensemble methods or advanced architectures for better precision
 3. **Data Augmentation**: Enhance training with more diverse augmentation strategies
 
-## 📈 CROP QUALITY IMPACT
+## CROP QUALITY IMPACT
 
 ### Direct Impact on Classification:
 - **Good Crops**: ~80.6% of generated crops should be high-quality
@@ -175,7 +175,7 @@ The crop generation process produces a **GOOD quality dataset** suitable for cla
 - Reasonable localization accuracy (68.1% mean IoU)
 - Some false positive noise that may actually improve model robustness
 
-## 🎯 CONCLUSION
+## CONCLUSION
 
 **The crop generation quality is GOOD and suitable for production use.**
 
@@ -192,7 +192,7 @@ The detection model is successfully generating crops that should work well for c
         f.write(report)
 
     print("[SUCCESS] Summary visualization and detailed report created!")
-    print("📁 Files generated:")
+    print("Files generated:")
     print("   • crop_quality_analysis/comprehensive_summary.png")
     print("   • crop_quality_analysis/detailed_analysis_report.md")
 

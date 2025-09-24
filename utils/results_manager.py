@@ -239,7 +239,7 @@ class ResultsManager:
             # Copy results to completed (keep original for now)
             if current_path.exists():
                 self._copy_directory(current_path, completed_path)
-                print(f"🏆 Promoted model to completed: {completed_path}")
+                print(f"Promoted model to completed: {completed_path}")
                 return completed_path
 
         return current_path
@@ -277,7 +277,7 @@ class ResultsManager:
                     archived_count += 1
 
         if archived_count > 0:
-            print(f"📦 Archived {archived_count} old experiments")
+            print(f"Archived {archived_count} old experiments")
 
     def get_results_summary(self) -> Dict:
         """Get summary of current results organization"""

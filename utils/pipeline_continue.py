@@ -389,7 +389,7 @@ def list_available_experiments():
         stages = check_completed_stages(str(exp_path))
         completed_count = sum(stages.values())
 
-        print(f"  📂 {exp}")
+        print(f"  {exp}")
         print(f"     Stages completed: {completed_count}/4")
         print(f"     Next: {determine_next_stage(stages)}")
         print()

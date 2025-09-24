@@ -83,9 +83,9 @@ class MalariaDatasetDownloader:
         if not zip_path.exists():
             self.download_with_progress(url, zip_path)
             self.extract_archive(zip_path, dataset_dir)
-            print(f"✓ NIH Cell Images downloaded to {dataset_dir}")
+            print(f"NIH Cell Images downloaded to {dataset_dir}")
         else:
-            print(f"✓ NIH Cell Images already exists at {dataset_dir}")
+            print(f"NIH Cell Images already exists at {dataset_dir}")
     
     def download_nih_thick_smears(self):
         """Download NIH thick blood smear datasets"""
@@ -118,7 +118,7 @@ class MalariaDatasetDownloader:
                     print(f"Downloading {info['name']}...")
                     self.download_with_progress(info["url"], zip_path)
                     self.extract_archive(zip_path, dataset_dir)
-                    print(f"✓ {info['name']} downloaded")
+                    print(f"{info['name']} downloaded")
             else:
                 print(f"ℹ {info['name']} requires manual download from: {info['url']}")
     
@@ -133,9 +133,9 @@ class MalariaDatasetDownloader:
         if not dataset_dir.exists():
             repo_url = "https://github.com/andrealoddo/MP-IDB-The-Malaria-Parasite-Image-Database-for-Image-Processing-and-Analysis.git"
             subprocess.run(["git", "clone", repo_url, str(dataset_dir)])
-            print(f"✓ MP-IDB cloned to {dataset_dir}")
+            print(f"MP-IDB cloned to {dataset_dir}")
         else:
-            print(f"✓ MP-IDB already exists at {dataset_dir}")
+            print(f"MP-IDB already exists at {dataset_dir}")
     
     def download_bbbc041(self):
         """Download BBBC041 dataset"""
@@ -162,7 +162,7 @@ class MalariaDatasetDownloader:
         print("="*50)
 
         if self.kaggle_api is None:
-            print("⚠ Kaggle API not configured. Skipping Kaggle datasets.")
+            print("WARNING: Kaggle API not configured. Skipping Kaggle datasets.")
             return
 
         dataset_dir = self.base_dir / "kaggle_nih"
@@ -176,9 +176,9 @@ class MalariaDatasetDownloader:
                 path=str(dataset_dir),
                 unzip=True
             )
-            print(f"✓ Kaggle dataset downloaded to {dataset_dir}")
+            print(f"Kaggle dataset downloaded to {dataset_dir}")
         except Exception as e:
-            print(f"⚠ Failed to download Kaggle dataset: {e}")
+            print(f"WARNING: Failed to download Kaggle dataset: {e}")
 
     def download_kaggle_mp_idb_yolo(self):
         """Download YOLO-formatted MP-IDB dataset from Kaggle"""
@@ -187,7 +187,7 @@ class MalariaDatasetDownloader:
         print("="*50)
 
         if self.kaggle_api is None:
-            print("⚠ Kaggle API not configured. Using command line approach...")
+            print("WARNING: Kaggle API not configured. Using command line approach...")
             print("Please run: kaggle datasets download rayhanadi/yolo-formatted-mp-idb-malaria-dataset")
             return False
 
@@ -303,7 +303,7 @@ class MalariaDatasetDownloader:
         with open(info_path, 'w') as f:
             json.dump(info, f, indent=2)
         
-        print(f"\n✓ Dataset information saved to {info_path}")
+        print(f"\nDataset information saved to {info_path}")
     
     def download_all(self):
         """Download all available datasets"""
@@ -330,7 +330,7 @@ class MalariaDatasetDownloader:
         print("\n" + "="*60)
         print(" DOWNLOAD SUMMARY ")
         print("="*60)
-        print("✓ Automated downloads completed")
+        print("Automated downloads completed")
         print("ℹ Some datasets require manual download")
         print("ℹ Check dataset_info.json for status")
         print("="*60)

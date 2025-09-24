@@ -51,14 +51,14 @@ class ClassificationDeepAnalyzer:
             3: 'P_vivax'
         }
 
-        print(f"🔬 Deep Classification Analysis Initialized")
-        print(f"📂 Model: {self.model_path}")
-        print(f"📂 Test Data: {self.test_data_path}")
-        print(f"📂 Output: {self.output_dir}")
+        print(f"Deep Classification Analysis Initialized")
+        print(f"Model: {self.model_path}")
+        print(f"Test Data: {self.test_data_path}")
+        print(f"Output: {self.output_dir}")
 
     def load_model_and_data(self):
         """Load trained model and test dataset"""
-        print("\n🔄 Loading model and test data...")
+        print("\nLoading model and test data...")
 
         # Load YOLO classification model
         try:
@@ -79,7 +79,7 @@ class ClassificationDeepAnalyzer:
         self.test_paths = []
 
         class_dirs = sorted([d for d in self.test_data_path.iterdir() if d.is_dir()])
-        print(f"📊 Found {len(class_dirs)} classes: {[d.name for d in class_dirs]}")
+        print(f"Found {len(class_dirs)} classes: {[d.name for d in class_dirs]}")
 
         for class_idx, class_dir in enumerate(class_dirs):
             class_name = class_dir.name
@@ -90,7 +90,7 @@ class ClassificationDeepAnalyzer:
             for ext in ['*.jpg', '*.jpeg', '*.png']:
                 image_files.extend(list(class_dir.glob(ext)))
 
-            print(f"  📁 {class_name}: {len(image_files)} images")
+            print(f"  {class_name}: {len(image_files)} images")
 
             for img_path in image_files:
                 self.test_images[class_name].append(str(img_path))
@@ -104,7 +104,7 @@ class ClassificationDeepAnalyzer:
 
     def run_inference_analysis(self):
         """Run inference on test set and analyze predictions"""
-        print("\n🔄 Running inference analysis...")
+        print("\nRunning inference analysis...")
 
         predictions = []
         true_labels = []
@@ -172,7 +172,7 @@ class ClassificationDeepAnalyzer:
 
         if len(valid_predictions) > 0:
             accuracy = accuracy_score(valid_true_labels, valid_predictions)
-            print(f"📊 Top-1 Accuracy: {accuracy:.4f} ({accuracy*100:.2f}%)")
+            print(f"Top-1 Accuracy: {accuracy:.4f} ({accuracy*100:.2f}%)")
 
             # Check top-5 accuracy
             top5_correct = 0
@@ -182,48 +182,48 @@ class ClassificationDeepAnalyzer:
                     top5_correct += 1
 
             top5_accuracy = top5_correct / len(valid_predictions)
-            print(f"📊 Top-5 Accuracy: {top5_accuracy:.4f} ({top5_accuracy*100:.2f}%)")
+            print(f"Top-5 Accuracy: {top5_accuracy:.4f} ({top5_accuracy*100:.2f}%)")
 
-            # 🚨 INVESTIGATE SUSPICIOUS 100% TOP-5 ACCURACY
+            # INVESTIGATE SUSPICIOUS 100% TOP-5 ACCURACY
             if top5_accuracy >= 0.99:
-                print("🚨 SUSPICIOUS: Top-5 accuracy is suspiciously high!")
+                print("SUSPICIOUS: Top-5 accuracy is suspiciously high!")
                 self.investigate_suspicious_accuracy(valid_true_labels, valid_predictions)
 
         return True
 
     def investigate_suspicious_accuracy(self, true_labels, predictions):
         """Investigate why top-5 accuracy is suspiciously high"""
-        print("\n🔍 INVESTIGATING SUSPICIOUS 100% TOP-5 ACCURACY...")
+        print("\nINVESTIGATING SUSPICIOUS 100% TOP-5 ACCURACY...")
 
         # Check number of classes
         unique_true = np.unique(true_labels)
         unique_pred = np.unique(predictions)
 
-        print(f"🔢 Unique true labels: {unique_true} (count: {len(unique_true)})")
-        print(f"🔢 Unique predictions: {unique_pred} (count: {len(unique_pred)})")
+        print(f"Unique true labels: {unique_true} (count: {len(unique_true)})")
+        print(f"Unique predictions: {unique_pred} (count: {len(unique_pred)})")
 
         # Check class distribution
         from collections import Counter
         true_dist = Counter(true_labels)
         pred_dist = Counter(predictions)
 
-        print(f"📊 True label distribution: {dict(true_dist)}")
-        print(f"📊 Prediction distribution: {dict(pred_dist)}")
+        print(f"True label distribution: {dict(true_dist)}")
+        print(f"Prediction distribution: {dict(pred_dist)}")
 
-        # 🚨 CRITICAL FINDING: If we only have 4 classes, top-5 accuracy will always be 100%!
+        # CRITICAL FINDING: If we only have 4 classes, top-5 accuracy will always be 100%!
         if len(unique_true) <= 4:
-            print("🚨 CRITICAL FINDING: Dataset only has 4 classes!")
-            print("🚨 This explains 100% top-5 accuracy - model always includes correct class in top-5!")
-            print("🚨 Top-5 accuracy is meaningless with only 4 classes!")
+            print("CRITICAL FINDING: Dataset only has 4 classes!")
+            print("This explains 100% top-5 accuracy - model always includes correct class in top-5!")
+            print("Top-5 accuracy is meaningless with only 4 classes!")
 
         # Check if model is predicting only certain classes
         if len(unique_pred) < len(unique_true):
-            print("🚨 WARNING: Model is not predicting all classes!")
+            print("WARNING: Model is not predicting all classes!")
             missing_classes = set(unique_true) - set(unique_pred)
-            print(f"🚨 Missing predictions for classes: {missing_classes}")
+            print(f"Missing predictions for classes: {missing_classes}")
 
         # Check confidence distributions
-        print(f"📊 Confidence stats:")
+        print(f"Confidence stats:")
         print(f"   Mean: {np.mean(self.confidences):.4f}")
         print(f"   Std:  {np.std(self.confidences):.4f}")
         print(f"   Min:  {np.min(self.confidences):.4f}")
@@ -231,7 +231,7 @@ class ClassificationDeepAnalyzer:
 
     def create_comprehensive_confusion_matrix(self):
         """Create detailed confusion matrix analysis like in the journal paper"""
-        print("\n📊 Creating comprehensive confusion matrix analysis...")
+        print("\nCreating comprehensive confusion matrix analysis...")
 
         valid_mask = self.predictions != -1
         valid_predictions = self.predictions[valid_mask]
@@ -351,7 +351,7 @@ class ClassificationDeepAnalyzer:
         print(f"[SUCCESS] Comprehensive confusion matrix saved to {self.output_dir}")
 
         # Print summary following journal format
-        print("\n📋 DETAILED CLASSIFICATION REPORT:")
+        print("\nDETAILED CLASSIFICATION REPORT:")
         print("="*60)
         report = classification_report(valid_true_labels, valid_predictions,
                                      target_names=class_names, digits=4)
@@ -361,7 +361,7 @@ class ClassificationDeepAnalyzer:
 
     def create_journal_style_analysis(self, detailed_metrics):
         """Create analysis following the IEEE journal paper format"""
-        print("\n📄 Creating journal-style analysis report...")
+        print("\nCreating journal-style analysis report...")
 
         # Read the actual results for comparison
         results_csv = self.model_path.parent / "results.csv"
@@ -378,13 +378,13 @@ class ClassificationDeepAnalyzer:
 
 ---
 
-## 🚨 CRITICAL FINDINGS
+## CRITICAL FINDINGS
 
 ### Suspicious Top-5 Accuracy Investigation
 
 Our analysis revealed a **critical methodological issue** that explains the suspicious 100% top-5 accuracy:
 
-**🔍 Root Cause Identified:**
+**Root Cause Identified:**
 - **Dataset has only 4 classes** (P. falciparum, P. malariae, P. ovale, P. vivax)
 - **Top-5 accuracy with 4 classes is meaningless** - the model will always include the correct class
 - **This explains the "perfect" 100% top-5 accuracy reported during training**
@@ -474,7 +474,7 @@ The actual model performance should be evaluated using Top-1 accuracy and per-cl
 
     def run_complete_analysis(self):
         """Run the complete deep analysis pipeline"""
-        print("🚀 Starting Complete Deep Classification Analysis")
+        print("Starting Complete Deep Classification Analysis")
         print("="*60)
 
         # Step 1: Load model and data
@@ -493,12 +493,12 @@ The actual model performance should be evaluated using Top-1 accuracy and per-cl
         # Step 4: Create journal-style analysis
         self.create_journal_style_analysis(detailed_metrics)
 
-        print("\n🎉 Analysis Complete!")
-        print(f"📂 All results saved to: {self.output_dir}")
-        print("\n📋 Key Files Generated:")
-        print(f"  📊 comprehensive_confusion_matrix.png - Visual analysis")
-        print(f"  📄 journal_style_analysis.md - Research report")
-        print(f"  📈 detailed_metrics.json - Raw metrics data")
+        print("\nAnalysis Complete!")
+        print(f"All results saved to: {self.output_dir}")
+        print("\nKey Files Generated:")
+        print(f"  comprehensive_confusion_matrix.png - Visual analysis")
+        print(f"  journal_style_analysis.md - Research report")
+        print(f"  detailed_metrics.json - Raw metrics data")
 
         return True
 
@@ -516,7 +516,7 @@ def main():
 
     args = parser.parse_args()
 
-    print("🔬 DEEP CLASSIFICATION ANALYSIS")
+    print("DEEP CLASSIFICATION ANALYSIS")
     print("Following IEEE journal methodology for malaria classification")
     print("="*70)
 

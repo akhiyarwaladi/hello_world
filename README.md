@@ -1,33 +1,29 @@
 # 🦠 Malaria Detection Pipeline
-**Two-Stage Deep Learning Approach: Detection → Classification**
+**Two-Stage Deep Learning Approach: YOLOv10/11/12 Detection → PyTorch Classification**
+
+*Updated: September 24, 2025 - Emoji-free, Kaggle-optimized, Production Ready*
 
 ## 🎯 What This Does
 Automatically detects malaria parasites in blood smear images using a two-stage approach:
-1. **Detection**: Locate infected cells in blood smear images (single class: parasite vs background)
-2. **Classification**: Classify detected parasites using CNN models
+1. **Detection**: YOLOv10, YOLOv11, YOLOv12, RT-DETR locate parasites in blood smears
+2. **Classification**: PyTorch models classify detected parasites by species
 
-## 🚀 Quick Start (3 Steps)
+## 🚀 Quick Start (UPDATED - 2 Steps)
 
-### 1. Setup & Download Data
+### 1. Setup Kaggle Dataset (REQUIRED)
 ```bash
-# Setup environment
-source venv/bin/activate
-
-# RECOMMENDED: Download & setup Kaggle YOLO dataset (ready-to-use)
-python scripts/data_setup/01_download_datasets.py --dataset kaggle_mp_idb
+# CRITICAL: Setup Kaggle dataset first (run once)
 python scripts/data_setup/07_setup_kaggle_for_pipeline.py
-
-# Alternative: Use original MP-IDB (requires more processing)
-# python scripts/data_setup/01_download_datasets.py --dataset mp_idb
+# Creates: 209 images, 1436 objects, ready for training
 ```
 
-### 2. Run Complete Pipeline
+### 2. Run Complete Pipeline (CORRECTED COMMANDS)
 ```bash
-# RECOMMENDED: Multiple models with medium variants (exclude slow RT-DETR)
-python run_multiple_models_pipeline.py --use-kaggle-dataset --exclude rtdetr --epochs-det 60 --epochs-cls 20
+# RECOMMENDED: Multiple models excluding slow RT-DETR
+python run_multiple_models_pipeline.py --exclude-detection rtdetr --epochs-det 40 --epochs-cls 30 --use-kaggle-dataset
 
-# Alternative: Single model only
-python run_multiple_models_pipeline.py --use-kaggle-dataset --include yolo10 --epochs-det 60 --epochs-cls 20
+# QUICK TEST: Single model with test mode
+python run_multiple_models_pipeline.py --include yolo11 --test-mode --use-kaggle-dataset
 
 # Include specific models only
 python run_multiple_models_pipeline.py --use-kaggle-dataset --include yolo10 yolo11 --epochs-det 60 --epochs-cls 20
@@ -190,17 +186,23 @@ python scripts/analysis/compare_models_performance.py
 python scripts/analysis/unified_journal_analysis.py
 ```
 
-## 🚨 Troubleshooting
+## 🚨 Troubleshooting (UPDATED SEPT 24, 2025)
+
+**CRITICAL ERROR FIXES:**
+- **"Dataset images not found" ERROR**: You forgot `--use-kaggle-dataset` flag!
+- **ALWAYS use**: `python run_multiple_models_pipeline.py --use-kaggle-dataset [other flags]`
+- **Setup first**: Run `python scripts/data_setup/07_setup_kaggle_for_pipeline.py` once
+
+**Common Issues:**
+- **Model Names**: Use `yolo10`, `yolo11`, `yolo12`, `rtdetr` (NOT `yolo8`)
+- **Flag Syntax**: Use `--exclude-detection` not `--exclude` for detection models
+- **Dataset Ready Check**: Should show "209 images, 1436 objects" after setup
+- **PyTorch Slow**: Multi-CPU may slow GPU training - script optimized for RTX 3060
 
 **Setup Issues:**
 - **Kaggle API**: Setup credentials in `~/.kaggle/kaggle.json`
 - **Dependencies**: `pip install -r requirements.txt`
-- **Environment**: Always use `source venv/bin/activate`
-
-**Training Issues:**
-- **Out of memory**: Reduce batch size or use smaller models
-- **Model not found**: Check experiment names match between stages
-- **Data missing**: Re-run `scripts/data_setup/07_setup_kaggle_for_pipeline.py`
+- **Environment**: Use conda environment (not venv on Windows)
 
 **Performance Issues:**
 - **Low mAP**: Ensure using medium models (not nano)

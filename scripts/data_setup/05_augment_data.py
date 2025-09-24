@@ -442,7 +442,7 @@ class MalariaDataAugmenter:
         plt.savefig(viz_path, dpi=300, bbox_inches='tight')
         plt.close()
         
-        print(f"✓ Visualization saved to {viz_path}")
+        print(f"Visualization saved to {viz_path}")
     
     def save_augmented_data(self, augmented_annotations: Dict[str, pd.DataFrame]):
         """Save augmented annotations"""
@@ -464,7 +464,7 @@ class MalariaDataAugmenter:
         combined_csv = self.augmented_output_dir / "annotations" / "all_augmented.csv"
         combined_df.to_csv(combined_csv, index=False)
         
-        print(f"✓ Augmented annotations saved to {self.augmented_output_dir / 'annotations'}")
+        print(f"Augmented annotations saved to {self.augmented_output_dir / 'annotations'}")
     
     def create_augmentation_report(self, 
                                  original_annotations: Dict[str, pd.DataFrame],
@@ -519,7 +519,7 @@ class MalariaDataAugmenter:
         with open(report_path, 'w') as f:
             json.dump(report, f, indent=2)
         
-        print(f"✓ Augmentation report saved to {report_path}")
+        print(f"Augmentation report saved to {report_path}")
         
         # Print summary
         self.print_augmentation_summary(report)
@@ -612,7 +612,7 @@ class MalariaDataAugmenter:
         self.create_augmentation_visualization(original_annotations, augmented_annotations)
         self.create_augmentation_report(original_annotations, augmented_annotations)
         
-        print("\n✓ Data augmentation completed successfully!")
+        print("\nData augmentation completed successfully!")
 
 
 def main():

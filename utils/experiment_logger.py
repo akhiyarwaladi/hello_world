@@ -373,7 +373,7 @@ class ResultsCollector:
         # Create summary report
         self._create_summary_report(results, output_path)
 
-        print(f"📊 Journal export completed: {output_path}")
+        print(f"Journal export completed: {output_path}")
 
     def _create_performance_tables(self, results: Dict, output_path: Path):
         """Create performance tables for journal"""

@@ -13,8 +13,8 @@ from datetime import datetime
 def analyze_detection_classification_mapping(exp_path):
     """Create comprehensive mapping between detection and classification models"""
 
-    print(f"\n🔗 DETECTION ↔ CLASSIFICATION MODEL MAPPING")
-    print(f"📁 Experiment: {exp_path.name}")
+    print(f"\nDETECTION <-> CLASSIFICATION MODEL MAPPING")
+    print(f"Experiment: {exp_path.name}")
     print("=" * 80)
 
     # 1. DETECTION MODELS
@@ -22,7 +22,7 @@ def analyze_detection_classification_mapping(exp_path):
     detection_models = {}
 
     if detection_path.exists():
-        print(f"\n📊 DETECTION MODELS:")
+        print(f"\nDETECTION MODELS:")
         for detection_type in detection_path.glob("*_detection"):
             if detection_type.is_dir():
                 model_folders = list(detection_type.glob("*"))
@@ -61,7 +61,7 @@ def analyze_detection_classification_mapping(exp_path):
     classification_models = {}
 
     if models_path.exists():
-        print(f"\n🎯 CLASSIFICATION MODELS (grouped by detection model):")
+        print(f"\nCLASSIFICATION MODELS (grouped by detection model):")
 
         for model_type in models_path.glob("*"):
             if model_type.is_dir():
@@ -127,7 +127,7 @@ def analyze_detection_classification_mapping(exp_path):
     for det_model in sorted(classification_models.keys()):
         det_info = detection_models.get(det_model, {"mAP50": "N/A", "status": "[ERROR] NOT_FOUND"})
 
-        print(f"\n🔸 DETECTION: {det_model.upper()} (mAP50: {det_info['mAP50']}) {det_info['status']}")
+        print(f"\nDETECTION: {det_model.upper()} (mAP50: {det_info['mAP50']}) {det_info['status']}")
         print(f"   └─ Classification Models:")
 
         cls_models = classification_models[det_model]
@@ -138,7 +138,7 @@ def analyze_detection_classification_mapping(exp_path):
             print(f"      {connector} {cls_model['classification_type']:>15}: {cls_model['test_accuracy']:>8} {status_icon}")
 
     # 4. RESULTS MATRIX TABLE
-    print(f"\n📊 RESULTS MATRIX:")
+    print(f"\nRESULTS MATRIX:")
 
     # Create matrix data
     matrix_data = []
@@ -171,16 +171,16 @@ def analyze_detection_classification_mapping(exp_path):
         print(df_matrix.to_string())
 
     # 5. SUMMARY STATISTICS
-    print(f"\n📈 EXPERIMENT SUMMARY:")
+    print(f"\nEXPERIMENT SUMMARY:")
     total_detection = len(detection_models)
     total_classification = sum(len(models) for models in classification_models.values())
     completed_classification = sum(1 for models in classification_models.values()
                                   for model in models if "COMPLETED" in model['status'])
 
-    print(f"   🎯 Detection Models: {total_detection}")
-    print(f"   🎯 Classification Models: {completed_classification}/{total_classification} completed")
-    print(f"   📊 Total Combinations: {total_detection * 5} (expected)")
-    print(f"   ⏰ Completion Rate: {completed_classification/total_classification*100:.1f}%")
+    print(f"   Detection Models: {total_detection}")
+    print(f"   Classification Models: {completed_classification}/{total_classification} completed")
+    print(f"   Total Combinations: {total_detection * 5} (expected)")
+    print(f"   Completion Rate: {completed_classification/total_classification*100:.1f}%")
 
     return {
         "detection_models": detection_models,
@@ -206,7 +206,7 @@ def main():
     with open(output_file, 'w') as f:
         json.dump(mapping_data, f, indent=2)
 
-    print(f"\n💾 Detailed mapping saved to: {output_file}")
+    print(f"\nDetailed mapping saved to: {output_file}")
 
 if __name__ == "__main__":
     main()

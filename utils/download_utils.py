@@ -61,7 +61,7 @@ def download_with_progress(url: str,
                             f.write(chunk)
                             pbar.update(len(chunk))
             
-            print(f"✓ Downloaded {destination.name}")
+            print(f"Downloaded {destination.name}")
             return True
             
         except (requests.RequestException, IOError) as e:
@@ -101,10 +101,10 @@ def download_google_drive(file_id: str,
         gdown.download(id=file_id, output=str(destination), quiet=False)
         
         if destination.exists():
-            print(f"✓ Downloaded {destination.name}")
+            print(f"Downloaded {destination.name}")
             return True
         else:
-            print(f"✗ Failed to download {destination.name}")
+            print(f"Failed to download {destination.name}")
             return False
             
     except Exception as e:
@@ -151,7 +151,7 @@ def verify_file_integrity(file_path: Path,
             print(f"MD5 mismatch: expected {expected_md5}, got {actual_md5}")
             return False
         
-        print("✓ File integrity verified")
+        print("File integrity verified")
     
     return True
 
@@ -188,11 +188,11 @@ def extract_archive(archive_path: Path,
             print(f"Unsupported archive format: {archive_path.suffix}")
             return False
         
-        print(f"✓ Extracted to {extract_to}")
+        print(f"Extracted to {extract_to}")
         
         if remove_after_extract and archive_path.exists():
             archive_path.unlink()
-            print(f"✓ Removed archive {archive_path.name}")
+            print(f"Removed archive {archive_path.name}")
         
         return True
         
@@ -267,7 +267,7 @@ def create_download_manifest(download_dir: Path,
     with open(manifest_path, 'w') as f:
         json.dump(manifest, f, indent=2)
     
-    print(f"✓ Download manifest saved to {manifest_path}")
+    print(f"Download manifest saved to {manifest_path}")
     return manifest_path
 
 
@@ -326,5 +326,5 @@ def cleanup_failed_downloads(download_dir: Path,
                 file_path.unlink()
                 removed_count += 1
     
-    print(f"✓ Cleaned up {removed_count} failed downloads")
+    print(f"Cleaned up {removed_count} failed downloads")
     return removed_count

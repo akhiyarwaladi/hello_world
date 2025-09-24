@@ -171,7 +171,7 @@ class MalariaYOLOConverter:
             self.conversion_stats['class_distribution'][int(row['unified_class'])] += 1
         
         self.conversion_stats['splits_processed'][split_name] = processed_count
-        print(f"✓ Converted {processed_count} images for {split_name} split")
+        print(f"Converted {processed_count} images for {split_name} split")
     
     def create_yolo_config_files(self, task_type: str = "classify"):
         """Create YOLO configuration files"""
@@ -252,7 +252,7 @@ class MalariaYOLOConverter:
         with open(self.yolo_output_dir / f"train_{task_type}_config.yaml", 'w') as f:
             yaml.dump(training_config, f, default_flow_style=False)
         
-        print(f"✓ YOLO configuration files created in {self.yolo_output_dir}")
+        print(f"YOLO configuration files created in {self.yolo_output_dir}")
     
     def create_conversion_report(self, annotations: Dict[str, pd.DataFrame]):
         """Create conversion report"""
@@ -286,7 +286,7 @@ class MalariaYOLOConverter:
         with open(report_path, 'w') as f:
             json.dump(report, f, indent=2)
         
-        print(f"✓ Conversion report saved to {report_path}")
+        print(f"Conversion report saved to {report_path}")
         
         # Print summary
         self.print_conversion_summary(report)
@@ -367,7 +367,7 @@ class MalariaYOLOConverter:
         plt.savefig(viz_path, dpi=300, bbox_inches='tight')
         plt.close()
         
-        print(f"✓ Sample visualization saved to {viz_path}")
+        print(f"Sample visualization saved to {viz_path}")
     
     def convert_to_yolo_format(self, 
                               task_type: str = "classify",
@@ -404,7 +404,7 @@ class MalariaYOLOConverter:
         # Create report
         self.create_conversion_report(annotations)
         
-        print("\\n✓ YOLO format conversion completed successfully!")
+        print("\nYOLO format conversion completed successfully!")
 
 
 def main():

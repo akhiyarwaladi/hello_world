@@ -135,22 +135,22 @@ def monitor_experiment_status(experiment_name=None):
         print(f"[ERROR] Experiment {experiment_name} not found!")
         return
 
-    print(f"\n🔍 MONITORING EXPERIMENT: {experiment_name}")
-    print(f"📁 Path: {exp_path}")
-    print(f"⏰ Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"\nMONITORING EXPERIMENT: {experiment_name}")
+    print(f"Path: {exp_path}")
+    print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("=" * 80)
 
     # Check detection models
     detection_status = check_detection_model_status(exp_path)
     if detection_status:
-        print("\n📊 DETECTION MODELS STATUS:")
+        print("\nDETECTION MODELS STATUS:")
         df_det = pd.DataFrame(detection_status)
         print(df_det.to_string(index=False))
 
     # Check classification models
     classification_status = check_classification_models_status(exp_path)
     if classification_status:
-        print(f"\n🎯 CLASSIFICATION MODELS STATUS ({len(classification_status)} models):")
+        print(f"\nCLASSIFICATION MODELS STATUS ({len(classification_status)} models):")
         df_cls = pd.DataFrame(classification_status)
         print(df_cls.to_string(index=False))
 
@@ -159,15 +159,15 @@ def monitor_experiment_status(experiment_name=None):
         training = len([s for s in classification_status if "TRAINING" in s['Status']])
         total = len(classification_status)
 
-        print(f"\n📈 PROGRESS SUMMARY:")
+        print(f"\nPROGRESS SUMMARY:")
         print(f"   [DONE] Completed: {completed}/{total} ({completed/total*100:.1f}%)")
-        print(f"   🔄 Training: {training}/{total}")
+        print(f"   Training: {training}/{total}")
         print(f"   [NONE] Not Started: {total-completed-training}/{total}")
 
         # Results matrix (only completed models)
         completed_results = [s for s in classification_status if "COMPLETED" in s['Status']]
         if completed_results:
-            print(f"\n🏆 RESULTS MATRIX (Completed Models):")
+            print(f"\nRESULTS MATRIX (Completed Models):")
             matrix = create_results_matrix(completed_results)
             print(matrix)
 
@@ -185,7 +185,7 @@ def monitor_experiment_status(experiment_name=None):
     with open(summary_file, 'w') as f:
         json.dump(summary, f, indent=2)
 
-    print(f"💾 Status saved to: {summary_file}")
+    print(f"Status saved to: {summary_file}")
 
 if __name__ == "__main__":
     import sys

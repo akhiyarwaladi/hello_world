@@ -55,12 +55,12 @@ def run_kaggle_optimized_training(model_name, data_yaml, epochs, exp_name, centr
             data=data_yaml,
             epochs=epochs,
             imgsz=640,
-            batch=8,             # Reduced batch size for stability
+            batch=32,            # GPU optimized batch size
             patience=50,
             save=True,
             save_period=10,
             device='cuda' if torch.cuda.is_available() else 'cpu',  # Auto-detect GPU
-            workers=2,           # Reduced workers for stability
+            workers=4,           # GPU optimized workers
             exist_ok=True,
             optimizer='AdamW',
             lr0=0.0005,         # Reduced learning rate for stability
@@ -418,42 +418,42 @@ def main():
             "script": "scripts/training/12_train_pytorch_classification.py",
             "model": "densenet121",
             "epochs": 30,
-            "batch": 8
+            "batch": 128         # GPU optimized batch size
         },
         "efficientnet_b1": {
             "type": "pytorch",
             "script": "scripts/training/12_train_pytorch_classification.py",
             "model": "efficientnet_b1",
             "epochs": 30,
-            "batch": 8
+            "batch": 128         # GPU optimized batch size
         },
         "convnext_tiny": {
             "type": "pytorch",
             "script": "scripts/training/12_train_pytorch_classification.py",
             "model": "convnext_tiny",
             "epochs": 30,
-            "batch": 8
+            "batch": 128         # GPU optimized batch size
         },
         "mobilenet_v3_large": {
             "type": "pytorch",
             "script": "scripts/training/12_train_pytorch_classification.py",
             "model": "mobilenet_v3_large",
             "epochs": 30,
-            "batch": 8
+            "batch": 128         # GPU optimized batch size
         },
         "efficientnet_b2": {
             "type": "pytorch",
             "script": "scripts/training/12_train_pytorch_classification.py",
             "model": "efficientnet_b2",
             "epochs": 30,
-            "batch": 8
+            "batch": 128         # GPU optimized batch size
         },
         "resnet101": {
             "type": "pytorch",
             "script": "scripts/training/12_train_pytorch_classification.py",
             "model": "resnet101",
             "epochs": 30,
-            "batch": 8
+            "batch": 128         # GPU optimized batch size
         }
     }
 
@@ -506,9 +506,10 @@ def main():
     print(f"Epochs: {args.epochs_det} det, {args.epochs_cls} cls")
     print(f"Confidence: {confidence_threshold}")
 
-    # Auto-setup Kaggle dataset if needed
+    # Auto-setup and auto-detect best dataset
+    kaggle_ready_path = Path("data/kaggle_pipeline_ready/data.yaml")
+
     if args.use_kaggle_dataset:
-        kaggle_ready_path = Path("data/kaggle_pipeline_ready/data.yaml")
         if not kaggle_ready_path.exists():
             print("[SETUP] Setting up Kaggle dataset for pipeline...")
             import subprocess
@@ -518,6 +519,8 @@ def main():
                 print(f"[ERROR] Failed to setup Kaggle dataset: {result.stderr}")
                 return
         print(f"[INFO] Dataset: Kaggle MP-IDB Pipeline Ready (data/kaggle_pipeline_ready/)")
+    elif kaggle_ready_path.exists():
+        print(f"[INFO] Dataset: AUTO-DETECTED Kaggle (data/kaggle_pipeline_ready/) - no flag needed!")
     else:
         print(f"[INFO] Dataset: Integrated (data/integrated/yolo/)")
 
@@ -594,14 +597,25 @@ def main():
             elif detection_model == "rtdetr_detection":
                 yolo_model = "rtdetr-l.pt"
 
-            # Choose dataset based on flag
+            # Auto-detect best available dataset (same logic as continue mode)
+            kaggle_path = Path("data/kaggle_pipeline_ready")
+            integrated_path = Path("data/integrated/yolo")
+
             if args.use_kaggle_dataset:
                 data_yaml = "data/kaggle_pipeline_ready/data.yaml"
-            else:
+            elif kaggle_path.exists() and (kaggle_path / "data.yaml").exists():
+                data_yaml = "data/kaggle_pipeline_ready/data.yaml"
+                print(f"[AUTO-DETECT] Using Kaggle dataset for detection training")
+            elif integrated_path.exists() and (integrated_path / "data.yaml").exists():
                 data_yaml = "data/integrated/yolo/data.yaml"
+                print(f"[AUTO-DETECT] Using integrated dataset for detection training")
+            else:
+                print(f"[ERROR] No valid dataset found for detection! Run setup first.")
+                failed_models.append(f"{model_key} (no dataset)")
+                continue
 
-            # Use optimized training for Kaggle dataset
-            if args.use_kaggle_dataset:
+            # Use optimized training for Kaggle dataset (auto-detected or explicit)
+            if "kaggle_pipeline_ready" in data_yaml:
                 print("[TARGET] Using KAGGLE-OPTIMIZED training with full augmentation")
                 if not run_kaggle_optimized_training(yolo_model, data_yaml, args.epochs_det,
                                                     det_exp_name, centralized_detection_path):
@@ -615,7 +629,7 @@ def main():
                     f"epochs={args.epochs_det}",
                     f"name={det_exp_name}",
                     f"project={centralized_detection_path.parent}",
-                    "device=cpu"
+                    f"device={'cuda' if torch.cuda.is_available() else 'cpu'}"
                 ]
 
                 if not run_command(cmd1, f"Training {detection_model}"):
@@ -660,11 +674,22 @@ def main():
         if start_stage is None or start_stage in ['detection', 'crop']:
             print(f"\n[PROCESS] STAGE 2: Generating crops for {model_key}")
 
-            # Use same dataset as training
+            # Auto-detect best available dataset (same logic for all modes)
+            kaggle_path = Path("data/kaggle_pipeline_ready")
+            integrated_path = Path("data/integrated/yolo")
+
             if args.use_kaggle_dataset:
                 input_path = "data/kaggle_pipeline_ready"
-            else:
+            elif kaggle_path.exists() and (kaggle_path / "data.yaml").exists():
+                input_path = "data/kaggle_pipeline_ready"
+                print(f"[AUTO-DETECT] Using Kaggle dataset (found and ready)")
+            elif integrated_path.exists():
                 input_path = "data/integrated/yolo"
+                print(f"[AUTO-DETECT] Using integrated dataset")
+            else:
+                print(f"[ERROR] No valid dataset found! Run setup first.")
+                failed_models.append(f"{model_key} (no dataset)")
+                continue
 
             # NEW: Use centralized crops path
             centralized_crops_path = results_manager.get_crops_path(model_key, det_exp_name)
@@ -760,7 +785,7 @@ def main():
                         f"epochs={args.epochs_cls}",
                         f"name={cls_exp_name}",
                         f"project={centralized_cls_path.parent}",
-                        "device=cpu"
+                        f"device={'cuda' if torch.cuda.is_available() else 'cpu'}"
                     ]
                 else:
                     # PyTorch classification - modify script to use centralized path
@@ -770,7 +795,7 @@ def main():
                         "--model", cls_config["model"],
                         "--epochs", str(args.epochs_cls),
                         "--batch", str(cls_config["batch"]),
-                        "--device", "cpu",
+                        "--device", "cuda" if torch.cuda.is_available() else "cpu",
                         "--name", cls_exp_name,
                         "--save-dir", str(centralized_cls_path)  # Direct save to centralized
                     ]
