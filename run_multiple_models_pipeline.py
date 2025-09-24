@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Multiple Models Pipeline: Train detection models → Generate crops → Train classification
+Multiple Models Pipeline: Train detection models -> Generate crops -> Train classification
 Automatically handles folder routing based on experiment names
 """
 
@@ -41,7 +41,7 @@ def run_kaggle_optimized_training(model_name, data_yaml, epochs, exp_name, centr
     from ultralytics import YOLO
 
     try:
-        print(f"🎯 KAGGLE-OPTIMIZED TRAINING: {model_name}")
+        print(f"[TARGET] KAGGLE-OPTIMIZED TRAINING: {model_name}")
         print(f"   Full augmentation enabled")
         print(f"   Epochs: {epochs}")
         print(f"   Output: {centralized_path}")
@@ -71,11 +71,11 @@ def run_kaggle_optimized_training(model_name, data_yaml, epochs, exp_name, centr
             hsv_h=0.010,        # Reduced color augmentation
             hsv_s=0.5,          # Reduced saturation change
             hsv_v=0.3,          # Reduced brightness change
-            degrees=15,         # Reduced rotation (45→15)
+            degrees=15,         # Reduced rotation (45->15)
             scale=0.3,          # Reduced scaling
             flipud=0.0,         # No vertical flip (can confuse parasite orientation)
             fliplr=0.5,         # Keep horizontal flip
-            mosaic=0.5,         # Reduced mosaic (1.0→0.5)
+            mosaic=0.5,         # Reduced mosaic (1.0->0.5)
             mixup=0.0,          # Disable mixup (too aggressive for small dataset)
             copy_paste=0.0,     # Disable copy_paste (too aggressive)
 
@@ -87,16 +87,16 @@ def run_kaggle_optimized_training(model_name, data_yaml, epochs, exp_name, centr
             verbose=True
         )
 
-        print(f"✅ Kaggle optimized training completed: {exp_name}")
+        print(f"[SUCCESS] Kaggle optimized training completed: {exp_name}")
         return True
 
     except Exception as e:
-        print(f"❌ Kaggle optimized training failed: {e}")
+        print(f"[ERROR] Kaggle optimized training failed: {e}")
         return False
 
 def run_command(cmd, description):
     """Run command with logging"""
-    print(f"\n🚀 {description}")
+    print(f"\n[START] {description}")
     # Convert all items to strings to handle Path objects
     cmd_str = [str(item) for item in cmd]
     print(f"Command: {' '.join(cmd_str)}")
@@ -107,7 +107,7 @@ def run_command(cmd, description):
 
 def wait_for_file(file_path, max_wait_seconds=60, check_interval=2):
     """Wait for file to exist with size stability check"""
-    print(f"⏳ Waiting for file: {file_path}")
+    print(f"[WAIT] Waiting for file: {file_path}")
 
     for attempt in range(max_wait_seconds // check_interval):
         if Path(file_path).exists():
@@ -117,27 +117,27 @@ def wait_for_file(file_path, max_wait_seconds=60, check_interval=2):
                 final_size = Path(file_path).stat().st_size
 
                 if initial_size == final_size and final_size > 0:
-                    print(f"✅ File ready: {file_path}")
+                    print(f"[SUCCESS] File ready: {file_path}")
                     return True
             except Exception:
                 pass
 
         time.sleep(check_interval)
 
-    print(f"❌ Timeout waiting for file: {file_path}")
+    print(f"[ERROR] Timeout waiting for file: {file_path}")
     return False
 
 # REMOVED: consolidate_and_zip_results function - using direct centralized save approach
 
 def create_centralized_zip(base_exp_name, results_manager):
     """Create ZIP archive from centralized results folder"""
-    print(f"\n📦 CREATING ZIP ARCHIVE FROM CENTRALIZED RESULTS")
+    print(f"\n[ARCHIVE] CREATING ZIP ARCHIVE FROM CENTRALIZED RESULTS")
 
     # The centralized folder is already created by results_manager
     centralized_dir = results_manager.pipeline_dir
 
     if not centralized_dir.exists():
-        print(f"❌ Centralized folder not found: {centralized_dir}")
+        print(f"[ERROR] Centralized folder not found: {centralized_dir}")
         return None, None
 
     # Create master summary in centralized folder
@@ -187,7 +187,7 @@ organized in a clean hierarchy for easy access and distribution.
     if Path(zip_filename).exists():
         Path(zip_filename).unlink()
 
-    print(f"📦 Creating ZIP archive: {zip_filename}")
+    print(f"[ARCHIVE] Creating ZIP archive: {zip_filename}")
     with zipfile.ZipFile(zip_filename, 'w', zipfile.ZIP_DEFLATED) as zipf:
         for file_path in centralized_dir.rglob('*'):
             if file_path.is_file():
@@ -196,11 +196,11 @@ organized in a clean hierarchy for easy access and distribution.
 
     # Calculate size
     zip_size = Path(zip_filename).stat().st_size / (1024 * 1024)  # MB
-    print(f"✅ ZIP created: {zip_filename} ({zip_size:.1f} MB)")
+    print(f"[SUCCESS] ZIP created: {zip_filename} ({zip_size:.1f} MB)")
 
     return zip_filename, str(centralized_dir)
 
-def create_experiment_summary(exp_dir, model_key, det_exp_name, cls_exp_name, detection_model, cls_model_name="yolo8"):
+def create_experiment_summary(exp_dir, model_key, det_exp_name, cls_exp_name, detection_model, cls_model_name="yolo11"):
     """Create experiment summary"""
     try:
         summary_data = {
@@ -231,8 +231,8 @@ def create_experiment_summary(exp_dir, model_key, det_exp_name, cls_exp_name, de
             }
 
         # Get classification results from centralized location
-        if cls_model_name in ["yolo8", "yolo11"]:
-            cls_config_name = "yolov8_classification" if cls_model_name == "yolo8" else "yolov11_classification"
+        if cls_model_name in ["yolo11"]:
+            cls_config_name = "yolov11_classification"  # Use YOLOv11 classification
             centralized_cls_path = results_manager.get_experiment_path("training", cls_config_name, cls_exp_name)
             cls_results_path = centralized_cls_path / "results.csv"
         else:
@@ -264,7 +264,7 @@ def create_experiment_summary(exp_dir, model_key, det_exp_name, cls_exp_name, de
             json.dump(summary_data, f, indent=2)
 
         # Create simple markdown summary
-        md_content = f"""# {model_key.upper()} → {cls_model_name.upper()} Pipeline Results
+        md_content = f"""# {model_key.upper()} -> {cls_model_name.upper()} Pipeline Results
 
 **Generated**: {summary_data['experiment_info']['timestamp']}
 
@@ -298,15 +298,15 @@ def create_experiment_summary(exp_dir, model_key, det_exp_name, cls_exp_name, de
             f.write(md_content)
 
     except Exception as e:
-        print(f"⚠️ Could not create experiment summary: {e}")
+        print(f"[WARNING] Could not create experiment summary: {e}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Multiple Models Pipeline: Train multiple detection models → Generate Crops → Train Classification")
+    parser = argparse.ArgumentParser(description="Multiple Models Pipeline: Train multiple detection models -> Generate Crops -> Train Classification")
     parser.add_argument("--include", nargs="+",
-                       choices=["yolo8", "yolo11", "yolo12", "rtdetr"],
+                       choices=["yolo10", "yolo11", "yolo12", "rtdetr"],
                        help="Detection models to include (if not specified, includes all)")
     parser.add_argument("--exclude-detection", nargs="+",
-                       choices=["yolo8", "yolo11", "yolo12", "rtdetr"],
+                       choices=["yolo10", "yolo11", "yolo12", "rtdetr"],
                        default=[],
                        help="Detection models to exclude")
     parser.add_argument("--epochs-det", type=int, default=50,
@@ -362,10 +362,10 @@ def main():
 
         # Validate experiment exists
         if not validate_experiment_dir(experiment_dir):
-            print("❌ Cannot continue from invalid experiment")
+            print("[ERROR] Cannot continue from invalid experiment")
             return
 
-        print(f"🔄 CONTINUE MODE: {experiment_name}")
+        print(f"[CONTINUE] CONTINUE MODE: {experiment_name}")
         print("=" * 60)
 
         # Show current experiment status
@@ -375,7 +375,7 @@ def main():
         metadata = load_experiment_metadata(experiment_dir)
         if metadata.get('original_args'):
             original_args = metadata['original_args']
-            print("📋 Merging parameters with original experiment...")
+            print("[INFO] Merging parameters with original experiment...")
             merged_args_dict = merge_parameters(original_args, args)
 
             # Create new args object with merged parameters
@@ -388,10 +388,10 @@ def main():
 
         if args.start_stage:
             start_stage = args.start_stage
-            print(f"🎯 Force starting from stage: {start_stage}")
+            print(f"[TARGET] Force starting from stage: {start_stage}")
         else:
             start_stage = determine_next_stage(completed_stages)
-            print(f"🔄 Auto-determined next stage: {start_stage}")
+            print(f"[CONTINUE] Auto-determined next stage: {start_stage}")
 
         print()
 
@@ -407,7 +407,7 @@ def main():
     models_to_run = [model for model in models_to_run if model not in args.exclude_detection]
 
     if not models_to_run:
-        print("❌ No detection models to run after exclusions!")
+        print("[ERROR] No detection models to run after exclusions!")
         return
 
     # Define classification models - 6 OPTIMIZED MODELS (2024)
@@ -469,24 +469,24 @@ def main():
     selected_classification = [model for model in selected_classification if model not in args.exclude_classification]
 
     if not selected_classification:
-        print("❌ No classification models to run after exclusions!")
+        print("[ERROR] No classification models to run after exclusions!")
         return
 
     # Set test mode parameters
     if args.test_mode:
         confidence_threshold = "0.25"  # Same as production mode and Kaggle script validation
-        print("🧪 TEST MODE ENABLED")
-        print(f"🎯 Using standard confidence threshold: {confidence_threshold}")
+        print("[TEST] TEST MODE ENABLED")
+        print(f"[TARGET] Using standard confidence threshold: {confidence_threshold}")
     else:
         confidence_threshold = "0.25"
-        print(f"🎯 Using production confidence threshold: {confidence_threshold}")
+        print(f"[TARGET] Using production confidence threshold: {confidence_threshold}")
 
     # Handle experiment naming for continue vs new mode
     if continue_mode:
         # Use existing experiment directory
         base_exp_name = Path(experiment_dir).name.replace("exp_", "")
         results_manager = get_results_manager(pipeline_name=base_exp_name)
-        print(f"📁 CONTINUING: {experiment_dir}/")
+        print(f"[INFO] CONTINUING: {experiment_dir}/")
     else:
         # Add timestamp to experiment name for uniqueness
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -497,9 +497,9 @@ def main():
 
         # NEW: Initialize centralized results manager
         results_manager = get_results_manager(pipeline_name=base_exp_name)
-        print(f"📁 RESULTS: results/exp_{base_exp_name}/")
+        print(f"[INFO] RESULTS: results/exp_{base_exp_name}/")
 
-    print("🎯 MULTIPLE MODELS PIPELINE")
+    print("[TARGET] MULTIPLE MODELS PIPELINE")
     print(f"Detection models: {', '.join(models_to_run)}")
     print(f"Classification models: {', '.join(selected_classification)}")
     print(f"Epochs: {args.epochs_det} det, {args.epochs_cls} cls")
@@ -509,16 +509,16 @@ def main():
     if args.use_kaggle_dataset:
         kaggle_ready_path = Path("data/kaggle_pipeline_ready/data.yaml")
         if not kaggle_ready_path.exists():
-            print("🔧 Setting up Kaggle dataset for pipeline...")
+            print("[SETUP] Setting up Kaggle dataset for pipeline...")
             import subprocess
             result = subprocess.run([sys.executable, "scripts/data_setup/07_setup_kaggle_for_pipeline.py"],
                                   capture_output=True, text=True)
             if result.returncode != 0:
-                print(f"❌ Failed to setup Kaggle dataset: {result.stderr}")
+                print(f"[ERROR] Failed to setup Kaggle dataset: {result.stderr}")
                 return
-        print(f"📊 Dataset: Kaggle MP-IDB Pipeline Ready (data/kaggle_pipeline_ready/)")
+        print(f"[INFO] Dataset: Kaggle MP-IDB Pipeline Ready (data/kaggle_pipeline_ready/)")
     else:
-        print(f"📊 Dataset: Integrated (data/integrated/yolo/)")
+        print(f"[INFO] Dataset: Integrated (data/integrated/yolo/)")
 
     # Model mapping
     detection_models = {
@@ -532,7 +532,7 @@ def main():
     failed_models = []
 
     for model_key in models_to_run:
-        print(f"\n🎯 STARTING {model_key.upper()} PIPELINE")
+        print(f"\n[START] STARTING {model_key.upper()} PIPELINE")
 
         detection_model = detection_models[model_key]
         det_exp_name = f"{base_exp_name}_{model_key}_det"
@@ -547,12 +547,12 @@ def main():
 
         # STAGE 1: Train Detection Model - DIRECT SAVE to centralized folder
         if start_stage is None or start_stage in ['detection']:
-            print(f"\n📊 STAGE 1: Training {detection_model}")
+            print(f"\n[INFO] STAGE 1: Training {detection_model}")
 
             # NEW: Get centralized path and train directly there using YOLO directly
             centralized_detection_path = results_manager.get_experiment_path("training", detection_model, det_exp_name)
         elif start_stage in ['crop', 'classification', 'analysis']:
-            print(f"\n⏭️  STAGE 1: Skipping detection training (start_stage={start_stage})")
+            print(f"\n[SKIP] STAGE 1: Skipping detection training (start_stage={start_stage})")
             # Try to find existing detection model
             if continue_mode:
                 existing_models = find_detection_models(experiment_dir)
@@ -571,13 +571,13 @@ def main():
                 if model_type in existing_models:
                     model_path = existing_models[model_type][0]  # Use first available model
                     centralized_detection_path = model_path.parent.parent
-                    print(f"   ✅ Found existing model: {model_path}")
+                    print(f"   [SUCCESS] Found existing model: {model_path}")
                 else:
-                    print(f"   ❌ No existing {model_type} model found")
+                    print(f"   [ERROR] No existing {model_type} model found")
                     failed_models.append(f"{model_key} (no existing detection model)")
                     continue
             else:
-                print(f"   ❌ Cannot skip detection in non-continue mode")
+                print(f"   [ERROR] Cannot skip detection in non-continue mode")
                 failed_models.append(f"{model_key} (detection required)")
                 continue
 
@@ -601,7 +601,7 @@ def main():
 
             # Use optimized training for Kaggle dataset
             if args.use_kaggle_dataset:
-                print("🎯 Using KAGGLE-OPTIMIZED training with full augmentation")
+                print("[TARGET] Using KAGGLE-OPTIMIZED training with full augmentation")
                 if not run_kaggle_optimized_training(yolo_model, data_yaml, args.epochs_det,
                                                     det_exp_name, centralized_detection_path):
                     failed_models.append(f"{model_key} (detection)")
@@ -649,15 +649,15 @@ def main():
                     failed_models.append(f"{model_key} (weights missing)")
                     continue
             else:
-                print(f"✅ Found model at: {model_path}")
+                print(f"[SUCCESS] Found model at: {model_path}")
                 # Update centralized_detection_path to point to the actual directory
                 centralized_detection_path = model_path.parent.parent
 
-            print(f"✅ Detection model saved directly to: {centralized_detection_path}")
+            print(f"[SUCCESS] Detection model saved directly to: {centralized_detection_path}")
 
         # STAGE 2: Generate Crops
         if start_stage is None or start_stage in ['detection', 'crop']:
-            print(f"\n🔄 STAGE 2: Generating crops for {model_key}")
+            print(f"\n[PROCESS] STAGE 2: Generating crops for {model_key}")
 
             # Use same dataset as training
             if args.use_kaggle_dataset:
@@ -699,12 +699,12 @@ def main():
                         if class_dir.is_dir():
                             total_crops += len(list(class_dir.glob("*.jpg")))
 
-            print(f"   📊 Generated {total_crops} crops")
+            print(f"   [INFO] Generated {total_crops} crops")
             if total_crops == 0:
                 failed_models.append(f"{model_key} (no crops generated)")
                 continue
         elif start_stage in ['classification', 'analysis']:
-            print(f"\n⏭️  STAGE 2: Skipping crop generation (start_stage={start_stage})")
+            print(f"\n[SKIP] STAGE 2: Skipping crop generation (start_stage={start_stage})")
             # Try to find existing crop data
             if continue_mode:
                 crop_dirs = find_crop_data(experiment_dir)
@@ -720,19 +720,19 @@ def main():
                     crop_data_path = model_crop_dir / "crops"
                     if not crop_data_path.exists():
                         crop_data_path = model_crop_dir  # Direct structure
-                    print(f"   ✅ Found existing crop data: {crop_data_path}")
+                    print(f"   [SUCCESS] Found existing crop data: {crop_data_path}")
                 else:
-                    print(f"   ❌ No existing crop data found for {model_key}")
+                    print(f"   [ERROR] No existing crop data found for {model_key}")
                     failed_models.append(f"{model_key} (no existing crop data)")
                     continue
             else:
-                print(f"   ❌ Cannot skip crop generation in non-continue mode")
+                print(f"   [ERROR] Cannot skip crop generation in non-continue mode")
                 failed_models.append(f"{model_key} (crops required)")
                 continue
 
         # STAGE 3: Train Classification Models
         if start_stage is None or start_stage in ['detection', 'crop', 'classification']:
-            print(f"\n📈 STAGE 3: Training classification for {model_key}")
+            print(f"\n[TRAIN] STAGE 3: Training classification for {model_key}")
             classification_success = []
             classification_failed = []
 
@@ -743,14 +743,14 @@ def main():
                 cls_config = classification_configs[cls_model_name]
                 cls_exp_name = f"{base_exp_name}_{model_key}_{cls_model_name}_cls"
 
-                print(f"   🚀 Training {cls_model_name.upper()}")
+                print(f"   [START] Training {cls_model_name.upper()}")
 
                 # NEW: Get centralized path for classification
                 centralized_cls_path = results_manager.get_experiment_path("training", cls_config['model'], cls_exp_name)
 
                 if cls_config["type"] == "yolo":
                     # YOLO classification - direct training command
-                    yolo_cls_model = "yolov8n-cls.pt" if "yolo8" in cls_model_name else "yolov11n-cls.pt"
+                    yolo_cls_model = "yolov11n-cls.pt"  # Default to YOLOv11 classification
 
                     cmd3 = [
                         "yolo", "classify", "train",
@@ -775,7 +775,7 @@ def main():
                     ]
 
                 if run_command(cmd3, f"Training {cls_model_name.upper()}"):
-                    print(f"✅ Classification model saved directly to: {centralized_cls_path}")
+                    print(f"[SUCCESS] Classification model saved directly to: {centralized_cls_path}")
                     classification_success.append(cls_model_name)
                 else:
                     classification_failed.append(cls_model_name)
@@ -784,7 +784,7 @@ def main():
                 failed_models.append(f"{model_key} (all classification)")
                 continue
         elif start_stage == 'analysis':
-            print(f"\n⏭️  STAGE 3: Skipping classification training (start_stage={start_stage})")
+            print(f"\n[SKIP] STAGE 3: Skipping classification training (start_stage={start_stage})")
             # Try to find existing classification models
             if continue_mode:
                 # Look for existing classification models in the experiment
@@ -802,21 +802,21 @@ def main():
                                 classification_success.append(cls_model_name)
 
                 if classification_success:
-                    print(f"   ✅ Found existing classification models: {classification_success}")
+                    print(f"   [SUCCESS] Found existing classification models: {classification_success}")
                 else:
-                    print(f"   ❌ No existing classification models found for {model_key}")
+                    print(f"   [ERROR] No existing classification models found for {model_key}")
                     failed_models.append(f"{model_key} (no existing classification models)")
                     continue
             else:
-                print(f"   ❌ Cannot skip classification in non-continue mode")
+                print(f"   [ERROR] Cannot skip classification in non-continue mode")
                 failed_models.append(f"{model_key} (classification required)")
                 continue
 
         # STAGE 4: Create Organized Analysis for each successful classification model
         if start_stage is None or start_stage in ['detection', 'crop', 'classification', 'analysis']:
-            print(f"\n🔬 STAGE 4: Creating organized analysis for {model_key}")
+            print(f"\n[ANALYZE] STAGE 4: Creating organized analysis for {model_key}")
         else:
-            print(f"\n⏭️  STAGE 4: Skipping analysis (start_stage={start_stage})")
+            print(f"\n[SKIP] STAGE 4: Skipping analysis (start_stage={start_stage})")
 
         if start_stage is None or start_stage in ['detection', 'crop', 'classification', 'analysis']:
             for cls_model_name in classification_success:
@@ -830,8 +830,8 @@ def main():
                 centralized_analysis_path.mkdir(parents=True, exist_ok=True)
 
                 # Find classification model in CENTRALIZED location (do NOT create folders)
-                if cls_model_name in ["yolo8", "yolo11"]:
-                    cls_config_name = "yolov8_classification" if cls_model_name == "yolo8" else "yolov11_classification"
+                if cls_model_name in ["yolo11"]:
+                    cls_config_name = "yolov11_classification"  # Use YOLOv11 classification
                     # Look in centralized classification results
                     classification_model = results_manager.find_experiment_path("training", cls_config_name, cls_exp_name) / "weights" / "best.pt"
                 else:
@@ -843,7 +843,7 @@ def main():
 
                 # Check if paths exist before running analysis
                 if Path(classification_model).exists() and Path(test_data).exists():
-                    print(f"   📊 Running analysis for {cls_model_name.upper()}")
+                    print(f"   [INFO] Running analysis for {cls_model_name.upper()}")
 
                     # Use standalone classification analysis script
                     analysis_cmd = [
@@ -857,7 +857,7 @@ def main():
 
             # STAGE 4B: IoU Variation Analysis (on TEST SET) - once per detection model
             # Run IoU analysis in all modes to ensure complete pipeline validation
-            print(f"   📊 Running IoU variation analysis")
+            print(f"   [INFO] Running IoU variation analysis")
 
             # Use CENTRALIZED detection model path
             detection_model_centralized = centralized_detection_path / "weights" / "best.pt"
@@ -878,24 +878,24 @@ def main():
                 ]
 
                 if args.test_mode:
-                    print(f"   🧪 Test mode: Running quick IoU analysis")
+                    print(f"   [TEST] Test mode: Running quick IoU analysis")
 
                 run_command(iou_cmd, f"IoU Analysis for {model_key}")
             else:
-                print(f"   ⚠️ Skipping IoU analysis - detection model not found or no classification success")
+                print(f"   [WARNING] Skipping IoU analysis - detection model not found or no classification success")
 
             # STAGE 4C: IEEE Access Compliant Analysis (Journal Ready)
             if args.continue_from and classification_success:
-                print(f"   📋 Running IEEE Access compliant analysis")
+                print(f"   [INFO] Running IEEE Access compliant analysis")
                 ieee_cmd = [
                     "python3", "scripts/analysis/unified_journal_analysis.py",
                     "--centralized-experiment", args.continue_from
                 ]
                 try:
                     run_command(ieee_cmd, f"IEEE Analysis for {args.continue_from}")
-                    print(f"   ✅ IEEE compliant analysis completed")
+                    print(f"   [SUCCESS] IEEE compliant analysis completed")
                 except Exception as e:
-                    print(f"   ⚠️ IEEE analysis failed: {e}")
+                    print(f"   [WARNING] IEEE analysis failed: {e}")
 
             # Create experiment summaries in centralized location
             for cls_model_name in classification_success:
@@ -905,18 +905,18 @@ def main():
                 create_experiment_summary(str(summary_path), model_key, det_exp_name, cls_exp_name, detection_model, cls_model_name)
 
         successful_models.append(f"{model_key} ({', '.join(classification_success)})")
-        print(f"\n✅ {model_key.upper()} PIPELINE COMPLETED")
+        print(f"\n[SUCCESS] {model_key.upper()} PIPELINE COMPLETED")
         if classification_failed:
-            print(f"❌ Failed: {', '.join(classification_failed)}")
+            print(f"[ERROR] Failed: {', '.join(classification_failed)}")
 
     # Final summary
-    print(f"\n🎉 PIPELINE FINISHED")
+    print(f"\n[DONE] PIPELINE FINISHED")
     if successful_models:
-        print(f"\n✅ SUCCESSFUL ({len(successful_models)}):")
+        print(f"\n[SUCCESS] SUCCESSFUL ({len(successful_models)}):")
         for model in successful_models:
             print(f"   {model}")
     if failed_models:
-        print(f"\n❌ FAILED ({len(failed_models)}):")
+        print(f"\n[ERROR] FAILED ({len(failed_models)}):")
         for model in failed_models:
             print(f"   {model}")
     print(f"\nSuccess Rate: {len(successful_models)}/{len(models_to_run)}")
@@ -926,18 +926,18 @@ def main():
         try:
             zip_filename, centralized_dir = create_centralized_zip(base_exp_name, results_manager)
             if zip_filename:
-                print(f"\n🎯 FINAL DELIVERABLE:")
-                print(f"📦 Download: {zip_filename}")
-                print(f"📁 Or browse: {centralized_dir}/")
+                print(f"\n[TARGET] FINAL DELIVERABLE:")
+                print(f"[ARCHIVE] Download: {zip_filename}")
+                print(f"[INFO] Or browse: {centralized_dir}/")
             else:
-                print(f"❌ Failed to create ZIP archive")
+                print(f"[ERROR] Failed to create ZIP archive")
         except Exception as e:
-            print(f"❌ Failed to create ZIP: {e}")
+            print(f"[ERROR] Failed to create ZIP: {e}")
     elif not args.no_zip:
-        print(f"\n⚠️ No successful experiments to zip")
+        print(f"\n[WARNING] No successful experiments to zip")
     else:
-        print(f"\n📁 Results saved in centralized structure:")
-        print(f"✅ All results: {results_manager.pipeline_dir}/")
+        print(f"\n[INFO] Results saved in centralized structure:")
+        print(f"[SUCCESS] All results: {results_manager.pipeline_dir}/")
 
 if __name__ == "__main__":
     main()

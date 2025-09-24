@@ -70,7 +70,7 @@ class ResultsManager:
             dir_path = self.base_dir / dir_name
             if not dir_path.exists():
                 dir_path.mkdir(parents=True, exist_ok=True)
-                print(f"📁 Created directory: {dir_path}")
+                print(f"[DIR] Created directory: {dir_path}")
 
     def get_experiment_path(self, experiment_type: str, model_name: str,
                           experiment_name: str = None) -> Path:

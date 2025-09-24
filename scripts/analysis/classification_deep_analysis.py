@@ -29,8 +29,8 @@ class ClassificationDeepAnalyzer:
     """Comprehensive analysis of classification results with focus on suspicious metrics"""
 
     def __init__(self,
-                 model_path="results/current_experiments/training/classification/yolov8_classification/multi_pipeline_20250920_131500_yolo8_cls/weights/best.pt",
-                 test_data_path="data/crops_from_yolo8_multi_pipeline_20250920_131500_yolo8_det/yolo_classification/test",
+                 model_path="results/current_experiments/training/classification/yolov11_classification/multi_pipeline_20250920_131500_yolo11_cls/weights/best.pt",
+                 test_data_path="data/crops_from_yolo10_multi_pipeline_20250920_131500_yolo10_det/yolo_classification/test",
                  output_dir=None):
 
         self.model_path = Path(model_path)

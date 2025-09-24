@@ -14,14 +14,14 @@ from sklearn.model_selection import train_test_split
 def setup_kaggle_for_pipeline():
     """Setup Kaggle dataset for pipeline use"""
 
-    print("🚀 Setting up Kaggle MP-IDB original dataset for pipeline...")
+    print("[SETUP] Setting up Kaggle MP-IDB original dataset for pipeline...")
 
     # Paths
     kaggle_source = Path("data/kaggle_dataset/MP-IDB-YOLO")
     output_dir = Path("data/kaggle_pipeline_ready")
 
     if not kaggle_source.exists():
-        print(f"❌ Kaggle dataset not found at {kaggle_source}")
+        print(f"[ERROR] Kaggle dataset not found at {kaggle_source}")
         return False
 
     # Remove existing output if exists
@@ -45,13 +45,13 @@ def setup_kaggle_for_pipeline():
     all_labels_dir = kaggle_source / "labels"
 
     image_files = [f for f in os.listdir(all_images_dir) if f.lower().endswith(('.jpg', '.png'))]
-    print(f"📊 Found {len(image_files)} images in Kaggle dataset")
+    print(f"[INFO] Found {len(image_files)} images in Kaggle dataset")
 
     # Split data: 70% train, 20% val, 10% test
     train_files, temp_files = train_test_split(image_files, test_size=0.3, random_state=42)
     val_files, test_files = train_test_split(temp_files, test_size=0.33, random_state=42)  # 0.33 * 0.3 = 0.1
 
-    print(f"📂 Split: {len(train_files)} train, {len(val_files)} val, {len(test_files)} test")
+    print(f"[SPLIT] {len(train_files)} train, {len(val_files)} val, {len(test_files)} test")
 
     def copy_files(files, src_img_dir, src_label_dir, dst_img_dir, dst_label_dir):
         """Copy image and label files"""
@@ -115,13 +115,13 @@ def setup_kaggle_for_pipeline():
         return converted_count
 
     # Convert all labels to single-class detection format
-    print("🔄 Converting segmentation polygons to bounding boxes...")
+    print("[PROCESSING] Converting segmentation polygons to bounding boxes...")
     train_objects = convert_to_single_class_detection(train_label_dir)
     val_objects = convert_to_single_class_detection(val_label_dir)
     test_objects = convert_to_single_class_detection(test_label_dir)
 
     total_objects = train_objects + val_objects + test_objects
-    print(f"✅ Converted {total_objects} polygons to bounding boxes ({train_objects} train, {val_objects} val, {test_objects} test)")
+    print(f"[SUCCESS] Converted {total_objects} polygons to bounding boxes ({train_objects} train, {val_objects} val, {test_objects} test)")
 
     # Create data.yaml for pipeline
     yaml_content = {
@@ -137,15 +137,15 @@ def setup_kaggle_for_pipeline():
     with open(yaml_path, 'w') as f:
         yaml.dump(yaml_content, f)
 
-    print(f"✅ Created data.yaml at {yaml_path}")
-    print(f"📊 Dataset summary:")
+    print(f"[SUCCESS] Created data.yaml at {yaml_path}")
+    print(f"[INFO] Dataset summary:")
     print(f"   Total images: {len(image_files)}")
     print(f"   Total objects: {total_objects}")
     print(f"   Train: {len(train_files)} images, {train_objects} objects")
     print(f"   Val: {len(val_files)} images, {val_objects} objects")
     print(f"   Test: {len(test_files)} images, {test_objects} objects")
     print(f"   Classes: 1 (parasite detection)")
-    print(f"🎯 Dataset ready for pipeline at: {output_dir}")
+    print(f"[READY] Dataset ready for pipeline at: {output_dir}")
 
     return str(yaml_path)
 

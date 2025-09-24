@@ -73,7 +73,7 @@ def analyze_detection_classification_mapping(exp_path):
                     # Extract detection model from experiment name
                     exp_name = model_folder.name
                     detection_model = "unknown"
-                    for det_type in ["yolo8", "yolo10", "yolo11", "yolo12", "rtdetr"]:
+                    for det_type in ["yolo10", "yolo11", "yolo12", "rtdetr"]:
                         if det_type in exp_name:
                             detection_model = det_type
                             break

@@ -72,7 +72,7 @@ def main():
 
     # Check production models
     production_models = [
-        ("YOLOv8", "results/completed_models/detection/yolov8_detection/production_full_yolo8_yolo8_det"),
+        ("YOLOv10", "results/completed_models/detection/yolov10_detection/production_full_yolo10_yolo10_det"),
         ("YOLOv11", "results/completed_models/detection/yolo11_detection/production_full_yolo11_yolo11_det"),
         ("YOLOv12", "results/completed_models/detection/yolo12_detection/production_full_yolo12_yolo12_det"),
         ("RT-DETR", "results/completed_models/detection/rtdetr_detection/production_full_rtdetr_rtdetr_det")
