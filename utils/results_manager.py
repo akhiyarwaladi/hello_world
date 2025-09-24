@@ -103,8 +103,15 @@ class ResultsManager:
         if experiment_name:
             model_path = model_path / experiment_name
 
-        model_path.mkdir(parents=True, exist_ok=True)
+        # Don't create folder automatically - let caller decide when needed
         return model_path
+
+    def create_experiment_path(self, experiment_type: str, model_name: str,
+                             experiment_name: str = None) -> Path:
+        """Get path and CREATE directory for experiment - use when folder is actually needed"""
+        path = self.get_experiment_path(experiment_type, model_name, experiment_name)
+        path.mkdir(parents=True, exist_ok=True)
+        return path
 
     def _get_centralized_path(self, experiment_type: str, model_name: str,
                             experiment_name: str = None) -> Path:
@@ -122,7 +129,7 @@ class ResultsManager:
         if experiment_name:
             model_path = model_path / experiment_name
 
-        model_path.mkdir(parents=True, exist_ok=True)
+        # Don't create folder automatically - let caller decide when needed
         return model_path
 
     def find_experiment_path(self, experiment_type: str, model_name: str,

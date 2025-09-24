@@ -51,6 +51,13 @@ def run_kaggle_optimized_training(model_name, data_yaml, epochs, exp_name, centr
         model = YOLO(model_name)
 
         # Train with FULL augmentation (same as kaggle_optimized_training.py)
+        # FIXED: RT-DETR needs different LR than YOLO due to transformer architecture
+        if 'rtdetr' in model_name.lower():
+            lr_value = 0.0001  # Lower LR for RT-DETR transformer
+            print(f"   [FIXED] Using RT-DETR optimized LR: {lr_value}")
+        else:
+            lr_value = 0.0005  # Standard LR for YOLO models
+
         results = model.train(
             data=data_yaml,
             epochs=epochs,
@@ -63,7 +70,7 @@ def run_kaggle_optimized_training(model_name, data_yaml, epochs, exp_name, centr
             workers=4,           # GPU optimized workers
             exist_ok=True,
             optimizer='AdamW',
-            lr0=0.0005,         # Reduced learning rate for stability
+            lr0=lr_value,       # Model-specific learning rate
             weight_decay=0.0005, # L2 regularization
             warmup_epochs=5,     # Warmup for stability
 
@@ -553,8 +560,8 @@ def main():
         if start_stage is None or start_stage in ['detection']:
             print(f"\n[INFO] STAGE 1: Training {detection_model}")
 
-            # NEW: Get centralized path and train directly there using YOLO directly
-            centralized_detection_path = results_manager.get_experiment_path("training", detection_model, det_exp_name)
+            # NEW: Create centralized path for training (folder needed for saving)
+            centralized_detection_path = results_manager.create_experiment_path("training", detection_model, det_exp_name)
         elif start_stage in ['crop', 'classification', 'analysis']:
             print(f"\n[SKIP] STAGE 1: Skipping detection training (start_stage={start_stage})")
             # Try to find existing detection model
@@ -771,8 +778,8 @@ def main():
 
                 print(f"   [START] Training {cls_model_name.upper()}")
 
-                # NEW: Get centralized path for classification
-                centralized_cls_path = results_manager.get_experiment_path("training", cls_config['model'], cls_exp_name)
+                # NEW: Create centralized path for classification (folder needed for saving)
+                centralized_cls_path = results_manager.create_experiment_path("training", cls_config['model'], cls_exp_name)
 
                 if cls_config["type"] == "yolo":
                     # YOLO classification - direct training command
