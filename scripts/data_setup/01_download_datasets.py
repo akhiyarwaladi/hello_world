@@ -197,26 +197,26 @@ class MalariaDatasetDownloader:
         dataset_name = "rayhanadi/yolo-formatted-mp-idb-malaria-dataset"
 
         try:
-            print(f"📥 Downloading {dataset_name}...")
+            print(f"[DOWNLOAD] Downloading {dataset_name}...")
             self.kaggle_api.dataset_download_files(
                 dataset_name,
                 path=str(dataset_dir),
                 unzip=True
             )
-            print(f"✓ Kaggle MP-IDB YOLO dataset downloaded to {dataset_dir}")
+            print(f"[SUCCESS] Kaggle MP-IDB YOLO dataset downloaded to {dataset_dir}")
 
             # Check if extraction was successful
             expected_path = dataset_dir / "MP-IDB-YOLO"
             if expected_path.exists():
-                print(f"✓ Dataset extracted successfully at {expected_path}")
-                print(f"📊 Ready for use with --use-kaggle-dataset flag")
+                print(f"[SUCCESS] Dataset extracted successfully at {expected_path}")
+                print(f"[INFO] Ready for use with --use-kaggle-dataset flag")
             else:
-                print(f"⚠ Expected folder 'MP-IDB-YOLO' not found after extraction")
+                print(f"[WARNING] Expected folder 'MP-IDB-YOLO' not found after extraction")
 
             return True
         except Exception as e:
-            print(f"❌ Failed to download Kaggle MP-IDB YOLO dataset: {e}")
-            print("💡 Try manual download: kaggle datasets download rayhanadi/yolo-formatted-mp-idb-malaria-dataset")
+            print(f"[ERROR] Failed to download Kaggle MP-IDB YOLO dataset: {e}")
+            print("[TIP] Try manual download: kaggle datasets download rayhanadi/yolo-formatted-mp-idb-malaria-dataset")
             return False
     
     def download_plasmoID(self):
@@ -408,13 +408,13 @@ Available datasets:
     if args.list_datasets:
         print("Available datasets for malaria detection research:")
         print("=" * 60)
-        print("🎯 RECOMMENDED for Pipeline Use:")
+        print("[RECOMMENDED] For Pipeline Use:")
         print("  kaggle_mp_idb - Kaggle MP-IDB YOLO dataset (ready for training)")
         print("                  Pre-formatted for --use-kaggle-dataset flag")
         print("  mp_idb        - MP-IDB whole slide images (103 images, 1,242 parasites)")
         print("                  Requires processing for detection → classification pipeline")
         print()
-        print("📊 Additional Research Datasets:")
+        print("[INFO] Additional Research Datasets:")
         print("  nih_cell    - NIH segmented cell images (27k+ cells)")
         print("  nih_thick   - NIH thick smear images (P. falciparum & P. vivax)")
         print("  kaggle_nih  - Kaggle NIH dataset (alternative source)")
@@ -422,7 +422,7 @@ Available datasets:
         print("  plasmoID    - PlasmoID Indonesian dataset (4 species)")
         print("  iml         - IML P. vivax lifecycle images")
         print()
-        print("💡 Usage Examples:")
+        print("[INFO] Usage Examples:")
         print("  # For main research pipeline (RECOMMENDED):")
         print("  python scripts/01_download_datasets.py --dataset mp_idb")
         print()
@@ -439,7 +439,7 @@ Available datasets:
     # Override skip_existing if force redownload is requested
     if args.force_redownload:
         downloader.skip_existing = False
-        print("🔄 Force re-download mode enabled")
+        print("[INFO] Force re-download mode enabled")
     else:
         downloader.skip_existing = args.skip_existing
     
@@ -458,13 +458,13 @@ Available datasets:
         'iml': ('IML P. vivax Lifecycle', downloader.download_iml_dataset),
     }
     
-    print("🔬 Malaria Dataset Downloader")
+    print("Malaria Dataset Downloader")
     print("=" * 50)
-    
+
     if 'all' in datasets_to_download:
-        print("📥 Downloading ALL datasets...")
-        print("⏱️  Estimated time: 30-60 minutes")
-        print("💾 Required space: ~6GB")
+        print("Downloading ALL datasets...")
+        print("Estimated time: 30-60 minutes")
+        print("Required space: ~6GB")
         print()
         downloader.download_all()
     else:
@@ -479,42 +479,42 @@ Available datasets:
                 invalid_datasets.append(dataset)
         
         if invalid_datasets:
-            print(f"❌ Invalid dataset(s): {', '.join(invalid_datasets)}")
-            print(f"✅ Valid options: {', '.join(dataset_methods.keys())}, all")
-            print("💡 Use --list-datasets to see all available options")
+            print(f"[ERROR] Invalid dataset(s): {', '.join(invalid_datasets)}")
+            print(f"Valid options: {', '.join(dataset_methods.keys())}, all")
+            print("Use --list-datasets to see all available options")
             return
-        
+
         # Download selected datasets
-        print(f"📥 Downloading {len(valid_datasets)} dataset(s)...")
-        
+        print(f"Downloading {len(valid_datasets)} dataset(s)...")
+
         for dataset in valid_datasets:
             name, method = dataset_methods[dataset]
-            print(f"\n🔄 Downloading: {name}")
+            print(f"\n[DOWNLOADING] {name}")
             try:
                 method()
-                print(f"✅ {name} download completed")
+                print(f"[SUCCESS] {name} download completed")
             except Exception as e:
-                print(f"❌ {name} download failed: {str(e)}")
+                print(f"[ERROR] {name} download failed: {str(e)}")
                 continue
     
     print("\n" + "=" * 50)
-    print("✅ Download process completed!")
-    
+    print("[COMPLETED] Download process completed!")
+
     # Show downloaded datasets summary
     import os
     data_dir = "data/raw"
     if os.path.exists(data_dir):
-        downloaded_dirs = [d for d in os.listdir(data_dir) 
+        downloaded_dirs = [d for d in os.listdir(data_dir)
                           if os.path.isdir(os.path.join(data_dir, d)) and d != '.gitkeep']
-        print(f"📊 Total datasets available: {len(downloaded_dirs)}")
-        print(f"📁 Downloaded datasets: {', '.join(downloaded_dirs)}")
-        
+        print(f"[STATS] Total datasets available: {len(downloaded_dirs)}")
+        print(f"[INFO] Downloaded datasets: {', '.join(downloaded_dirs)}")
+
         # Special note for MP-IDB (main research dataset)
         if 'mp_idb' in downloaded_dirs:
-            print("\n🎯 MP-IDB Ready for Two-Step Classification Pipeline:")
+            print("\n[INFO] MP-IDB Ready for Two-Step Classification Pipeline:")
             print("   Next step: python scripts/08_parse_mpid_detection.py")
-    
-    print("\n💡 Next Steps:")
+
+    print("\n[INFO] Next Steps:")
     if 'mp_idb' in [ds.strip().lower() for ds in args.dataset.split(',')]:
         print("   1. Parse detection dataset: python scripts/08_parse_mpid_detection.py")
         print("   2. Crop parasites: python scripts/09_crop_parasites_from_detection.py")

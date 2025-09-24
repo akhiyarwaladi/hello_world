@@ -49,7 +49,7 @@ def check_classification_models_status(exp_path):
                     # Extract detection model from experiment name
                     exp_name = model_folder.name
                     detection_model = "yolo10"  # Default, but should extract from name
-                    for det_type in ["yolo8", "yolo10", "yolo11", "yolo12", "rtdetr"]:
+                    for det_type in ["yolo10", "yolo11", "yolo12", "rtdetr"]:
                         if det_type in exp_name:
                             detection_model = det_type
                             break

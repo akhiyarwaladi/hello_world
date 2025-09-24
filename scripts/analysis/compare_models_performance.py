@@ -31,10 +31,10 @@ class MalariaPerformanceAnalyzer:
         self.output_dir = self.default_output_dir  # Set default, will be overridden if output specified
         # Don't create folder by default - only when needed
 
-        # Define our experiment combinations
-        self.detection_methods = ["yolo8", "yolo11", "rtdetr", "ground_truth"]
+        # Define our experiment combinations - YOLOv10+ only
+        self.detection_methods = ["yolo10", "yolo11", "yolo12", "rtdetr", "ground_truth"]
         self.classification_methods = [
-            "yolo8n_cls", "yolo8s_cls", "yolo8m_cls", "yolo11_cls",
+            "yolo11_cls",
             "resnet18", "resnet50", "efficientnet_b0", "densenet121", "mobilenet_v2"
         ]
 
@@ -533,9 +533,9 @@ Based on the preliminary results:
         elif "yolo11_det_to" in exp_name:
             detection_method = "yolo11"
             classification_method = exp_name.split("yolo11_det_to_")[1]
-        elif "yolo8_det_to" in exp_name:
-            detection_method = "yolo8"
-            classification_method = exp_name.split("yolo8_det_to_")[1]
+        elif "yolo10_det_to" in exp_name:
+            detection_method = "yolo10"
+            classification_method = exp_name.split("yolo10_det_to_")[1]
         elif "rtdetr_det_to" in exp_name:
             detection_method = "rtdetr"
             classification_method = exp_name.split("rtdetr_det_to_")[1]
@@ -546,8 +546,8 @@ Based on the preliminary results:
             # Default parsing
             if "yolo11" in exp_name:
                 detection_method = "yolo11"
-            elif "yolo8" in exp_name:
-                detection_method = "yolo8"
+            elif "yolo10" in exp_name:
+                detection_method = "yolo10"
             elif "rtdetr" in exp_name:
                 detection_method = "rtdetr"
             else:
@@ -563,8 +563,8 @@ Based on the preliminary results:
                 classification_method = "mobilenet"
             elif "yolo11" in exp_name and "cls" in exp_name:
                 classification_method = "yolo11_cls"
-            elif "yolo8" in exp_name and "cls" in exp_name:
-                classification_method = "yolo8_cls"
+            elif "yolo10" in exp_name and "cls" in exp_name:
+                classification_method = "yolo10_cls"
             else:
                 classification_method = "unknown"
 
@@ -574,8 +574,8 @@ Based on the preliminary results:
         """Extract detection method from experiment name"""
         if "yolo11" in exp_name.lower():
             return "yolo11"
-        elif "yolo8" in exp_name.lower():
-            return "yolo8"
+        elif "yolo10" in exp_name.lower():
+            return "yolo10"
         elif "rtdetr" in exp_name.lower():
             return "rtdetr"
         else:
@@ -786,8 +786,8 @@ Based on the preliminary results:
         )
 
         # Fill missing combinations with NaN
-        all_detection = ['yolo8', 'yolo11', 'rtdetr', 'ground_truth', 'species_aware']
-        all_classification = ['yolo8_cls', 'yolo11_cls', 'resnet18', 'resnet50', 'efficientnet_b0', 'densenet121', 'mobilenet_v2']
+        all_detection = ['yolo10', 'yolo11', 'yolo12', 'rtdetr', 'ground_truth', 'species_aware']
+        all_classification = ['yolo11_cls', 'resnet18', 'resnet50', 'efficientnet_b0', 'densenet121', 'mobilenet_v2']
 
         combination_matrix = combination_matrix.reindex(
             index=[d for d in all_detection if d in combination_matrix.index],

@@ -58,17 +58,17 @@ class UnifiedJournalAnalyzer:
 
         # Model mappings
         self.model_info = {
-            'yolo8': {
-                'name': 'YOLOv8n',
-                'detection_dir': 'yolov8_detection',
-                'classification_dir': 'yolov8_classification',
+            'yolo10': {
+                'name': 'YOLOv10n',
+                'detection_dir': 'yolov10_detection',
+                'classification_dir': 'yolov11_classification',  # Uses YOLOv11 classification
                 'color': '#2E86AB',
                 'marker': 'o'
             },
             'yolo11': {
                 'name': 'YOLOv11n',
                 'detection_dir': 'yolo11_detection',
-                'classification_dir': 'yolov8_classification',  # Uses YOLOv8 classification
+                'classification_dir': 'yolov11_classification',
                 'color': '#A23B72',
                 'marker': 's'
             }
