@@ -67,7 +67,7 @@ def check_active_processes():
         return []
 
 def main():
-    print("🔍 CLEAR TRAINING STATUS CHECK")
+    print("CLEAR TRAINING STATUS CHECK")
     print("=" * 50)
 
     # Check production models
@@ -78,7 +78,7 @@ def main():
         ("RT-DETR", "results/completed_models/detection/rtdetr_detection/production_full_rtdetr_rtdetr_det")
     ]
 
-    print("\n📊 PRODUCTION MODEL STATUS:")
+    print("\nPRODUCTION MODEL STATUS:")
     for model_name, model_path in production_models:
         status_info = check_model_completion(model_path)
         status = status_info["status"]
@@ -87,19 +87,19 @@ def main():
             print(f"[SUCCESS] {model_name}: COMPLETED")
             best_file = next((f for f in status_info["files"] if "best" in f["name"]), None)
             if best_file:
-                print(f"   📁 Best model: {best_file['size_mb']}MB, saved {best_file['modified']}")
+                print(f"   Best model: {best_file['size_mb']}MB, saved {best_file['modified']}")
 
         elif status == "in_progress":
-            print(f"🔄 {model_name}: IN PROGRESS")
+            print(f"{model_name}: IN PROGRESS")
             latest_file = max(status_info["files"], key=lambda x: x["modified"])
-            print(f"   📁 Latest: {latest_file['name']}, saved {latest_file['modified']}")
+            print(f"   Latest: {latest_file['name']}, saved {latest_file['modified']}")
 
         elif status == "not_started":
             print(f"⭕ {model_name}: NOT STARTED")
 
         print()
 
-    print("\n🔥 ACTIVE TRAINING PROCESSES:")
+    print("\nACTIVE TRAINING PROCESSES:")
     active_processes = check_active_processes()
 
     if not active_processes:

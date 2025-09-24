@@ -48,7 +48,7 @@ class ExperimentManager:
             json.dump(metadata, f, indent=2)
 
         print(f"[SUCCESS] Created experiment: {experiment_name}")
-        print(f"📁 Location: {exp_path}")
+        print(f"Location: {exp_path}")
 
         return exp_path, experiment_name
 
@@ -96,13 +96,13 @@ class ExperimentManager:
 
         status_icon = "[OK]" if success else "[FAIL]"
         print(f"{status_icon} Experiment marked as {'completed' if success else 'failed'}")
-        print(f"📁 Moved to: {target_path}")
+        print(f"Moved to: {target_path}")
 
         return True
 
     def list_active_experiments(self):
         """List all currently active experiments"""
-        print("\n🔥 ACTIVE EXPERIMENTS:")
+        print("\nACTIVE EXPERIMENTS:")
         print("=" * 50)
 
         active_found = False
@@ -115,7 +115,7 @@ class ExperimentManager:
                             with open(metadata_file, "r") as f:
                                 metadata = json.load(f)
 
-                            print(f"📊 {metadata['experiment_name']}")
+                            print(f"{metadata['experiment_name']}")
                             print(f"   Model: {metadata['model_type']}")
                             print(f"   Created: {metadata['created_at']}")
                             print(f"   Progress: {metadata.get('epochs_completed', 0)}/{metadata.get('target_epochs', 50)} epochs")
@@ -125,11 +125,11 @@ class ExperimentManager:
                             results_exist = (exp_dir / "results.csv").exists()
 
                             if weights_exist and results_exist:
-                                print(f"   Status: 🔄 Training (weights saved)")
+                                print(f"   Status: Training (weights saved)")
                             elif results_exist:
                                 print(f"   Status: [WARNING] Training (no weights yet)")
                             else:
-                                print(f"   Status: 🚀 Starting")
+                                print(f"   Status: Starting")
 
                             print(f"   Path: {exp_dir}")
                             print()
@@ -176,7 +176,7 @@ class ExperimentManager:
 
     def cleanup_ambiguous_experiments(self):
         """Clean up old experiment structure and organize properly"""
-        print("\n🧹 CLEANING UP AMBIGUOUS EXPERIMENTS:")
+        print("\nCLEANING UP AMBIGUOUS EXPERIMENTS:")
         print("=" * 50)
 
         # Find old structure experiments
@@ -234,12 +234,12 @@ class ExperimentManager:
         with open(exp_path / "experiment_metadata.json", "w") as f:
             json.dump(metadata, f, indent=2)
 
-        print(f"📝 Added metadata to: {exp_path.name}")
+        print(f"Added metadata to: {exp_path.name}")
 
 def main():
     manager = ExperimentManager()
 
-    print("🎯 EXPERIMENT MANAGER")
+    print("EXPERIMENT MANAGER")
     print("1. List active experiments")
     print("2. List completed experiments")
     print("3. Cleanup old structure")
@@ -257,7 +257,7 @@ def main():
         manager.list_active_experiments()
         manager.list_completed_experiments()
         print("\n" + "="*50)
-        print("📊 SUMMARY: Use this tool to track experiments clearly!")
+        print("SUMMARY: Use this tool to track experiments clearly!")
     else:
         print("Invalid choice")
 

@@ -342,7 +342,7 @@ class MalariaDatasetIntegrator:
         with open(yolo_dir / "data.yaml", 'w') as f:
             yaml.dump(data_yaml, f, default_flow_style=False)
         
-        print(f"✓ YOLO format data saved to {yolo_dir}")
+        print(f"YOLO format data saved to {yolo_dir}")
     
     def create_integration_report(self, annotations: List[Dict], splits: Dict[str, List[Dict]]):
         """Create comprehensive integration report"""
@@ -384,7 +384,7 @@ class MalariaDatasetIntegrator:
         with open(report_path, 'w') as f:
             json.dump(report, f, indent=2)
         
-        print(f"✓ Integration report saved to {report_path}")
+        print(f"Integration report saved to {report_path}")
         
         # Create visualization
         self.create_visualizations(annotations_df, splits)
@@ -488,7 +488,7 @@ class MalariaDatasetIntegrator:
         plt.savefig(viz_path, dpi=300, bbox_inches='tight')
         plt.close()
         
-        print(f"✓ Visualizations saved to {viz_path}")
+        print(f"Visualizations saved to {viz_path}")
     
     def print_integration_summary(self, report: Dict):
         """Print integration summary"""
@@ -548,7 +548,7 @@ class MalariaDatasetIntegrator:
         # Create comprehensive report
         self.create_integration_report(annotations, splits)
         
-        print("\\n✓ Dataset integration completed successfully!")
+        print("\nDataset integration completed successfully!")
 
 
 def main():

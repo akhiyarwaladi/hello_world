@@ -196,7 +196,7 @@ def load_detection_model(model_path):
     if not Path(model_path).exists():
         raise FileNotFoundError(f"Model not found: {model_path}")
 
-    print(f"🔄 Loading detection model: {model_path}")
+    print(f"Loading detection model: {model_path}")
     model = YOLO(model_path)
     return model
 
@@ -302,7 +302,7 @@ def process_dataset(model, input_dir, output_dir, dataset_name, confidence=0.25,
         for ext in image_extensions:
             all_images.extend([(img, 'all') for img in input_path.glob(f"**/{ext}")])
 
-    print(f"📊 Found {len(all_images)} images to process")
+    print(f"Found {len(all_images)} images to process")
 
     # Process each image
     for image_path, split in tqdm(all_images, desc="Generating crops"):
@@ -328,12 +328,12 @@ def process_dataset(model, input_dir, output_dir, dataset_name, confidence=0.25,
                         )
                         if csv_species:
                             class_name = csv_species
-                            print(f"🎯 CSV Falciparum: {Path(image_path).name} crop {i} → {class_name}")
+                            print(f"CSV Falciparum: {Path(image_path).name} crop {i} -> {class_name}")
                         else:
                             class_name = "P_falciparum"  # Default Falciparum if CSV fails
-                            print(f"🔄 Default Falciparum: {Path(image_path).name} crop {i} → {class_name}")
+                            print(f"Default Falciparum: {Path(image_path).name} crop {i} -> {class_name}")
                     else:
-                        print(f"📁 Folder-based: {Path(image_path).name} crop {i} → {class_name}")
+                        print(f"Folder-based: {Path(image_path).name} crop {i} -> {class_name}")
                 else:
                     # Use original YOLO label-based classification
                     ground_truth_class = get_ground_truth_class(image_path, input_dir)
@@ -392,21 +392,21 @@ def process_dataset(model, input_dir, output_dir, dataset_name, confidence=0.25,
         metadata_df.to_csv(output_path / 'crop_metadata.csv', index=False)
 
         print(f"\n[SUCCESS] Processing completed:")
-        print(f"   📸 Images processed: {processed_count}")
-        print(f"   ✂️  Crops generated: {crop_count}")
-        print(f"   📊 Average crops per image: {crop_count/processed_count:.2f}")
+        print(f"   Images processed: {processed_count}")
+        print(f"   Crops generated: {crop_count}")
+        print(f"   Average crops per image: {crop_count/processed_count:.2f}")
 
         # Show split distribution
         if 'split' in metadata_df.columns:
             split_counts = metadata_df['split'].value_counts()
-            print(f"   📂 Split distribution:")
+            print(f"   Split distribution:")
             for split, count in split_counts.items():
                 print(f"      {split}: {count} crops")
 
         # Show class distribution
         if 'ground_truth_class' in metadata_df.columns:
             class_counts = metadata_df['ground_truth_class'].value_counts().sort_index()
-            print(f"   🏷️  Class distribution:")
+            print(f"   Class distribution:")
             for class_id, count in class_counts.items():
                 if 0 <= class_id < len(class_names):
                     class_name = class_names[class_id]
@@ -487,11 +487,11 @@ def main():
         print(f"[ERROR] Input directory not found: {args.input}")
         return
 
-    print(f"🎯 Detection model: {args.model}")
-    print(f"📁 Input dataset: {args.input}")
-    print(f"📂 Output directory: {args.output}")
-    print(f"🎚️  Confidence threshold: {args.confidence}")
-    print(f"📏 Crop size: {args.crop_size}x{args.crop_size}")
+    print(f"Detection model: {args.model}")
+    print(f"Input dataset: {args.input}")
+    print(f"Output directory: {args.output}")
+    print(f"Confidence threshold: {args.confidence}")
+    print(f"Crop size: {args.crop_size}x{args.crop_size}")
 
     try:
         # Load detection model
@@ -516,7 +516,7 @@ def main():
 
             # Fix classification structure if requested
             if args.fix_classification_structure:
-                print(f"\n🔧 Fixing classification structure for 4 malaria species...")
+                print(f"\nFixing classification structure for 4 malaria species...")
                 # Use relative path to fix_classification_structure.py in same directory
                 fix_script_path = Path(__file__).parent / "13_fix_classification_structure.py"
                 fix_cmd = [
@@ -531,8 +531,8 @@ def main():
                 else:
                     print(f"[ERROR] Failed to fix classification structure")
 
-        print(f"\n🎉 Crop generation completed successfully!")
-        print(f"📊 Results saved to: {args.output}")
+        print(f"\nCrop generation completed successfully!")
+        print(f"Results saved to: {args.output}")
 
     except Exception as e:
         print(f"[ERROR] Error during processing: {e}")

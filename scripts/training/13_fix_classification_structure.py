@@ -48,7 +48,7 @@ def main():
     # Read metadata
     df = pd.read_csv(metadata_file)
 
-    print(f"📊 Processing {len(df)} crops...")
+    print(f"Processing {len(df)} crops...")
 
     # Add ground truth class column
     df['ground_truth_class'] = df['original_image'].apply(
@@ -57,7 +57,7 @@ def main():
 
     # Show class distribution
     class_dist = df['ground_truth_class'].value_counts()
-    print(f"\n📈 Class distribution:")
+    print(f"\nClass distribution:")
     for class_id, count in class_dist.items():
         if class_id is not None:
             print(f"   {class_names.get(class_id, f'Unknown_{class_id}')}: {count} crops")

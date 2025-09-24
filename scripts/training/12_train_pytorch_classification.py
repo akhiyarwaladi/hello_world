@@ -13,6 +13,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
+from torch.amp import autocast, GradScaler  # Mixed precision for RTX 3060
 from torchvision import datasets, transforms, models
 from pathlib import Path
 from sklearn.metrics import classification_report, confusion_matrix
@@ -131,21 +132,38 @@ def get_transforms(image_size=224):
 
     return train_transform, val_transform
 
-def train_epoch(model, dataloader, criterion, optimizer, device):
-    """Train for one epoch"""
+def train_epoch(model, dataloader, criterion, optimizer, device, scaler=None, scheduler=None):
+    """Train for one epoch with RTX 3060 Mixed Precision optimization"""
     model.train()
     running_loss = 0.0
     correct = 0
     total = 0
+    use_amp = scaler is not None and device.type == 'cuda'
 
     for inputs, labels in dataloader:
-        inputs, labels = inputs.to(device), labels.to(device)
+        inputs, labels = inputs.to(device, non_blocking=True), labels.to(device, non_blocking=True)
 
         optimizer.zero_grad()
-        outputs = model(inputs)
-        loss = criterion(outputs, labels)
-        loss.backward()
-        optimizer.step()
+
+        if use_amp:
+            # Mixed precision training for RTX 3060 - 2x speedup
+            with autocast('cuda'):
+                outputs = model(inputs)
+                loss = criterion(outputs, labels)
+
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
+        else:
+            # Standard training
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+
+        # Step OneCycleLR scheduler per batch for maximum optimization
+        if scheduler and isinstance(scheduler, optim.lr_scheduler.OneCycleLR):
+            scheduler.step()
 
         running_loss += loss.item()
         _, predicted = torch.max(outputs.data, 1)
@@ -158,7 +176,7 @@ def train_epoch(model, dataloader, criterion, optimizer, device):
     return epoch_loss, epoch_acc
 
 def validate_epoch(model, dataloader, criterion, device):
-    """Validate for one epoch"""
+    """Validate for one epoch with RTX 3060 optimization"""
     model.eval()
     running_loss = 0.0
     correct = 0
@@ -168,10 +186,16 @@ def validate_epoch(model, dataloader, criterion, device):
 
     with torch.no_grad():
         for inputs, labels in dataloader:
-            inputs, labels = inputs.to(device), labels.to(device)
+            inputs, labels = inputs.to(device, non_blocking=True), labels.to(device, non_blocking=True)
 
-            outputs = model(inputs)
-            loss = criterion(outputs, labels)
+            # Use mixed precision for validation too (faster inference)
+            if device.type == 'cuda':
+                with autocast('cuda'):
+                    outputs = model(inputs)
+                    loss = criterion(outputs, labels)
+            else:
+                outputs = model(inputs)
+                loss = criterion(outputs, labels)
 
             running_loss += loss.item()
             _, predicted = torch.max(outputs, 1)
@@ -201,17 +225,8 @@ def save_confusion_matrix(y_true, y_pred, class_names, save_path):
     plt.close()
 
 def main():
-    # Optimize PyTorch threading (GPU uses fewer CPU threads)
-    import multiprocessing
-    total_cores = multiprocessing.cpu_count()
-    if torch.cuda.is_available():
-        num_cores = max(1, min(8, total_cores // 2))  # GPU: Use half cores for efficiency
-        print(f"[GPU] PyTorch using {num_cores} CPU threads for computation (total cores: {total_cores})")
-    else:
-        num_cores = max(1, min(16, total_cores - 4))  # CPU: Use more cores, leave 4 for system
-        print(f"[CPU] PyTorch using {num_cores} CPU threads for computation (total cores: {total_cores})")
-
-    torch.set_num_threads(num_cores)
+    # Simple GPU setup
+    torch.set_num_threads(4)
 
     parser = argparse.ArgumentParser(description="Train PyTorch Classification Models")
     parser.add_argument("--data", default="data/classification_multispecies",
@@ -226,8 +241,8 @@ def main():
                        help="Model architecture")
     parser.add_argument("--epochs", type=int, default=10,
                        help="Number of epochs")
-    parser.add_argument("--batch", type=int, default=16,
-                       help="Batch size")
+    parser.add_argument("--batch", type=int, default=128,  # RTX 3060 optimized
+                       help="Batch size (default: 48 optimized for RTX 3060 stability)")
     parser.add_argument("--lr", type=float, default=0.001,
                        help="Learning rate")
     parser.add_argument("--image_size", type=int, default=224,
@@ -299,19 +314,33 @@ def main():
         transform=val_transform
     )
 
-    # Create data loaders - optimize for GPU/CPU usage
-    import multiprocessing
-    total_cores = multiprocessing.cpu_count()
-    if torch.cuda.is_available():
-        num_workers = min(8, max(4, total_cores // 4))  # GPU: More workers for data loading
-        print(f"[GPU] Using {num_workers} workers for data loading")
-    else:
-        num_workers = min(4, max(2, total_cores // 8))  # CPU: Fewer workers to avoid competition
-        print(f"[CPU] Using {num_workers} workers for data loading")
+    # Standard GPU DataLoader setup
+    num_workers = 0
+    pin_memory = True
 
-    train_loader = DataLoader(train_dataset, batch_size=args.batch, shuffle=True, num_workers=num_workers)
-    val_loader = DataLoader(val_dataset, batch_size=args.batch, shuffle=False, num_workers=num_workers)
-    test_loader = DataLoader(test_dataset, batch_size=args.batch, shuffle=False, num_workers=num_workers)
+    # Create data loaders
+    train_loader = DataLoader(
+        train_dataset,
+        batch_size=args.batch,
+        shuffle=True,
+        num_workers=num_workers,
+        pin_memory=pin_memory,
+        drop_last=True  # Consistent batch sizes for GPU optimization
+    )
+    val_loader = DataLoader(
+        val_dataset,
+        batch_size=args.batch,
+        shuffle=False,
+        num_workers=num_workers,
+        pin_memory=pin_memory
+    )
+    test_loader = DataLoader(
+        test_dataset,
+        batch_size=args.batch,
+        shuffle=False,
+        num_workers=num_workers,
+        pin_memory=pin_memory
+    )
 
     # Get class names
     class_names = train_dataset.classes
@@ -334,10 +363,17 @@ def main():
     print(f"[MODEL] Total parameters: {total_params:,}")
     print(f"[MODEL] Trainable parameters: {trainable_params:,}")
 
-    # Setup training
+    # Setup training with RTX 3060 Mixed Precision optimization
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=args.lr)
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=max(1, args.epochs//3), gamma=0.5)
+    optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)  # AdamW for better performance
+    scheduler = optim.lr_scheduler.OneCycleLR(optimizer, max_lr=args.lr*10, epochs=args.epochs, steps_per_epoch=len(train_loader))  # OneCycle for faster convergence
+
+    # Initialize mixed precision scaler for RTX 3060
+    scaler = GradScaler('cuda') if device.type == 'cuda' else None
+    if scaler:
+        print(f"[RTX 3060] Mixed precision training enabled - expect 2x speedup!")
+    else:
+        print(f"[CPU] Standard precision training")
 
     # Training history
     train_losses = []
@@ -359,14 +395,15 @@ def main():
         print(f"\nEpoch {epoch+1}/{args.epochs}")
         print("-" * 30)
 
-        # Train
-        train_loss, train_acc = train_epoch(model, train_loader, criterion, optimizer, device)
+        # Train with Mixed Precision and OneCycleLR per-batch scheduling
+        train_loss, train_acc = train_epoch(model, train_loader, criterion, optimizer, device, scaler, scheduler)
 
         # Validate
         val_loss, val_acc, val_preds, val_labels = validate_epoch(model, val_loader, criterion, device)
 
-        # Step scheduler
-        scheduler.step()
+        # Note: OneCycleLR steps per batch inside train_epoch, other schedulers step per epoch
+        if not isinstance(scheduler, optim.lr_scheduler.OneCycleLR):
+            scheduler.step()
 
         # Save history
         train_losses.append(train_loss)
@@ -410,12 +447,12 @@ def main():
     print("\n" + "=" * 60)
     print("[DONE] PYTORCH CLASSIFICATION TRAINING COMPLETED!")
     print("=" * 60)
-    print(f"⏱️  Training time: {training_time/60:.1f} minutes")
-    print(f"📂 Results saved to: {experiment_path}")
-    print(f"🏆 Best validation accuracy: {best_val_acc:.2f}%")
+    print(f"[TIMER] Training time: {training_time/60:.1f} minutes")
+    print(f"[RESULTS] Results saved to: {experiment_path}")
+    print(f"[BEST] Best validation accuracy: {best_val_acc:.2f}%")
 
     # Test evaluation
-    print("\n🧪 Running test evaluation...")
+    print("\n[TEST] Running test evaluation...")
 
     # Load best model for testing
     checkpoint = torch.load(experiment_path / 'best.pt', map_location=device)
@@ -427,8 +464,8 @@ def main():
     print(f"   Test Accuracy: {test_acc:.2f}%")
     print(f"   Test Loss: {test_loss:.4f}")
 
-    # Generate classification report
-    report = classification_report(test_labels, test_preds, target_names=class_names)
+    # Generate classification report with zero_division handling
+    report = classification_report(test_labels, test_preds, target_names=class_names, zero_division=0)
     print(f"\n[REPORT] Classification Report:")
     print(report)
 

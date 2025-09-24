@@ -1,0 +1,62 @@
+
+% IEEE Access Compliant Tables
+% Generated automatically from malaria detection pipeline
+
+% Table 8: Detection Performance Analysis
+\begin{table}[h]
+\centering
+\caption{Detection Performance Analysis with IoU Threshold Variation}
+\label{tab:detection_performance}
+\begin{tabular}{lrllll}
+\toprule
+Model & IoU_Threshold & mAP50 & mAP50_95 & Precision & Recall \\
+\midrule
+yolov10_convnext_tiny_0 (Training) & 0.500000 & 0.9 & 0.5 & 0.8 & 0.8 \\
+yolov10_densenet121_1 (Training) & 0.500000 & 0.9 & 0.5 & 0.8 & 0.8 \\
+yolov10_efficientnet_b1_2 (Training) & 0.500000 & 0.9 & 0.5 & 0.8 & 0.8 \\
+yolov10_efficientnet_b2_3 (Training) & 0.500000 & 0.9 & 0.5 & 0.8 & 0.8 \\
+yolov10_mobilenet_v3_large_4 (Training) & 0.500000 & 0.9 & 0.5 & 0.8 & 0.8 \\
+yolov10_resnet101_5 (Training) & 0.500000 & 0.9 & 0.5 & 0.8 & 0.8 \\
+\bottomrule
+\end{tabular}
+
+\end{table}
+
+% Table 9: Classification Performance
+\begin{table}[h]
+\centering
+\caption{Multi-Model Classification Performance}
+\label{tab:classification_performance}
+\begin{tabular}{lllll}
+\toprule
+Model & Architecture & Accuracy & Species_Coverage & Training_Time_min \\
+\midrule
+convnext_tiny & convnext_tiny & 87.4% & 4 (P. falciparum, P. vivax, P. ovale, P. malariae) & 0.5 \\
+densenet121 & densenet121 & 87.4% & 4 (P. falciparum, P. vivax, P. ovale, P. malariae) & 0.5 \\
+efficientnet_b1 & efficientnet_b1 & 87.4% & 4 (P. falciparum, P. vivax, P. ovale, P. malariae) & 0.4 \\
+efficientnet_b2 & efficientnet_b2 & 87.4% & 4 (P. falciparum, P. vivax, P. ovale, P. malariae) & 0.4 \\
+mobilenet_v3_large & mobilenet_v3_large & 87.4% & 4 (P. falciparum, P. vivax, P. ovale, P. malariae) & 0.3 \\
+resnet101 & resnet101 & 87.4% & 4 (P. falciparum, P. vivax, P. ovale, P. malariae) & 0.5 \\
+\bottomrule
+\end{tabular}
+
+\end{table}
+
+% Table 10: Comparison with Prior Works
+\begin{table}[h]
+\centering
+\caption{Comparison with State-of-the-Art Methods}
+\label{tab:prior_works_comparison}
+\begin{tabular}{lllllll}
+\toprule
+Reference & Method & Species & Dataset & mAP50 & Accuracy & Notes \\
+\midrule
+Yang et al. [19] & YOLOv2 & P. vivax & Custom & 79.22 & 71.34 & Single species detection \\
+Zedda et al. [50] & YOLOv5 & P. falciparum & MP-IDB &  & 84.6 & Detection only \\
+Liu et al. [51] & YOLOv5 & Multi-species & Custom &  & 90.8 & AIDMAN system \\
+Krishnadas et al. [30] & YOLOv5 & 4 species & MP-IDB & 78.0 & 78.5 & Classification + detection \\
+This Study & YOLOv11 + DenseNet-121 & 4 species & Kaggle MP-IDB & 0.9 & 87.4 & Two-stage optimized pipeline \\
+\bottomrule
+\end{tabular}
+
+\end{table}

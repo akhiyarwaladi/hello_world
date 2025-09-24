@@ -572,8 +572,8 @@ class MalariaDataPreprocessor:
         samples_path = self.processed_data_dir / "processed_samples.csv"
         df.to_csv(samples_path, index=False)
         
-        print(f"✓ Processing report saved to {report_path}")
-        print(f"✓ Sample data saved to {samples_path}")
+        print(f"Processing report saved to {report_path}")
+        print(f"Sample data saved to {samples_path}")
         
         # Print summary
         print("\n" + "="*60)

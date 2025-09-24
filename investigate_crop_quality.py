@@ -64,29 +64,29 @@ def analyze_crop_quality():
     test_images_dir = "data/kaggle_pipeline_ready/test/images"
     test_labels_dir = "data/kaggle_pipeline_ready/test/labels"
 
-    print("🔍 Starting comprehensive crop quality investigation...")
-    print(f"📁 Model: {model_path}")
-    print(f"📁 Test images: {test_images_dir}")
-    print(f"📁 Test labels: {test_labels_dir}")
+    print("Starting comprehensive crop quality investigation...")
+    print(f"Model: {model_path}")
+    print(f"Test images: {test_images_dir}")
+    print(f"Test labels: {test_labels_dir}")
 
     # Load model
     if not os.path.exists(model_path):
         print(f"[ERROR] Model not found: {model_path}")
         return
 
-    print("🤖 Loading detection model...")
+    print("Loading detection model...")
     model = YOLO(model_path)
 
     # Get test images
     image_files = [f for f in os.listdir(test_images_dir) if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
-    print(f"📊 Found {len(image_files)} test images")
+    print(f"Found {len(image_files)} test images")
 
     results_data = []
     problem_cases = []
     visualization_data = []
 
     for i, image_file in enumerate(image_files):
-        print(f"📸 Processing {i+1}/{len(image_files)}: {image_file}")
+        print(f"Processing {i+1}/{len(image_files)}: {image_file}")
 
         # Load image
         image_path = os.path.join(test_images_dir, image_file)
@@ -196,16 +196,16 @@ def analyze_crop_quality():
     df = pd.DataFrame(results_data)
 
     print("\n" + "="*80)
-    print("📊 COMPREHENSIVE CROP QUALITY ANALYSIS RESULTS")
+    print("COMPREHENSIVE CROP QUALITY ANALYSIS RESULTS")
     print("="*80)
 
-    print(f"\n📈 OVERALL STATISTICS:")
+    print(f"\nOVERALL STATISTICS:")
     print(f"  Total images analyzed: {len(df)}")
     print(f"  Total ground truth objects: {df['gt_count'].sum()}")
     print(f"  Total predicted objects: {df['pred_count'].sum()}")
     print(f"  Total matched pairs: {df['matched_count'].sum()}")
 
-    print(f"\n🎯 DETECTION PERFORMANCE:")
+    print(f"\nDETECTION PERFORMANCE:")
     print(f"  Overall Precision: {df['matched_count'].sum() / df['pred_count'].sum():.3f}")
     print(f"  Overall Recall: {df['matched_count'].sum() / df['gt_count'].sum():.3f}")
     print(f"  Mean IoU: {df['avg_iou'].mean():.3f}")
@@ -226,7 +226,7 @@ def analyze_crop_quality():
         json.dump(problem_cases, f, indent=2)
 
     # Create visualizations for problem cases
-    print(f"\n🎨 Creating visualizations for problem cases...")
+    print(f"\nCreating visualizations for problem cases...")
 
     for i, vis_data in enumerate(visualization_data):
         fig, ax = plt.subplots(1, 1, figsize=(12, 8))
@@ -264,7 +264,7 @@ def analyze_crop_quality():
     print(f"\n[SUCCESS] Analysis complete! Results saved to '{output_dir}/' directory")
 
     # Specific crop quality insights
-    print(f"\n🔍 CROP QUALITY INSIGHTS:")
+    print(f"\nCROP QUALITY INSIGHTS:")
 
     low_iou_images = df[df['avg_iou'] < 0.5]
     if len(low_iou_images) > 0:
@@ -281,19 +281,19 @@ def analyze_crop_quality():
         print(f"  [WARNING] {len(over_detection)} images have significant over-detection")
         print(f"     False positives = noisy/incorrect crops in classification dataset")
 
-    print(f"\n💡 RECOMMENDATIONS:")
+    print(f"\nRECOMMENDATIONS:")
 
     avg_precision = df['matched_count'].sum() / df['pred_count'].sum()
     avg_recall = df['matched_count'].sum() / df['gt_count'].sum()
 
     if avg_precision < 0.8:
-        print(f"  🎯 Consider increasing confidence threshold (currently 0.25) to reduce false positives")
+        print(f"  Consider increasing confidence threshold (currently 0.25) to reduce false positives")
 
     if avg_recall < 0.8:
-        print(f"  🎯 Consider decreasing confidence threshold or training with more data to improve recall")
+        print(f"  Consider decreasing confidence threshold or training with more data to improve recall")
 
     if df['avg_iou'].mean() < 0.6:
-        print(f"  🎯 Detection localization needs improvement - consider more training epochs or data augmentation")
+        print(f"  Detection localization needs improvement - consider more training epochs or data augmentation")
 
     return results_data, problem_cases
 

@@ -75,8 +75,8 @@ class UnifiedJournalAnalyzer:
         }
 
         self.analysis_results = {}
-        print(f"📊 Unified Journal Analyzer Initialized")
-        print(f"📂 Output: {self.output_dir}")
+        print(f"Unified Journal Analyzer Initialized")
+        print(f"Output: {self.output_dir}")
 
     def find_pipeline_experiments(self, timestamp_pattern="multi_pipeline_20250920_131500"):
         """Find completed pipeline experiments"""
@@ -628,7 +628,7 @@ class UnifiedJournalAnalyzer:
         with open(self.output_dir / "journal_comparison_table.tex", 'w') as f:
             f.write(latex_table)
 
-        print("📊 Journal comparison table created")
+        print("Journal comparison table created")
         return df_comparison
 
     def run_iou_analysis(self, experiments):
@@ -641,7 +641,7 @@ class UnifiedJournalAnalyzer:
                 model_path = detection_path / "weights" / "best.pt"
 
                 if model_path.exists():
-                    print(f"🔍 Running IoU analysis for {model_key}...")
+                    print(f"Running IoU analysis for {model_key}...")
 
                     try:
                         # Get consistent dataset for analysis
@@ -687,7 +687,7 @@ class UnifiedJournalAnalyzer:
             f.write("**Reference Standard:** IEEE Access 2024 Paper Format\n\n")
             f.write("---\n\n")
 
-            f.write("## 📊 Executive Summary\n\n")
+            f.write("## Executive Summary\n\n")
             f.write("This analysis follows the methodology and presentation standards from:\n")
             f.write('> **Reference**: "Automated Identification of Malaria-Infected Cells and Classification of Human Malaria Parasites Using a Two-Stage Deep Learning Technique" - IEEE Access, 2024\n\n')
 
@@ -711,7 +711,7 @@ class UnifiedJournalAnalyzer:
                     f.write("- **Species Coverage**: 4 Plasmodium species (P. falciparum, P. vivax, P. ovale, P. malariae)\n\n")
 
             f.write("---\n\n")
-            f.write("## 📋 Generated IEEE-Compliant Assets\n\n")
+            f.write("## Generated IEEE-Compliant Assets\n\n")
             f.write("### Tables (Publication Ready)\n")
             f.write("1. **detection_performance_table.csv** - Table 8 equivalent (Detection metrics with IoU variation)\n")
             f.write("2. **classification_performance_table.csv** - Table 9 equivalent (Multi-model classification performance)\n")
@@ -727,7 +727,7 @@ class UnifiedJournalAnalyzer:
             f.write("3. **confusion_matrices.png** - Classification confusion matrices grid\n\n")
 
             f.write("---\n\n")
-            f.write("## 🎯 Key Findings\n\n")
+            f.write("## Key Findings\n\n")
             f.write("### Detection Performance Analysis\n")
             f.write("- Consistent performance across IoU thresholds (0.3, 0.5, 0.7)\n")
             f.write("- Strong precision-recall balance indicating robust detection\n")
@@ -747,7 +747,7 @@ class UnifiedJournalAnalyzer:
             f.write("- Dataset consistency importance highlighted\n\n")
 
             f.write("---\n\n")
-            f.write("## 📈 Clinical and Research Impact\n\n")
+            f.write("## Clinical and Research Impact\n\n")
             f.write("### For Journal Publication\n")
             f.write("- All tables follow IEEE Access format standards\n")
             f.write("- Comprehensive methodology comparison included\n")
@@ -776,12 +776,12 @@ class UnifiedJournalAnalyzer:
 
             f.write("---\n\n")
 
-            f.write("## 🎯 Executive Summary\n\n")
+            f.write("## Executive Summary\n\n")
             f.write("This analysis compares YOLOv8 and YOLOv11 performance for malaria parasite detection and species classification following IEEE journal methodology.\n\n")
 
             # Detection Results
             if 'detection' in self.analysis_results:
-                f.write("## 📊 Detection Performance\n\n")
+                f.write("## Detection Performance\n\n")
                 for model_key, results in self.analysis_results['detection'].items():
                     f.write(f"### {results['model_name']}\n")
                     f.write(f"- **mAP50**: {results['final_mAP50']:.3f}\n")
@@ -801,30 +801,30 @@ class UnifiedJournalAnalyzer:
                     f.write(f"- **Training Time**: {results['training_time']/60:.1f} minutes\n")
                     f.write(f"- **Epochs**: {results['epochs']}\n\n")
 
-            f.write("## 🔬 Key Findings\n\n")
+            f.write("## Key Findings\n\n")
             f.write("1. **Top-5 Accuracy Artifact**: 100% top-5 accuracy is expected with only 4 malaria species classes\n")
             f.write("2. **Focus on Top-1 Accuracy**: This is the meaningful metric for 4-class classification\n")
             f.write("3. **Two-Stage Pipeline**: Detection followed by classification shows effective results\n")
             f.write("4. **Model Comparison**: Direct performance comparison between YOLOv8 and YOLOv11\n\n")
 
-            f.write("## 📈 Generated Visualizations\n\n")
+            f.write("## Generated Visualizations\n\n")
             f.write("- `detection_performance.png`: Detection training curves and comparison\n")
             f.write("- `classification_performance.png`: Classification training curves and comparison\n")
             f.write("- `journal_comparison_table.csv`: IEEE-style comparison table\n")
             f.write("- `journal_comparison_table.tex`: LaTeX table for publication\n\n")
 
-            f.write("## 🎯 Conclusions\n\n")
+            f.write("## Conclusions\n\n")
             f.write("The analysis provides comprehensive performance evaluation suitable for academic publication, ")
             f.write("addressing the suspicious 100% top-5 accuracy and providing meaningful comparison metrics.\n\n")
 
             f.write("---\n\n")
             f.write("*Generated by Unified Journal Analyzer*\n")
 
-        print(f"📄 Journal report created: {report_path}")
+        print(f"Journal report created: {report_path}")
 
     def run_complete_analysis(self):
         """Run complete unified analysis"""
-        print("🚀 Starting Unified Journal Analysis...")
+        print("Starting Unified Journal Analysis...")
 
         # Find completed experiments
         experiments = self.find_pipeline_experiments()
@@ -836,7 +836,7 @@ class UnifiedJournalAnalyzer:
         print(f"[SUCCESS] Found {len(experiments)} completed pipelines")
 
         # Analyze detection performance
-        print("📊 Analyzing detection performance...")
+        print("Analyzing detection performance...")
         detection_results = self.analyze_detection_performance(experiments)
         self.analysis_results['detection'] = detection_results
 
@@ -848,12 +848,12 @@ class UnifiedJournalAnalyzer:
         # Run IoU analysis if in IEEE mode (temporarily disabled for testing)
         iou_results = None
         if self.ieee_compliant and False:  # Temporarily disabled
-            print("🔍 Running IoU threshold analysis...")
+            print("Running IoU threshold analysis...")
             iou_results = self.run_iou_analysis(experiments)
 
         # Create IEEE compliant tables and analysis
         if self.ieee_compliant:
-            print("📋 Creating IEEE compliant tables...")
+            print("Creating IEEE compliant tables...")
 
             # Create detection performance table (Table 8)
             detection_table = self.create_ieee_detection_table(iou_results)
@@ -869,15 +869,15 @@ class UnifiedJournalAnalyzer:
                 self.create_ieee_latex_tables(detection_table, classification_table, prior_works_table)
 
             # Create IEEE report
-            print("📄 Creating IEEE Access analysis report...")
+            print("Creating IEEE Access analysis report...")
             self.create_ieee_report(iou_results)
         else:
             # Create comparison table
-            print("📋 Creating journal comparison table...")
+            print("Creating journal comparison table...")
             comparison_table = self.create_journal_comparison_table()
 
             # Create journal report
-            print("📄 Creating journal analysis report...")
+            print("Creating journal analysis report...")
             self.create_journal_report()
 
         # Save complete results
@@ -898,11 +898,11 @@ class UnifiedJournalAnalyzer:
             json.dump(serializable_results, f, indent=2)
 
         analysis_type = "IEEE Access 2024 Compliant" if self.ieee_compliant else "Basic Journal"
-        print(f"🎉 {analysis_type} Analysis Complete!")
-        print(f"📂 Results saved to: {self.output_dir}")
+        print(f"{analysis_type} Analysis Complete!")
+        print(f"Results saved to: {self.output_dir}")
 
         if self.ieee_compliant:
-            print("\n📋 IEEE Compliant Assets Generated:")
+            print("\nIEEE Compliant Assets Generated:")
             print("  - detection_performance_table.csv (Table 8 equivalent)")
             print("  - classification_performance_table.csv (Table 9 equivalent)")
             print("  - prior_works_comparison_table.csv (Table 10 equivalent)")

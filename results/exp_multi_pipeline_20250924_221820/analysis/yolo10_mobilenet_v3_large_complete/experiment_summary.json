@@ -1,0 +1,9 @@
+{
+  "experiment_info": {
+    "detection_model": "YOLO10",
+    "classification_model": "MOBILENET_V3_LARGE",
+    "detection_experiment": "multi_pipeline_20250924_221820_yolo10_det",
+    "classification_experiment": "multi_pipeline_20250924_221820_yolo10_mobilenet_v3_large_cls",
+    "timestamp": "2025-09-24 22:36:00"
+  }
+}

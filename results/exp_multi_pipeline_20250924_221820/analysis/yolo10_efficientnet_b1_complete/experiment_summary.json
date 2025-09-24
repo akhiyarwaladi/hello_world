@@ -1,0 +1,9 @@
+{
+  "experiment_info": {
+    "detection_model": "YOLO10",
+    "classification_model": "EFFICIENTNET_B1",
+    "detection_experiment": "multi_pipeline_20250924_221820_yolo10_det",
+    "classification_experiment": "multi_pipeline_20250924_221820_yolo10_efficientnet_b1_cls",
+    "timestamp": "2025-09-24 22:36:00"
+  }
+}
