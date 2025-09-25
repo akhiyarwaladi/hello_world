@@ -319,24 +319,31 @@ def main():
     pin_memory = True
 
     # Create data loaders
+    # FIXED: Adjust batch size and drop_last for small datasets
+    actual_batch_size = min(args.batch, len(train_dataset))
+    use_drop_last = len(train_dataset) >= args.batch * 2  # Only drop last if we have enough data
+
+    print(f"[BATCH] Adjusted batch size: {actual_batch_size} (original: {args.batch})")
+    print(f"[BATCH] Drop last: {use_drop_last}")
+
     train_loader = DataLoader(
         train_dataset,
-        batch_size=args.batch,
+        batch_size=actual_batch_size,
         shuffle=True,
         num_workers=num_workers,
         pin_memory=pin_memory,
-        drop_last=True  # Consistent batch sizes for GPU optimization
+        drop_last=use_drop_last  # Only drop if we have enough data
     )
     val_loader = DataLoader(
         val_dataset,
-        batch_size=args.batch,
+        batch_size=min(actual_batch_size, len(val_dataset)),
         shuffle=False,
         num_workers=num_workers,
         pin_memory=pin_memory
     )
     test_loader = DataLoader(
         test_dataset,
-        batch_size=args.batch,
+        batch_size=min(actual_batch_size, len(test_dataset)),
         shuffle=False,
         num_workers=num_workers,
         pin_memory=pin_memory

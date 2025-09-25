@@ -30,6 +30,32 @@ datasets:
     total_images: 27558
     recommended: false
 
+  malaria_lifecycle:
+    name: "Malaria Lifecycle Classification Dataset"
+    description: "Five-stage malaria parasite lifecycle classification in blood smears"
+    source: "GitHub"
+    url: "https://github.com/QaziAmmar/A-Dataset-and-Benchmark-for-Malaria-Life-Cycle-Classification-in-Thin-Blood-Smear-Images.git"
+    annotation_format: "json"
+    annotation_file: "annotations.json"
+    classes: ["red blood cell", "ring", "gametocyte", "trophozoite", "schizont"]
+    total_images: 345
+    total_objects: 38000
+    recommended: true
+    dataset_type: "lifecycle"
+
+  kaggle_stage:
+    name: "Kaggle MP-IDB Stage Classification Dataset"
+    description: "Four-stage malaria parasite classification extracted from Kaggle MP-IDB YOLO dataset"
+    source: "Kaggle"
+    dataset_id: "rayhanadi/yolo-formatted-mp-idb-malaria-dataset"
+    annotation_format: "yolo"
+    classes: ["ring", "schizont", "trophozoite", "gametocyte"]
+    total_images: 209
+    total_objects: 1436
+    recommended: true
+    dataset_type: "stage"
+    notes: "Extracted from 16-class Kaggle dataset (4 species x 4 stages) to focus on stage classification only"
+
 # Download settings
 download:
   base_directory: "data/raw"

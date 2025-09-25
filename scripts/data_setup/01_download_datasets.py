@@ -235,18 +235,43 @@ class MalariaDatasetDownloader:
         print(f"  Once obtained, place in: {dataset_dir}")
     
     def download_iml_dataset(self):
-        """Information for IML dataset"""
+        """Download IML Malaria Lifecycle Classification Dataset from GitHub"""
         print("\n" + "="*50)
-        print("IML Dataset Information...")
+        print("Downloading IML Malaria Lifecycle Dataset...")
         print("="*50)
-        
-        dataset_dir = self.base_dir / "iml"
-        dataset_dir.mkdir(exist_ok=True)
-        
-        print("ℹ IML dataset available at:")
-        print("  http://im.itu.edu.pk/a-dataset-and-benchmark-for-malaria-life-cycle-classification-in-thin-blood-smear-images/")
-        print("  345 images with P. vivax life cycle stages")
-        print(f"  Download and place in: {dataset_dir}")
+
+        dataset_dir = self.base_dir / "malaria_lifecycle"
+
+        if not dataset_dir.exists():
+            repo_url = "https://github.com/QaziAmmar/A-Dataset-and-Benchmark-for-Malaria-Life-Cycle-Classification-in-Thin-Blood-Smear-Images.git"
+            try:
+                subprocess.run(["git", "clone", repo_url, str(dataset_dir)], check=True)
+                print(f"[SUCCESS] Malaria lifecycle dataset cloned to {dataset_dir}")
+
+                # Verify expected structure
+                expected_images = dataset_dir / "IML_Malaria"
+                expected_annotations = dataset_dir / "annotations.json"
+
+                if expected_images.exists() and expected_annotations.exists():
+                    print(f"[SUCCESS] Dataset structure verified:")
+                    print(f"  - Images: {expected_images}")
+                    print(f"  - Annotations: {expected_annotations}")
+                    print(f"  - 345 images with 5 lifecycle stages")
+                    print(f"  - Classes: red blood cell, ring, gametocyte, trophozoite, schizont")
+                else:
+                    print(f"[WARNING] Expected structure not found, but download completed")
+
+            except subprocess.CalledProcessError as e:
+                print(f"[ERROR] Failed to clone repository: {e}")
+                print("[TIP] Make sure git is installed and you have internet connection")
+        else:
+            print(f"[INFO] Malaria lifecycle dataset already exists at {dataset_dir}")
+            # Still verify structure
+            expected_images = dataset_dir / "IML_Malaria"
+            expected_annotations = dataset_dir / "annotations.json"
+
+            if expected_images.exists() and expected_annotations.exists():
+                print(f"[SUCCESS] Dataset structure verified - ready for processing")
     
     def download_m5_dataset(self):
         """Information for M5 dataset"""
@@ -365,8 +390,9 @@ Available datasets:
   kaggle_nih    - Kaggle NIH cell dataset
   bbbc041       - BBBC041 P. vivax stages
   plasmoID      - PlasmoID Indonesian dataset
-  iml           - IML P. vivax lifecycle
-  all           - Download all datasets
+  iml                - IML P. vivax lifecycle
+  malaria_lifecycle  - Malaria lifecycle classification (5 stages)
+  all                - Download all datasets
         """)
     
     parser.add_argument(
@@ -420,7 +446,8 @@ Available datasets:
         print("  kaggle_nih  - Kaggle NIH dataset (alternative source)")
         print("  bbbc041     - BBBC041 P. vivax lifecycle stages")
         print("  plasmoID    - PlasmoID Indonesian dataset (4 species)")
-        print("  iml         - IML P. vivax lifecycle images")
+        print("  iml         - IML P. vivax lifecycle images (old alias)")
+        print("  malaria_lifecycle - Malaria lifecycle classification (345 images, 5 stages)")
         print()
         print("[INFO] Usage Examples:")
         print("  # For main research pipeline (RECOMMENDED):")
@@ -456,6 +483,7 @@ Available datasets:
         'bbbc041': ('BBBC041 P. vivax', downloader.download_bbbc041),
         'plasmoid': ('PlasmoID Indonesian', downloader.download_plasmoID),
         'iml': ('IML P. vivax Lifecycle', downloader.download_iml_dataset),
+        'malaria_lifecycle': ('Malaria Lifecycle Classification', downloader.download_iml_dataset),
     }
     
     print("Malaria Dataset Downloader")

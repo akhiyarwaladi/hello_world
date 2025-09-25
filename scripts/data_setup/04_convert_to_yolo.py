@@ -178,9 +178,12 @@ class MalariaYOLOConverter:
         print("Creating YOLO configuration files...")
         
         # Create data.yaml with relative paths for cross-machine compatibility
+        # Use output directory path instead of hardcoded path
+        relative_output_path = str(self.yolo_output_dir).replace('\\', '/')
+
         if task_type == "detect":
             data_config = {
-                'path': 'data/integrated/yolo',  # Relative path for portability
+                'path': relative_output_path,
                 'train': 'train/images',
                 'val': 'val/images',
                 'test': 'test/images',
@@ -189,7 +192,7 @@ class MalariaYOLOConverter:
             }
         else:  # classify
             data_config = {
-                'path': 'data/integrated/yolo',  # Relative path for portability
+                'path': relative_output_path,
                 'train': 'train',
                 'val': 'val',
                 'test': 'test',
@@ -368,41 +371,424 @@ class MalariaYOLOConverter:
         plt.close()
         
         print(f"Sample visualization saved to {viz_path}")
-    
-    def convert_to_yolo_format(self, 
+
+    def convert_lifecycle_json_to_yolo(self,
+                                     lifecycle_data_dir: str,
+                                     split_ratios: Dict[str, float] = None):
+        """Convert lifecycle JSON annotations to YOLO format"""
+        lifecycle_path = Path(lifecycle_data_dir)
+        annotations_file = lifecycle_path / "annotations.json"
+        images_dir = lifecycle_path / "IML_Malaria"
+
+        if not annotations_file.exists():
+            print(f"[ERROR] Annotations file not found: {annotations_file}")
+            return
+
+        if not images_dir.exists():
+            print(f"[ERROR] Images directory not found: {images_dir}")
+            return
+
+        print(f"Converting lifecycle dataset from {lifecycle_path}")
+        print(f"Images: {images_dir}")
+        print(f"Annotations: {annotations_file}")
+
+        # Load JSON annotations
+        with open(annotations_file, 'r') as f:
+            annotations = json.load(f)
+
+        # Lifecycle class mapping
+        lifecycle_classes = {
+            "red blood cell": 0,
+            "ring": 1,
+            "gametocyte": 2,
+            "trophozoite": 3,
+            "schizont": 4
+        }
+
+        # Update class names for lifecycle
+        self.class_names = {
+            0: 'red_blood_cell',
+            1: 'ring',
+            2: 'gametocyte',
+            3: 'trophozoite',
+            4: 'schizont'
+        }
+
+        # Default split ratios if not provided
+        if split_ratios is None:
+            split_ratios = {'train': 0.7, 'val': 0.15, 'test': 0.15}
+
+        # Process annotations
+        converted_data = []
+        for img_data in annotations:
+            image_name = img_data['image_name']
+            image_path = images_dir / image_name
+
+            if not image_path.exists():
+                print(f"[WARNING] Image not found: {image_path}")
+                continue
+
+            # Load image to get dimensions
+            img = cv2.imread(str(image_path))
+            if img is None:
+                continue
+
+            img_height, img_width = img.shape[:2]
+
+            # Process each object in the image
+            for obj in img_data.get('objects', []):
+                obj_type = obj.get('type', '').lower()
+                bbox = obj.get('bbox', {})
+
+                if obj_type not in lifecycle_classes:
+                    continue
+
+                # Convert bbox to YOLO format (normalized x_center, y_center, width, height)
+                x = float(bbox.get('x', 0))
+                y = float(bbox.get('y', 0))
+                w = float(bbox.get('w', 0))
+                h = float(bbox.get('h', 0))
+
+                # Convert to center coordinates and normalize
+                x_center = (x + w/2) / img_width
+                y_center = (y + h/2) / img_height
+                width_norm = w / img_width
+                height_norm = h / img_height
+
+                # Ensure normalized coordinates are in [0,1]
+                x_center = max(0, min(1, x_center))
+                y_center = max(0, min(1, y_center))
+                width_norm = max(0, min(1, width_norm))
+                height_norm = max(0, min(1, height_norm))
+
+                converted_data.append({
+                    'image_name': image_name,
+                    'image_path': image_path,
+                    'class_id': lifecycle_classes[obj_type],
+                    'class_name': obj_type,
+                    'x_center': x_center,
+                    'y_center': y_center,
+                    'width': width_norm,
+                    'height': height_norm
+                })
+
+        print(f"[SUCCESS] Converted {len(converted_data)} annotations from {len(annotations)} images")
+
+        # Split data
+        import random
+        random.shuffle(converted_data)
+
+        total_annotations = len(converted_data)
+        train_end = int(total_annotations * split_ratios['train'])
+        val_end = train_end + int(total_annotations * split_ratios['val'])
+
+        splits = {
+            'train': converted_data[:train_end],
+            'val': converted_data[train_end:val_end],
+            'test': converted_data[val_end:]
+        }
+
+        # Write YOLO format files
+        for split_name, split_data in splits.items():
+            split_images_dir = self.yolo_output_dir / split_name / "images"
+            split_labels_dir = self.yolo_output_dir / split_name / "labels"
+
+            split_images_dir.mkdir(parents=True, exist_ok=True)
+            split_labels_dir.mkdir(parents=True, exist_ok=True)
+
+            print(f"Processing {split_name} split: {len(split_data)} annotations")
+
+            # Group by image
+            image_annotations = defaultdict(list)
+            for item in split_data:
+                image_annotations[item['image_name']].append(item)
+
+            for image_name, annotations in image_annotations.items():
+                # Copy image
+                src_image_path = annotations[0]['image_path']
+                dst_image_path = split_images_dir / image_name
+                shutil.copy2(src_image_path, dst_image_path)
+
+                # Create label file
+                label_path = split_labels_dir / f"{Path(image_name).stem}.txt"
+                with open(label_path, 'w') as f:
+                    for ann in annotations:
+                        # YOLO detection format: class_id x_center y_center width height
+                        line = f"{ann['class_id']} {ann['x_center']:.6f} {ann['y_center']:.6f} {ann['width']:.6f} {ann['height']:.6f}\n"
+                        f.write(line)
+
+                        # Update statistics
+                        self.conversion_stats['class_distribution'][ann['class_id']] += 1
+
+            self.conversion_stats['splits_processed'][split_name] = len(image_annotations)
+            print(f"[SUCCESS] {split_name}: {len(image_annotations)} images, {len(split_data)} annotations")
+
+        self.conversion_stats['total_images'] = sum(self.conversion_stats['splits_processed'].values())
+
+        return splits
+
+    def convert_kaggle_stage_to_yolo(self,
+                                   kaggle_data_dir: str,
+                                   split_ratios: Dict[str, float] = None):
+        """Convert Kaggle 16-class dataset to 4 stage classes"""
+        kaggle_path = Path(kaggle_data_dir)
+        data_yaml_file = kaggle_path / "data.yaml"
+        images_dir = kaggle_path / "images"
+        labels_dir = kaggle_path / "labels"
+
+        if not data_yaml_file.exists():
+            print(f"[ERROR] Data YAML file not found: {data_yaml_file}")
+            return
+
+        if not images_dir.exists() or not labels_dir.exists():
+            print(f"[ERROR] Images or labels directory not found: {images_dir}, {labels_dir}")
+            return
+
+        print(f"Converting Kaggle stage dataset from {kaggle_path}")
+
+        # Load original class names from data.yaml
+        with open(data_yaml_file, 'r') as f:
+            original_data = yaml.safe_load(f)
+
+        original_classes = original_data.get('names', [])
+
+        # Map 16 classes to 4 stages
+        # Original: falciparum_R, falciparum_S, falciparum_T, falciparum_G, vivax_R, etc.
+        # Target: ring(0), schizont(1), trophozoite(2), gametocyte(3)
+        stage_mapping = {
+            # Ring stage (suffix _R)
+            0: 0, 4: 0, 8: 0, 12: 0,   # falciparum_R, vivax_R, ovale_R, malariae_R
+            # Schizont stage (suffix _S)
+            1: 1, 5: 1, 9: 1, 13: 1,   # falciparum_S, vivax_S, ovale_S, malariae_S
+            # Trophozoite stage (suffix _T)
+            2: 2, 6: 2, 10: 2, 14: 2,  # falciparum_T, vivax_T, ovale_T, malariae_T
+            # Gametocyte stage (suffix _G)
+            3: 3, 7: 3, 11: 3, 15: 3   # falciparum_G, vivax_G, ovale_G, malariae_G
+        }
+
+        # Update class names for stages
+        self.class_names = {
+            0: 'ring',
+            1: 'schizont',
+            2: 'trophozoite',
+            3: 'gametocyte'
+        }
+
+        # Default split ratios if not provided
+        if split_ratios is None:
+            split_ratios = {'train': 0.7, 'val': 0.15, 'test': 0.15}
+
+        # Process all label files
+        converted_data = []
+        label_files = list(labels_dir.glob("*.txt"))
+
+        for label_file in label_files:
+            image_name = label_file.stem + ".jpg"  # Assuming JPG images
+            image_path = images_dir / image_name
+
+            if not image_path.exists():
+                print(f"[WARNING] Image not found: {image_path}")
+                continue
+
+            # Read YOLO labels (handle both detection and segmentation formats)
+            with open(label_file, 'r') as f:
+                lines = f.readlines()
+
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+
+                parts = line.split()
+                if len(parts) < 5:
+                    continue
+
+                original_class_id = int(parts[0])
+
+                # Handle segmentation format (polygon coordinates)
+                if len(parts) > 5:
+                    # Extract polygon coordinates
+                    coords = [float(x) for x in parts[1:]]
+                    if len(coords) % 2 != 0:
+                        continue  # Skip malformed polygons
+
+                    # Convert polygon to bounding box
+                    x_coords = coords[0::2]  # Every even index (x coordinates)
+                    y_coords = coords[1::2]  # Every odd index (y coordinates)
+
+                    x_min, x_max = min(x_coords), max(x_coords)
+                    y_min, y_max = min(y_coords), max(y_coords)
+
+                    # Convert to YOLO detection format
+                    x_center = (x_min + x_max) / 2
+                    y_center = (y_min + y_max) / 2
+                    width = x_max - x_min
+                    height = y_max - y_min
+                else:
+                    # Handle detection format (already in correct format)
+                    x_center = float(parts[1])
+                    y_center = float(parts[2])
+                    width = float(parts[3])
+                    height = float(parts[4])
+
+                # Convert to stage class
+                if original_class_id in stage_mapping:
+                    stage_class_id = stage_mapping[original_class_id]
+
+                    converted_data.append({
+                        'image_name': image_name,
+                        'image_path': image_path,
+                        'class_id': stage_class_id,
+                        'class_name': self.class_names[stage_class_id],
+                        'x_center': x_center,
+                        'y_center': y_center,
+                        'width': width,
+                        'height': height
+                    })
+
+        print(f"[SUCCESS] Converted {len(converted_data)} annotations from {len(label_files)} label files")
+
+        # Split data
+        import random
+        random.shuffle(converted_data)
+
+        total_annotations = len(converted_data)
+        train_end = int(total_annotations * split_ratios['train'])
+        val_end = train_end + int(total_annotations * split_ratios['val'])
+
+        splits = {
+            'train': converted_data[:train_end],
+            'val': converted_data[train_end:val_end],
+            'test': converted_data[val_end:]
+        }
+
+        # Write YOLO format files
+        for split_name, split_data in splits.items():
+            split_images_dir = self.yolo_output_dir / split_name / "images"
+            split_labels_dir = self.yolo_output_dir / split_name / "labels"
+
+            split_images_dir.mkdir(parents=True, exist_ok=True)
+            split_labels_dir.mkdir(parents=True, exist_ok=True)
+
+            print(f"Processing {split_name} split: {len(split_data)} annotations")
+
+            # Group by image
+            image_annotations = defaultdict(list)
+            for item in split_data:
+                image_annotations[item['image_name']].append(item)
+
+            for image_name, annotations in image_annotations.items():
+                # Copy image
+                src_image_path = annotations[0]['image_path']
+                dst_image_path = split_images_dir / image_name
+                shutil.copy2(src_image_path, dst_image_path)
+
+                # Create label file
+                label_path = split_labels_dir / f"{Path(image_name).stem}.txt"
+                with open(label_path, 'w') as f:
+                    for ann in annotations:
+                        # YOLO detection format: class_id x_center y_center width height
+                        line = f"{ann['class_id']} {ann['x_center']:.6f} {ann['y_center']:.6f} {ann['width']:.6f} {ann['height']:.6f}\n"
+                        f.write(line)
+
+                        # Update statistics
+                        self.conversion_stats['class_distribution'][ann['class_id']] += 1
+
+            self.conversion_stats['splits_processed'][split_name] = len(image_annotations)
+            print(f"[SUCCESS] {split_name}: {len(image_annotations)} images, {len(split_data)} annotations")
+
+        self.conversion_stats['total_images'] = sum(self.conversion_stats['splits_processed'].values())
+
+        return splits
+
+    def convert_to_yolo_format(self,
                               task_type: str = "classify",
                               detection_mode: bool = False,
-                              create_detection_boxes: bool = False):
+                              create_detection_boxes: bool = False,
+                              dataset_type: str = "species"):
         """Main conversion function"""
         print("\\n" + "="*60)
         print(" MALARIA DATASET TO YOLO CONVERSION ")
         print("="*60)
+        print(f"Dataset type: {dataset_type}")
         print(f"Task type: {task_type}")
         print(f"Detection mode: {detection_mode}")
-        
-        # Load integrated annotations
-        annotations = self.load_integrated_annotations()
-        
-        if not annotations:
-            print("No annotations found. Please run integration step first.")
-            return
-        
-        # Convert each split
-        for split_name, split_df in annotations.items():
-            self.convert_split_to_yolo(
-                split_name, split_df, 
-                detection_mode=detection_mode,
-                create_detection_boxes=create_detection_boxes
-            )
-        
-        # Create YOLO config files
-        self.create_yolo_config_files(task_type)
-        
-        # Create visualization
-        self.create_sample_visualization(annotations)
-        
-        # Create report
-        self.create_conversion_report(annotations)
+
+        if dataset_type == "lifecycle":
+            # Handle lifecycle dataset with JSON annotations
+            print("[INFO] Processing lifecycle dataset with JSON annotations")
+            lifecycle_data_dir = "data/raw/malaria_lifecycle"
+
+            if not Path(lifecycle_data_dir).exists():
+                print(f"[ERROR] Lifecycle dataset not found at {lifecycle_data_dir}")
+                print("[TIP] Download first: python scripts/data_setup/01_download_datasets.py --dataset malaria_lifecycle")
+                return
+
+            # Convert lifecycle JSON to YOLO
+            splits = self.convert_lifecycle_json_to_yolo(lifecycle_data_dir)
+
+            if not splits:
+                print("[ERROR] Failed to convert lifecycle dataset")
+                return
+
+            # Create YOLO config files for lifecycle
+            self.create_yolo_config_files(task_type)
+
+            print(f"\\n[SUCCESS] Lifecycle dataset conversion completed!")
+            print(f"Output directory: {self.yolo_output_dir}")
+            print(f"Classes: {list(self.class_names.values())}")
+
+        elif dataset_type == "stage":
+            # Handle Kaggle stage dataset with 16-class to 4-stage conversion
+            print("[INFO] Processing Kaggle stage dataset with 16-class to 4-stage conversion")
+            kaggle_data_dir = "data/kaggle_dataset/MP-IDB-YOLO"
+
+            if not Path(kaggle_data_dir).exists():
+                print(f"[ERROR] Kaggle dataset not found at {kaggle_data_dir}")
+                print("[TIP] Download first: python scripts/data_setup/01_download_datasets.py --dataset kaggle_mp_idb")
+                return
+
+            # Convert Kaggle 16-class to 4 stages
+            splits = self.convert_kaggle_stage_to_yolo(kaggle_data_dir)
+
+            if not splits:
+                print("[ERROR] Failed to convert Kaggle stage dataset")
+                return
+
+            # Create YOLO config files for stages
+            self.create_yolo_config_files(task_type)
+
+            print(f"\\n[SUCCESS] Kaggle stage dataset conversion completed!")
+            print(f"Output directory: {self.yolo_output_dir}")
+            print(f"Classes: {list(self.class_names.values())}")
+
+        else:
+            # Handle original species dataset with integrated annotations
+            print("[INFO] Processing species dataset with integrated annotations")
+
+            # Load integrated annotations
+            annotations = self.load_integrated_annotations()
+
+            if not annotations:
+                print("No annotations found. Please run integration step first.")
+                return
+
+            # Convert each split
+            for split_name, split_df in annotations.items():
+                self.convert_split_to_yolo(
+                    split_name, split_df,
+                    detection_mode=detection_mode,
+                    create_detection_boxes=create_detection_boxes
+                )
+
+            # Create YOLO config files
+            self.create_yolo_config_files(task_type)
+
+            # Create visualization
+            self.create_sample_visualization(annotations)
+
+            # Create report
+            self.create_conversion_report(annotations)
         
         print("\nYOLO format conversion completed successfully!")
 
@@ -420,20 +806,29 @@ def main():
                        help="Create detection-style annotations")
     parser.add_argument("--create-boxes", action="store_true",
                        help="Create detection boxes for cells")
-    
+    parser.add_argument("--dataset", choices=["species", "lifecycle", "stage"], default="species",
+                       help="Dataset type: species classification, lifecycle classification, or stage classification")
+
     args = parser.parse_args()
-    
-    # Initialize converter
+
+    # Initialize converter with appropriate output directory
+    output_dir = args.output_dir
+    if args.dataset == "lifecycle":
+        output_dir = output_dir.replace("/yolo", "/lifecycle_yolo")
+    elif args.dataset == "stage":
+        output_dir = output_dir.replace("/yolo", "/stage_yolo")
+
     converter = MalariaYOLOConverter(
         integrated_data_dir=args.integrated_dir,
-        yolo_output_dir=args.output_dir
+        yolo_output_dir=output_dir
     )
-    
+
     # Run conversion
     converter.convert_to_yolo_format(
         task_type=args.task,
         detection_mode=args.detection_mode,
-        create_detection_boxes=args.create_boxes
+        create_detection_boxes=args.create_boxes,
+        dataset_type=args.dataset
     )
 
 
