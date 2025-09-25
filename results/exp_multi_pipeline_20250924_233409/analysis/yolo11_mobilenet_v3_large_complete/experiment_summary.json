@@ -1,0 +1,22 @@
+{
+  "experiment_info": {
+    "detection_model": "YOLO11",
+    "classification_model": "MOBILENET_V3_LARGE",
+    "detection_experiment": "multi_pipeline_20250924_233409_yolo11_det",
+    "classification_experiment": "multi_pipeline_20250924_233409_yolo11_mobilenet_v3_large_cls",
+    "timestamp": "2025-09-25 10:12:06"
+  },
+  "detection": {
+    "epochs": 50,
+    "mAP50": 0.92876,
+    "mAP50_95": 0.55747,
+    "precision": 0.88684,
+    "recall": 0.89572
+  },
+  "classification": {
+    "model_type": "mobilenet_v3_large",
+    "epochs": 30,
+    "top1_accuracy": 95.68,
+    "top5_accuracy": 0.0
+  }
+}

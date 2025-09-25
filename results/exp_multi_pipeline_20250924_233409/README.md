@@ -1,9 +1,9 @@
 # Centralized Pipeline Results: multi_pipeline_20250924_233409
 
 ## Summary
-- **Generated**: 2025-09-25 09:20:48
+- **Generated**: 2025-09-25 10:12:37
 - **Pipeline Type**: Centralized Results (Direct Save)
-- **Total Components**: 13
+- **Total Components**: 27
 
 ## Folder Structure
 - `detection/` - Detection model results and weights

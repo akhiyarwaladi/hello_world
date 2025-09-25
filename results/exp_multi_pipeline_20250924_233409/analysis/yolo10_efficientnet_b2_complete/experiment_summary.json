@@ -4,7 +4,7 @@
     "classification_model": "EFFICIENTNET_B2",
     "detection_experiment": "multi_pipeline_20250924_233409_yolo10_det",
     "classification_experiment": "multi_pipeline_20250924_233409_yolo10_efficientnet_b2_cls",
-    "timestamp": "2025-09-25 09:20:48"
+    "timestamp": "2025-09-25 10:11:30"
   },
   "detection": {
     "epochs": 50,
