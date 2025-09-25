@@ -1,0 +1,16 @@
+Model: convnext_tiny
+Best Val Acc: 96.36%
+Test Acc: 88.43%
+Training Time: 4.5 min
+
+Classification Report:
+              precision    recall  f1-score   support
+
+P_falciparum       0.91      1.00      0.95       107
+  P_malariae       0.00      0.00      0.00         5
+     P_ovale       0.00      0.00      0.00         5
+     P_vivax       0.00      0.00      0.00         4
+
+    accuracy                           0.88       121
+   macro avg       0.23      0.25      0.24       121
+weighted avg       0.80      0.88      0.84       121

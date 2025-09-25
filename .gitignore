@@ -84,6 +84,9 @@ wandb/
 *.rar
 *.7z
 
+# BUT allow organized experiment archives
+!exports/experiment_archives/*.zip
+
 # Image datasets (keep only samples)
 *.png
 *.jpg

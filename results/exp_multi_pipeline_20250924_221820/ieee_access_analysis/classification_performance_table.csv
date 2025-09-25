@@ -1,7 +1,0 @@
-Model,Architecture,Accuracy,Species_Coverage,Training_Time_min
-convnext_tiny,convnext_tiny,87.4%,"4 (P. falciparum, P. vivax, P. ovale, P. malariae)",0.5
-densenet121,densenet121,87.4%,"4 (P. falciparum, P. vivax, P. ovale, P. malariae)",0.5
-efficientnet_b1,efficientnet_b1,87.4%,"4 (P. falciparum, P. vivax, P. ovale, P. malariae)",0.4
-efficientnet_b2,efficientnet_b2,87.4%,"4 (P. falciparum, P. vivax, P. ovale, P. malariae)",0.4
-mobilenet_v3_large,mobilenet_v3_large,87.4%,"4 (P. falciparum, P. vivax, P. ovale, P. malariae)",0.3
-resnet101,resnet101,87.4%,"4 (P. falciparum, P. vivax, P. ovale, P. malariae)",0.5

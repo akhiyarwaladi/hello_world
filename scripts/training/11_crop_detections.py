@@ -35,7 +35,7 @@ def _cleanup_empty_class_folders(crops_dir):
                         class_folder.rmdir()
                         removed_count += 1
     if removed_count > 0:
-        print(f"🧹 Removed {removed_count} empty class folders to avoid YOLO class count mismatch")
+        print(f"[CLEANUP] Removed {removed_count} empty class folders to avoid YOLO class count mismatch")
 
 def load_class_names(data_yaml_path="data/integrated/yolo/data.yaml"):
     """Load class names from YOLO data.yaml file"""

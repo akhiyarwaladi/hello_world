@@ -1,4 +1,0 @@
-epoch,train_loss,train_acc,val_loss,val_acc
-1,0.831275,82.23,nan,95.91
-2,2.095809,89.65,nan,95.91
-3,0.568104,90.04,nan,95.68
