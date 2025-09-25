@@ -64,6 +64,13 @@ class ResultsManager:
 
     def _initialize_directories(self):
         """Create organized directory structure"""
+        # FIXED: Skip folder creation in centralized mode to prevent unwanted folders
+        if self.centralized_mode:
+            # In centralized mode, only create the main experiment folder
+            print(f"[CENTRALIZED] Using clean structure: {self.pipeline_dir}")
+            return
+
+        # Only create distributed structure folders when NOT in centralized mode
         directories = self.config.get("results_structure", {}).get("directories", {})
 
         for dir_type, dir_name in directories.items():
@@ -316,7 +323,7 @@ class ResultsManager:
                 try:
                     if not any(dir_path.iterdir()):
                         dir_path.rmdir()
-                        print(f"🧹 Removed empty directory: {dir_path}")
+                        print(f"[CLEANUP] Removed empty directory: {dir_path}")
                 except OSError:
                     # Directory not empty or permission issue
                     pass

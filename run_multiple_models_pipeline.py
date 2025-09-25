@@ -209,8 +209,11 @@ organized in a clean hierarchy for easy access and distribution.
     return zip_filename, str(centralized_dir)
 
 def create_experiment_summary(exp_dir, model_key, det_exp_name, cls_exp_name, detection_model, cls_model_name="yolo11"):
-    """Create experiment summary"""
+    """Create experiment summary - FIXED to use correct centralized paths"""
     try:
+        # FIXED: Determine experiment base path from exp_dir
+        experiment_path = Path(exp_dir).parent.parent if Path(exp_dir).name.endswith('_complete') else Path(exp_dir)
+
         summary_data = {
             "experiment_info": {
                 "detection_model": model_key.upper(),
@@ -221,11 +224,8 @@ def create_experiment_summary(exp_dir, model_key, det_exp_name, cls_exp_name, de
             }
         }
 
-        # Get detection results from centralized location
-        # Use results manager to get centralized paths
-        results_manager = get_results_manager()
-        centralized_det_path = results_manager.get_experiment_path("training", detection_model, det_exp_name)
-        det_results_path = centralized_det_path / "results.csv"
+        # FIXED: Use direct experiment path for detection results
+        det_results_path = experiment_path / "detection" / detection_model / det_exp_name / "results.csv"
 
         if det_results_path.exists():
             det_df = pd.read_csv(det_results_path)
@@ -237,25 +237,28 @@ def create_experiment_summary(exp_dir, model_key, det_exp_name, cls_exp_name, de
                 "precision": float(final_det.get('metrics/precision(B)', 0)),
                 "recall": float(final_det.get('metrics/recall(B)', 0))
             }
-
-        # Get classification results from centralized location
-        if cls_model_name in ["yolo11"]:
-            cls_config_name = "yolov11_classification"  # Use YOLOv11 classification
-            centralized_cls_path = results_manager.get_experiment_path("training", cls_config_name, cls_exp_name)
-            cls_results_path = centralized_cls_path / "results.csv"
         else:
-            centralized_cls_path = results_manager.get_experiment_path("training", f"pytorch_classification_{cls_model_name}", cls_exp_name)
-            cls_results_path = centralized_cls_path / "results.csv"
+            print(f"[DEBUG] Detection results not found: {det_results_path}")
 
-        if Path(cls_results_path).exists():
+        # FIXED: Use direct experiment path for classification results
+        if cls_model_name in ["yolo11"]:
+            cls_results_path = experiment_path / "models" / "yolo11_classification" / cls_exp_name / "results.csv"
+        else:
+            cls_results_path = experiment_path / "models" / cls_model_name / cls_exp_name / "results.csv"
+
+        if cls_results_path.exists():
             cls_df = pd.read_csv(cls_results_path)
             final_cls = cls_df.iloc[-1]
+            # FIXED: Handle both PyTorch and YOLO classification column names
+            accuracy_col = final_cls.get('val_acc', final_cls.get('accuracy', final_cls.get('metrics/accuracy_top1', 0)))
             summary_data["classification"] = {
                 "model_type": cls_model_name,
                 "epochs": len(cls_df),
-                "top1_accuracy": float(final_cls.get('metrics/accuracy_top1', final_cls.get('accuracy', 0))),
+                "top1_accuracy": float(accuracy_col),
                 "top5_accuracy": float(final_cls.get('metrics/accuracy_top5', 0))
             }
+        else:
+            print(f"[DEBUG] Classification results not found: {cls_results_path}")
 
         # Get IoU analysis results
         iou_results_file = f"{exp_dir}/analysis/iou_variation/iou_variation_results.json"
@@ -293,13 +296,13 @@ def create_experiment_summary(exp_dir, model_key, det_exp_name, cls_exp_name, de
 """
 
         md_content += f"""## Classification Performance ({cls_model_name.upper()})
-- **Top-1 Accuracy**: {summary_data.get('classification', {}).get('top1_accuracy', 0):.3f}
+- **Top-1 Accuracy**: {summary_data.get('classification', {}).get('top1_accuracy', 0):.3f}%
 - **Top-5 Accuracy**: {summary_data.get('classification', {}).get('top5_accuracy', 0):.3f}
 
 ## Results Locations (CENTRALIZED)
-- **Detection**: {centralized_det_path}/
-- **Classification**: {centralized_cls_path}/
-- **Crops**: {results_manager.get_crops_path(model_key, det_exp_name)}/
+- **Detection**: {experiment_path}/detection/{detection_model}/{det_exp_name}/
+- **Classification**: {experiment_path}/models/{cls_model_name}/{cls_exp_name}/
+- **Crops**: {experiment_path}/crop_data/
 """
 
         with open(f"{exp_dir}/experiment_summary.md", 'w') as f:

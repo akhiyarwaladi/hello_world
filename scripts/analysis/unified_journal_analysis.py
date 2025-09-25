@@ -651,25 +651,24 @@ class UnifiedJournalAnalyzer:
                         from scripts.analysis.compare_models_performance import MalariaPerformanceAnalyzer
                         analyzer = MalariaPerformanceAnalyzer()
 
-                        # Run IoU analysis with different thresholds
-                        for iou_threshold in [0.3, 0.5, 0.7]:
-                            temp_output = self.output_dir / f"temp_iou_{iou_threshold}"
-                            temp_output.mkdir(exist_ok=True)
+                        # Run single IoU analysis (YOLO provides built-in IoU thresholds)
+                        temp_output = self.output_dir / f"iou_analysis"
+                        temp_output.mkdir(exist_ok=True)
 
-                            # Run analysis
-                            results = analyzer.run_iou_analysis(
-                                str(model_path),
-                                str(temp_output),
-                                iou_thresholds=[iou_threshold],
-                                data_yaml=data_yaml
-                            )
+                        # Run analysis - uses YOLO built-in IoU evaluation
+                        results = analyzer.run_iou_analysis(
+                            str(model_path),
+                            str(temp_output),
+                            data_yaml=data_yaml
+                        )
 
-                            if results:
-                                iou_results[str(iou_threshold)] = results[0] if isinstance(results, list) else results
+                        if results:
+                            # Store all IoU results from YOLO built-in evaluation
+                            iou_results = results
 
-                            # Clean up temp directory
-                            import shutil
-                            shutil.rmtree(temp_output, ignore_errors=True)
+                        # Clean up temp directory
+                        import shutil
+                        shutil.rmtree(temp_output, ignore_errors=True)
 
                     except Exception as e:
                         print(f"[WARNING] IoU analysis failed for {model_key}: {e}")
@@ -841,7 +840,7 @@ class UnifiedJournalAnalyzer:
         self.analysis_results['detection'] = detection_results
 
         # Analyze classification performance
-        print("🧬 Analyzing classification performance...")
+        print("[CLASSIFICATION] Analyzing classification performance...")
         classification_results = self.analyze_classification_performance(experiments)
         self.analysis_results['classification'] = classification_results
 
