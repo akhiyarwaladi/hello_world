@@ -771,7 +771,7 @@ class UnifiedJournalAnalyzer:
             f.write("# Unified Journal Analysis: YOLOv8 vs YOLOv11 Malaria Detection\n\n")
             f.write(f"**Analysis Date**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
             f.write("**Task**: Automated Identification of Malaria-Infected Cells\n")
-            f.write("**Methodology**: Two-Stage Deep Learning (Detection → Classification)\n\n")
+            f.write("**Methodology**: Two-Stage Deep Learning (Detection -> Classification)\n\n")
 
             f.write("---\n\n")
 
@@ -792,7 +792,7 @@ class UnifiedJournalAnalyzer:
 
             # Classification Results
             if 'classification' in self.analysis_results:
-                f.write("## 🧬 Classification Performance\n\n")
+                f.write("## Classification Performance\n\n")
                 for model_key, results in self.analysis_results['classification'].items():
                     f.write(f"### {results['model_name']}\n")
                     f.write(f"- **Top-1 Accuracy**: {results['final_top1_acc']:.3f}\n")
