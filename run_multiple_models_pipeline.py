@@ -103,14 +103,33 @@ def run_kaggle_optimized_training(model_name, data_yaml, epochs, exp_name, centr
         return False
 
 def run_command(cmd, description):
-    """Run command with logging"""
+    """Run command with logging and proper error capture"""
     print(f"\n[START] {description}")
     # Convert all items to strings to handle Path objects
     cmd_str = [str(item) for item in cmd]
     print(f"Command: {' '.join(cmd_str)}")
 
-    result = subprocess.run(cmd_str, capture_output=False, text=True)
-    return result.returncode == 0
+    try:
+        result = subprocess.run(cmd_str, capture_output=True, text=True, check=False)
+
+        # Print stdout if available
+        if result.stdout:
+            print(f"[OUTPUT] {result.stdout.strip()}")
+
+        # Print stderr if available
+        if result.stderr:
+            print(f"[ERROR] {result.stderr.strip()}")
+
+        if result.returncode == 0:
+            print(f"[SUCCESS] {description} completed successfully")
+            return True
+        else:
+            print(f"[FAILED] {description} failed with return code: {result.returncode}")
+            return False
+
+    except Exception as e:
+        print(f"[EXCEPTION] Failed to run command: {e}")
+        return False
 
 
 def wait_for_file(file_path, max_wait_seconds=60, check_interval=2):
@@ -326,8 +345,8 @@ def main():
                        help="Epochs for classification training")
     parser.add_argument("--experiment-name", default="multi_pipeline",
                        help="Base name for experiments")
-    parser.add_argument("--use-kaggle-dataset", action="store_true",
-                       help="Use Kaggle MP-IDB dataset instead of preprocessed dataset")
+    parser.add_argument("--dataset", choices=["mp_idb_species", "mp_idb_stages", "iml_lifecycle"], default="mp_idb_species",
+                       help="Dataset selection: mp_idb_species (4 species), mp_idb_stages (4 stages), iml_lifecycle (healthy+4 stages)")
     parser.add_argument("--classification-models", nargs="+",
                        choices=["densenet121", "efficientnet_b1", "convnext_tiny", "mobilenet_v3_large", "efficientnet_b2", "resnet101", "all"],
                        default=["all"],
@@ -336,8 +355,6 @@ def main():
                        choices=["densenet121", "efficientnet_b1", "convnext_tiny", "mobilenet_v3_large", "efficientnet_b2", "resnet101"],
                        default=[],
                        help="Classification models to exclude")
-    parser.add_argument("--test-mode", action="store_true",
-                       help="Enable test mode: faster settings with fewer epochs")
     parser.add_argument("--no-zip", action="store_true",
                        help="Skip creating ZIP archive of results (default: always create ZIP)")
 
@@ -483,14 +500,9 @@ def main():
         print("[ERROR] No classification models to run after exclusions!")
         return
 
-    # Set test mode parameters
-    if args.test_mode:
-        confidence_threshold = "0.25"  # Same as production mode and Kaggle script validation
-        print("[TEST] TEST MODE ENABLED")
-        print(f"[TARGET] Using standard confidence threshold: {confidence_threshold}")
-    else:
-        confidence_threshold = "0.25"
-        print(f"[TARGET] Using production confidence threshold: {confidence_threshold}")
+    # Set confidence threshold
+    confidence_threshold = "0.25"
+    print(f"[TARGET] Using confidence threshold: {confidence_threshold}")
 
     # Handle experiment naming for continue vs new mode
     if continue_mode:
@@ -503,8 +515,13 @@ def main():
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         base_exp_name = f"{args.experiment_name}_{timestamp}"
 
-        if args.test_mode:
-            base_exp_name += "_TEST"
+        # Add dataset type to experiment name
+        if args.dataset == "iml_lifecycle":
+            base_exp_name += "_iml_lifecycle"
+        elif args.dataset == "mp_idb_stages":
+            base_exp_name += "_mp_idb_stages"
+        elif args.dataset == "mp_idb_species":
+            base_exp_name += "_mp_idb_species"
 
         # NEW: Initialize centralized results manager
         results_manager = get_results_manager(pipeline_name=base_exp_name)
@@ -517,22 +534,67 @@ def main():
     print(f"Confidence: {confidence_threshold}")
 
     # Auto-setup and auto-detect best dataset
-    kaggle_ready_path = Path("data/kaggle_pipeline_ready/data.yaml")
+    if args.dataset == "iml_lifecycle":
+        # Setup IML lifecycle dataset paths
+        lifecycle_ready_path = Path("data/lifecycle_pipeline_ready/data.yaml")
 
-    if args.use_kaggle_dataset:
+        if not lifecycle_ready_path.exists():
+            print("[SETUP] Setting up IML lifecycle dataset for pipeline...")
+            import subprocess
+
+            # First ensure raw dataset is downloaded
+            download_result = subprocess.run([sys.executable, "scripts/data_setup/01_download_datasets.py", "--dataset", "malaria_lifecycle"],
+                                           capture_output=True, text=True)
+            if download_result.returncode != 0:
+                print(f"[ERROR] Failed to download IML lifecycle dataset: {download_result.stderr}")
+                return
+
+            # Setup using lifecycle setup script
+            setup_result = subprocess.run([sys.executable, "scripts/data_setup/08_setup_lifecycle_for_pipeline.py"],
+                                        capture_output=True, text=True)
+            if setup_result.returncode != 0:
+                print(f"[ERROR] Failed to setup IML lifecycle dataset: {setup_result.stderr}")
+                return
+
+            print("[SUCCESS] IML lifecycle dataset setup completed")
+
+    elif args.dataset == "mp_idb_stages":
+        # Setup MP-IDB Kaggle stage dataset paths
+        stage_ready_path = Path("data/kaggle_stage_pipeline_ready/data.yaml")
+
+        if not stage_ready_path.exists():
+            print("[SETUP] Setting up MP-IDB stages dataset for pipeline...")
+            import subprocess
+
+            # First ensure Kaggle dataset is downloaded
+            download_result = subprocess.run([sys.executable, "scripts/data_setup/01_download_datasets.py", "--dataset", "kaggle_mp_idb"],
+                                           capture_output=True, text=True)
+            if download_result.returncode != 0:
+                print(f"[ERROR] Failed to download MP-IDB Kaggle dataset: {download_result.stderr}")
+                return
+
+            # Convert to stage format
+            setup_result = subprocess.run([sys.executable, "scripts/data_setup/09_setup_kaggle_stage_for_pipeline.py"],
+                                        capture_output=True, text=True)
+            if setup_result.returncode != 0:
+                print(f"[ERROR] Failed to setup MP-IDB stages dataset: {setup_result.stderr}")
+                return
+
+            print("[SUCCESS] MP-IDB stages dataset setup completed")
+
+    else:  # mp_idb_species
+        # MP-IDB species dataset setup
+        kaggle_ready_path = Path("data/kaggle_pipeline_ready/data.yaml")
+
         if not kaggle_ready_path.exists():
-            print("[SETUP] Setting up Kaggle dataset for pipeline...")
+            print("[SETUP] Setting up MP-IDB species dataset for pipeline...")
             import subprocess
             result = subprocess.run([sys.executable, "scripts/data_setup/07_setup_kaggle_for_pipeline.py"],
                                   capture_output=True, text=True)
             if result.returncode != 0:
-                print(f"[ERROR] Failed to setup Kaggle dataset: {result.stderr}")
+                print(f"[ERROR] Failed to setup MP-IDB species dataset: {result.stderr}")
                 return
-        print(f"[INFO] Dataset: Kaggle MP-IDB Pipeline Ready (data/kaggle_pipeline_ready/)")
-    elif kaggle_ready_path.exists():
-        print(f"[INFO] Dataset: AUTO-DETECTED Kaggle (data/kaggle_pipeline_ready/) - no flag needed!")
-    else:
-        print(f"[INFO] Dataset: Integrated (data/integrated/yolo/)")
+        print(f"[INFO] Dataset: MP-IDB Species Pipeline Ready (data/kaggle_pipeline_ready/)")
 
     # Model mapping
     detection_models = {
@@ -607,22 +669,35 @@ def main():
             elif detection_model == "rtdetr_detection":
                 yolo_model = "rtdetr-l.pt"
 
-            # Auto-detect best available dataset (same logic as continue mode)
-            kaggle_path = Path("data/kaggle_pipeline_ready")
-            integrated_path = Path("data/integrated/yolo")
-
-            if args.use_kaggle_dataset:
-                data_yaml = "data/kaggle_pipeline_ready/data.yaml"
-            elif kaggle_path.exists() and (kaggle_path / "data.yaml").exists():
-                data_yaml = "data/kaggle_pipeline_ready/data.yaml"
-                print(f"[AUTO-DETECT] Using Kaggle dataset for detection training")
-            elif integrated_path.exists() and (integrated_path / "data.yaml").exists():
-                data_yaml = "data/integrated/yolo/data.yaml"
-                print(f"[AUTO-DETECT] Using integrated dataset for detection training")
-            else:
-                print(f"[ERROR] No valid dataset found for detection! Run setup first.")
-                failed_models.append(f"{model_key} (no dataset)")
-                continue
+            # Auto-detect dataset based on selection
+            if args.dataset == "iml_lifecycle":
+                lifecycle_path = Path("data/lifecycle_pipeline_ready")
+                if lifecycle_path.exists() and (lifecycle_path / "data.yaml").exists():
+                    data_yaml = "data/lifecycle_pipeline_ready/data.yaml"
+                    print(f"[IML_LIFECYCLE] Using IML lifecycle dataset for detection training")
+                else:
+                    print(f"[ERROR] IML lifecycle dataset not found! Setup first.")
+                    failed_models.append(f"{model_key} (no IML lifecycle dataset)")
+                    continue
+            elif args.dataset == "mp_idb_stages":
+                stage_path = Path("data/kaggle_stage_pipeline_ready")
+                if stage_path.exists() and (stage_path / "data.yaml").exists():
+                    data_yaml = "data/kaggle_stage_pipeline_ready/data.yaml"
+                    print(f"[MP_IDB_STAGES] Using MP-IDB stages dataset for detection training")
+                else:
+                    print(f"[ERROR] MP-IDB stages dataset not found! Setup first.")
+                    failed_models.append(f"{model_key} (no MP-IDB stages dataset)")
+                    continue
+            else:  # mp_idb_species
+                # MP-IDB species dataset logic
+                kaggle_path = Path("data/kaggle_pipeline_ready")
+                if kaggle_path.exists() and (kaggle_path / "data.yaml").exists():
+                    data_yaml = "data/kaggle_pipeline_ready/data.yaml"
+                    print(f"[MP_IDB_SPECIES] Using MP-IDB species dataset for detection training")
+                else:
+                    print(f"[ERROR] MP-IDB species dataset not found! Setup first.")
+                    failed_models.append(f"{model_key} (no MP-IDB species dataset)")
+                    continue
 
             # Use optimized training for Kaggle dataset (auto-detected or explicit)
             if "kaggle_pipeline_ready" in data_yaml:
@@ -684,22 +759,35 @@ def main():
         if start_stage is None or start_stage in ['detection', 'crop']:
             print(f"\n[PROCESS] STAGE 2: Generating crops for {model_key}")
 
-            # Auto-detect best available dataset (same logic for all modes)
-            kaggle_path = Path("data/kaggle_pipeline_ready")
-            integrated_path = Path("data/integrated/yolo")
-
-            if args.use_kaggle_dataset:
-                input_path = "data/kaggle_pipeline_ready"
-            elif kaggle_path.exists() and (kaggle_path / "data.yaml").exists():
-                input_path = "data/kaggle_pipeline_ready"
-                print(f"[AUTO-DETECT] Using Kaggle dataset (found and ready)")
-            elif integrated_path.exists():
-                input_path = "data/integrated/yolo"
-                print(f"[AUTO-DETECT] Using integrated dataset")
-            else:
-                print(f"[ERROR] No valid dataset found! Run setup first.")
-                failed_models.append(f"{model_key} (no dataset)")
-                continue
+            # Auto-detect dataset for crop generation
+            if args.dataset == "iml_lifecycle":
+                lifecycle_path = Path("data/lifecycle_pipeline_ready")
+                if lifecycle_path.exists():
+                    input_path = "data/lifecycle_pipeline_ready"
+                    print(f"[IML_LIFECYCLE] Using IML lifecycle dataset for crop generation")
+                else:
+                    print(f"[ERROR] IML lifecycle dataset not found! Setup first.")
+                    failed_models.append(f"{model_key} (no IML lifecycle dataset)")
+                    continue
+            elif args.dataset == "mp_idb_stages":
+                stage_path = Path("data/kaggle_stage_pipeline_ready")
+                if stage_path.exists():
+                    input_path = "data/kaggle_stage_pipeline_ready"
+                    print(f"[MP_IDB_STAGES] Using MP-IDB stages dataset for crop generation")
+                else:
+                    print(f"[ERROR] MP-IDB stages dataset not found! Setup first.")
+                    failed_models.append(f"{model_key} (no MP-IDB stages dataset)")
+                    continue
+            else:  # mp_idb_species
+                # MP-IDB species dataset logic
+                kaggle_path = Path("data/kaggle_pipeline_ready")
+                if kaggle_path.exists() and (kaggle_path / "data.yaml").exists():
+                    input_path = "data/kaggle_pipeline_ready"
+                    print(f"[MP_IDB_SPECIES] Using MP-IDB species dataset for crop generation")
+                else:
+                    print(f"[ERROR] MP-IDB species dataset not found! Setup first.")
+                    failed_models.append(f"{model_key} (no MP-IDB species dataset)")
+                    continue
 
             # NEW: Use centralized crops path
             centralized_crops_path = results_manager.get_crops_path(model_key, det_exp_name)
@@ -912,9 +1000,6 @@ def main():
                     "--model", str(detection_model_centralized),
                     "--output", iou_analysis_dir
                 ]
-
-                if args.test_mode:
-                    print(f"   [TEST] Test mode: Running quick IoU analysis")
 
                 run_command(iou_cmd, f"IoU Analysis for {model_key}")
             else:
