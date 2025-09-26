@@ -96,6 +96,20 @@ wandb/
 !docs/images/*
 !examples/*
 
+# Large dataset folders - exclude image files but keep configs
+data/kaggle_stage_pipeline_ready/train/images/
+data/kaggle_stage_pipeline_ready/val/images/
+data/kaggle_stage_pipeline_ready/test/images/
+data/kaggle_pipeline_ready/train/images/
+data/kaggle_pipeline_ready/val/images/
+data/kaggle_pipeline_ready/test/images/
+data/lifecycle_pipeline_ready/train/images/
+data/lifecycle_pipeline_ready/val/images/
+data/lifecycle_pipeline_ready/test/images/
+data/bbbc041_raw/
+data/raw/
+data/test_stage_conversion_fixed/
+
 # Video files
 *.mp4
 *.avi
