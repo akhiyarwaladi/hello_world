@@ -1,0 +1,27 @@
+[SETUP] Setting up Malaria Lifecycle Single-Class Detection Dataset for pipeline...
+[INFO] Lifecycle dataset already exists at data\raw\malaria_lifecycle
+[CONVERT] Converting JSON annotations to YOLO format...
+   Source: data\raw\malaria_lifecycle
+   Target: temp_lifecycle
+[INFO] Processed 345 images (0 skipped)
+[INFO] Total annotations: 38428
+[SPLIT] Processing train: 241 images
+[SPLIT] Processing val: 69 images
+[SPLIT] Processing test: 35 images
+[CONFIG] Creating single-class configuration (parasite detection)
+[SUCCESS] Created data.yaml with 1 class(es)
+   Classes: parasite
+\n[SUCCESS] Lifecycle dataset setup completed!
+[INFO] Output directory: data/processed/lifecycle
+[INFO] Configuration: data\processed\lifecycle\data.yaml
+\n[DATASET SUMMARY]
+   Total images: 345
+   Total annotations: 38428
+   Train: 241 images
+   Val: 69 images
+   Test: 35 images
+\n[DETECTION CLASS]
+   0: parasite
+\n[READY] Lifecycle single-class detection dataset ready for pipeline!
+[USAGE] Use --dataset iml_lifecycle flag in pipeline commands
+[EXAMPLE] python run_multiple_models_pipeline.py --dataset iml_lifecycle --include yolo11 --epochs-det 10 --epochs-cls 10

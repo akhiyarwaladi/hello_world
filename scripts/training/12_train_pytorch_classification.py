@@ -12,11 +12,13 @@ import argparse
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, WeightedRandomSampler
 from torch.amp import autocast, GradScaler  # Mixed precision for RTX 3060
 from torchvision import datasets, transforms, models
 from pathlib import Path
 from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.utils.class_weight import compute_class_weight
+from collections import Counter
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -131,6 +133,92 @@ def get_transforms(image_size=224):
     ])
 
     return train_transform, val_transform
+
+def get_class_weights(dataset, device):
+    """Calculate class weights for balanced loss function"""
+    # Get all labels from dataset
+    labels = []
+    for _, label in dataset:
+        labels.append(label)
+
+    # Calculate class weights
+    class_weights = compute_class_weight(
+        'balanced',
+        classes=np.unique(labels),
+        y=labels
+    )
+
+    # Convert to tensor
+    class_weights = torch.FloatTensor(class_weights).to(device)
+    print(f"[CLASS WEIGHTS] {dict(zip(np.unique(labels), class_weights.cpu().numpy()))}")
+
+    return class_weights
+
+def create_weighted_sampler(dataset):
+    """Create weighted random sampler for balanced training"""
+    # Count samples per class
+    labels = []
+    for _, label in dataset:
+        labels.append(label)
+
+    class_counts = Counter(labels)
+    total_samples = len(labels)
+
+    print(f"[CLASS DISTRIBUTION] {dict(class_counts)}")
+
+    # Calculate sample weights (inverse frequency)
+    sample_weights = []
+    for label in labels:
+        weight = total_samples / (len(class_counts) * class_counts[label])
+        sample_weights.append(weight)
+
+    # Create weighted sampler
+    sampler = WeightedRandomSampler(
+        weights=sample_weights,
+        num_samples=len(sample_weights),
+        replacement=True
+    )
+
+    return sampler
+
+def get_enhanced_transforms(image_size=224, minority_classes=None):
+    """Get enhanced transforms with aggressive augmentation for minority classes"""
+
+    # Base augmentation for all classes
+    base_augment = [
+        transforms.Resize((image_size, image_size)),
+        transforms.RandomHorizontalFlip(p=0.5),
+        transforms.RandomVerticalFlip(p=0.3),
+        transforms.RandomRotation(15),
+        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ]
+
+    # Aggressive augmentation for minority classes
+    minority_augment = [
+        transforms.Resize((image_size, image_size)),
+        transforms.RandomHorizontalFlip(p=0.7),
+        transforms.RandomVerticalFlip(p=0.5),
+        transforms.RandomRotation(30),
+        transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.2),
+        transforms.RandomAffine(degrees=15, translate=(0.1, 0.1), scale=(0.8, 1.2)),
+        transforms.RandomPerspective(distortion_scale=0.3, p=0.5),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ]
+
+    # Validation transform (no augmentation)
+    val_transform = transforms.Compose([
+        transforms.Resize((image_size, image_size)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ])
+
+    train_transform = transforms.Compose(base_augment)
+    minority_transform = transforms.Compose(minority_augment)
+
+    return train_transform, minority_transform, val_transform
 
 def train_epoch(model, dataloader, criterion, optimizer, device, scaler=None, scheduler=None):
     """Train for one epoch with RTX 3060 Mixed Precision optimization"""
@@ -309,10 +397,40 @@ def main():
         transform=val_transform
     )
 
-    test_dataset = datasets.ImageFolder(
-        root=Path(args.data) / "test",
-        transform=val_transform
-    )
+    # Check if test directory exists and has class folders
+    test_path = Path(args.data) / "test"
+    test_dataset = None
+    test_loader = None
+
+    if test_path.exists():
+        try:
+            # Check if test directory has any class folders
+            class_folders = [d for d in test_path.iterdir() if d.is_dir()]
+            if not class_folders:
+                # Create empty class folders matching train dataset classes
+                print(f"[TEST] Test directory empty, creating class folders...")
+                for class_name in train_dataset.classes:
+                    (test_path / class_name).mkdir(exist_ok=True)
+                print(f"[TEST] Created {len(train_dataset.classes)} empty class folders")
+
+            test_dataset = datasets.ImageFolder(
+                root=test_path,
+                transform=val_transform
+            )
+            if len(test_dataset) > 0:
+                print(f"[TEST] Found test dataset with {len(test_dataset)} images")
+            else:
+                print(f"[TEST] Test dataset exists but is empty, skipping test evaluation")
+                test_dataset = None
+        except (FileNotFoundError, RuntimeError) as e:
+            print(f"[TEST] Error loading test dataset: {e}")
+            test_dataset = None
+    else:
+        print(f"[TEST] Creating test directory with class folders...")
+        test_path.mkdir(parents=True, exist_ok=True)
+        for class_name in train_dataset.classes:
+            (test_path / class_name).mkdir(exist_ok=True)
+        print(f"[TEST] Created test directory with {len(train_dataset.classes)} class folders")
 
     # Standard GPU DataLoader setup
     num_workers = 0
@@ -341,13 +459,14 @@ def main():
         num_workers=num_workers,
         pin_memory=pin_memory
     )
-    test_loader = DataLoader(
-        test_dataset,
-        batch_size=min(actual_batch_size, len(test_dataset)),
-        shuffle=False,
-        num_workers=num_workers,
-        pin_memory=pin_memory
-    )
+    if test_dataset is not None:
+        test_loader = DataLoader(
+            test_dataset,
+            batch_size=min(actual_batch_size, len(test_dataset)),
+            shuffle=False,
+            num_workers=num_workers,
+            pin_memory=pin_memory
+        )
 
     # Get class names
     class_names = train_dataset.classes
@@ -357,7 +476,10 @@ def main():
     print(f"   Classes: {class_names}")
     print(f"   Train: {len(train_dataset)} images")
     print(f"   Val: {len(val_dataset)} images")
-    print(f"   Test: {len(test_dataset)} images")
+    if test_dataset is not None:
+        print(f"   Test: {len(test_dataset)} images")
+    else:
+        print(f"   Test: 0 images (no test data)")
 
     # Initialize model
     print(f"\n[LOAD] Loading {args.model} model...")
@@ -370,8 +492,26 @@ def main():
     print(f"[MODEL] Total parameters: {total_params:,}")
     print(f"[MODEL] Trainable parameters: {trainable_params:,}")
 
-    # Setup training with RTX 3060 Mixed Precision optimization
-    criterion = nn.CrossEntropyLoss()
+    # Calculate class weights for balanced training
+    print(f"\n[CLASS BALANCE] Calculating class weights...")
+    class_weights = get_class_weights(train_dataset, device)
+
+    # Create weighted sampler for balanced batches
+    print(f"[SAMPLING] Creating weighted random sampler...")
+    weighted_sampler = create_weighted_sampler(train_dataset)
+
+    # Recreate train loader with weighted sampler
+    train_loader = DataLoader(
+        train_dataset,
+        batch_size=actual_batch_size,
+        sampler=weighted_sampler,  # Use weighted sampler instead of shuffle
+        num_workers=num_workers,
+        pin_memory=pin_memory,
+        drop_last=use_drop_last
+    )
+
+    # Setup training with RTX 3060 Mixed Precision optimization + Class Weights
+    criterion = nn.CrossEntropyLoss(weight=class_weights)  # Use class weights for balanced loss
     optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)  # AdamW for better performance
     scheduler = optim.lr_scheduler.OneCycleLR(optimizer, max_lr=args.lr*10, epochs=args.epochs, steps_per_epoch=len(train_loader))  # OneCycle for faster convergence
 
@@ -396,7 +536,11 @@ def main():
     print("\n[TIMER] Starting training...")
     start_time = time.time()
 
+    # Early stopping parameters
     best_val_acc = 0.0
+    patience = 10  # Stop if no improvement for 10 epochs
+    patience_counter = 0
+    print(f"[EARLY STOPPING] Patience: {patience} epochs")
 
     for epoch in range(args.epochs):
         print(f"\nEpoch {epoch+1}/{args.epochs}")
@@ -425,9 +569,10 @@ def main():
         print(f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2f}%")
         print(f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2f}%")
 
-        # Save best model
+        # Save best model and early stopping logic
         if val_acc > best_val_acc:
             best_val_acc = val_acc
+            patience_counter = 0  # Reset patience counter
             torch.save({
                 'epoch': epoch,
                 'model_state_dict': model.state_dict(),
@@ -437,6 +582,15 @@ def main():
                 'class_names': class_names
             }, experiment_path / 'best.pt')
             print(f"[SAVE] Saved best model (Val Acc: {val_acc:.2f}%)")
+        else:
+            patience_counter += 1
+            print(f"[EARLY STOPPING] No improvement for {patience_counter}/{patience} epochs")
+
+        # Early stopping check
+        if patience_counter >= patience:
+            print(f"[EARLY STOPPING] Stopping training due to no improvement for {patience} epochs")
+            print(f"[EARLY STOPPING] Best validation accuracy: {best_val_acc:.2f}%")
+            break
 
     # Save final model
     torch.save({
@@ -461,33 +615,44 @@ def main():
     # Test evaluation
     print("\n[TEST] Running test evaluation...")
 
-    # Load best model for testing
-    checkpoint = torch.load(experiment_path / 'best.pt', map_location=device)
-    model.load_state_dict(checkpoint['model_state_dict'])
+    # Test evaluation (only if test data exists)
+    if test_loader is not None and len(test_dataset) > 0:
+        # Load best model for testing
+        checkpoint = torch.load(experiment_path / 'best.pt', map_location=device)
+        model.load_state_dict(checkpoint['model_state_dict'])
 
-    test_loss, test_acc, test_preds, test_labels = validate_epoch(model, test_loader, criterion, device)
+        test_loss, test_acc, test_preds, test_labels = validate_epoch(model, test_loader, criterion, device)
 
-    print(f"\n[TEST] Test Results:")
-    print(f"   Test Accuracy: {test_acc:.2f}%")
-    print(f"   Test Loss: {test_loss:.4f}")
+        print(f"\n[TEST] Test Results:")
+        print(f"   Test Accuracy: {test_acc:.2f}%")
+        print(f"   Test Loss: {test_loss:.4f}")
 
-    # Generate classification report with zero_division handling
-    report = classification_report(test_labels, test_preds, target_names=class_names, zero_division=0)
-    print(f"\n[REPORT] Classification Report:")
-    print(report)
+        # Generate classification report with zero_division handling
+        report = classification_report(test_labels, test_preds, target_names=class_names, zero_division=0)
+        print(f"\n[REPORT] Classification Report:")
+        print(report)
+    else:
+        print(f"\n[TEST] No test data available, skipping test evaluation")
+        test_acc = 0.0
+        test_loss = 0.0
+        report = "No test data available"
 
     # Save results
     with open(experiment_path / 'results.txt', 'w') as f:
         f.write(f"Model: {args.model}\n")
         f.write(f"Best Val Acc: {best_val_acc:.2f}%\n")
-        f.write(f"Test Acc: {test_acc:.2f}%\n")
+        if test_loader is not None and len(test_dataset) > 0:
+            f.write(f"Test Acc: {test_acc:.2f}%\n")
+        else:
+            f.write(f"Test Acc: N/A (no test data)\n")
         f.write(f"Training Time: {training_time/60:.1f} min\n\n")
         f.write("Classification Report:\n")
         f.write(report)
 
-    # Save confusion matrix
-    save_confusion_matrix(test_labels, test_preds, class_names,
-                         experiment_path / 'confusion_matrix.png')
+    # Save confusion matrix (only if test data exists)
+    if test_loader is not None and len(test_dataset) > 0:
+        save_confusion_matrix(test_labels, test_preds, class_names,
+                             experiment_path / 'confusion_matrix.png')
 
     # Plot training curves
     plt.figure(figsize=(12, 4))

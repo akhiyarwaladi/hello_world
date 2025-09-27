@@ -11,6 +11,7 @@ import shutil
 import yaml
 import subprocess
 import cv2
+import argparse
 from pathlib import Path
 from sklearn.model_selection import train_test_split
 
@@ -136,8 +137,8 @@ def convert_lifecycle_json_to_yolo(raw_dir, output_dir):
 
     return converted_data
 
-def create_yolo_splits(converted_data, output_dir):
-    """Create train/val/test splits in YOLO format"""
+def create_yolo_splits(converted_data, output_dir, single_class=False):
+    """Create train/val/test splits in YOLO format with stratified splitting"""
     output_path = Path(output_dir)
 
     # Remove existing output if exists
@@ -150,15 +151,99 @@ def create_yolo_splits(converted_data, output_dir):
         (output_path / split / "images").mkdir(parents=True, exist_ok=True)
         (output_path / split / "labels").mkdir(parents=True, exist_ok=True)
 
-    # Split data: 70% train, 20% val, 10% test
-    train_data, temp_data = train_test_split(converted_data, test_size=0.3, random_state=42)
-    val_data, test_data = train_test_split(temp_data, test_size=0.33, random_state=42)
+    # Prepare stratification labels based on dominant class in each image
+    stratify_labels = []
+    for item in converted_data:
+        if item['annotations']:
+            # Use the most frequent class in the image for stratification
+            class_counts = {}
+            for ann in item['annotations']:
+                class_id = ann['class_id']
+                class_counts[class_id] = class_counts.get(class_id, 0) + 1
+
+            # Get dominant class
+            dominant_class = max(class_counts.keys(), key=lambda k: class_counts[k])
+            stratify_labels.append(dominant_class)
+        else:
+            stratify_labels.append(0)  # Default class if no annotations
+
+    print(f"[STRATIFY] Class distribution for stratification:")
+    from collections import Counter
+    class_dist = Counter(stratify_labels)
+    for class_id, count in sorted(class_dist.items()):
+        print(f"   Class {class_id}: {count} images")
+
+    # Stratified split: 70% train, 20% val, 10% test
+    try:
+        train_data, temp_data, train_labels, temp_labels = train_test_split(
+            converted_data, stratify_labels,
+            test_size=0.3, random_state=42, stratify=stratify_labels
+        )
+        val_data, test_data, val_labels, test_labels = train_test_split(
+            temp_data, temp_labels,
+            test_size=0.33, random_state=42, stratify=temp_labels
+        )
+        print(f"[STRATIFY] Successfully applied stratified splitting")
+    except ValueError as e:
+        print(f"[WARNING] Stratified split failed ({e}), using random split with manual balancing")
+
+        # Fallback: manual balancing for very small classes
+        class_groups = {}
+        for i, item in enumerate(converted_data):
+            label = stratify_labels[i]
+            if label not in class_groups:
+                class_groups[label] = []
+            class_groups[label].append(item)
+
+        train_data, val_data, test_data = [], [], []
+
+        for class_id, items in class_groups.items():
+            n_total = len(items)
+            # Ensure at least 1 sample in each split for each class
+            n_test = max(1, int(n_total * 0.1))
+            n_val = max(1, int(n_total * 0.2))
+            n_train = n_total - n_test - n_val
+
+            if n_train < 1:
+                n_train = 1
+                n_val = max(0, n_total - n_train - n_test)
+                n_test = n_total - n_train - n_val
+
+            # Shuffle and split
+            import random
+            random.shuffle(items)
+
+            test_data.extend(items[:n_test])
+            val_data.extend(items[n_test:n_test+n_val])
+            train_data.extend(items[n_test+n_val:])
+
+            print(f"   Class {class_id}: Train={n_train}, Val={n_val}, Test={n_test}")
+
+        print(f"[BALANCED] Manual balancing completed")
 
     splits = {
         'train': train_data,
         'val': val_data,
         'test': test_data
     }
+
+    # Validate split distribution
+    print(f"\n[VALIDATION] Final split distribution:")
+    for split_name, split_data in splits.items():
+        split_class_counts = Counter()
+        for item in split_data:
+            for ann in item['annotations']:
+                split_class_counts[ann['class_id']] += 1
+
+        print(f"   {split_name} ({len(split_data)} images):")
+        for class_id in sorted(split_class_counts.keys()):
+            print(f"      Class {class_id}: {split_class_counts[class_id]} annotations")
+
+        # Check for missing classes
+        all_classes = set(range(5))  # Assuming 5 classes (0-4)
+        missing_classes = all_classes - set(split_class_counts.keys())
+        if missing_classes:
+            print(f"      WARNING: Missing classes in {split_name}: {missing_classes}")
 
     stats = {'total_images': 0, 'total_annotations': 0, 'class_counts': [0] * 5}
 
@@ -169,46 +254,72 @@ def create_yolo_splits(converted_data, output_dir):
         split_labels_dir = output_path / split_name / "labels"
 
         for item in split_data:
-            # Copy image
-            src_image_path = item['image_path']
-            dst_image_path = split_images_dir / item['image_name']
-            shutil.copy2(src_image_path, dst_image_path)
+            # Filter annotations based on single_class mode
+            filtered_annotations = []
+            for ann in item['annotations']:
+                if single_class:
+                    # For detection: EXCLUDE red blood cells (class_id 0), only include parasites
+                    if ann['class_id'] != 0:  # Skip red blood cells
+                        filtered_annotations.append({
+                            **ann,
+                            'class_id': 0  # All parasites become class 0 for detection
+                        })
+                else:
+                    # For classification: include all classes as-is
+                    filtered_annotations.append(ann)
 
-            # Create label file
-            label_path = split_labels_dir / f"{Path(item['image_name']).stem}.txt"
-            with open(label_path, 'w') as f:
-                for ann in item['annotations']:
-                    # YOLO detection format: class_id x_center y_center width height
-                    line = f"{ann['class_id']} {ann['x_center']:.6f} {ann['y_center']:.6f} {ann['width']:.6f} {ann['height']:.6f}\n"
-                    f.write(line)
+            # Only process images that have valid annotations after filtering
+            if filtered_annotations:
+                # Copy image
+                src_image_path = item['image_path']
+                dst_image_path = split_images_dir / item['image_name']
+                shutil.copy2(src_image_path, dst_image_path)
 
-                    # Update statistics
-                    stats['class_counts'][ann['class_id']] += 1
-                    stats['total_annotations'] += 1
+                # Create label file
+                label_path = split_labels_dir / f"{Path(item['image_name']).stem}.txt"
+                with open(label_path, 'w') as f:
+                    for ann in filtered_annotations:
+                        # YOLO detection format: class_id x_center y_center width height
+                        line = f"{ann['class_id']} {ann['x_center']:.6f} {ann['y_center']:.6f} {ann['width']:.6f} {ann['height']:.6f}\n"
+                        f.write(line)
 
-            stats['total_images'] += 1
+                        # Update statistics (use original class_id for stats even in single_class mode)
+                        if single_class:
+                            # For single class, count all parasites as parasite class
+                            stats['class_counts'][1] += 1  # Count as parasite (non-red blood cell)
+                        else:
+                            stats['class_counts'][ann['class_id']] += 1
+                        stats['total_annotations'] += 1
+
+                stats['total_images'] += 1
 
     return splits, stats
 
-def create_data_yaml(output_dir):
+def create_data_yaml(output_dir, single_class=False):
     """Create data.yaml configuration file"""
     output_path = Path(output_dir)
 
-    # Class names for lifecycle stages
-    class_names = [
-        'red_blood_cell',
-        'ring',
-        'gametocyte',
-        'trophozoite',
-        'schizont'
-    ]
+    if single_class:
+        # Single parasite class for detection
+        class_names = ['parasite']
+        print(f"[CONFIG] Creating single-class configuration (parasite detection)")
+    else:
+        # Class names for lifecycle stages (including red blood cells)
+        class_names = [
+            'red_blood_cell',
+            'ring',
+            'gametocyte',
+            'trophozoite',
+            'schizont'
+        ]
+        print(f"[CONFIG] Creating multi-class configuration (lifecycle detection)")
 
     yaml_content = {
-        'path': output_dir.replace('\\', '/'),
+        'path': str(output_path.absolute()).replace('\\', '/'),
         'train': 'train/images',
         'val': 'val/images',
         'test': 'test/images',
-        'nc': 5,
+        'nc': len(class_names),
         'names': class_names
     }
 
@@ -216,11 +327,24 @@ def create_data_yaml(output_dir):
     with open(yaml_path, 'w') as f:
         yaml.dump(yaml_content, f)
 
+    print(f"[SUCCESS] Created data.yaml with {len(class_names)} class(es)")
+    print(f"   Classes: {', '.join(class_names)}")
+
     return yaml_path
 
-def setup_lifecycle_for_pipeline():
+def setup_lifecycle_for_pipeline(single_class=True):
     """Main setup function for lifecycle dataset"""
-    print("[SETUP] Setting up Malaria Lifecycle Classification Dataset for pipeline...")
+    if single_class:
+        print("[SETUP] Setting up Malaria Lifecycle Single-Class Detection Dataset for pipeline...")
+    else:
+        print("[SETUP] Setting up Malaria Lifecycle Classification Dataset for pipeline...")
+
+    # Step 0: Clean existing processed data for fresh setup
+    output_dir = Path("data/processed/lifecycle")
+    if output_dir.exists():
+        print(f"[CLEAN] Removing existing processed data: {output_dir}")
+        shutil.rmtree(output_dir)
+        print(f"[CLEAN] Cleaned successfully - ensuring fresh setup")
 
     # Step 1: Download dataset
     raw_dir = download_lifecycle_dataset()
@@ -234,11 +358,14 @@ def setup_lifecycle_for_pipeline():
         return False
 
     # Step 3: Create train/val/test splits
-    output_dir = "data/lifecycle_pipeline_ready"
-    splits, stats = create_yolo_splits(converted_data, output_dir)
+    if single_class:
+        output_dir = "data/processed/lifecycle"
+    else:
+        output_dir = "data/processed/lifecycle"
+    splits, stats = create_yolo_splits(converted_data, output_dir, single_class)
 
     # Step 4: Create data.yaml
-    yaml_path = create_data_yaml(output_dir)
+    yaml_path = create_data_yaml(output_dir, single_class)
 
     # Print summary
     print(f"\\n[SUCCESS] Lifecycle dataset setup completed!")
@@ -250,16 +377,30 @@ def setup_lifecycle_for_pipeline():
     print(f"   Train: {len(splits['train'])} images")
     print(f"   Val: {len(splits['val'])} images")
     print(f"   Test: {len(splits['test'])} images")
-    print(f"\\n[CLASS DISTRIBUTION]")
-    class_names = ['red_blood_cell', 'ring', 'gametocyte', 'trophozoite', 'schizont']
-    for i, count in enumerate(stats['class_counts']):
-        percentage = (count / stats['total_annotations']) * 100 if stats['total_annotations'] > 0 else 0
-        print(f"   {class_names[i]}: {count} ({percentage:.1f}%)")
 
-    print(f"\\n[READY] Lifecycle dataset ready for pipeline!")
-    print(f"[USAGE] Use --dataset-type lifecycle flag in pipeline commands")
+    if single_class:
+        print(f"\\n[DETECTION CLASS]")
+        print(f"   0: parasite (excluding red blood cells from detection training)")
+        print(f"\\n[PARASITE ANNOTATIONS] {stats['class_counts'][1]} parasite objects (red blood cells excluded)")
+        print(f"\\n[READY] Lifecycle single-class detection dataset ready for pipeline!")
+        print(f"[USAGE] Use --dataset iml_lifecycle flag in pipeline commands")
+        print(f"[EXAMPLE] python run_multiple_models_pipeline.py --dataset iml_lifecycle --include yolo11 --epochs-det 10 --epochs-cls 10")
+    else:
+        print(f"\\n[CLASS DISTRIBUTION]")
+        class_names = ['red_blood_cell', 'ring', 'gametocyte', 'trophozoite', 'schizont']
+        for i, count in enumerate(stats['class_counts']):
+            percentage = (count / stats['total_annotations']) * 100 if stats['total_annotations'] > 0 else 0
+            print(f"   {class_names[i]}: {count} ({percentage:.1f}%)")
+        print(f"\\n[READY] Lifecycle dataset ready for pipeline!")
+        print(f"[USAGE] Use --dataset iml_lifecycle flag in pipeline commands")
 
     return str(yaml_path)
 
 if __name__ == "__main__":
-    setup_lifecycle_for_pipeline()
+    parser = argparse.ArgumentParser(description="Setup Malaria Lifecycle dataset for pipeline use")
+    parser.add_argument("--multi-class", action="store_true",
+                       help="Generate 5-class lifecycle detection dataset instead of single-class (parasite)")
+
+    args = parser.parse_args()
+    # Default is now single-class, unless --multi-class is specified
+    setup_lifecycle_for_pipeline(single_class=not args.multi_class)

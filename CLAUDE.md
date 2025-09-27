@@ -1,224 +1,221 @@
-# Malaria Detection Project - Context for Claude
+# CLAUDE.md - Malaria Detection Project
 
-## Project Overview
-Comprehensive malaria detection system using YOLOv10, YOLOv11, YOLOv12, and RT-DETR models for microscopy image analysis.
+## 📋 PROJECT OVERVIEW
+Advanced malaria parasite detection and classification system using multi-model pipeline with YOLO detection and PyTorch classification.
 
-**Current Status: PRODUCTION READY - Complete Pipeline with Multiple Datasets**
+## 🚀 MAIN PIPELINES
 
-**Latest Update**: September 27, 2025 - 3-Dataset Architecture with Unicode Fixes
-
-**Current Status (Sep 27, 2025)**:
-- **3 Dataset Support**: Species, Stages, and Lifecycle detection
-- **Unicode Issues Fixed**: All emoticons removed, clean pipeline execution
-- **Class Imbalance Identified**: IML lifecycle dataset analysis completed
-- **Production Ready**: mp_idb_stages recommended for balanced training
-
-## Available Datasets
-
-### 1. **mp_idb_species** (4 Species Classification - STABLE)
-- **Classes**: P_falciparum, P_vivax, P_malariae, P_ovale
-- **Size**: 209 images, 1,436 objects
-- **Usage**: `--use-kaggle-dataset`
-- **Status**: Balanced, production ready
-- **Path**: `kaggle_pipeline_ready/`
-
-### 2. **mp_idb_stages** (4 Stage Classification - RECOMMENDED)
-- **Classes**: ring, schizont, trophozoite, gametocyte
-- **Size**: 342 images
-- **Usage**: `--dataset mp_idb_stages`
-- **Status**: Best balanced dataset
-- **Path**: `kaggle_stage_pipeline_ready/`
-
-### 3. **iml_lifecycle** (4 Parasite Stages - FOCUSED)
-- **Classes**: ring, gametocyte, trophozoite, schizont (no red blood cells)
-- **Size**: 313 images, 529 parasite objects
-- **Usage**: `--dataset iml_lifecycle`
-- **Status**: Focused on parasite stages only (balanced)
-- **Path**: `lifecycle_pipeline_ready/`
-- **Note**: Red blood cells removed for focused parasite classification
-
-## Quick Start Commands
-
-### 1. **mp_idb_species** (4 Species - STABLE)
+### 1. Standard Pipeline (Detection-based Crops)
 ```bash
-# Production Pipeline
-python run_multiple_models_pipeline.py --use-kaggle-dataset --exclude-detection rtdetr --epochs-det 40 --epochs-cls 30
-
-# Quick Test
-python run_multiple_models_pipeline.py --use-kaggle-dataset --include yolo11 --test-mode --epochs-det 5 --epochs-cls 5
+python run_multiple_models_pipeline.py --dataset iml_lifecycle --include yolo11 --epochs-det 50 --epochs-cls 30
 ```
 
-### 2. **mp_idb_stages** (4 Stages - RECOMMENDED)
+### 2. Ground Truth Pipeline (Recommended)
 ```bash
-# Best Balanced Pipeline
-python run_multiple_models_pipeline.py --dataset mp_idb_stages --exclude-detection rtdetr --epochs-det 40 --epochs-cls 30
-
-# Quick Test
-python run_multiple_models_pipeline.py --dataset mp_idb_stages --include yolo11 --test-mode --epochs-det 5 --epochs-cls 5
+python run_multiple_models_pipeline_ground_truth_version.py --dataset iml_lifecycle --include yolo11 --epochs-det 50 --epochs-cls 30
 ```
 
-### 3. **iml_lifecycle** (4 Parasite Stages - FOCUSED)
+**Ground Truth Pipeline Benefits:**
+- ✅ Uses raw annotations for cleaner classification training
+- ✅ Eliminates detection noise from classification data
+- ✅ Stratified train/val/test splits (70%/20%/10%)
+- ✅ Better classification accuracy
+
+## 📊 AVAILABLE DATASETS
+
+| Dataset | Classes | Purpose | Setup Command |
+|---------|---------|---------|---------------|
+| **IML Lifecycle** | 4 stages (ring, gametocyte, trophozoite, schizont) | Lifecycle classification | Auto-setup in pipeline |
+| **MP-IDB Species** | 4 species (P_falciparum, P_vivax, P_malariae, P_ovale) | Species classification | Auto-setup in pipeline |
+| **MP-IDB Stages** | 4 stages (ring, schizont, trophozoite, gametocyte) | Stage classification | Auto-setup in pipeline |
+
+## 🤖 SUPPORTED MODELS
+
+### Detection Models
+- **YOLO10** (`yolo10`): Fast and accurate
+- **YOLO11** (`yolo11`): Latest YOLO version
+- **YOLO12** (`yolo12`): Newest release
+- **RT-DETR** (`rtdetr`): Transformer-based detector
+
+### Classification Models
+- **DenseNet121** (`densenet121`): Dense connections
+- **EfficientNet-B1** (`efficientnet_b1`): Efficient architecture
+- **ConvNeXt-Tiny** (`convnext_tiny`): Modern CNN
+- **MobileNet-V3-Large** (`mobilenet_v3_large`): Mobile-optimized
+- **EfficientNet-B2** (`efficientnet_b2`): Larger EfficientNet
+- **ResNet101** (`resnet101`): Deep residual network
+
+## 📁 PROJECT STRUCTURE
+
+```
+hello_world/
+├── run_multiple_models_pipeline.py              # Standard pipeline
+├── run_multiple_models_pipeline_ground_truth_version.py  # Enhanced pipeline
+├── scripts/
+│   ├── training/
+│   │   ├── generate_ground_truth_crops.py       # Ground truth crop generation
+│   │   ├── 12_train_pytorch_classification.py   # Classification training
+│   │   └── 11_crop_detections.py               # Detection-based crops
+│   ├── data_setup/                             # Dataset preparation scripts
+│   └── analysis/                               # Analysis and evaluation
+├── data/
+│   ├── raw/                                    # Raw datasets
+│   ├── processed/                              # Processed datasets
+│   └── crops_ground_truth/                     # Ground truth crops
+└── results/                                    # Experiment results
+```
+
+## 🔧 KEY FEATURES
+
+### Ground Truth Crop Generation
+- **Fixed Duplicate Bug**: No longer generates 2x crops
+- **Auto-Cleanup**: Removes old folders before generation
+- **Stratified Splits**: Balanced train/val/test splits
+- **Class Balance**: All classes represented in each split
+
+### Smart Augmentation
+**Detection Models:**
+- Conservative augmentation for medical data
+- Orientation preservation (`flipud=0.0`)
+- Medical-aware color adjustments
+- Dataset-specific batch sizes and patience
+
+**Classification Models:**
+- Base augmentation for majority classes
+- Enhanced augmentation for minority classes
+- Weighted sampling and loss functions
+- Class-specific transform strategies
+
+### Model-Specific Optimizations
+- **RT-DETR**: Lower learning rate (0.0001) for transformer architecture
+- **YOLO**: Standard learning rate (0.0005) for CNN architecture
+- **Mixed Precision**: RTX 3060 optimized training
+- **Early Stopping**: Prevents overfitting
+
+## 📈 EXAMPLE WORKFLOWS
+
+### Quick Test Run
 ```bash
-# Focused Parasite Training
-python run_multiple_models_pipeline.py --dataset iml_lifecycle --include yolo11 --epochs-det 20 --epochs-cls 15
-
-# Quick Test
-python run_multiple_models_pipeline.py --dataset iml_lifecycle --include yolo11 --test-mode --epochs-det 5 --epochs-cls 5
+python run_multiple_models_pipeline_ground_truth_version.py \
+  --dataset iml_lifecycle \
+  --include yolo11 \
+  --classification-models densenet121 \
+  --epochs-det 5 \
+  --epochs-cls 5 \
+  --no-zip
 ```
 
-### Status Monitoring
+### Full Training
 ```bash
-python scripts/monitoring/training_status.py        # Check training progress
-python pipeline_manager.py list                     # List experiments
-python pipeline_manager.py status EXPERIMENT_NAME   # Detailed status
+python run_multiple_models_pipeline_ground_truth_version.py \
+  --dataset iml_lifecycle \
+  --include yolo11 rtdetr \
+  --classification-models all \
+  --epochs-det 100 \
+  --epochs-cls 50
 ```
 
-## 3-Stage Workflow (CORE PIPELINE)
-
-### STAGE 1: Train Detection Model
+### Continue Existing Experiment
 ```bash
-python pipeline.py train yolo11_detection --name auto_yolo11_det --epochs 40
+python run_multiple_models_pipeline_ground_truth_version.py \
+  --continue-from exp_multi_pipeline_20250927_194449_iml_lifecycle \
+  --start-stage classification
 ```
-**Output**: `results/current_experiments/training/detection/[model_type]/[experiment_name]/weights/best.pt`
 
-### STAGE 2: Generate Crops from Detection
+## 🎯 PERFORMANCE OPTIMIZATIONS
+
+### Detection Training
+- GPU-optimized batch sizes per dataset
+- Adaptive patience based on complexity
+- Conservative augmentation for small datasets
+- Model-specific learning rate tuning
+
+### Classification Training
+- Stratified sampling for class balance
+- Weighted loss functions
+- Enhanced augmentation for minority classes
+- Mixed precision training for speed
+
+### Data Quality
+- Ground truth crops eliminate detection noise
+- Proper train/val/test splits
+- Class balance maintained across splits
+- Medical-specific augmentation strategies
+
+## 🔄 PIPELINE STAGES
+
+1. **Detection Training**: Train YOLO/RT-DETR models on parasite detection
+2. **Ground Truth Crops**: Generate crops from raw annotations (not detection results)
+3. **Classification Training**: Train PyTorch models on clean crop data
+4. **Analysis**: Performance evaluation and visualization
+
+## 💾 RESULTS MANAGEMENT
+
+Results are automatically organized in centralized structure:
+```
+results/exp_[name]_[timestamp]_[dataset]/
+├── detection/          # Detection model weights and logs
+├── crop_data/         # Generated crop datasets
+├── models/            # Classification model weights
+└── analysis/          # Performance analysis
+```
+
+## 🚨 IMPORTANT NOTES
+
+- Use **Ground Truth Pipeline** for better results
+- **Original Pipeline** preserved for compatibility
+- All models support **GPU acceleration** (RTX 3060 optimized)
+- **Stratified splits** ensure class balance
+- **Medical-aware augmentation** preserves diagnostic features
+
+## 🔧 TROUBLESHOOTING
+
+### Common Issues
+1. **CUDA out of memory**: Reduce batch size in pipeline
+2. **Class imbalance**: Use ground truth pipeline with weighted sampling
+3. **Low accuracy**: Increase epochs and use enhanced augmentation
+4. **Missing dependencies**: Check environment setup
+
+### Dataset Issues
+1. **Raw data not found**: Check data/raw/ directory structure
+2. **Processed data missing**: Pipeline will auto-setup datasets
+3. **Empty splits**: Use stratified splitting in ground truth pipeline
+
+## 📝 COMMAND REFERENCE
+
+### Pipeline Options
+- `--dataset`: Choose dataset (iml_lifecycle, mp_idb_species, mp_idb_stages)
+- `--include`: Select detection models
+- `--classification-models`: Select classification models
+- `--epochs-det/--epochs-cls`: Training epochs
+- `--experiment-name`: Custom experiment name
+- `--continue-from`: Resume existing experiment
+- `--start-stage`: Start from specific stage
+- `--no-zip`: Skip result archiving
+
+### Example Commands
 ```bash
-python scripts/training/11_crop_detections.py --model yolo11 --experiment auto_yolo11_det
-```
-**Auto-finds model**: Automatically locates detection model from Stage 1
-**Output**: `data/crops_from_[detection_type]_[experiment]/`
+# List available experiments
+python run_multiple_models_pipeline_ground_truth_version.py --list-experiments
 
-### STAGE 3: Train Classification Model
-```bash
-python pipeline.py train yolo11_classification --name auto_yolo11_cls --data data/crops_from_yolo11_auto_yolo11_det/
-```
-**Uses crop data**: Automatically uses crops generated from Stage 2
+# Full multi-model training
+python run_multiple_models_pipeline_ground_truth_version.py \
+  --dataset iml_lifecycle \
+  --include yolo11 yolo12 rtdetr \
+  --classification-models densenet121 efficientnet_b1 convnext_tiny \
+  --epochs-det 100 \
+  --epochs-cls 50
 
-## Multiple Models Pipeline
-
-### Parameter Reference
-```bash
-# Dataset Selection
---use-kaggle-dataset          # mp_idb_species (4 species)
---dataset mp_idb_stages       # Stage classification (4 stages)
---dataset iml_lifecycle       # Lifecycle detection (5 classes)
-
-# Model Selection
---include yolo10 yolo11       # Specific models only
---exclude-detection rtdetr    # Skip slow RT-DETR
---test-mode                   # Reduced epochs for testing
-
-# Epoch Configuration
---epochs-det 40               # Detection training epochs
---epochs-cls 30               # Classification training epochs
+# Quick validation run
+python run_multiple_models_pipeline_ground_truth_version.py \
+  --dataset mp_idb_species \
+  --include yolo11 \
+  --classification-models densenet121 \
+  --epochs-det 10 \
+  --epochs-cls 10 \
+  --no-zip
 ```
 
-### Recommended Starting Point
-```bash
-# Best balanced dataset for initial testing
-python run_multiple_models_pipeline.py --dataset mp_idb_stages --include yolo11 --epochs-det 15 --epochs-cls 10
-```
-
-## Available Models
-
-### Detection Models (Stage 1)
-- **YOLOv10** (`yolo10`) - Balanced speed/accuracy
-- **YOLOv11** (`yolo11`) - Current best performer
-- **YOLOv12** (`yolo12`) - Experimental newest version
-- **RT-DETR** (`rtdetr`) - Transformer-based (slower, exclude recommended)
-
-### Classification Models (Stage 3)
-- **PyTorch Models**: DenseNet121, EfficientNet-B1, ConvNeXt-Tiny, MobileNetV3-Large, EfficientNet-B2, ResNet101
-- **YOLO Classification**: Built-in YOLO classifiers
-
-## 🔗 Automatic Data Flow
-
-### Stage Connection Logic
-```python
-# Stage 1 → Stage 2: Auto-discovery
---model yolo11 --experiment my_det → finds: yolov11_detection/my_det/weights/best.pt
-
-# Stage 2 → Stage 3: Auto-path generation
-Stage 2 output: data/crops_from_yolo11_my_det/
-Stage 3 input: --data automatically set to crop path
-```
-
-### Key Automation Features
-- **Structured Paths**: All outputs follow consistent naming patterns
-- **Pattern Matching**: Scripts auto-discover previous stage outputs
-- **Parameter Passing**: Data paths automatically passed between stages
-- **No Manual Copy-Paste**: Everything connected through folder structure
-
-## 🔧 Key Scripts & Files
-
-### Core Pipeline
-```
-run_multiple_models_pipeline.py    # Multi-model automation with analysis
-run_complete_pipeline.py           # Single model full automation
-pipeline.py                        # Main CLI interface
-pipeline_manager.py                # Experiment management
-```
-
-### Stage Scripts
-```
-scripts/training/11_crop_detections.py           # Stage 2: Generate crops
-scripts/monitoring/training_status.py           # Training progress monitoring
-scripts/analysis/unified_journal_analysis.py    # Publication-ready analysis
-```
-
-### Configuration
-```
-config/models.yaml                 # Model definitions & parameters
-config/datasets.yaml               # Dataset sources & classes
-utils/results_manager.py           # Auto folder organization
-```
-
-## 📁 Output Organization
-
-### Training Outputs
-```
-results/current_experiments/
-├── training/              # Normal mode (full epochs)
-│   ├── detection/         # Detection models
-│   └── classification/    # Classification models
-└── validation/            # Test mode (--test-mode)
-```
-
-### Analysis & Reports
-```
-results/
-├── exp_multi_pipeline_*/  # Complete experiment analyses
-│   ├── analysis/          # Confusion matrix, metrics, reports
-│   ├── experiment_summary.json
-│   └── experiment_summary.md
-└── archive/               # Historical experiments
-```
-
-### Data Storage
-```
-data/
-├── lifecycle_pipeline_ready/        # iml_lifecycle (5 classes, imbalanced)
-├── kaggle_pipeline_ready/           # mp_idb_species (4 species, stable)
-├── kaggle_stage_pipeline_ready/     # mp_idb_stages (4 stages, recommended)
-└── crops_from_*/                    # Generated crops from detection
-```
-
-## Current Status: 3-DATASET PRODUCTION READY
-
-**3 Dataset Architecture**:
-- **mp_idb_species**: 4 species classification (stable)
-- **mp_idb_stages**: 4 stage classification (recommended)
-- **iml_lifecycle**: 5 class detection (experimental, imbalanced)
-
-**Key Features**:
-- 3-Stage workflow with automatic data flow
-- Multiple model support (YOLOv10/11/12, RT-DETR)
-- 6 PyTorch classification models
-- Unicode issues resolved
-- Class imbalance analysis completed
-
-**SEPTEMBER 27, 2025 STATUS**:
-- **Production Ready**: mp_idb_stages recommended for balanced training
-- **Issue Resolution**: Unicode encoding errors fixed
-- **Dataset Analysis**: Class imbalance documented (IML lifecycle 98.6% red blood cells)
-- **Script Fixes**: Crop detection updated for lifecycle dataset support
+---
+*Last Updated: 2025-09-27*
+*Ground Truth Pipeline: Enhanced version with stratified splits and cleaner classification training*

@@ -1,0 +1,14 @@
+[SETUP] Setting up Kaggle MP-IDB for SPECIES classification...
+[INFO] Found 209 images in Kaggle dataset
+[SPLIT] 146 train, 42 val, 21 test
+[PROCESSING] Converting segmentation polygons to bounding boxes...
+[SUCCESS] Converted 1436 polygons to bounding boxes (965 train, 374 val, 97 test)
+[SUCCESS] Created data.yaml at data\processed\species\data.yaml
+[INFO] Dataset summary:
+   Total images: 209
+   Total objects: 1436
+   Train: 146 images, 965 objects
+   Val: 42 images, 374 objects
+   Test: 21 images, 97 objects
+   Classes: 1 (parasite detection)
+[READY] Dataset ready for pipeline at: data\processed\species

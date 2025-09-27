@@ -61,8 +61,8 @@ def analyze_crop_quality():
 
     # Configuration
     model_path = "results/exp_multi_pipeline_20250923_104712/detection/yolov10_detection/multi_pipeline_20250923_104712_yolo10_det/weights/best.pt"
-    test_images_dir = "data/kaggle_pipeline_ready/test/images"
-    test_labels_dir = "data/kaggle_pipeline_ready/test/labels"
+    test_images_dir = "data/processed/species/test/images"
+    test_labels_dir = "data/processed/species/test/labels"
 
     print("Starting comprehensive crop quality investigation...")
     print(f"Model: {model_path}")

@@ -200,20 +200,30 @@ class ResultsManager:
         return pub_path
 
     def get_crops_path(self, detection_model: str, experiment_name: str) -> Path:
-        """Get path for generated crops"""
+        """Get path for generated crops (without creating directory)"""
         if self.centralized_mode:
             crops_path = self.pipeline_dir / "crop_data" / f"crops_from_{detection_model}_{experiment_name}"
         else:
             crops_path = Path(f"data/crops_from_{detection_model}_{experiment_name}")
+        return crops_path
+
+    def create_crops_path(self, detection_model: str, experiment_name: str) -> Path:
+        """Get path for generated crops and CREATE directory"""
+        crops_path = self.get_crops_path(detection_model, experiment_name)
         crops_path.mkdir(parents=True, exist_ok=True)
         return crops_path
 
     def get_analysis_path(self, analysis_type: str = "general") -> Path:
-        """Get path for analysis results"""
+        """Get path for analysis results (without creating directory)"""
         if self.centralized_mode:
             analysis_path = self.pipeline_dir / "analysis" / analysis_type
         else:
             analysis_path = self.base_dir / "analysis" / analysis_type
+        return analysis_path
+
+    def create_analysis_path(self, analysis_type: str = "general") -> Path:
+        """Get path for analysis results and CREATE directory"""
+        analysis_path = self.get_analysis_path(analysis_type)
         analysis_path.mkdir(parents=True, exist_ok=True)
         return analysis_path
 
@@ -345,11 +355,21 @@ def get_publication_path(publication_type: str = "journal", pipeline_name: str =
     return manager.get_publication_path(publication_type)
 
 def get_crops_path(detection_model: str, experiment_name: str, pipeline_name: str = None) -> Path:
-    """Get crops path using results manager"""
+    """Get crops path using results manager (without creating directory)"""
     manager = get_results_manager(pipeline_name)
     return manager.get_crops_path(detection_model, experiment_name)
 
+def create_crops_path(detection_model: str, experiment_name: str, pipeline_name: str = None) -> Path:
+    """Get crops path using results manager and CREATE directory"""
+    manager = get_results_manager(pipeline_name)
+    return manager.create_crops_path(detection_model, experiment_name)
+
 def get_analysis_path(analysis_type: str = "general", pipeline_name: str = None) -> Path:
-    """Get analysis path using results manager"""
+    """Get analysis path using results manager (without creating directory)"""
     manager = get_results_manager(pipeline_name)
     return manager.get_analysis_path(analysis_type)
+
+def create_analysis_path(analysis_type: str = "general", pipeline_name: str = None) -> Path:
+    """Get analysis path using results manager and CREATE directory"""
+    manager = get_results_manager(pipeline_name)
+    return manager.create_analysis_path(analysis_type)

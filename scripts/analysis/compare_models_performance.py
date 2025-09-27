@@ -948,7 +948,7 @@ This analysis provides insights into the performance of different detection-clas
             if data_yaml is None:
                 print("Auto-detecting training dataset...")
                 # Prioritize Kaggle dataset
-                kaggle_path = "data/kaggle_pipeline_ready/data.yaml"
+                kaggle_path = "data/processed/species/data.yaml"
                 if os.path.exists(kaggle_path):
                     data_yaml = kaggle_path
                 elif os.path.exists("data/integrated/data.yaml"):

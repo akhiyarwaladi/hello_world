@@ -7,6 +7,51 @@ import pandas as pd
 import shutil
 import argparse
 from pathlib import Path
+import yaml
+
+def detect_dataset_type(input_dir):
+    """Detect dataset type from input directory path"""
+    input_path = str(input_dir).lower()
+
+    if "processed/species" in input_path:
+        return "mp_idb_species"
+    elif "processed/stages" in input_path:
+        return "mp_idb_stages"
+    elif "processed/lifecycle" in input_path:
+        return "iml_lifecycle"
+    else:
+        # Try to detect from data.yaml if exists
+        potential_yaml = Path(input_dir) / "data.yaml"
+        if potential_yaml.exists():
+            try:
+                with open(potential_yaml, 'r') as f:
+                    data = yaml.safe_load(f)
+                names = data.get('names', [])
+                if len(names) == 1 and names[0] in ['parasite', 'parasit']:
+                    return "mp_idb_species"
+                elif len(names) == 4 and 'ring' in names:
+                    if 'schizont' in names:
+                        return "mp_idb_stages" if 'trophozoite' in names else "iml_lifecycle"
+                    return "iml_lifecycle"
+                elif len(names) == 5 and 'red_blood_cell' in names:
+                    return "iml_lifecycle"
+            except:
+                pass
+        return "mp_idb_species"  # Default fallback
+
+def load_class_names_by_dataset(input_dir):
+    """Load class names based on detected dataset type"""
+    dataset_type = detect_dataset_type(input_dir)
+
+    if dataset_type == "mp_idb_species":
+        return {0: "P_falciparum", 1: "P_vivax", 2: "P_malariae", 3: "P_ovale"}
+    elif dataset_type == "mp_idb_stages":
+        return {0: "ring", 1: "schizont", 2: "trophozoite", 3: "gametocyte"}
+    elif dataset_type == "iml_lifecycle":
+        return {0: "red_blood_cell", 1: "ring", 2: "gametocyte", 3: "trophozoite", 4: "schizont"}
+    else:
+        # Fallback to species
+        return {0: "P_falciparum", 1: "P_vivax", 2: "P_malariae", 3: "P_ovale"}
 
 def get_ground_truth_class(image_path, input_path):
     """Get ground truth class from label file"""
@@ -23,7 +68,7 @@ def get_ground_truth_class(image_path, input_path):
     return None
 
 def main():
-    parser = argparse.ArgumentParser(description="Fix classification structure for 4 malaria species")
+    parser = argparse.ArgumentParser(description="Fix classification structure for dataset-specific classes")
     parser.add_argument("--crop_data_path", required=True,
                        help="Path to crop data directory")
     parser.add_argument("--input_path", required=True,
@@ -31,13 +76,12 @@ def main():
 
     args = parser.parse_args()
 
-    # Class mapping
-    class_names = {
-        0: "P_falciparum",
-        1: "P_malariae",
-        2: "P_ovale",
-        3: "P_vivax"
-    }
+    # Detect dataset type and load appropriate class mapping
+    dataset_type = detect_dataset_type(args.input_path)
+    class_names = load_class_names_by_dataset(args.input_path)
+
+    print(f"[INFO] Detected dataset type: {dataset_type}")
+    print(f"[INFO] Using class mapping: {class_names}")
 
     # Paths
     crops_base = Path(args.crop_data_path)

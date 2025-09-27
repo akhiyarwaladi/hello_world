@@ -1,0 +1,36 @@
+============================================================
+ SETUP KAGGLE SINGLE-CLASS DETECTION DATASET 
+Converting Kaggle MP-IDB 16-class to single parasite class for detection...
+============================================================
+[INFO] Kaggle dataset found at data\raw\kaggle_dataset\MP-IDB-YOLO
+[CONVERT] Converting to single parasite class (copying all files)...
+   Source: data\raw\kaggle_dataset\MP-IDB-YOLO
+   Target: data/processed/stages
+[INFO] Found 209 images with labels
+[SPLIT] Processing train: 146 images
+[SPLIT] Processing val: 42 images
+[SPLIT] Processing test: 21 images
+[SUCCESS] Converted 1436 polygon annotations to single class bbox format
+[SUCCESS] Dataset ready with 209 images
+[INFO] Split: 146 train, 42 val, 21 test
+[CONFIG] Creating single-class configuration (parasite detection)
+[SUCCESS] Created data.yaml with 1 class(es)
+   Classes: parasite
+[INFO] Pipeline already supports kaggle_stage dataset
+
+[SUCCESS] Kaggle stage dataset setup completed!
+[INFO] Output directory: data/processed/stages
+[INFO] Configuration: data\processed\stages\data.yaml
+
+[DATASET SUMMARY]
+   Total images: 209
+   Train: 146 images
+   Val: 42 images
+   Test: 21 images
+
+[DETECTION CLASS]
+   0: parasite
+
+[READY] Kaggle single-class detection dataset ready for pipeline!
+[USAGE] Use --dataset mp_idb_stages flag in pipeline commands
+[EXAMPLE] python run_multiple_models_pipeline.py --dataset mp_idb_stages --include yolo11 --epochs-det 10 --epochs-cls 10
