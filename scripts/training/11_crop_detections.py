@@ -313,8 +313,7 @@ def get_ground_truth_class_bbox_match(image_path, input_dir, crop_coords):
                             best_overlap = overlap_ratio
                             best_class = class_id
 
-            # DEBUG: Return best match regardless of overlap to test logic
-            return best_class if best_class >= 0 else -1  # Return any match found
+            return best_class if best_overlap > 0.3 else -1  # Minimum 30% overlap, -1 if no match
 
         return -1
     except Exception as e:
@@ -465,13 +464,17 @@ def process_dataset(model, input_dir, output_dir, dataset_name, confidence=0.25,
                         print(f"Folder-based: {Path(image_path).name} crop {i} -> {class_name}")
 
                 elif dataset_type == "mp_idb_stages":
-                    # For MP-IDB stages: use single class per image from YOLO labels
-                    ground_truth_class = get_ground_truth_class_single(image_path, input_dir)
-                    if 0 <= ground_truth_class < len(class_names):
+                    # For MP-IDB stages: use bbox matching for mixed stage images (R_S, etc.)
+                    ground_truth_class = get_ground_truth_class_bbox_match(
+                        image_path, input_dir, crop_data['crop_coords']
+                    )
+                    if ground_truth_class >= 0 and ground_truth_class < len(class_names):
                         class_name = class_names[ground_truth_class]
+                        print(f"Stage bbox-match: {Path(image_path).name} crop {i} -> {class_name} (class {ground_truth_class})")
                     else:
-                        class_name = class_names[0]  # Default to first class
-                    print(f"Stage-based: {Path(image_path).name} crop {i} -> {class_name} (class {ground_truth_class})")
+                        # Skip false positive detections (no good IoU match)
+                        print(f"Stage bbox-match: {Path(image_path).name} crop {i} -> SKIPPED (no IoU match)")
+                        continue  # Skip this crop
 
                 elif dataset_type == "iml_lifecycle":
                     # For IML lifecycle: use bbox matching for multi-object images
