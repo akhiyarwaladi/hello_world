@@ -10,10 +10,11 @@ import argparse
 import cv2
 import numpy as np
 import subprocess
+import shutil
 from pathlib import Path
 from ultralytics import YOLO
 import pandas as pd
-from tqdm import tqdm
+# from tqdm import tqdm  # Removed to reduce output verbosity
 import yaml
 
 # Add project root to path for imports
@@ -41,11 +42,11 @@ def detect_dataset_type(input_dir):
     """Detect dataset type from input directory path"""
     input_path = str(input_dir).lower()
 
-    if "kaggle_pipeline_ready" in input_path:
+    if "processed/species" in input_path:
         return "mp_idb_species"
-    elif "kaggle_stage_pipeline_ready" in input_path:
+    elif "processed/stages" in input_path:
         return "mp_idb_stages"
-    elif "lifecycle_pipeline_ready" in input_path:
+    elif "processed/lifecycle" in input_path:
         return "iml_lifecycle"
     else:
         # Try to detect from data.yaml if exists
@@ -74,22 +75,15 @@ def load_class_names_by_dataset(input_dir):
         return ["P_falciparum", "P_vivax", "P_malariae", "P_ovale"]
 
     elif dataset_type == "mp_idb_stages":
-        # Load from kaggle_stage_pipeline_ready
-        try:
-            with open("data/kaggle_stage_pipeline_ready/data.yaml", 'r') as f:
-                data = yaml.safe_load(f)
-            return data.get('names', ["ring", "schizont", "trophozoite", "gametocyte"])
-        except:
-            return ["ring", "schizont", "trophozoite", "gametocyte"]
+        # FIXED: Use original Kaggle MP-IDB class mapping for proper stage classification
+        # Based on original MP-IDB-YOLO dataset class mapping:
+        # class_id 0: Ring, class_id 1: Schizont, class_id 2: Trophozoite, class_id 3: Gametocyte
+        return ["ring", "schizont", "trophozoite", "gametocyte"]
 
     elif dataset_type == "iml_lifecycle":
-        # Load from lifecycle_pipeline_ready
-        try:
-            with open("data/lifecycle_pipeline_ready/data.yaml", 'r') as f:
-                data = yaml.safe_load(f)
-            return data.get('names', ["ring", "gametocyte", "trophozoite", "schizont"])
-        except:
-            return ["ring", "gametocyte", "trophozoite", "schizont"]
+        # FIXED: Use hardcoded lifecycle classes for classification (detection uses single-class)
+        # Detection: 1 class (parasite), Classification: 4 classes (lifecycle stages, red_blood_cell excluded)
+        return ["ring", "gametocyte", "trophozoite", "schizont"]
 
     else:
         # Try to load from input directory's data.yaml
@@ -246,10 +240,183 @@ def get_ground_truth_class_single(image_path, input_dir):
         print(f"Warning: Could not get ground truth for {image_path}: {e}")
         return 0
 
-def get_ground_truth_class_bbox_match(image_path, input_dir, crop_coords):
-    """Get ground truth class by matching crop coordinates with label bboxes"""
+def get_stage_class_from_filename(filename, bbox_position=None):
+    """Extract stage class from MP-IDB stage filename patterns
+
+    For mixed stage files (R_S, R_G), this function can optionally use
+    bbox position to determine the most likely stage, but currently
+    uses the first stage mentioned as a fallback.
+    """
+    filename = Path(filename).name
+
+    # Extract stage indicators from filename (e.g., 1703121298-0002-S.jpg -> S)
+    if '-' in filename:
+        parts = filename.split('-')
+        if len(parts) >= 3:
+            stage_part = parts[-1].split('.')[0]  # Remove extension
+
+            # Map stage abbreviations to class indices
+            stage_mapping = {
+                'R': 0,  # ring
+                'S': 1,  # schizont
+                'T': 2,  # trophozoite
+                'G': 3   # gametocyte
+            }
+
+            # Handle mixed stage annotations (R_S, R_G, etc.)
+            if '_' in stage_part:
+                stages = stage_part.split('_')
+
+                # TODO: For future improvement, could use bbox_position to determine
+                # which stage is more likely based on spatial distribution patterns
+                # For now, use a more intelligent selection based on common patterns
+
+                # Some heuristics for mixed stages:
+                # - In images with R_S, rings often appear at edges, schizonts in center
+                # - In images with R_G, gametocytes are usually larger/more prominent
+
+                if len(stages) >= 2:
+                    # For now, prefer the more mature stage (developmental progression)
+                    stage_priority = {'G': 4, 'S': 3, 'T': 2, 'R': 1}  # G = highest priority
+                    best_stage = max(stages, key=lambda x: stage_priority.get(x, 0))
+                    stage_part = best_stage
+                    print(f"Mixed stage {filename}: stages {stages} -> selected {stage_part}")
+                else:
+                    stage_part = stages[0]  # Fallback to first
+
+            return stage_mapping.get(stage_part, 0)  # Default to ring if unknown
+
+    return 0  # Default to ring
+
+def get_lifecycle_class_from_filename(image_path):
+    """Extract lifecycle class from IML lifecycle filename patterns
+
+    Uses similar logic to stages but with different class mapping for lifecycle dataset
+    """
+    # For lifecycle dataset, use same filename parsing as stages
+    # but potentially different mapping if needed
+    return get_stage_class_from_filename(image_path)
+
+def load_original_multiclass_labels(image_path):
+    """Load original multi-class labels from raw dataset for proper stage classification"""
     try:
-        # Convert image path to corresponding label path
+        image_name = Path(image_path).name
+
+        # Try to find original multi-class label file
+        original_label_paths = [
+            Path("data/raw/kaggle_dataset/MP-IDB-YOLO/labels") / image_name.replace('.jpg', '.txt'),
+            Path("data/raw/mp_idb_stages/labels") / image_name.replace('.jpg', '.txt')
+        ]
+
+        for label_path in original_label_paths:
+            if label_path.exists():
+                # Load image to get dimensions
+                image = cv2.imread(str(image_path))
+                if image is None:
+                    continue
+                img_h, img_w = image.shape[:2]
+
+                multiclass_bboxes = []
+                with open(label_path, 'r') as f:
+                    lines = f.readlines()
+
+                for line in lines:
+                    parts = line.strip().split()
+                    if len(parts) >= 5:
+                        # Check if it's polygon format (many coordinates) or bbox format
+                        if len(parts) > 10:  # Polygon format
+                            class_id = int(parts[0])
+                            # Convert polygon to bbox
+                            coords = [float(x) for x in parts[1:]]
+                            x_coords = coords[::2]  # Every 2nd element starting from 0
+                            y_coords = coords[1::2]  # Every 2nd element starting from 1
+
+                            # Find bounding box of polygon
+                            min_x = min(x_coords) * img_w
+                            max_x = max(x_coords) * img_w
+                            min_y = min(y_coords) * img_h
+                            max_y = max(y_coords) * img_h
+
+                            # Store as (class_id, x1, y1, x2, y2)
+                            multiclass_bboxes.append((class_id, min_x, min_y, max_x, max_y))
+                        else:  # YOLO bbox format
+                            class_id = int(parts[0])
+                            x_center = float(parts[1]) * img_w
+                            y_center = float(parts[2]) * img_h
+                            bbox_w = float(parts[3]) * img_w
+                            bbox_h = float(parts[4]) * img_h
+
+                            x1 = x_center - bbox_w / 2
+                            y1 = y_center - bbox_h / 2
+                            x2 = x_center + bbox_w / 2
+                            y2 = y_center + bbox_h / 2
+
+                            multiclass_bboxes.append((class_id, x1, y1, x2, y2))
+
+                return multiclass_bboxes
+
+        return None  # No original multi-class labels found
+    except Exception as e:
+        print(f"Warning: Could not load original labels for {image_path}: {e}")
+        return None
+
+def classify_mp_idb_species(image_path, crop_coords, csv_annotations):
+    """Classify species using MP-IDB species dataset approach: folder + CSV fallback"""
+    try:
+        # Simple approach: check which raw data folder contains the image
+        class_name = get_species_from_raw_data_simple(Path(image_path).name)
+
+        # If not found in simple folders, try CSV for Falciparum (mixed infections)
+        if class_name == "unknown" and csv_annotations:
+            csv_species = get_species_from_csv_overlap(
+                Path(image_path).name,
+                crop_coords,
+                csv_annotations
+            )
+            if csv_species:
+                return csv_species
+            else:
+                return "P_falciparum"  # Default Falciparum if CSV fails
+
+        return class_name
+    except Exception as e:
+        print(f"Warning: Could not classify MP-IDB species for {image_path}: {e}")
+        return "P_falciparum"  # Default fallback
+
+def classify_mp_idb_stages(image_path, input_dir, crop_coords):
+    """Classify stages using MP-IDB stages dataset approach: original multi-class + filename fallback"""
+    try:
+        # First, try to load original multi-class labels
+        multiclass_bboxes = load_original_multiclass_labels(image_path)
+
+        if multiclass_bboxes:
+            # Match crop with original multi-class bboxes
+            crop_x1, crop_y1, crop_x2, crop_y2 = crop_coords
+
+            best_overlap = 0
+            best_class = -1
+
+            for class_id, gt_x1, gt_y1, gt_x2, gt_y2 in multiclass_bboxes:
+                # Calculate overlap
+                overlap_x1 = max(crop_x1, gt_x1)
+                overlap_y1 = max(crop_y1, gt_y1)
+                overlap_x2 = min(crop_x2, gt_x2)
+                overlap_y2 = min(crop_y2, gt_y2)
+
+                if overlap_x1 < overlap_x2 and overlap_y1 < overlap_y2:
+                    overlap_area = (overlap_x2 - overlap_x1) * (overlap_y2 - overlap_y1)
+                    crop_area = (crop_x2 - crop_x1) * (crop_y2 - crop_y1)
+                    overlap_ratio = overlap_area / crop_area if crop_area > 0 else 0
+
+                    if overlap_ratio > best_overlap:
+                        best_overlap = overlap_ratio
+                        best_class = class_id
+
+            # Return original class_id if good match found
+            if best_overlap > 0.3:  # 30% minimum overlap
+                return best_class
+
+        # Fallback: Try converted single-class labels with filename-based classification
         input_path = Path(input_dir)
         image_rel_path = Path(image_path).relative_to(input_path)
 
@@ -270,23 +437,20 @@ def get_ground_truth_class_bbox_match(image_path, input_dir, crop_coords):
             # Load image to get dimensions
             image = cv2.imread(str(image_path))
             if image is None:
-                return 0
+                return -1
             img_h, img_w = image.shape[:2]
 
             crop_x1, crop_y1, crop_x2, crop_y2 = crop_coords
-            crop_center_x = (crop_x1 + crop_x2) / 2
-            crop_center_y = (crop_y1 + crop_y2) / 2
 
             with open(label_path, 'r') as f:
                 lines = f.readlines()
 
-            best_class = -1  # -1 indicates no match found
             best_overlap = 0
+            bbox_match_found = False
 
             for line in lines:
                 parts = line.strip().split()
                 if len(parts) >= 5:
-                    class_id = int(parts[0])
                     x_center = float(parts[1]) * img_w
                     y_center = float(parts[2]) * img_h
                     bbox_w = float(parts[3]) * img_w
@@ -311,13 +475,95 @@ def get_ground_truth_class_bbox_match(image_path, input_dir, crop_coords):
 
                         if overlap_ratio > best_overlap:
                             best_overlap = overlap_ratio
-                            best_class = class_id
+                            bbox_match_found = True
 
-            return best_class if best_overlap > 0.3 else -1  # Minimum 30% overlap, -1 if no match
+            # If we found a good bbox match, determine stage class from filename
+            if bbox_match_found and best_overlap > 0.3:
+                return get_stage_class_from_filename(image_path)
+
+        # FINAL FALLBACK: Use filename-based classification WITHOUT overlap requirement
+        # This ensures we never skip crops, similar to species approach
+        print(f"MP-IDB stages final fallback: {Path(image_path).name}")
+        return get_stage_class_from_filename(image_path)
+    except Exception as e:
+        print(f"Warning: Could not classify MP-IDB stages for {image_path}: {e}")
+        # Even in error case, provide fallback instead of skipping
+        return get_stage_class_from_filename(image_path)
+
+def classify_iml_lifecycle(image_path, input_dir, crop_coords):
+    """Classify lifecycle using IML lifecycle dataset approach: bbox matching + filename fallback"""
+    try:
+        # Similar to stages but with different class mapping for lifecycle
+        # Use converted single-class labels with filename-based classification
+        input_path = Path(input_dir)
+        image_rel_path = Path(image_path).relative_to(input_path)
+
+        # Handle different split structures
+        if 'images' in image_rel_path.parts:
+            label_parts = list(image_rel_path.parts)
+            for i, part in enumerate(label_parts):
+                if part == 'images':
+                    label_parts[i] = 'labels'
+                    break
+            label_rel_path = Path(*label_parts).with_suffix('.txt')
+        else:
+            label_rel_path = image_rel_path.with_suffix('.txt')
+
+        label_path = input_path / label_rel_path
+
+        if label_path.exists():
+            # Load image to get dimensions
+            image = cv2.imread(str(image_path))
+            if image is None:
+                return -1
+            img_h, img_w = image.shape[:2]
+
+            crop_x1, crop_y1, crop_x2, crop_y2 = crop_coords
+
+            with open(label_path, 'r') as f:
+                lines = f.readlines()
+
+            best_overlap = 0
+            bbox_match_found = False
+
+            for line in lines:
+                parts = line.strip().split()
+                if len(parts) >= 5:
+                    x_center = float(parts[1]) * img_w
+                    y_center = float(parts[2]) * img_h
+                    bbox_w = float(parts[3]) * img_w
+                    bbox_h = float(parts[4]) * img_h
+
+                    # Convert to absolute coordinates
+                    gt_x1 = x_center - bbox_w / 2
+                    gt_y1 = y_center - bbox_h / 2
+                    gt_x2 = x_center + bbox_w / 2
+                    gt_y2 = y_center + bbox_h / 2
+
+                    # Calculate overlap
+                    overlap_x1 = max(crop_x1, gt_x1)
+                    overlap_y1 = max(crop_y1, gt_y1)
+                    overlap_x2 = min(crop_x2, gt_x2)
+                    overlap_y2 = min(crop_y2, gt_y2)
+
+                    if overlap_x1 < overlap_x2 and overlap_y1 < overlap_y2:
+                        overlap_area = (overlap_x2 - overlap_x1) * (overlap_y2 - overlap_y1)
+                        crop_area = (crop_x2 - crop_x1) * (crop_y2 - crop_y1)
+                        overlap_ratio = overlap_area / crop_area if crop_area > 0 else 0
+
+                        if overlap_ratio > best_overlap:
+                            best_overlap = overlap_ratio
+                            bbox_match_found = True
+
+            # If we found a good bbox match, use filename-based lifecycle classification
+            if bbox_match_found and best_overlap > 0.3:
+                return get_lifecycle_class_from_filename(image_path)
+            else:
+                return -1  # No good bbox match found
 
         return -1
     except Exception as e:
-        print(f"Warning: Could not get bbox-matched ground truth for {image_path}: {e}")
+        print(f"Warning: Could not classify IML lifecycle for {image_path}: {e}")
         return -1
 
 def load_detection_model(model_path):
@@ -396,8 +642,11 @@ def process_dataset(model, input_dir, output_dir, dataset_name, confidence=0.25,
     else:
         csv_annotations = None
 
-    # Create output directories
+    # Create output directories (clean existing crops first)
     crops_dir = output_path / "crops"
+    if crops_dir.exists():
+        print(f"[CLEAN] Removing existing crop data: {crops_dir}")
+        shutil.rmtree(crops_dir)
     crops_dir.mkdir(parents=True, exist_ok=True)
 
     # Create PyTorch ImageFolder structure: train/val/test -> class_name subfolders
@@ -433,7 +682,7 @@ def process_dataset(model, input_dir, output_dir, dataset_name, confidence=0.25,
     print(f"Found {len(all_images)} images to process")
 
     # Process each image
-    for image_path, split in tqdm(all_images, desc="Generating crops"):
+    for image_path, split in all_images:
         try:
             crops = detect_and_crop(model, image_path, confidence, crop_size)
             processed_count += 1
@@ -444,49 +693,38 @@ def process_dataset(model, input_dir, output_dir, dataset_name, confidence=0.25,
 
                 # Apply dataset-specific classification logic based on detected dataset type
                 if dataset_type == "mp_idb_species":
-                    # For MP-IDB species: use folder/CSV lookup for species classification
-                    class_name = get_species_from_raw_data_simple(Path(image_path).name)
-
-                    # If not found in simple folders, try CSV for Falciparum (mixed infections)
-                    if class_name == "unknown" and csv_annotations:
-                        csv_species = get_species_from_csv_overlap(
-                            Path(image_path).name,
-                            crop_data['crop_coords'],
-                            csv_annotations
-                        )
-                        if csv_species:
-                            class_name = csv_species
-                            print(f"CSV Falciparum: {Path(image_path).name} crop {i} -> {class_name}")
-                        else:
-                            class_name = "P_falciparum"  # Default Falciparum if CSV fails
-                            print(f"Default Falciparum: {Path(image_path).name} crop {i} -> {class_name}")
-                    else:
-                        print(f"Folder-based: {Path(image_path).name} crop {i} -> {class_name}")
+                    # For MP-IDB species: use dedicated species classification function
+                    class_name = classify_mp_idb_species(
+                        image_path, crop_data['crop_coords'], csv_annotations
+                    )
+                    print(f"MP-IDB species: {Path(image_path).name} crop {i} -> {class_name}")
 
                 elif dataset_type == "mp_idb_stages":
-                    # For MP-IDB stages: use bbox matching for mixed stage images (R_S, etc.)
-                    ground_truth_class = get_ground_truth_class_bbox_match(
+                    # For MP-IDB stages: use dedicated stages classification function
+                    ground_truth_class = classify_mp_idb_stages(
                         image_path, input_dir, crop_data['crop_coords']
                     )
                     if ground_truth_class >= 0 and ground_truth_class < len(class_names):
                         class_name = class_names[ground_truth_class]
-                        print(f"Stage bbox-match: {Path(image_path).name} crop {i} -> {class_name} (class {ground_truth_class})")
+                        print(f"MP-IDB stages: {Path(image_path).name} crop {i} -> {class_name} (class {ground_truth_class})")
                     else:
-                        # Skip false positive detections (no good IoU match)
-                        print(f"Stage bbox-match: {Path(image_path).name} crop {i} -> SKIPPED (no IoU match)")
-                        continue  # Skip this crop
+                        # Fallback: use filename-based stage classification (more lenient)
+                        ground_truth_class = get_stage_class_from_filename(image_path)
+                        class_name = class_names[ground_truth_class]
+                        print(f"MP-IDB stages fallback: {Path(image_path).name} crop {i} -> {class_name} (class {ground_truth_class})")
+                        # Note: No longer skip crops with weak IoU - filename fallback provides classification
 
                 elif dataset_type == "iml_lifecycle":
-                    # For IML lifecycle: use bbox matching for multi-object images
-                    ground_truth_class = get_ground_truth_class_bbox_match(
+                    # For IML lifecycle: use dedicated lifecycle classification function
+                    ground_truth_class = classify_iml_lifecycle(
                         image_path, input_dir, crop_data['crop_coords']
                     )
                     if ground_truth_class >= 0 and ground_truth_class < len(class_names):
                         class_name = class_names[ground_truth_class]
-                        print(f"Lifecycle bbox-match: {Path(image_path).name} crop {i} -> {class_name} (class {ground_truth_class})")
+                        print(f"IML lifecycle: {Path(image_path).name} crop {i} -> {class_name} (class {ground_truth_class})")
                     else:
                         # Skip false positive detections (no good IoU match)
-                        print(f"Lifecycle bbox-match: {Path(image_path).name} crop {i} -> SKIPPED (no IoU match)")
+                        print(f"IML lifecycle: {Path(image_path).name} crop {i} -> SKIPPED (no IoU match)")
                         continue  # Skip this crop
 
                 else:
@@ -497,6 +735,11 @@ def process_dataset(model, input_dir, output_dir, dataset_name, confidence=0.25,
                     else:
                         class_name = class_names[0]  # Default to first class
                     print(f"Fallback: {Path(image_path).name} crop {i} -> {class_name} (class {ground_truth_class})")
+
+                # FILTER: Skip red_blood_cell for IML lifecycle (focus on parasite stages only)
+                if dataset_type == "iml_lifecycle" and class_name == "red_blood_cell":
+                    print(f"Lifecycle filter: {Path(image_path).name} crop {i} -> SKIPPED (red_blood_cell excluded)")
+                    continue  # Skip red blood cell crops for classification
 
                 # Map class name to class ID
                 try:
