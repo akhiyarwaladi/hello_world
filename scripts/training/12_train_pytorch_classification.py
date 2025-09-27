@@ -11,6 +11,7 @@ import time
 import argparse
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader, WeightedRandomSampler
 from torch.amp import autocast, GradScaler  # Mixed precision for RTX 3060
@@ -27,6 +28,41 @@ import seaborn as sns
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 from utils.results_manager import ResultsManager
+
+class FocalLoss(nn.Module):
+    """Focal Loss for handling extreme class imbalance
+
+    Reference: https://arxiv.org/abs/1708.02002
+    Focal Loss = -alpha * (1 - p_t)^gamma * log(p_t)
+
+    Args:
+        alpha (float): Weighting factor for rare class (default: 1.0)
+        gamma (float): Focusing parameter (default: 2.0)
+        reduction (str): Specifies reduction to apply to output
+    """
+
+    def __init__(self, alpha=1.0, gamma=2.0, reduction='mean'):
+        super(FocalLoss, self).__init__()
+        self.alpha = alpha
+        self.gamma = gamma
+        self.reduction = reduction
+
+    def forward(self, inputs, targets):
+        # Calculate standard cross entropy
+        ce_loss = F.cross_entropy(inputs, targets, reduction='none')
+
+        # Calculate p_t
+        pt = torch.exp(-ce_loss)
+
+        # Calculate focal loss
+        focal_loss = self.alpha * (1 - pt) ** self.gamma * ce_loss
+
+        if self.reduction == 'mean':
+            return focal_loss.mean()
+        elif self.reduction == 'sum':
+            return focal_loss.sum()
+        else:
+            return focal_loss
 
 def get_model(model_name, num_classes=4, pretrained=True):
     """Get specified model architecture"""
@@ -327,12 +363,18 @@ def main():
                                'convnext_tiny', 'convnext_small',  # Added ConvNeXt for speed
                                'vit_b_16', 'vit_b_32'],  # Keep ViT but optimize CPU usage
                        help="Model architecture")
-    parser.add_argument("--epochs", type=int, default=10,
-                       help="Number of epochs")
-    parser.add_argument("--batch", type=int, default=128,  # RTX 3060 optimized
-                       help="Batch size (default: 48 optimized for RTX 3060 stability)")
+    parser.add_argument("--epochs", type=int, default=25,  # Increased from 10
+                       help="Number of epochs (default: 25 for better convergence)")
+    parser.add_argument("--batch", type=int, default=32,  # Optimized for 224px images
+                       help="Batch size (default: 32 optimized for 224px images)")
     parser.add_argument("--lr", type=float, default=0.001,
-                       help="Learning rate")
+                       help="Learning rate (default: 0.001, focal loss may need lower lr like 0.0005)")
+    parser.add_argument("--loss", choices=['cross_entropy', 'focal'], default='cross_entropy',
+                       help="Loss function type (default: cross_entropy)")
+    parser.add_argument("--focal_alpha", type=float, default=1.0,
+                       help="Focal loss alpha parameter")
+    parser.add_argument("--focal_gamma", type=float, default=2.0,
+                       help="Focal loss gamma parameter")
     parser.add_argument("--image_size", type=int, default=224,
                        help="Input image size")
     parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu",
@@ -510,8 +552,14 @@ def main():
         drop_last=use_drop_last
     )
 
-    # Setup training with RTX 3060 Mixed Precision optimization + Class Weights
-    criterion = nn.CrossEntropyLoss(weight=class_weights)  # Use class weights for balanced loss
+    # Setup loss function based on --loss parameter
+    print(f"\n[LOSS] Using {args.loss} loss function")
+    if args.loss == 'focal':
+        print(f"[FOCAL] Alpha: {args.focal_alpha}, Gamma: {args.focal_gamma}")
+        criterion = FocalLoss(alpha=args.focal_alpha, gamma=args.focal_gamma)
+        # Note: Focal loss has built-in handling for imbalance, so we don't use class weights
+    else:
+        criterion = nn.CrossEntropyLoss(weight=class_weights)  # Use class weights for balanced loss
     optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)  # AdamW for better performance
     scheduler = optim.lr_scheduler.OneCycleLR(optimizer, max_lr=args.lr*10, epochs=args.epochs, steps_per_epoch=len(train_loader))  # OneCycle for faster convergence
 

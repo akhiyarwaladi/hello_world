@@ -489,51 +489,38 @@ def main():
         print("[ERROR] No detection models to run after exclusions!")
         return
 
-    # Define classification models - 6 OPTIMIZED MODELS (2024)
-    classification_configs = {
-        "densenet121": {
+    # Define classification models - SYSTEMATIC COMPARISON: 6 Models × 2 Loss Functions = 12 Experiments
+    base_models = ["densenet121", "efficientnet_b1", "convnext_tiny", "mobilenet_v3_large", "efficientnet_b2", "resnet101"]
+
+    classification_configs = {}
+
+    # Generate configurations for each model with both loss functions
+    for model in base_models:
+        # Configuration 1: Cross-Entropy (Baseline)
+        classification_configs[f"{model}_ce"] = {
             "type": "pytorch",
             "script": "scripts/training/12_train_pytorch_classification.py",
-            "model": "densenet121",
-            "epochs": 30,
-            "batch": 128         # GPU optimized batch size
-        },
-        "efficientnet_b1": {
-            "type": "pytorch",
-            "script": "scripts/training/12_train_pytorch_classification.py",
-            "model": "efficientnet_b1",
-            "epochs": 30,
-            "batch": 128         # GPU optimized batch size
-        },
-        "convnext_tiny": {
-            "type": "pytorch",
-            "script": "scripts/training/12_train_pytorch_classification.py",
-            "model": "convnext_tiny",
-            "epochs": 30,
-            "batch": 128         # GPU optimized batch size
-        },
-        "mobilenet_v3_large": {
-            "type": "pytorch",
-            "script": "scripts/training/12_train_pytorch_classification.py",
-            "model": "mobilenet_v3_large",
-            "epochs": 30,
-            "batch": 128         # GPU optimized batch size
-        },
-        "efficientnet_b2": {
-            "type": "pytorch",
-            "script": "scripts/training/12_train_pytorch_classification.py",
-            "model": "efficientnet_b2",
-            "epochs": 30,
-            "batch": 128         # GPU optimized batch size
-        },
-        "resnet101": {
-            "type": "pytorch",
-            "script": "scripts/training/12_train_pytorch_classification.py",
-            "model": "resnet101",
-            "epochs": 30,
-            "batch": 128         # GPU optimized batch size
+            "model": model,
+            "loss": "cross_entropy",
+            "epochs": 25,        # Standardized epochs
+            "batch": 32,         # Optimized for 224px images
+            "lr": 0.001,
+            "display_name": f"{model.upper()} (Cross-Entropy)"
         }
-    }
+
+        # Configuration 2: Focal Loss (Novel Contribution)
+        classification_configs[f"{model}_focal"] = {
+            "type": "pytorch",
+            "script": "scripts/training/12_train_pytorch_classification.py",
+            "model": model,
+            "loss": "focal",
+            "focal_alpha": 2.0,  # Optimized for imbalance
+            "focal_gamma": 2.0,
+            "epochs": 25,        # Standardized epochs
+            "batch": 32,         # Optimized for 224px images
+            "lr": 0.0005,        # Lower LR for focal loss stability
+            "display_name": f"{model.upper()} (Focal Loss)"
+        }
 
     # Determine which classification models to run
     all_classification_models = list(classification_configs.keys())
@@ -578,10 +565,12 @@ def main():
         results_manager = get_results_manager(pipeline_name=base_exp_name)
         print(f"[INFO] RESULTS: results/exp_{base_exp_name}/")
 
-    print("[TARGET] MULTIPLE MODELS PIPELINE")
+    print("[TARGET] MULTIPLE MODELS PIPELINE - SYSTEMATIC COMPARISON")
     print(f"Detection models: {', '.join(models_to_run)}")
-    print(f"Classification models: {', '.join(selected_classification)}")
-    print(f"Epochs: {args.epochs_det} det, {args.epochs_cls} cls")
+    print(f"Classification: {len(base_models)} architectures × 2 loss functions = {len(classification_configs)} experiments")
+    print(f"Loss Functions: Cross-Entropy (baseline) vs Focal Loss (novel contribution)")
+    print(f"Expected Results: {len(models_to_run)} × {len(classification_configs)} = {len(models_to_run) * len(classification_configs)} total combinations")
+    print(f"Epochs: {args.epochs_det} det, 25 cls (standardized)")
     print(f"Confidence: {confidence_threshold}")
 
     # Auto-setup and auto-detect best dataset
@@ -921,7 +910,7 @@ def main():
                 cls_config = classification_configs[cls_model_name]
                 cls_exp_name = f"{base_exp_name}_{model_key}_{cls_model_name}_cls"
 
-                print(f"   [START] Training {cls_model_name.upper()}")
+                print(f"   [START] Training {cls_config.get('display_name', cls_model_name.upper())}")
 
                 # NEW: Create centralized path for classification (folder needed for saving)
                 centralized_cls_path = results_manager.create_experiment_path("training", cls_config['model'], cls_exp_name)
@@ -940,17 +929,26 @@ def main():
                         f"device={'cuda' if torch.cuda.is_available() else 'cpu'}"
                     ]
                 else:
-                    # PyTorch classification - modify script to use centralized path
+                    # PyTorch classification - systematic comparison with loss functions
                     cmd3 = [
                         "python", cls_config["script"],
                         "--data", str(crop_data_path),
                         "--model", cls_config["model"],
-                        "--epochs", str(args.epochs_cls),
+                        "--epochs", str(cls_config["epochs"]),  # Use config epochs
                         "--batch", str(cls_config["batch"]),
+                        "--lr", str(cls_config["lr"]),
+                        "--loss", cls_config["loss"],           # Cross-entropy or focal
                         "--device", "cuda" if torch.cuda.is_available() else "cpu",
                         "--name", cls_exp_name,
-                        "--save-dir", str(centralized_cls_path)  # Direct save to centralized
+                        "--save-dir", str(centralized_cls_path)
                     ]
+
+                    # Add focal loss parameters if needed
+                    if cls_config["loss"] == "focal":
+                        cmd3.extend([
+                            "--focal_alpha", str(cls_config["focal_alpha"]),
+                            "--focal_gamma", str(cls_config["focal_gamma"])
+                        ])
 
                 if run_command(cmd3, f"Training {cls_model_name.upper()}"):
                     print(f"[SUCCESS] Classification model saved directly to: {centralized_cls_path}")
