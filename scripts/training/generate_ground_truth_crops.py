@@ -16,7 +16,7 @@ import shutil
 class GroundTruthCropGenerator:
     """Generate crops from ground truth annotations"""
 
-    def __init__(self, dataset_path, output_path, crop_size=128):
+    def __init__(self, dataset_path, output_path, crop_size=224):
         self.dataset_path = Path(dataset_path)
         self.output_path = Path(output_path)
         self.crop_size = crop_size
@@ -360,8 +360,15 @@ class GroundTruthCropGenerator:
         if crop.size == 0:
             return None
 
-        # Resize to target size
-        crop_resized = cv2.resize(crop, (target_size, target_size))
+        # Resize to target size using high-quality interpolation
+        # Use INTER_CUBIC for upscaling (better quality) or INTER_AREA for downscaling
+        current_size = max(crop.shape[:2])
+        if current_size < target_size:
+            # Upscaling - use cubic interpolation for better quality
+            crop_resized = cv2.resize(crop, (target_size, target_size), interpolation=cv2.INTER_CUBIC)
+        else:
+            # Downscaling - use area interpolation to preserve details
+            crop_resized = cv2.resize(crop, (target_size, target_size), interpolation=cv2.INTER_AREA)
 
         return crop_resized
 
@@ -603,7 +610,7 @@ def main():
     parser = argparse.ArgumentParser(description='Generate ground truth crops for classification training')
     parser.add_argument('--dataset', required=True, help='Path to dataset directory (with train/val/test structure)')
     parser.add_argument('--output', required=True, help='Output directory for generated crops')
-    parser.add_argument('--crop_size', type=int, default=128, help='Size of generated crops')
+    parser.add_argument('--crop_size', type=int, default=224, help='Size of generated crops (default: 224 for paper compatibility)')
     parser.add_argument('--type', choices=['iml_lifecycle', 'mp_idb_species', 'mp_idb_stages'],
                        help='Force dataset type (overrides auto-detection)')
 
