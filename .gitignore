@@ -55,6 +55,8 @@ models/rtdetr/*
 
 # Results - Exclude entire results directory to prevent large file commits
 results/
+# BUT allow important analysis documentation
+!results/multi_dataset_training/COMPREHENSIVE_EXPERIMENT_ANALYSIS.md
 
 # Test folders - Exclude all test folders in root directory
 test_*/
