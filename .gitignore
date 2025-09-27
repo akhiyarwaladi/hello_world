@@ -53,13 +53,11 @@ models/rtdetr/*
 !models/yolov8/.gitkeep
 !models/rtdetr/.gitkeep
 
-# Results
-results/weights/*
-results/logs/*
-results/predictions/*
-!results/weights/.gitkeep
-!results/logs/.gitkeep
-!results/predictions/.gitkeep
+# Results - Exclude entire results directory to prevent large file commits
+results/
+
+# Test folders - Exclude all test folders in root directory
+test_*/
 
 # Temporary files
 *.tmp
@@ -99,19 +97,14 @@ exports/experiment_archives/*.zip
 !docs/images/*
 !examples/*
 
-# Large dataset folders - exclude image files but keep configs
-data/kaggle_stage_pipeline_ready/train/images/
-data/kaggle_stage_pipeline_ready/val/images/
-data/kaggle_stage_pipeline_ready/test/images/
-data/kaggle_pipeline_ready/train/images/
-data/kaggle_pipeline_ready/val/images/
-data/kaggle_pipeline_ready/test/images/
-data/lifecycle_pipeline_ready/train/images/
-data/lifecycle_pipeline_ready/val/images/
-data/lifecycle_pipeline_ready/test/images/
+# Processed data - exclude image files but keep configs
+data/processed/*/train/images/
+data/processed/*/val/images/
+data/processed/*/test/images/
+data/processed/crops/*/
 data/bbbc041_raw/
-data/raw/
-data/test_stage_conversion_fixed/
+data/raw/*/
+!data/raw/.gitkeep
 
 # Video files
 *.mp4
