@@ -1,54 +1,69 @@
 # Malaria Detection Project - Context for Claude
 
-## 🎯 Project Overview
+## Project Overview
 Comprehensive malaria detection system using YOLOv10, YOLOv11, YOLOv12, and RT-DETR models for microscopy image analysis.
 
-**Current Status: ✅ PRODUCTION READY - Complete Pipeline with Multiple Datasets**
+**Current Status: PRODUCTION READY - Complete Pipeline with Multiple Datasets**
 
-**Latest Update**: September 26, 2025 - Lifecycle dataset integration + 5-class malaria stage detection
+**Latest Update**: September 27, 2025 - 3-Dataset Architecture with Unicode Fixes
 
-**Latest Updates (Sep 26, 2025)**:
-- ✅ **New Lifecycle Dataset**: 5-class detection (red_blood_cell, ring, gametocyte, trophozoite, schizont) - 345 labels
-- ✅ **Kaggle Stage Dataset**: 4-class parasite stages (ring, schizont, trophozoite, gametocyte) - 342 images
-- ✅ **Active Training**: Lifecycle dataset pipeline running in background (YOLOv10/11/12)
-- ✅ **Multi-Dataset Support**: --dataset flag for different dataset selection
-- ✅ Production-ready pipeline with full automation
+**Current Status (Sep 27, 2025)**:
+- **3 Dataset Support**: Species, Stages, and Lifecycle detection
+- **Unicode Issues Fixed**: All emoticons removed, clean pipeline execution
+- **Class Imbalance Identified**: IML lifecycle dataset analysis completed
+- **Production Ready**: mp_idb_stages recommended for balanced training
 
-**Live Experiments**:
-- 🔄 **Running**: Lifecycle dataset pipeline (ID: 9a96d2) - 5-class detection training
-- ✅ **Completed**: `exp_multi_pipeline_20250924_233409` - Complete analysis available
-- ✅ **Ready Datasets**: kaggle_pipeline_ready (209 images), lifecycle_pipeline_ready (345 labels)
+## Available Datasets
 
-## 📊 Available Datasets
+### 1. **mp_idb_species** (4 Species Classification - STABLE)
+- **Classes**: P_falciparum, P_vivax, P_malariae, P_ovale
+- **Size**: 209 images, 1,436 objects
+- **Usage**: `--use-kaggle-dataset`
+- **Status**: Balanced, production ready
+- **Path**: `kaggle_pipeline_ready/`
 
-### Primary Datasets (Ready for Training)
-1. **`lifecycle_pipeline_ready`** (NEWEST) - Complete malaria lifecycle detection
-   - **Classes**: 5 classes (red_blood_cell, ring, gametocyte, trophozoite, schizont)
-   - **Size**: 345 label files
-   - **Usage**: `--dataset lifecycle`
+### 2. **mp_idb_stages** (4 Stage Classification - RECOMMENDED)
+- **Classes**: ring, schizont, trophozoite, gametocyte
+- **Size**: 342 images
+- **Usage**: `--dataset mp_idb_stages`
+- **Status**: Best balanced dataset
+- **Path**: `kaggle_stage_pipeline_ready/`
 
-2. **`kaggle_pipeline_ready`** (STABLE) - Parasite stage classification
-   - **Classes**: 4 classes (ring, schizont, trophozoite, gametocyte)
-   - **Size**: 209 images, 1436 objects
-   - **Usage**: `--use-kaggle-dataset`
+### 3. **iml_lifecycle** (4 Parasite Stages - FOCUSED)
+- **Classes**: ring, gametocyte, trophozoite, schizont (no red blood cells)
+- **Size**: 313 images, 529 parasite objects
+- **Usage**: `--dataset iml_lifecycle`
+- **Status**: Focused on parasite stages only (balanced)
+- **Path**: `lifecycle_pipeline_ready/`
+- **Note**: Red blood cells removed for focused parasite classification
 
-3. **`kaggle_stage_pipeline_ready`** - Stage-specific detection
-   - **Classes**: 4 classes (ring, schizont, trophozoite, gametocyte)
-   - **Size**: 342 images
-   - **Usage**: `--dataset stage`
+## Quick Start Commands
 
-## 🚀 Quick Start Commands
-
-### Complete Pipeline Automation (RECOMMENDED)
+### 1. **mp_idb_species** (4 Species - STABLE)
 ```bash
-# NEWEST: Lifecycle dataset (5 classes) - exclude slow RT-DETR
-python run_multiple_models_pipeline.py --dataset lifecycle --exclude-detection rtdetr --epochs-det 40 --epochs-cls 30
-
-# STABLE: Kaggle dataset (4 classes) - most tested
+# Production Pipeline
 python run_multiple_models_pipeline.py --use-kaggle-dataset --exclude-detection rtdetr --epochs-det 40 --epochs-cls 30
 
-# QUICK TEST: Single model validation
-python run_multiple_models_pipeline.py --include yolo11 --test-mode --use-kaggle-dataset
+# Quick Test
+python run_multiple_models_pipeline.py --use-kaggle-dataset --include yolo11 --test-mode --epochs-det 5 --epochs-cls 5
+```
+
+### 2. **mp_idb_stages** (4 Stages - RECOMMENDED)
+```bash
+# Best Balanced Pipeline
+python run_multiple_models_pipeline.py --dataset mp_idb_stages --exclude-detection rtdetr --epochs-det 40 --epochs-cls 30
+
+# Quick Test
+python run_multiple_models_pipeline.py --dataset mp_idb_stages --include yolo11 --test-mode --epochs-det 5 --epochs-cls 5
+```
+
+### 3. **iml_lifecycle** (4 Parasite Stages - FOCUSED)
+```bash
+# Focused Parasite Training
+python run_multiple_models_pipeline.py --dataset iml_lifecycle --include yolo11 --epochs-det 20 --epochs-cls 15
+
+# Quick Test
+python run_multiple_models_pipeline.py --dataset iml_lifecycle --include yolo11 --test-mode --epochs-det 5 --epochs-cls 5
 ```
 
 ### Status Monitoring
@@ -58,7 +73,7 @@ python pipeline_manager.py list                     # List experiments
 python pipeline_manager.py status EXPERIMENT_NAME   # Detailed status
 ```
 
-## ⚡ 3-Stage Workflow (CORE PIPELINE)
+## 3-Stage Workflow (CORE PIPELINE)
 
 ### STAGE 1: Train Detection Model
 ```bash
@@ -79,43 +94,42 @@ python pipeline.py train yolo11_classification --name auto_yolo11_cls --data dat
 ```
 **Uses crop data**: Automatically uses crops generated from Stage 2
 
-## 🔄 Multiple Models Pipeline
+## Multiple Models Pipeline
 
-### Exclusion/Inclusion Support
+### Parameter Reference
 ```bash
-# RECOMMENDED: Exclude slow models
-python run_multiple_models_pipeline.py --exclude-detection rtdetr --epochs-det 40 --epochs-cls 30
+# Dataset Selection
+--use-kaggle-dataset          # mp_idb_species (4 species)
+--dataset mp_idb_stages       # Stage classification (4 stages)
+--dataset iml_lifecycle       # Lifecycle detection (5 classes)
 
-# Include specific models only
-python run_multiple_models_pipeline.py --include yolo10 yolo11 --epochs-det 40 --epochs-cls 30
+# Model Selection
+--include yolo10 yolo11       # Specific models only
+--exclude-detection rtdetr    # Skip slow RT-DETR
+--test-mode                   # Reduced epochs for testing
 
-# Test mode (reduced epochs)
-python run_multiple_models_pipeline.py --include yolo11 --test-mode --epochs-det 5 --epochs-cls 5
+# Epoch Configuration
+--epochs-det 40               # Detection training epochs
+--epochs-cls 30               # Classification training epochs
 ```
 
-### Continue/Resume Functionality
+### Recommended Starting Point
 ```bash
-# List experiments that can be continued
-python pipeline_manager.py list
-
-# Continue from specific stage (SAFE - no overwrite)
-python run_multiple_models_pipeline.py --continue-from EXPERIMENT_NAME --start-stage analysis --include yolo11
-
-# Continue from earlier stage (OVERWRITES)
-python run_multiple_models_pipeline.py --continue-from EXPERIMENT_NAME --start-stage crop --include yolo11 --epochs-cls 30
+# Best balanced dataset for initial testing
+python run_multiple_models_pipeline.py --dataset mp_idb_stages --include yolo11 --epochs-det 15 --epochs-cls 10
 ```
 
-## 🎯 Available Models
+## Available Models
 
 ### Detection Models (Stage 1)
-- **YOLOv10** (`yolo10`) - Latest YOLO, balanced speed/accuracy
+- **YOLOv10** (`yolo10`) - Balanced speed/accuracy
 - **YOLOv11** (`yolo11`) - Current best performer
 - **YOLOv12** (`yolo12`) - Experimental newest version
-- **RT-DETR** (`rtdetr`) - Transformer-based (slower, high accuracy)
+- **RT-DETR** (`rtdetr`) - Transformer-based (slower, exclude recommended)
 
 ### Classification Models (Stage 3)
-- **YOLO Classification** (`yolo10`, `yolo11`) - Fast YOLO-based classifiers
-- **PyTorch Models** - ResNet18, EfficientNet-B0, DenseNet121, MobileNetV2
+- **PyTorch Models**: DenseNet121, EfficientNet-B1, ConvNeXt-Tiny, MobileNetV3-Large, EfficientNet-B2, ResNet101
+- **YOLO Classification**: Built-in YOLO classifiers
 
 ## 🔗 Automatic Data Flow
 
@@ -183,29 +197,28 @@ results/
 ### Data Storage
 ```
 data/
-├── lifecycle_pipeline_ready/     # 5-class lifecycle dataset
-├── kaggle_pipeline_ready/        # 4-class kaggle dataset
-├── kaggle_stage_pipeline_ready/  # 4-class stage dataset
-└── crops_from_*/                 # Generated crops from detection
+├── lifecycle_pipeline_ready/        # iml_lifecycle (5 classes, imbalanced)
+├── kaggle_pipeline_ready/           # mp_idb_species (4 species, stable)
+├── kaggle_stage_pipeline_ready/     # mp_idb_stages (4 stages, recommended)
+└── crops_from_*/                    # Generated crops from detection
 ```
 
-## 🎉 Current Status: ADVANCED PIPELINE - PRODUCTION READY
+## Current Status: 3-DATASET PRODUCTION READY
 
-✅ **Multiple dataset support** (lifecycle, kaggle, stage datasets)
-✅ **5-class malaria lifecycle detection** (newest capability)
-✅ **3-Stage workflow with automatic data flow**
-✅ **Multiple model support with exclusion/inclusion**
-✅ **Timestamp-based experiment naming**
-✅ **Advanced monitoring and status tracking**
-✅ **Error resilience and continuation**
-✅ **Full automation available (one command)**
-✅ **Auto folder organization & model discovery**
+**3 Dataset Architecture**:
+- **mp_idb_species**: 4 species classification (stable)
+- **mp_idb_stages**: 4 stage classification (recommended)
+- **iml_lifecycle**: 5 class detection (experimental, imbalanced)
 
-**CURRENT ACTIVE WORK**: Lifecycle dataset pipeline running in background (5-class detection: red_blood_cell + 4 parasite stages)
+**Key Features**:
+- 3-Stage workflow with automatic data flow
+- Multiple model support (YOLOv10/11/12, RT-DETR)
+- 6 PyTorch classification models
+- Unicode issues resolved
+- Class imbalance analysis completed
 
-**SEPTEMBER 26, 2025 STATUS**:
-- ✅ **Multi-dataset architecture**: Support for 3 different dataset configurations
-- ✅ **Enhanced classification**: From 4-class to 5-class detection capability
-- ✅ **Production stability**: All pipelines tested and operational
-- ✅ **Background processing**: Long-running pipelines with monitoring support
-- ✅ **Documentation streamlined**: Removed outdated sections, focused on current capabilities
+**SEPTEMBER 27, 2025 STATUS**:
+- **Production Ready**: mp_idb_stages recommended for balanced training
+- **Issue Resolution**: Unicode encoding errors fixed
+- **Dataset Analysis**: Class imbalance documented (IML lifecycle 98.6% red blood cells)
+- **Script Fixes**: Crop detection updated for lifecycle dataset support

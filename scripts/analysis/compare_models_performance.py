@@ -1074,7 +1074,7 @@ This analysis provides insights into the performance of different detection-clas
 - **mAP@0.75**: {map_75_val:.6f} (strict evaluation - lower)
 - **mAP@0.5:0.95**: {map_avg_val:.6f} (comprehensive average - lowest)
 
-**Pattern Verification**: IoU 0.5 > IoU 0.75 > IoU 0.5:0.95 ✓
+**Pattern Verification**: IoU 0.5 > IoU 0.75 > IoU 0.5:0.95 
 **Behavior**: Higher IoU threshold → Lower mAP (as expected in research)
 
 ## Summary

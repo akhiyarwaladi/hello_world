@@ -7,7 +7,7 @@ with open('scripts/analysis/unified_journal_analysis.py', 'r', encoding='utf-8')
 
 # Replace any problematic Unicode characters
 content_fixed = content.replace('\U0001f9ec', '[DNA]')  # DNA emoji
-content_fixed = content_fixed.replace('🧬', '[DNA]')  # DNA emoji direct
+content_fixed = content_fixed.replace('', '[DNA]')  # DNA emoji direct
 content_fixed = content_fixed.replace('→', '->')  # Arrow symbol
 content_fixed = content_fixed.replace('—', '--')  # Em dash
 
