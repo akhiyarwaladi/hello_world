@@ -741,7 +741,7 @@ class MalariaYOLOConverter:
         elif dataset_type == "stage":
             # Handle Kaggle stage dataset with 16-class to 4-stage conversion
             print("[INFO] Processing Kaggle stage dataset with 16-class to 4-stage conversion")
-            kaggle_data_dir = "data/kaggle_dataset/MP-IDB-YOLO"
+            kaggle_data_dir = "data/raw/kaggle_dataset/MP-IDB-YOLO"
 
             if not Path(kaggle_data_dir).exists():
                 print(f"[ERROR] Kaggle dataset not found at {kaggle_data_dir}")

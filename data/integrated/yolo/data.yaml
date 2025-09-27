@@ -1,7 +1,0 @@
-names:
-- parasit
-nc: 1
-path: data/integrated/yolo
-test: test/images
-train: train/images
-val: val/images

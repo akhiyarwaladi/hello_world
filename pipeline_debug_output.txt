@@ -1,0 +1,1577 @@
+[TARGET] Using confidence threshold: 0.25
+[CENTRALIZED] Using clean structure: results\exp_multi_pipeline_20250927_161328_mp_idb_stages
+[INFO] RESULTS: results/exp_multi_pipeline_20250927_161328_mp_idb_stages/
+[TARGET] MULTIPLE MODELS PIPELINE
+Detection models: yolo11
+Classification models: densenet121, efficientnet_b1, convnext_tiny, mobilenet_v3_large, efficientnet_b2, resnet101
+Epochs: 2 det, 2 cls
+Confidence: 0.25
+
+================================================================================
+STAGE 1: DETECTION TRAINING - All Models
+================================================================================
+
+[DETECTION] Training YOLO11 detection model
+
+[INFO] STAGE 1: Training yolov11_detection
+[MP_IDB_STAGES] Using MP-IDB stages dataset for detection training
+
+[START] Training yolov11_detection
+Command: yolo detect train model=yolo11m.pt data=data/processed/stages/data.yaml epochs=2 name=multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det project=results\exp_multi_pipeline_20250927_161328_mp_idb_stages\detection\yolov11_detection device=cuda
+[OUTPUT] Ultralytics 8.3.203  Python-3.11.13 torch-2.5.1+cu121 CUDA:0 (NVIDIA GeForce RTX 3060, 12288MiB)
+[34m[1mengine\trainer: [0magnostic_nms=False, amp=True, augment=False, auto_augment=randaugment, batch=16, bgr=0.0, box=7.5, cache=False, cfg=None, classes=None, close_mosaic=10, cls=0.5, compile=False, conf=None, copy_paste=0.0, copy_paste_mode=flip, cos_lr=False, cutmix=0.0, data=data/processed/stages/data.yaml, degrees=0.0, deterministic=True, device=0, dfl=1.5, dnn=False, dropout=0.0, dynamic=False, embed=None, epochs=2, erasing=0.4, exist_ok=False, fliplr=0.5, flipud=0.0, format=torchscript, fraction=1.0, freeze=None, half=False, hsv_h=0.015, hsv_s=0.7, hsv_v=0.4, imgsz=640, int8=False, iou=0.7, keras=False, kobj=1.0, line_width=None, lr0=0.01, lrf=0.01, mask_ratio=4, max_det=300, mixup=0.0, mode=train, model=yolo11m.pt, momentum=0.937, mosaic=1.0, multi_scale=False, name=multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det, nbs=64, nms=False, opset=None, optimize=False, optimizer=auto, overlap_mask=True, patience=100, perspective=0.0, plots=True, pose=12.0, pretrained=True, profile=False, project=results\exp_multi_pipeline_20250927_161328_mp_idb_stages\detection\yolov11_detection, rect=False, resume=False, retina_masks=False, save=True, save_conf=False, save_crop=False, save_dir=C:\Users\MyPC PRO\Documents\hello_world\results\exp_multi_pipeline_20250927_161328_mp_idb_stages\detection\yolov11_detection\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det, save_frames=False, save_json=False, save_period=-1, save_txt=False, scale=0.5, seed=0, shear=0.0, show=False, show_boxes=True, show_conf=True, show_labels=True, simplify=True, single_cls=False, source=None, split=val, stream_buffer=False, task=detect, time=None, tracker=botsort.yaml, translate=0.1, val=True, verbose=True, vid_stride=1, visualize=False, warmup_bias_lr=0.1, warmup_epochs=3.0, warmup_momentum=0.8, weight_decay=0.0005, workers=8, workspace=None
+Overriding model.yaml nc=80 with nc=4
+
+                   from  n    params  module                                       arguments                     
+  0                  -1  1      1856  ultralytics.nn.modules.conv.Conv             [3, 64, 3, 2]                 
+  1                  -1  1     73984  ultralytics.nn.modules.conv.Conv             [64, 128, 3, 2]               
+  2                  -1  1    111872  ultralytics.nn.modules.block.C3k2            [128, 256, 1, True, 0.25]     
+  3                  -1  1    590336  ultralytics.nn.modules.conv.Conv             [256, 256, 3, 2]              
+  4                  -1  1    444928  ultralytics.nn.modules.block.C3k2            [256, 512, 1, True, 0.25]     
+  5                  -1  1   2360320  ultralytics.nn.modules.conv.Conv             [512, 512, 3, 2]              
+  6                  -1  1   1380352  ultralytics.nn.modules.block.C3k2            [512, 512, 1, True]           
+  7                  -1  1   2360320  ultralytics.nn.modules.conv.Conv             [512, 512, 3, 2]              
+  8                  -1  1   1380352  ultralytics.nn.modules.block.C3k2            [512, 512, 1, True]           
+  9                  -1  1    656896  ultralytics.nn.modules.block.SPPF            [512, 512, 5]                 
+ 10                  -1  1    990976  ultralytics.nn.modules.block.C2PSA           [512, 512, 1]                 
+ 11                  -1  1         0  torch.nn.modules.upsampling.Upsample         [None, 2, 'nearest']          
+ 12             [-1, 6]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 13                  -1  1   1642496  ultralytics.nn.modules.block.C3k2            [1024, 512, 1, True]          
+ 14                  -1  1         0  torch.nn.modules.upsampling.Upsample         [None, 2, 'nearest']          
+ 15             [-1, 4]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 16                  -1  1    542720  ultralytics.nn.modules.block.C3k2            [1024, 256, 1, True]          
+ 17                  -1  1    590336  ultralytics.nn.modules.conv.Conv             [256, 256, 3, 2]              
+ 18            [-1, 13]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 19                  -1  1   1511424  ultralytics.nn.modules.block.C3k2            [768, 512, 1, True]           
+ 20                  -1  1   2360320  ultralytics.nn.modules.conv.Conv             [512, 512, 3, 2]              
+ 21            [-1, 10]  1         0  ultralytics.nn.modules.conv.Concat           [1]                           
+ 22                  -1  1   1642496  ultralytics.nn.modules.block.C3k2            [1024, 512, 1, True]          
+ 23        [16, 19, 22]  1   1414108  ultralytics.nn.modules.head.Detect           [4, [256, 512, 512]]          
+YOLO11m summary: 231 layers, 20,056,092 parameters, 20,056,076 gradients, 68.2 GFLOPs
+
+Transferred 643/649 items from pretrained weights
+Freezing layer 'model.23.dfl.conv.weight'
+[34m[1mAMP: [0mrunning Automatic Mixed Precision (AMP) checks...
+[34m[1mAMP: [0mchecks passed 
+[34m[1mtrain: [0mFast image access  (ping: 0.20.1 ms, read: 965.0219.7 MB/s, size: 3348.5 KB)
+
+[K[34m[1mtrain: [0mScanning C:\Users\MyPC PRO\Documents\hello_world\data\processed\stages\train\labels.cache... 146 images, 0 backgrounds, 0 corrupt: 100% ???????????? 146/146  0.0s
+[K[34m[1mtrain: [0mScanning C:\Users\MyPC PRO\Documents\hello_world\data\processed\stages\train\labels.cache... 146 images, 0 backgrounds, 0 corrupt: 100% ???????????? 146/146  0.0s
+[34m[1malbumentations: [0mBlur(p=0.01, blur_limit=(3, 7)), MedianBlur(p=0.01, blur_limit=(3, 7)), ToGray(p=0.01, method='weighted_average', num_output_channels=3), CLAHE(p=0.01, clip_limit=(1.0, 4.0), tile_grid_size=(8, 8))
+[34m[1mval: [0mFast image access  (ping: 0.10.0 ms, read: 845.4363.5 MB/s, size: 3065.2 KB)
+
+[K[34m[1mval: [0mScanning C:\Users\MyPC PRO\Documents\hello_world\data\processed\stages\val\labels.cache... 42 images, 0 backgrounds, 0 corrupt: 100% ???????????? 42/42  0.0s
+[K[34m[1mval: [0mScanning C:\Users\MyPC PRO\Documents\hello_world\data\processed\stages\val\labels.cache... 42 images, 0 backgrounds, 0 corrupt: 100% ???????????? 42/42  0.0s
+Plotting labels to C:\Users\MyPC PRO\Documents\hello_world\results\exp_multi_pipeline_20250927_161328_mp_idb_stages\detection\yolov11_detection\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det\labels.jpg... 
+[34m[1moptimizer:[0m 'optimizer=auto' found, ignoring 'lr0=0.01' and 'momentum=0.937' and determining best 'optimizer', 'lr0' and 'momentum' automatically... 
+[34m[1moptimizer:[0m AdamW(lr=0.00125, momentum=0.9) with parameter groups 106 weight(decay=0.0), 113 weight(decay=0.0005), 112 bias(decay=0.0)
+Image sizes 640 train, 640 val
+Using 8 dataloader workers
+Logging results to [1mC:\Users\MyPC PRO\Documents\hello_world\results\exp_multi_pipeline_20250927_161328_mp_idb_stages\detection\yolov11_detection\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det[0m
+Starting training for 2 epochs...
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+
+[K        1/2      7.74G      1.973       5.22      1.279        116        640: 0% ???????????? 0/10  3.2s
+[K        1/2      7.75G      2.434       5.68      1.426        148        640: 10% ???????????? 1/10 0.5it/s 3.8s<18.8s
+[K        1/2      7.75G      2.355      5.775      1.366        112        640: 20% ???????????? 2/10 0.9it/s 4.3s<9.0s
+[K        1/2      7.75G      2.582      5.978      1.374        258        640: 30% ???????????? 3/10 1.2it/s 4.9s<6.0s
+[K        1/2      7.75G      2.652      6.372      1.424        202        640: 40% ???????????? 4/10 1.4it/s 5.4s<4.3s
+[K        1/2      7.75G      2.593      6.445      1.393        112        640: 50% ???????????? 5/10 1.4it/s 6.1s<3.5s
+[K        1/2      7.75G      2.543       6.38      1.346        179        640: 60% ???????????? 6/10 1.5it/s 6.7s<2.7s
+[K        1/2      7.75G      2.624       6.43      1.391        133        640: 70% ???????????? 7/10 1.6it/s 7.2s<1.9s
+[K        1/2      7.82G      2.579      6.352      1.376        152        640: 80% ???????????? 8/10 1.6it/s 7.8s<1.2s
+[K        1/2      7.88G      2.537      6.369      1.353         37        640: 90% ???????????? 9/10 1.5it/s 8.6s<0.6s
+[K        1/2      7.88G      2.537      6.369      1.353         37        640: 100% ???????????? 10/10 1.2it/s 8.6s
+[K        1/2      7.88G      2.537      6.369      1.353         37        640: 100% ???????????? 10/10 1.2it/s 8.6s
+
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 50% ???????????? 1/2 0.9it/s 0.3s<1.2s
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ???????????? 2/2 4.3it/s 0.5s
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ???????????? 2/2 4.3it/s 0.5s
+                   all         42        374      0.598       0.05      0.058     0.0522
+
+      Epoch    GPU_mem   box_loss   cls_loss   dfl_loss  Instances       Size
+
+[K        2/2      8.02G       2.08      4.172      1.043        231        640: 0% ???????????? 0/10  0.5s
+[K        2/2      8.02G      2.003      3.929     0.9779        313        640: 10% ???????????? 1/10 0.6it/s 1.0s<14.2s
+[K        2/2      8.02G      1.987      3.651     0.9741        202        640: 20% ???????????? 2/10 1.1it/s 1.5s<7.5s
+[K        2/2      8.02G      1.876      3.499      0.959        120        640: 30% ???????????? 3/10 1.4it/s 1.9s<5.0s
+[K        2/2      8.02G      1.746      3.431     0.9442        102        640: 40% ???????????? 4/10 1.6it/s 2.4s<3.7s
+[K        2/2      8.02G      1.798      3.366     0.9619        137        640: 50% ???????????? 5/10 1.8it/s 2.8s<2.8s
+[K        2/2      8.02G      1.844      3.235     0.9806        188        640: 60% ???????????? 6/10 1.9it/s 3.3s<2.1s
+[K        2/2      8.02G      1.822      3.112     0.9838        120        640: 70% ???????????? 7/10 2.0it/s 3.7s<1.5s
+[K        2/2      8.02G      1.832      3.024     0.9915        172        640: 80% ???????????? 8/10 2.1it/s 4.2s<1.0s
+[K        2/2      8.06G      1.863      2.966     0.9988         10        640: 100% ???????????? 10/10 2.3it/s 4.3s
+[K        2/2      8.06G      1.863      2.966     0.9988         10        640: 100% ???????????? 10/10 2.3it/s 4.3s
+
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 50% ???????????? 1/2 0.9it/s 0.3s<1.1s
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ???????????? 2/2 4.6it/s 0.4s
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ???????????? 2/2 4.6it/s 0.4s
+                   all         42        374      0.514      0.438      0.318      0.199
+
+2 epochs completed in 0.005 hours.
+Optimizer stripped from C:\Users\MyPC PRO\Documents\hello_world\results\exp_multi_pipeline_20250927_161328_mp_idb_stages\detection\yolov11_detection\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det\weights\last.pt, 40.5MB
+Optimizer stripped from C:\Users\MyPC PRO\Documents\hello_world\results\exp_multi_pipeline_20250927_161328_mp_idb_stages\detection\yolov11_detection\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det\weights\best.pt, 40.5MB
+
+Validating C:\Users\MyPC PRO\Documents\hello_world\results\exp_multi_pipeline_20250927_161328_mp_idb_stages\detection\yolov11_detection\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det\weights\best.pt...
+Ultralytics 8.3.203  Python-3.11.13 torch-2.5.1+cu121 CUDA:0 (NVIDIA GeForce RTX 3060, 12288MiB)
+YOLO11m summary (fused): 125 layers, 20,033,116 parameters, 0 gradients, 67.7 GFLOPs
+
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 50% ???????????? 1/2 0.7it/s 0.4s<1.5s
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ???????????? 2/2 3.5it/s 0.6s
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ???????????? 2/2 3.5it/s 0.6s
+                   all         42        374      0.515      0.437      0.317      0.198
+                  ring         31        354      0.562      0.547      0.548      0.228
+              schizont          5          5      0.305        0.8      0.299      0.224
+           trophozoite          8         10      0.194        0.4      0.349      0.277
+            gametocyte          5          5          1          0     0.0714     0.0641
+Speed: 0.5ms preprocess, 8.6ms inference, 0.0ms loss, 1.3ms postprocess per image
+Results saved to [1mC:\Users\MyPC PRO\Documents\hello_world\results\exp_multi_pipeline_20250927_161328_mp_idb_stages\detection\yolov11_detection\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det[0m
+ Learn more at https://docs.ultralytics.com/modes/train
+[34m[1mVS Code:[0m view Ultralytics VS Code Extension  at https://docs.ultralytics.com/integrations/vscode
+[SUCCESS] Training yolov11_detection completed successfully
+[SUCCESS] Found model at: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\detection\yolov11_detection\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det\weights\best.pt
+[SUCCESS] Detection model saved directly to: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\detection\yolov11_detection\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det
+
+[PROCESS] STAGE 2: Generating crops for yolo11
+   [USE] Detection model: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\detection\yolov11_detection\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det\weights\best.pt
+   [USE] Detection experiment: multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det
+[MP_IDB_STAGES] Using MP-IDB stages dataset for crop generation
+
+[START] Generating crops for yolo11
+Command: python scripts/training/11_crop_detections.py --model results\exp_multi_pipeline_20250927_161328_mp_idb_stages\detection\yolov11_detection\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det\weights\best.pt --input data/processed/stages --output results\exp_multi_pipeline_20250927_161328_mp_idb_stages\crop_data\crops_from_yolo11_multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det --confidence 0.25 --crop_size 128
+[OUTPUT] ============================================================
+GENERATING CROPS FROM DETECTION MODEL
+============================================================
+Detection model: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\detection\yolov11_detection\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det\weights\best.pt
+Input dataset: data/processed/stages
+Output directory: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\crop_data\crops_from_yolo11_multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det
+Confidence threshold: 0.25
+Crop size: 128x128
+Loading detection model: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\detection\yolov11_detection\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det\weights\best.pt
+[INFO] Detected dataset type: mp_idb_stages
+[INFO] Using class names: ['ring', 'schizont', 'trophozoite', 'gametocyte']
+Found 209 images to process
+Stage bbox-match: 1305121398-0001-R_S.jpg crop 0 -> schizont (class 1)
+Stage bbox-match: 1305121398-0001-R_S.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1305121398-0001-R_S.jpg crop 2 -> schizont (class 1)
+Stage bbox-match: 1305121398-0001-R_S.jpg crop 3 -> ring (class 0)
+Stage bbox-match: 1305121398-0006-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1305121398-0006-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1305121398-0010-S.jpg crop 0 -> schizont (class 1)
+Stage bbox-match: 1305121398-0010-S.jpg crop 1 -> schizont (class 1)
+Stage bbox-match: 1305121398-0014-S.jpg crop 0 -> schizont (class 1)
+Stage bbox-match: 1305121398-0014-S.jpg crop 1 -> schizont (class 1)
+Stage bbox-match: 1305121398-0015-S.jpg crop 0 -> schizont (class 1)
+Stage bbox-match: 1305121398-0015-S.jpg crop 1 -> schizont (class 1)
+Stage bbox-match: 1307210661-0001-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 9 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 10 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 11 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 12 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 13 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 14 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 15 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 16 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 17 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 18 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 19 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 20 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 21 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 22 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 23 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 24 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 25 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0001-R.jpg crop 26 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0002-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0002-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0002-R.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0002-R.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0002-R.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0002-R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0002-R.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0002-R.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0002-R.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0002-R.jpg crop 9 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0002-R.jpg crop 10 -> ring (class 0)
+Stage bbox-match: 1307210661-0002-R.jpg crop 11 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0002-R.jpg crop 12 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0002-R.jpg crop 13 -> ring (class 0)
+Stage bbox-match: 1307210661-0002-R.jpg crop 14 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0002-R.jpg crop 15 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0002-R.jpg crop 16 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0002-R.jpg crop 17 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0002-R.jpg crop 18 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0002-R.jpg crop 19 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0002-R.jpg crop 20 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0003-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0003-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0003-R.jpg crop 2 -> ring (class 0)
+Stage bbox-match: 1307210661-0003-R.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0003-R.jpg crop 4 -> ring (class 0)
+Stage bbox-match: 1307210661-0003-R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0003-R.jpg crop 6 -> ring (class 0)
+Stage bbox-match: 1307210661-0003-R.jpg crop 7 -> ring (class 0)
+Stage bbox-match: 1307210661-0003-R.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0003-R.jpg crop 9 -> ring (class 0)
+Stage bbox-match: 1307210661-0003-R.jpg crop 10 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0003-R.jpg crop 11 -> ring (class 0)
+Stage bbox-match: 1307210661-0003-R.jpg crop 12 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0003-R.jpg crop 13 -> ring (class 0)
+Stage bbox-match: 1307210661-0003-R.jpg crop 14 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0003-R.jpg crop 15 -> ring (class 0)
+Stage bbox-match: 1307210661-0003-R.jpg crop 16 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0003-R.jpg crop 17 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0003-R.jpg crop 18 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0003-R.jpg crop 19 -> ring (class 0)
+Stage bbox-match: 1307210661-0003-R.jpg crop 20 -> ring (class 0)
+Stage bbox-match: 1307210661-0003-R.jpg crop 21 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0003-R.jpg crop 22 -> ring (class 0)
+Stage bbox-match: 1307210661-0003-R.jpg crop 23 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0003-R.jpg crop 24 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0003-R.jpg crop 25 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0003-R.jpg crop 26 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0004-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0004-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0004-R.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0004-R.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0004-R.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0004-R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0004-R.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0004-R.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0004-R.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0004-R.jpg crop 9 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0004-R.jpg crop 10 -> ring (class 0)
+Stage bbox-match: 1307210661-0004-R.jpg crop 11 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0004-R.jpg crop 12 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0004-R.jpg crop 13 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0004-R.jpg crop 14 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0004-R.jpg crop 15 -> ring (class 0)
+Stage bbox-match: 1307210661-0004-R.jpg crop 16 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0004-R.jpg crop 17 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0004-R.jpg crop 18 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0004-R.jpg crop 19 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0004-R.jpg crop 20 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0004-R.jpg crop 21 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0004-R.jpg crop 22 -> ring (class 0)
+Stage bbox-match: 1307210661-0004-R.jpg crop 23 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0004-R.jpg crop 24 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0007-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0007-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0007-R.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0007-R.jpg crop 3 -> ring (class 0)
+Stage bbox-match: 1307210661-0007-R.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0007-R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0007-R.jpg crop 6 -> ring (class 0)
+Stage bbox-match: 1307210661-0007-R.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0007-R.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0007-R.jpg crop 9 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0007-R.jpg crop 10 -> ring (class 0)
+Stage bbox-match: 1307210661-0007-R.jpg crop 11 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0007-R.jpg crop 12 -> ring (class 0)
+Stage bbox-match: 1307210661-0007-R.jpg crop 13 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0007-R.jpg crop 14 -> ring (class 0)
+Stage bbox-match: 1307210661-0007-R.jpg crop 15 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0007-R.jpg crop 16 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0007-R.jpg crop 17 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0007-R.jpg crop 18 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0007-R.jpg crop 19 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0007-R.jpg crop 20 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0007-R.jpg crop 21 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0007-R.jpg crop 22 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0007-R.jpg crop 23 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0007-R.jpg crop 24 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0007-R.jpg crop 25 -> ring (class 0)
+Stage bbox-match: 1307210661-0007-R.jpg crop 26 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0007-R.jpg crop 27 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0007-R.jpg crop 28 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0007-R.jpg crop 29 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0008-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1307210661-0008-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0008-R.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0008-R.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0008-R.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0008-R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0008-R.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0008-R.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0008-R.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0008-R.jpg crop 9 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0008-R.jpg crop 10 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0008-R.jpg crop 11 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0008-R.jpg crop 12 -> ring (class 0)
+Stage bbox-match: 1307210661-0008-R.jpg crop 13 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0008-R.jpg crop 14 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0008-R.jpg crop 15 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0008-R.jpg crop 16 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0008-R.jpg crop 17 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0008-R.jpg crop 18 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0008-R.jpg crop 19 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0008-R.jpg crop 20 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0008-R.jpg crop 21 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0008-R.jpg crop 22 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0008-R.jpg crop 23 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0008-R.jpg crop 24 -> ring (class 0)
+Stage bbox-match: 1307210661-0008-R.jpg crop 25 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0009-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1307210661-0009-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0009-R.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0009-R.jpg crop 3 -> ring (class 0)
+Stage bbox-match: 1307210661-0009-R.jpg crop 4 -> ring (class 0)
+Stage bbox-match: 1307210661-0009-R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0009-R.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0009-R.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0009-R.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0009-R.jpg crop 9 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0009-R.jpg crop 10 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0009-R.jpg crop 11 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0009-R.jpg crop 12 -> SKIPPED (no IoU match)
+Stage bbox-match: 1312132815-0002-T.jpg crop 0 -> trophozoite (class 2)
+Stage bbox-match: 1312132815-0003-G.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1312132815-0003-G.jpg crop 1 -> gametocyte (class 3)
+Stage bbox-match: 1312132815-0004-G.jpg crop 0 -> gametocyte (class 3)
+Stage bbox-match: 1312132815-0008-G.jpg crop 0 -> gametocyte (class 3)
+Stage bbox-match: 1312132815-0008-G.jpg crop 1 -> gametocyte (class 3)
+Stage bbox-match: 1312132815-0015-S.jpg crop 0 -> schizont (class 1)
+Stage bbox-match: 1312132815-0016-T.jpg crop 0 -> trophozoite (class 2)
+Stage bbox-match: 1312132815-0017-T.jpg crop 0 -> trophozoite (class 2)
+Stage bbox-match: 1312132815-0017-T.jpg crop 1 -> trophozoite (class 2)
+Stage bbox-match: 1401063467-0005-T.jpg crop 0 -> trophozoite (class 2)
+Stage bbox-match: 1401063467-0006-T.jpg crop 0 -> trophozoite (class 2)
+Stage bbox-match: 1401063467-0007-S.jpg crop 0 -> schizont (class 1)
+Stage bbox-match: 1401063467-0007-S.jpg crop 1 -> schizont (class 1)
+Stage bbox-match: 1401080976-0001-T.jpg crop 0 -> trophozoite (class 2)
+Stage bbox-match: 1401080976-0001-T.jpg crop 1 -> trophozoite (class 2)
+Stage bbox-match: 1401080976-0002-T.jpg crop 0 -> trophozoite (class 2)
+Stage bbox-match: 1401080976-0002-T.jpg crop 1 -> trophozoite (class 2)
+Stage bbox-match: 1401080976-0006-T.jpg crop 0 -> trophozoite (class 2)
+Stage bbox-match: 1405022890-0004-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1405022890-0004-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0004-R.jpg crop 2 -> ring (class 0)
+Stage bbox-match: 1405022890-0004-R.jpg crop 3 -> ring (class 0)
+Stage bbox-match: 1405022890-0004-R.jpg crop 4 -> ring (class 0)
+Stage bbox-match: 1405022890-0004-R.jpg crop 5 -> ring (class 0)
+Stage bbox-match: 1405022890-0004-R.jpg crop 6 -> ring (class 0)
+Stage bbox-match: 1405022890-0004-R.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0004-R.jpg crop 8 -> ring (class 0)
+Stage bbox-match: 1405022890-0004-R.jpg crop 9 -> ring (class 0)
+Stage bbox-match: 1405022890-0004-R.jpg crop 10 -> ring (class 0)
+Stage bbox-match: 1405022890-0004-R.jpg crop 11 -> ring (class 0)
+Stage bbox-match: 1405022890-0004-R.jpg crop 12 -> ring (class 0)
+Stage bbox-match: 1405022890-0004-R.jpg crop 13 -> ring (class 0)
+Stage bbox-match: 1405022890-0004-R.jpg crop 14 -> ring (class 0)
+Stage bbox-match: 1405022890-0004-R.jpg crop 15 -> ring (class 0)
+Stage bbox-match: 1405022890-0004-R.jpg crop 16 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0004-R.jpg crop 17 -> ring (class 0)
+Stage bbox-match: 1405022890-0004-R.jpg crop 18 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0004-R.jpg crop 19 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0004-R.jpg crop 20 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0005-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1405022890-0005-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0005-R.jpg crop 2 -> ring (class 0)
+Stage bbox-match: 1405022890-0005-R.jpg crop 3 -> ring (class 0)
+Stage bbox-match: 1405022890-0005-R.jpg crop 4 -> ring (class 0)
+Stage bbox-match: 1405022890-0005-R.jpg crop 5 -> ring (class 0)
+Stage bbox-match: 1405022890-0005-R.jpg crop 6 -> ring (class 0)
+Stage bbox-match: 1405022890-0005-R.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0005-R.jpg crop 8 -> ring (class 0)
+Stage bbox-match: 1405022890-0005-R.jpg crop 9 -> ring (class 0)
+Stage bbox-match: 1405022890-0005-R.jpg crop 10 -> ring (class 0)
+Stage bbox-match: 1405022890-0005-R.jpg crop 11 -> ring (class 0)
+Stage bbox-match: 1405022890-0005-R.jpg crop 12 -> ring (class 0)
+Stage bbox-match: 1405022890-0005-R.jpg crop 13 -> ring (class 0)
+Stage bbox-match: 1405022890-0006-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1405022890-0006-R.jpg crop 1 -> ring (class 0)
+Stage bbox-match: 1405022890-0006-R.jpg crop 2 -> ring (class 0)
+Stage bbox-match: 1405022890-0006-R.jpg crop 3 -> ring (class 0)
+Stage bbox-match: 1405022890-0006-R.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0006-R.jpg crop 5 -> ring (class 0)
+Stage bbox-match: 1405022890-0006-R.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0006-R.jpg crop 7 -> ring (class 0)
+Stage bbox-match: 1405022890-0006-R.jpg crop 8 -> ring (class 0)
+Stage bbox-match: 1405022890-0006-R.jpg crop 9 -> ring (class 0)
+Stage bbox-match: 1405022890-0006-R.jpg crop 10 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0006-R.jpg crop 11 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0006-R.jpg crop 12 -> ring (class 0)
+Stage bbox-match: 1405022890-0006-R.jpg crop 13 -> ring (class 0)
+Stage bbox-match: 1405022890-0006-R.jpg crop 14 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0006-R.jpg crop 15 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0006-R.jpg crop 16 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0006-R.jpg crop 17 -> ring (class 0)
+Stage bbox-match: 1405022890-0006-R.jpg crop 18 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0006-R.jpg crop 19 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0006-R.jpg crop 20 -> SKIPPED (no IoU match)
+Stage bbox-match: 1408161544-0002-R_S.jpg crop 0 -> schizont (class 1)
+Stage bbox-match: 1408161544-0002-R_S.jpg crop 1 -> schizont (class 1)
+Stage bbox-match: 1408161544-0002-R_S.jpg crop 2 -> ring (class 0)
+Stage bbox-match: 1408161544-0002-R_S.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1408161544-0002-R_S.jpg crop 4 -> ring (class 0)
+Stage bbox-match: 1408161544-0002-R_S.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1408290968-0003-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1409171742-0001-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1409171742-0001-R.jpg crop 1 -> ring (class 0)
+Stage bbox-match: 1409171742-0002-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1409171742-0003-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1409171742-0003-R.jpg crop 1 -> ring (class 0)
+Stage bbox-match: 1409171742-0005-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1409171742-0007-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1409171742-0007-R.jpg crop 1 -> ring (class 0)
+Stage bbox-match: 1409171742-0007-R.jpg crop 2 -> ring (class 0)
+Stage bbox-match: 1409171742-0009-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1409171742-0009-R.jpg crop 1 -> ring (class 0)
+Stage bbox-match: 1409171742-0009-R.jpg crop 2 -> ring (class 0)
+Stage bbox-match: 1409171742-0009-R.jpg crop 3 -> ring (class 0)
+Stage bbox-match: 1409171742-0010-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1409171742-0010-R.jpg crop 1 -> ring (class 0)
+Stage bbox-match: 1409171742-0010-R.jpg crop 2 -> ring (class 0)
+Stage bbox-match: 1409171742-0010-R.jpg crop 3 -> ring (class 0)
+Stage bbox-match: 1409171742-0010-R.jpg crop 4 -> ring (class 0)
+Stage bbox-match: 1409191647-0002-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1409191647-0003-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1409191647-0004-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1409191647-0006-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1409191647-0006-R.jpg crop 1 -> ring (class 0)
+Stage bbox-match: 1409191647-0006-R.jpg crop 2 -> ring (class 0)
+Stage bbox-match: 1409191647-0006-R.jpg crop 3 -> ring (class 0)
+Stage bbox-match: 1409191647-0010-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1409191647-0010-R.jpg crop 1 -> ring (class 0)
+Stage bbox-match: 1409191647-0010-R.jpg crop 2 -> ring (class 0)
+Stage bbox-match: 1603223711-0005-G.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1603223711-0005-G.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0001-R_T_S.jpg crop 0 -> schizont (class 1)
+Stage bbox-match: 1701151546-0006-R_T.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0007-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0007-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0007-R.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0007-R.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0007-R.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0008-R-T.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0008-R-T.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0009-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0009-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0009-R.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0010-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0010-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0010-R.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0010-R.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0010-R.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0010-R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0010-R.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0012-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0012-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0012-R.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0012-R.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0012-R.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0014-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0014-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0014-R.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0014-R.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0014-R.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0014-R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0014-R.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0014-R.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0015-R_T.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0015-R_T.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0015-R_T.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0015-R_T.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0015-R_T.jpg crop 4 -> trophozoite (class 2)
+Stage bbox-match: 1701151546-0015-R_T.jpg crop 5 -> trophozoite (class 2)
+Stage bbox-match: 1701151546-0015-R_T.jpg crop 6 -> trophozoite (class 2)
+Stage bbox-match: 1701151546-0015-R_T.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0015-R_T.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1703121298-0002-S.jpg crop 0 -> schizont (class 1)
+Stage bbox-match: 1703121298-0003-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1703121298-0005-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0003-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0003-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0003-R.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0003-R.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0003-R.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0003-R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0003-R.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0003-R.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0003-R.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0003-R.jpg crop 9 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0003-R.jpg crop 10 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0003-R.jpg crop 11 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0004-R_T.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0004-R_T.jpg crop 1 -> ring (class 0)
+Stage bbox-match: 1704282807-0004-R_T.jpg crop 2 -> trophozoite (class 2)
+Stage bbox-match: 1704282807-0004-R_T.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0004-R_T.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0004-R_T.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0004-R_T.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0004-R_T.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0004-R_T.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0006-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0006-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0006-R.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0006-R.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0006-R.jpg crop 4 -> ring (class 0)
+Stage bbox-match: 1704282807-0006-R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0006-R.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0006-R.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0006-R.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0006-R.jpg crop 9 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0006-R.jpg crop 10 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0006-R.jpg crop 11 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0006-R.jpg crop 12 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0007-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0007-R.jpg crop 1 -> ring (class 0)
+Stage bbox-match: 1704282807-0007-R.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0007-R.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0007-R.jpg crop 4 -> ring (class 0)
+Stage bbox-match: 1704282807-0007-R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0007-R.jpg crop 6 -> ring (class 0)
+Stage bbox-match: 1704282807-0007-R.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0007-R.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0007-R.jpg crop 9 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0007-R.jpg crop 10 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0007-R.jpg crop 11 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0007-R.jpg crop 12 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0007-R.jpg crop 13 -> ring (class 0)
+Stage bbox-match: 1704282807-0009-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0009-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0009-R.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0009-R.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0009-R.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0009-R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0009-R.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0009-R.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0009-R.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0009-R.jpg crop 9 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0009-R.jpg crop 10 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0009-R.jpg crop 11 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0009-R.jpg crop 12 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0010-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0010-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0010-R.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0010-R.jpg crop 3 -> ring (class 0)
+Stage bbox-match: 1704282807-0010-R.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0010-R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0010-R.jpg crop 6 -> ring (class 0)
+Stage bbox-match: 1704282807-0010-R.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0010-R.jpg crop 8 -> ring (class 0)
+Stage bbox-match: 1704282807-0010-R.jpg crop 9 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0010-R.jpg crop 10 -> ring (class 0)
+Stage bbox-match: 1704282807-0010-R.jpg crop 11 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0010-R.jpg crop 12 -> ring (class 0)
+Stage bbox-match: 1704282807-0011-R_T.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0011-R_T.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0011-R_T.jpg crop 2 -> trophozoite (class 2)
+Stage bbox-match: 1704282807-0011-R_T.jpg crop 3 -> ring (class 0)
+Stage bbox-match: 1704282807-0011-R_T.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0011-R_T.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0011-R_T.jpg crop 6 -> ring (class 0)
+Stage bbox-match: 1704282807-0011-R_T.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0011-R_T.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0011-R_T.jpg crop 9 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0011-R_T.jpg crop 10 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0011-R_T.jpg crop 11 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0014-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1704282807-0014-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0014-R.jpg crop 2 -> ring (class 0)
+Stage bbox-match: 1704282807-0014-R.jpg crop 3 -> ring (class 0)
+Stage bbox-match: 1704282807-0014-R.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0014-R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0014-R.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0014-R.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0014-R.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0014-R.jpg crop 9 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0014-R.jpg crop 10 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0014-R.jpg crop 11 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0014-R.jpg crop 12 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0014-R.jpg crop 13 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0014-R.jpg crop 14 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0014-R.jpg crop 15 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0014-R.jpg crop 16 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0014-R.jpg crop 17 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0014-R.jpg crop 18 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0014-R.jpg crop 19 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0014-R.jpg crop 20 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0014-R.jpg crop 21 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0014-R.jpg crop 22 -> ring (class 0)
+Stage bbox-match: 1704282807-0014-R.jpg crop 23 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0015-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0015-R.jpg crop 1 -> ring (class 0)
+Stage bbox-match: 1704282807-0015-R.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0015-R.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0015-R.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0015-R.jpg crop 5 -> ring (class 0)
+Stage bbox-match: 1704282807-0015-R.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0015-R.jpg crop 7 -> ring (class 0)
+Stage bbox-match: 1704282807-0015-R.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0015-R.jpg crop 9 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0015-R.jpg crop 10 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0017-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0017-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0017-R.jpg crop 2 -> ring (class 0)
+Stage bbox-match: 1704282807-0017-R.jpg crop 3 -> ring (class 0)
+Stage bbox-match: 1704282807-0017-R.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0017-R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0017-R.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0017-R.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0017-R.jpg crop 8 -> ring (class 0)
+Stage bbox-match: 1704282807-0017-R.jpg crop 9 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0017-R.jpg crop 10 -> ring (class 0)
+Stage bbox-match: 1704282807-0017-R.jpg crop 11 -> ring (class 0)
+Stage bbox-match: 1704282807-0017-R.jpg crop 12 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0017-R.jpg crop 13 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0017-R.jpg crop 14 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0017-R.jpg crop 15 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0017-R.jpg crop 16 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0017-R.jpg crop 17 -> ring (class 0)
+Stage bbox-match: 1704282807-0017-R.jpg crop 18 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0017-R.jpg crop 19 -> ring (class 0)
+Stage bbox-match: 1704282807-0017-R.jpg crop 20 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0017-R.jpg crop 21 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0017-R.jpg crop 22 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0017-R.jpg crop 23 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0017-R.jpg crop 24 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0018-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1704282807-0018-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0018-R.jpg crop 2 -> ring (class 0)
+Stage bbox-match: 1704282807-0018-R.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0018-R.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0018-R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0018-R.jpg crop 6 -> ring (class 0)
+Stage bbox-match: 1704282807-0018-R.jpg crop 7 -> ring (class 0)
+Stage bbox-match: 1704282807-0018-R.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0018-R.jpg crop 9 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0018-R.jpg crop 10 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0018-R.jpg crop 11 -> ring (class 0)
+Stage bbox-match: 1704282807-0018-R.jpg crop 12 -> ring (class 0)
+Stage bbox-match: 1704282807-0018-R.jpg crop 13 -> ring (class 0)
+Stage bbox-match: 1704282807-0018-R.jpg crop 14 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0018-R.jpg crop 15 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0018-R.jpg crop 16 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0018-R.jpg crop 17 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0019-R_G.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0019-R_G.jpg crop 1 -> ring (class 0)
+Stage bbox-match: 1704282807-0019-R_G.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0019-R_G.jpg crop 3 -> ring (class 0)
+Stage bbox-match: 1704282807-0019-R_G.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0019-R_G.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0019-R_G.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0019-R_G.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0019-R_G.jpg crop 8 -> gametocyte (class 3)
+Stage bbox-match: 1704282807-0019-R_G.jpg crop 9 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0019-R_G.jpg crop 10 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0019-R_G.jpg crop 11 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0019-R_G.jpg crop 12 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0019-R_G.jpg crop 13 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0019-R_G.jpg crop 14 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0019-R_G.jpg crop 15 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0019-R_G.jpg crop 16 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0019-R_G.jpg crop 17 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0019-R_G.jpg crop 18 -> ring (class 0)
+Stage bbox-match: 1704282807-0019-R_G.jpg crop 19 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0019-R_G.jpg crop 20 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0019-R_G.jpg crop 21 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0019-R_G.jpg crop 22 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0019-R_G.jpg crop 23 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0020-R_T_S.jpg crop 0 -> schizont (class 1)
+Stage bbox-match: 1704282807-0020-R_T_S.jpg crop 1 -> trophozoite (class 2)
+Stage bbox-match: 1704282807-0020-R_T_S.jpg crop 2 -> schizont (class 1)
+Stage bbox-match: 1704282807-0020-R_T_S.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0020-R_T_S.jpg crop 4 -> ring (class 0)
+Stage bbox-match: 1704282807-0020-R_T_S.jpg crop 5 -> trophozoite (class 2)
+Stage bbox-match: 1704282807-0020-R_T_S.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0020-R_T_S.jpg crop 7 -> schizont (class 1)
+Stage bbox-match: 1704282807-0020-R_T_S.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0020-R_T_S.jpg crop 9 -> trophozoite (class 2)
+Stage bbox-match: 1704282807-0020-R_T_S.jpg crop 10 -> trophozoite (class 2)
+Stage bbox-match: 1707180816-0003-T.jpg crop 0 -> trophozoite (class 2)
+Stage bbox-match: 1707180816-0003-T.jpg crop 1 -> trophozoite (class 2)
+Stage bbox-match: 1707180816-0005-T.jpg crop 0 -> trophozoite (class 2)
+Stage bbox-match: 1707180816-0005-T.jpg crop 1 -> trophozoite (class 2)
+Stage bbox-match: 1707180816-0006-T.jpg crop 0 -> trophozoite (class 2)
+Stage bbox-match: 1707180816-0015-T.jpg crop 0 -> trophozoite (class 2)
+Stage bbox-match: 1708161076-0006-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1708161076-0010-G.jpg crop 0 -> gametocyte (class 3)
+Stage bbox-match: 1709041080-0016-S.jpg crop 0 -> schizont (class 1)
+Stage bbox-match: 1709041080-0016-S.jpg crop 1 -> schizont (class 1)
+Stage bbox-match: 1709041080-0017-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1709041080-0018-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1709041080-0018-R.jpg crop 1 -> ring (class 0)
+Stage bbox-match: 1709041080-0018-R.jpg crop 2 -> ring (class 0)
+Stage bbox-match: 1709041080-0019-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1709041080-0019-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1709041080-0021-R_T.jpg crop 0 -> trophozoite (class 2)
+Stage bbox-match: 1709041080-0021-R_T.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1709041080-0021-R_T.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1709041080-0021-R_T.jpg crop 3 -> ring (class 0)
+Stage bbox-match: 1709041080-0022-T.jpg crop 0 -> trophozoite (class 2)
+Stage bbox-match: 1709041080-0022-T.jpg crop 1 -> trophozoite (class 2)
+Stage bbox-match: 1709041080-0023-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1709041080-0023-R.jpg crop 1 -> ring (class 0)
+Stage bbox-match: 1709041080-0027-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1305121398-0007-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1305121398-0022-S.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1305121398-0022-S.jpg crop 1 -> schizont (class 1)
+Stage bbox-match: 1305121398-0022-S.jpg crop 2 -> schizont (class 1)
+Stage bbox-match: 1305121398-0022-S.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 2 -> ring (class 0)
+Stage bbox-match: 1307210661-0005-R.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 9 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 10 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 11 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 12 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 13 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 14 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 15 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 16 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 17 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 18 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 19 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 20 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 21 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 22 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 23 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 24 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 25 -> ring (class 0)
+Stage bbox-match: 1307210661-0005-R.jpg crop 26 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0005-R.jpg crop 27 -> ring (class 0)
+Stage bbox-match: 1307210661-0006-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0006-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0006-R.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0006-R.jpg crop 3 -> ring (class 0)
+Stage bbox-match: 1307210661-0006-R.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0006-R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0006-R.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0006-R.jpg crop 7 -> ring (class 0)
+Stage bbox-match: 1307210661-0006-R.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0006-R.jpg crop 9 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0006-R.jpg crop 10 -> ring (class 0)
+Stage bbox-match: 1307210661-0006-R.jpg crop 11 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0006-R.jpg crop 12 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0006-R.jpg crop 13 -> ring (class 0)
+Stage bbox-match: 1307210661-0006-R.jpg crop 14 -> ring (class 0)
+Stage bbox-match: 1307210661-0006-R.jpg crop 15 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0006-R.jpg crop 16 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0006-R.jpg crop 17 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0006-R.jpg crop 18 -> ring (class 0)
+Stage bbox-match: 1307210661-0006-R.jpg crop 19 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0006-R.jpg crop 20 -> ring (class 0)
+Stage bbox-match: 1307210661-0006-R.jpg crop 21 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0006-R.jpg crop 22 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0006-R.jpg crop 23 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0006-R.jpg crop 24 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0006-R.jpg crop 25 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 9 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 10 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 11 -> ring (class 0)
+Stage bbox-match: 1307210661-0010-R.jpg crop 12 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 13 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 14 -> ring (class 0)
+Stage bbox-match: 1307210661-0010-R.jpg crop 15 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 16 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 17 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 18 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 19 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 20 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 21 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 22 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 23 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 24 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 25 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 26 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 27 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 28 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 29 -> ring (class 0)
+Stage bbox-match: 1307210661-0010-R.jpg crop 30 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 31 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 32 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 33 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 34 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 35 -> SKIPPED (no IoU match)
+Stage bbox-match: 1307210661-0010-R.jpg crop 36 -> SKIPPED (no IoU match)
+Stage bbox-match: 1401080976-0003-T.jpg crop 0 -> trophozoite (class 2)
+Stage bbox-match: 1401080976-0003-T.jpg crop 1 -> trophozoite (class 2)
+Stage bbox-match: 1405022890-0001-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1405022890-0001-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0001-R.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0001-R.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0001-R.jpg crop 4 -> ring (class 0)
+Stage bbox-match: 1405022890-0001-R.jpg crop 5 -> ring (class 0)
+Stage bbox-match: 1405022890-0001-R.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0001-R.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0001-R.jpg crop 8 -> ring (class 0)
+Stage bbox-match: 1405022890-0002-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1405022890-0002-R.jpg crop 1 -> ring (class 0)
+Stage bbox-match: 1405022890-0002-R.jpg crop 2 -> ring (class 0)
+Stage bbox-match: 1405022890-0002-R.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0002-R.jpg crop 4 -> ring (class 0)
+Stage bbox-match: 1405022890-0002-R.jpg crop 5 -> ring (class 0)
+Stage bbox-match: 1405022890-0003-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1405022890-0003-R.jpg crop 1 -> ring (class 0)
+Stage bbox-match: 1405022890-0003-R.jpg crop 2 -> ring (class 0)
+Stage bbox-match: 1405022890-0003-R.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0003-R.jpg crop 4 -> ring (class 0)
+Stage bbox-match: 1405022890-0003-R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0003-R.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0003-R.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0003-R.jpg crop 8 -> ring (class 0)
+Stage bbox-match: 1405022890-0003-R.jpg crop 9 -> ring (class 0)
+Stage bbox-match: 1405022890-0003-R.jpg crop 10 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0003-R.jpg crop 11 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0003-R.jpg crop 12 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0003-R.jpg crop 13 -> ring (class 0)
+Stage bbox-match: 1405022890-0003-R.jpg crop 14 -> ring (class 0)
+Stage bbox-match: 1405022890-0003-R.jpg crop 15 -> ring (class 0)
+Stage bbox-match: 1405022890-0003-R.jpg crop 16 -> ring (class 0)
+Stage bbox-match: 1405022890-0003-R.jpg crop 17 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0003-R.jpg crop 18 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0003-R.jpg crop 19 -> ring (class 0)
+Stage bbox-match: 1405022890-0003-R.jpg crop 20 -> SKIPPED (no IoU match)
+Stage bbox-match: 1405022890-0003-R.jpg crop 21 -> ring (class 0)
+Stage bbox-match: 1405022890-0003-R.jpg crop 22 -> SKIPPED (no IoU match)
+Stage bbox-match: 1408161544-0001-S_R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1408161544-0001-S_R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1408161544-0001-S_R.jpg crop 2 -> schizont (class 1)
+Stage bbox-match: 1408161544-0003-R_S.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1408161544-0003-R_S.jpg crop 1 -> schizont (class 1)
+Stage bbox-match: 1409171742-0004-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1409171742-0006-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1409171742-0006-R.jpg crop 1 -> ring (class 0)
+Stage bbox-match: 1409171742-0008-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1409171742-0008-R.jpg crop 1 -> ring (class 0)
+Stage bbox-match: 1409171742-0008-R.jpg crop 2 -> ring (class 0)
+Stage bbox-match: 1409171742-0008-R.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1409191647-0005-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1409191647-0005-R.jpg crop 1 -> ring (class 0)
+Stage bbox-match: 1409191647-0009-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1409191647-0009-R.jpg crop 1 -> ring (class 0)
+Stage bbox-match: 1409191647-0009-R.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1409191647-0009-R.jpg crop 3 -> ring (class 0)
+Stage bbox-match: 1409191647-0009-R.jpg crop 4 -> ring (class 0)
+Stage bbox-match: 1409191647-0009-R.jpg crop 5 -> ring (class 0)
+Stage bbox-match: 1603223711-0003-G_R.jpg crop 0 -> gametocyte (class 3)
+Stage bbox-match: 1701151546-0004-R_T.jpg crop 0 -> trophozoite (class 2)
+Stage bbox-match: 1701151546-0005-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0005-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0013-R_T.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0013-R_T.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0013-R_T.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0013-R_T.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0013-R_T.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0013-R_T.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0013-R_T.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1701151546-0013-R_T.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1703121298-0015-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1704282807-0002-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0002-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0002-R.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0002-R.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0002-R.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0002-R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0002-R.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0002-R.jpg crop 7 -> ring (class 0)
+Stage bbox-match: 1704282807-0002-R.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0002-R.jpg crop 9 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0002-R.jpg crop 10 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0002-R.jpg crop 11 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0002-R.jpg crop 12 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0005-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1704282807-0005-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0005-R.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0005-R.jpg crop 3 -> ring (class 0)
+Stage bbox-match: 1704282807-0005-R.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0005-R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0005-R.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0005-R.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0005-R.jpg crop 8 -> ring (class 0)
+Stage bbox-match: 1704282807-0005-R.jpg crop 9 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0005-R.jpg crop 10 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0013-R_T.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0013-R_T.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0013-R_T.jpg crop 2 -> ring (class 0)
+Stage bbox-match: 1704282807-0013-R_T.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0013-R_T.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0013-R_T.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0013-R_T.jpg crop 6 -> trophozoite (class 2)
+Stage bbox-match: 1704282807-0013-R_T.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0013-R_T.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0013-R_T.jpg crop 9 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0013-R_T.jpg crop 10 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0013-R_T.jpg crop 11 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0013-R_T.jpg crop 12 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0013-R_T.jpg crop 13 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0013-R_T.jpg crop 14 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0013-R_T.jpg crop 15 -> ring (class 0)
+Stage bbox-match: 1704282807-0013-R_T.jpg crop 16 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0013-R_T.jpg crop 17 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0013-R_T.jpg crop 18 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0013-R_T.jpg crop 19 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0013-R_T.jpg crop 20 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0013-R_T.jpg crop 21 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0016-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0016-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0016-R.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0016-R.jpg crop 3 -> ring (class 0)
+Stage bbox-match: 1704282807-0016-R.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0016-R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0016-R.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0016-R.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0016-R.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0016-R.jpg crop 9 -> ring (class 0)
+Stage bbox-match: 1704282807-0016-R.jpg crop 10 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0016-R.jpg crop 11 -> SKIPPED (no IoU match)
+Stage bbox-match: 1707180816-0007-T.jpg crop 0 -> trophozoite (class 2)
+Stage bbox-match: 1707180816-0013-T.jpg crop 0 -> trophozoite (class 2)
+Stage bbox-match: 1707180816-0019-S.jpg crop 0 -> schizont (class 1)
+Stage bbox-match: 1707180816-0019-S.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1707180816-0019-S.jpg crop 2 -> schizont (class 1)
+Stage bbox-match: 1709041080-0020-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1305121398-0012-S.jpg crop 0 -> schizont (class 1)
+Stage bbox-match: 1305121398-0012-S.jpg crop 1 -> schizont (class 1)
+Stage bbox-match: 1312132815-0001-G.jpg crop 0 -> gametocyte (class 3)
+Stage bbox-match: 1312132815-0001-G.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1312132815-0001-G.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1401063467-0001-S.jpg crop 0 -> schizont (class 1)
+Stage bbox-match: 1401063467-0001-S.jpg crop 1 -> schizont (class 1)
+Stage bbox-match: 1401063467-0012-S.jpg crop 0 -> schizont (class 1)
+Stage bbox-match: 1401063467-0012-S.jpg crop 1 -> schizont (class 1)
+Stage bbox-match: 1401080976-0009-S_T.jpg crop 0 -> trophozoite (class 2)
+Stage bbox-match: 1603223711-0002-T_G.jpg crop 0 -> gametocyte (class 3)
+Stage bbox-match: 1603223711-0006-G.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0001-R.jpg crop 0 -> ring (class 0)
+Stage bbox-match: 1704282807-0001-R.jpg crop 1 -> ring (class 0)
+Stage bbox-match: 1704282807-0001-R.jpg crop 2 -> ring (class 0)
+Stage bbox-match: 1704282807-0001-R.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0008-R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0008-R.jpg crop 1 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0008-R.jpg crop 2 -> ring (class 0)
+Stage bbox-match: 1704282807-0008-R.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0008-R.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0008-R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0008-R.jpg crop 6 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0008-R.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0008-R.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0008-R.jpg crop 9 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0008-R.jpg crop 10 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0008-R.jpg crop 11 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0008-R.jpg crop 12 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0008-R.jpg crop 13 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0008-R.jpg crop 14 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0012-R_T.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0012-R_T.jpg crop 1 -> ring (class 0)
+Stage bbox-match: 1704282807-0012-R_T.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0012-R_T.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0012-R_T.jpg crop 4 -> trophozoite (class 2)
+Stage bbox-match: 1704282807-0012-R_T.jpg crop 5 -> ring (class 0)
+Stage bbox-match: 1704282807-0012-R_T.jpg crop 6 -> trophozoite (class 2)
+Stage bbox-match: 1704282807-0012-R_T.jpg crop 7 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0012-R_T.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0012-R_T.jpg crop 9 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0012-R_T.jpg crop 10 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0012-R_T.jpg crop 11 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0021-T_G_R.jpg crop 0 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0021-T_G_R.jpg crop 1 -> gametocyte (class 3)
+Stage bbox-match: 1704282807-0021-T_G_R.jpg crop 2 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0021-T_G_R.jpg crop 3 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0021-T_G_R.jpg crop 4 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0021-T_G_R.jpg crop 5 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0021-T_G_R.jpg crop 6 -> gametocyte (class 3)
+Stage bbox-match: 1704282807-0021-T_G_R.jpg crop 7 -> gametocyte (class 3)
+Stage bbox-match: 1704282807-0021-T_G_R.jpg crop 8 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0021-T_G_R.jpg crop 9 -> trophozoite (class 2)
+Stage bbox-match: 1704282807-0021-T_G_R.jpg crop 10 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0021-T_G_R.jpg crop 11 -> SKIPPED (no IoU match)
+Stage bbox-match: 1704282807-0021-T_G_R.jpg crop 12 -> ring (class 0)
+Stage bbox-match: 1707180816-0010-T.jpg crop 0 -> trophozoite (class 2)
+Stage bbox-match: 1707180816-0010-T.jpg crop 1 -> trophozoite (class 2)
+Stage bbox-match: 1707180816-0010-T.jpg crop 2 -> trophozoite (class 2)
+
+[SUCCESS] Processing completed:
+   Images processed: 209
+   Crops generated: 294
+   Average crops per image: 1.41
+   Split distribution:
+      train: 198 crops
+      val: 71 crops
+      test: 25 crops
+   Class distribution:
+      ring (class 0): 208 crops
+      schizont (class 1): 32 crops
+      trophozoite (class 2): 42 crops
+      gametocyte (class 3): 12 crops
+
+Crop generation completed successfully!
+Results saved to: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\crop_data\crops_from_yolo11_multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det
+[SUCCESS] Generating crops for yolo11 completed successfully
+   [INFO] Generated 294 crops
+
+[TRAIN] STAGE 3: Training classification for yolo11
+   [START] Training DENSENET121
+
+[START] Training DENSENET121
+Command: python scripts/training/12_train_pytorch_classification.py --data results\exp_multi_pipeline_20250927_161328_mp_idb_stages\crop_data\crops_from_yolo11_multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det\crops --model densenet121 --epochs 2 --batch 128 --device cuda --name multi_pipeline_20250927_161328_mp_idb_stages_yolo11_densenet121_cls --save-dir results\exp_multi_pipeline_20250927_161328_mp_idb_stages\models\densenet121\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_densenet121_cls
+[OUTPUT] ============================================================
+PYTORCH PARASITE CLASSIFICATION TRAINING
+============================================================
+[SAVE] Using custom save directory: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\models\densenet121\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_densenet121_cls
+[DATA] Using dataset: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\crop_data\crops_from_yolo11_multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det\crops
+[MODEL] Model: densenet121
+[TRAIN] Epochs: 2
+[IMG] Image size: 224
+[BATCH] Batch size: 128
+[DEVICE] Device: cuda
+[LR] Learning rate: 0.001
+[TEST] Found test dataset with 25 images
+[BATCH] Adjusted batch size: 128 (original: 128)
+[BATCH] Drop last: False
+
+[DATASET] Dataset composition:
+   Classes: ['gametocyte', 'ring', 'schizont', 'trophozoite']
+   Train: 198 images
+   Val: 71 images
+   Test: 25 images
+
+[LOAD] Loading densenet121 model...
+[MODEL] Total parameters: 6,957,956
+[MODEL] Trainable parameters: 6,957,956
+[RTX 3060] Mixed precision training enabled - expect 2x speedup!
+
+[TIMER] Starting training...
+
+Epoch 1/2
+------------------------------
+Train Loss: 1.2112, Train Acc: 41.41%
+Val Loss: 1.7230, Val Acc: 26.76%
+[SAVE] Saved best model (Val Acc: 26.76%)
+
+Epoch 2/2
+------------------------------
+Train Loss: 0.9403, Train Acc: 72.22%
+Val Loss: 1.4320, Val Acc: 81.69%
+[SAVE] Saved best model (Val Acc: 81.69%)
+
+============================================================
+[DONE] PYTORCH CLASSIFICATION TRAINING COMPLETED!
+============================================================
+[TIMER] Training time: 0.1 minutes
+[RESULTS] Results saved to: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\models\densenet121\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_densenet121_cls
+[BEST] Best validation accuracy: 81.69%
+
+[TEST] Running test evaluation...
+
+[TEST] Test Results:
+   Test Accuracy: 28.00%
+   Test Loss: 5.0104
+
+[REPORT] Classification Report:
+              precision    recall  f1-score   support
+
+  gametocyte       0.00      0.00      0.00         5
+        ring       0.28      1.00      0.44         7
+    schizont       0.00      0.00      0.00         6
+ trophozoite       0.00      0.00      0.00         7
+
+    accuracy                           0.28        25
+   macro avg       0.07      0.25      0.11        25
+weighted avg       0.08      0.28      0.12        25
+
+
+[DONE] densenet121 classification training completed successfully!
+[SUMMARY] Results summary:
+   - Model: densenet121
+   - Classes: 4
+   - Best Val Acc: 81.69%
+   - Test Acc: 28.00%
+   - Parameters: 6,957,956
+[ERROR] C:\Users\MyPC PRO\Documents\hello_world\scripts\training\12_train_pytorch_classification.py:501: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(experiment_path / 'best.pt', map_location=device)
+[SUCCESS] Training DENSENET121 completed successfully
+[SUCCESS] Classification model saved directly to: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\models\densenet121\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_densenet121_cls
+   [START] Training EFFICIENTNET_B1
+
+[START] Training EFFICIENTNET_B1
+Command: python scripts/training/12_train_pytorch_classification.py --data results\exp_multi_pipeline_20250927_161328_mp_idb_stages\crop_data\crops_from_yolo11_multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det\crops --model efficientnet_b1 --epochs 2 --batch 128 --device cuda --name multi_pipeline_20250927_161328_mp_idb_stages_yolo11_efficientnet_b1_cls --save-dir results\exp_multi_pipeline_20250927_161328_mp_idb_stages\models\efficientnet_b1\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_efficientnet_b1_cls
+[OUTPUT] ============================================================
+PYTORCH PARASITE CLASSIFICATION TRAINING
+============================================================
+[SAVE] Using custom save directory: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\models\efficientnet_b1\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_efficientnet_b1_cls
+[DATA] Using dataset: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\crop_data\crops_from_yolo11_multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det\crops
+[MODEL] Model: efficientnet_b1
+[TRAIN] Epochs: 2
+[IMG] Image size: 224
+[BATCH] Batch size: 128
+[DEVICE] Device: cuda
+[LR] Learning rate: 0.001
+[TEST] Found test dataset with 25 images
+[BATCH] Adjusted batch size: 128 (original: 128)
+[BATCH] Drop last: False
+
+[DATASET] Dataset composition:
+   Classes: ['gametocyte', 'ring', 'schizont', 'trophozoite']
+   Train: 198 images
+   Val: 71 images
+   Test: 25 images
+
+[LOAD] Loading efficientnet_b1 model...
+[MODEL] Total parameters: 6,518,308
+[MODEL] Trainable parameters: 6,518,308
+[RTX 3060] Mixed precision training enabled - expect 2x speedup!
+
+[TIMER] Starting training...
+
+Epoch 1/2
+------------------------------
+Train Loss: 1.3707, Train Acc: 27.27%
+Val Loss: 0.5312, Val Acc: 81.69%
+[SAVE] Saved best model (Val Acc: 81.69%)
+
+Epoch 2/2
+------------------------------
+Train Loss: 0.5790, Train Acc: 82.32%
+Val Loss: 0.3043, Val Acc: 85.92%
+[SAVE] Saved best model (Val Acc: 85.92%)
+
+============================================================
+[DONE] PYTORCH CLASSIFICATION TRAINING COMPLETED!
+============================================================
+[TIMER] Training time: 0.1 minutes
+[RESULTS] Results saved to: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\models\efficientnet_b1\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_efficientnet_b1_cls
+[BEST] Best validation accuracy: 85.92%
+
+[TEST] Running test evaluation...
+
+[TEST] Test Results:
+   Test Accuracy: 56.00%
+   Test Loss: 1.8320
+
+[REPORT] Classification Report:
+              precision    recall  f1-score   support
+
+  gametocyte       0.00      0.00      0.00         5
+        ring       0.41      1.00      0.58         7
+    schizont       1.00      0.67      0.80         6
+ trophozoite       0.75      0.43      0.55         7
+
+    accuracy                           0.56        25
+   macro avg       0.54      0.52      0.48        25
+weighted avg       0.57      0.56      0.51        25
+
+
+[DONE] efficientnet_b1 classification training completed successfully!
+[SUMMARY] Results summary:
+   - Model: efficientnet_b1
+   - Classes: 4
+   - Best Val Acc: 85.92%
+   - Test Acc: 56.00%
+   - Parameters: 6,518,308
+[ERROR] C:\Users\MyPC PRO\Documents\hello_world\scripts\training\12_train_pytorch_classification.py:501: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(experiment_path / 'best.pt', map_location=device)
+[SUCCESS] Training EFFICIENTNET_B1 completed successfully
+[SUCCESS] Classification model saved directly to: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\models\efficientnet_b1\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_efficientnet_b1_cls
+   [START] Training CONVNEXT_TINY
+
+[START] Training CONVNEXT_TINY
+Command: python scripts/training/12_train_pytorch_classification.py --data results\exp_multi_pipeline_20250927_161328_mp_idb_stages\crop_data\crops_from_yolo11_multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det\crops --model convnext_tiny --epochs 2 --batch 128 --device cuda --name multi_pipeline_20250927_161328_mp_idb_stages_yolo11_convnext_tiny_cls --save-dir results\exp_multi_pipeline_20250927_161328_mp_idb_stages\models\convnext_tiny\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_convnext_tiny_cls
+[OUTPUT] ============================================================
+PYTORCH PARASITE CLASSIFICATION TRAINING
+============================================================
+[SAVE] Using custom save directory: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\models\convnext_tiny\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_convnext_tiny_cls
+[DATA] Using dataset: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\crop_data\crops_from_yolo11_multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det\crops
+[MODEL] Model: convnext_tiny
+[TRAIN] Epochs: 2
+[IMG] Image size: 224
+[BATCH] Batch size: 128
+[DEVICE] Device: cuda
+[LR] Learning rate: 0.001
+[TEST] Found test dataset with 25 images
+[BATCH] Adjusted batch size: 128 (original: 128)
+[BATCH] Drop last: False
+
+[DATASET] Dataset composition:
+   Classes: ['gametocyte', 'ring', 'schizont', 'trophozoite']
+   Train: 198 images
+   Val: 71 images
+   Test: 25 images
+
+[LOAD] Loading convnext_tiny model...
+[MODEL] Total parameters: 27,823,204
+[MODEL] Trainable parameters: 27,823,204
+[RTX 3060] Mixed precision training enabled - expect 2x speedup!
+
+[TIMER] Starting training...
+
+Epoch 1/2
+------------------------------
+Train Loss: 1.3208, Train Acc: 38.89%
+Val Loss: 0.8023, Val Acc: 81.69%
+[SAVE] Saved best model (Val Acc: 81.69%)
+
+Epoch 2/2
+------------------------------
+Train Loss: 2.3249, Train Acc: 47.47%
+Val Loss: 3.4595, Val Acc: 1.41%
+
+============================================================
+[DONE] PYTORCH CLASSIFICATION TRAINING COMPLETED!
+============================================================
+[TIMER] Training time: 0.1 minutes
+[RESULTS] Results saved to: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\models\convnext_tiny\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_convnext_tiny_cls
+[BEST] Best validation accuracy: 81.69%
+
+[TEST] Running test evaluation...
+
+[TEST] Test Results:
+   Test Accuracy: 28.00%
+   Test Loss: 3.1700
+
+[REPORT] Classification Report:
+              precision    recall  f1-score   support
+
+  gametocyte       0.00      0.00      0.00         5
+        ring       0.28      1.00      0.44         7
+    schizont       0.00      0.00      0.00         6
+ trophozoite       0.00      0.00      0.00         7
+
+    accuracy                           0.28        25
+   macro avg       0.07      0.25      0.11        25
+weighted avg       0.08      0.28      0.12        25
+
+
+[DONE] convnext_tiny classification training completed successfully!
+[SUMMARY] Results summary:
+   - Model: convnext_tiny
+   - Classes: 4
+   - Best Val Acc: 81.69%
+   - Test Acc: 28.00%
+   - Parameters: 27,823,204
+[ERROR] C:\anaconda3\envs\malaria\Lib\site-packages\torch\optim\lr_scheduler.py:224: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+C:\Users\MyPC PRO\Documents\hello_world\scripts\training\12_train_pytorch_classification.py:501: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(experiment_path / 'best.pt', map_location=device)
+[SUCCESS] Training CONVNEXT_TINY completed successfully
+[SUCCESS] Classification model saved directly to: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\models\convnext_tiny\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_convnext_tiny_cls
+   [START] Training MOBILENET_V3_LARGE
+
+[START] Training MOBILENET_V3_LARGE
+Command: python scripts/training/12_train_pytorch_classification.py --data results\exp_multi_pipeline_20250927_161328_mp_idb_stages\crop_data\crops_from_yolo11_multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det\crops --model mobilenet_v3_large --epochs 2 --batch 128 --device cuda --name multi_pipeline_20250927_161328_mp_idb_stages_yolo11_mobilenet_v3_large_cls --save-dir results\exp_multi_pipeline_20250927_161328_mp_idb_stages\models\mobilenet_v3_large\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_mobilenet_v3_large_cls
+[OUTPUT] ============================================================
+PYTORCH PARASITE CLASSIFICATION TRAINING
+============================================================
+[SAVE] Using custom save directory: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\models\mobilenet_v3_large\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_mobilenet_v3_large_cls
+[DATA] Using dataset: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\crop_data\crops_from_yolo11_multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det\crops
+[MODEL] Model: mobilenet_v3_large
+[TRAIN] Epochs: 2
+[IMG] Image size: 224
+[BATCH] Batch size: 128
+[DEVICE] Device: cuda
+[LR] Learning rate: 0.001
+[TEST] Found test dataset with 25 images
+[BATCH] Adjusted batch size: 128 (original: 128)
+[BATCH] Drop last: False
+
+[DATASET] Dataset composition:
+   Classes: ['gametocyte', 'ring', 'schizont', 'trophozoite']
+   Train: 198 images
+   Val: 71 images
+   Test: 25 images
+
+[LOAD] Loading mobilenet_v3_large model...
+[MODEL] Total parameters: 4,207,156
+[MODEL] Trainable parameters: 4,207,156
+[RTX 3060] Mixed precision training enabled - expect 2x speedup!
+
+[TIMER] Starting training...
+
+Epoch 1/2
+------------------------------
+Train Loss: 1.2280, Train Acc: 37.37%
+Val Loss: 0.7630, Val Acc: 81.69%
+[SAVE] Saved best model (Val Acc: 81.69%)
+
+Epoch 2/2
+------------------------------
+Train Loss: 1.3943, Train Acc: 73.23%
+Val Loss: 5.3601, Val Acc: 81.69%
+
+============================================================
+[DONE] PYTORCH CLASSIFICATION TRAINING COMPLETED!
+============================================================
+[TIMER] Training time: 0.1 minutes
+[RESULTS] Results saved to: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\models\mobilenet_v3_large\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_mobilenet_v3_large_cls
+[BEST] Best validation accuracy: 81.69%
+
+[TEST] Running test evaluation...
+
+[TEST] Test Results:
+   Test Accuracy: 28.00%
+   Test Loss: 3.1508
+
+[REPORT] Classification Report:
+              precision    recall  f1-score   support
+
+  gametocyte       0.00      0.00      0.00         5
+        ring       0.28      1.00      0.44         7
+    schizont       0.00      0.00      0.00         6
+ trophozoite       0.00      0.00      0.00         7
+
+    accuracy                           0.28        25
+   macro avg       0.07      0.25      0.11        25
+weighted avg       0.08      0.28      0.12        25
+
+
+[DONE] mobilenet_v3_large classification training completed successfully!
+[SUMMARY] Results summary:
+   - Model: mobilenet_v3_large
+   - Classes: 4
+   - Best Val Acc: 81.69%
+   - Test Acc: 28.00%
+   - Parameters: 4,207,156
+[ERROR] C:\Users\MyPC PRO\Documents\hello_world\scripts\training\12_train_pytorch_classification.py:501: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(experiment_path / 'best.pt', map_location=device)
+[SUCCESS] Training MOBILENET_V3_LARGE completed successfully
+[SUCCESS] Classification model saved directly to: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\models\mobilenet_v3_large\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_mobilenet_v3_large_cls
+   [START] Training EFFICIENTNET_B2
+
+[START] Training EFFICIENTNET_B2
+Command: python scripts/training/12_train_pytorch_classification.py --data results\exp_multi_pipeline_20250927_161328_mp_idb_stages\crop_data\crops_from_yolo11_multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det\crops --model efficientnet_b2 --epochs 2 --batch 128 --device cuda --name multi_pipeline_20250927_161328_mp_idb_stages_yolo11_efficientnet_b2_cls --save-dir results\exp_multi_pipeline_20250927_161328_mp_idb_stages\models\efficientnet_b2\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_efficientnet_b2_cls
+[OUTPUT] ============================================================
+PYTORCH PARASITE CLASSIFICATION TRAINING
+============================================================
+[SAVE] Using custom save directory: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\models\efficientnet_b2\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_efficientnet_b2_cls
+[DATA] Using dataset: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\crop_data\crops_from_yolo11_multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det\crops
+[MODEL] Model: efficientnet_b2
+[TRAIN] Epochs: 2
+[IMG] Image size: 224
+[BATCH] Batch size: 128
+[DEVICE] Device: cuda
+[LR] Learning rate: 0.001
+[TEST] Found test dataset with 25 images
+[BATCH] Adjusted batch size: 128 (original: 128)
+[BATCH] Drop last: False
+
+[DATASET] Dataset composition:
+   Classes: ['gametocyte', 'ring', 'schizont', 'trophozoite']
+   Train: 198 images
+   Val: 71 images
+   Test: 25 images
+
+[LOAD] Loading efficientnet_b2 model...
+[MODEL] Total parameters: 7,706,630
+[MODEL] Trainable parameters: 7,706,630
+[RTX 3060] Mixed precision training enabled - expect 2x speedup!
+
+[TIMER] Starting training...
+
+Epoch 1/2
+------------------------------
+Train Loss: 1.3068, Train Acc: 37.88%
+Val Loss: 0.4887, Val Acc: 81.69%
+[SAVE] Saved best model (Val Acc: 81.69%)
+
+Epoch 2/2
+------------------------------
+Train Loss: 0.7984, Train Acc: 78.79%
+Val Loss: 0.3419, Val Acc: 88.73%
+[SAVE] Saved best model (Val Acc: 88.73%)
+
+============================================================
+[DONE] PYTORCH CLASSIFICATION TRAINING COMPLETED!
+============================================================
+[TIMER] Training time: 0.1 minutes
+[RESULTS] Results saved to: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\models\efficientnet_b2\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_efficientnet_b2_cls
+[BEST] Best validation accuracy: 88.73%
+
+[TEST] Running test evaluation...
+
+[TEST] Test Results:
+   Test Accuracy: 60.00%
+   Test Loss: 1.7997
+
+[REPORT] Classification Report:
+              precision    recall  f1-score   support
+
+  gametocyte       0.00      0.00      0.00         5
+        ring       0.70      1.00      0.82         7
+    schizont       1.00      0.67      0.80         6
+ trophozoite       0.36      0.57      0.44         7
+
+    accuracy                           0.60        25
+   macro avg       0.52      0.56      0.52        25
+weighted avg       0.54      0.60      0.55        25
+
+
+[DONE] efficientnet_b2 classification training completed successfully!
+[SUMMARY] Results summary:
+   - Model: efficientnet_b2
+   - Classes: 4
+   - Best Val Acc: 88.73%
+   - Test Acc: 60.00%
+   - Parameters: 7,706,630
+[ERROR] C:\Users\MyPC PRO\Documents\hello_world\scripts\training\12_train_pytorch_classification.py:501: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(experiment_path / 'best.pt', map_location=device)
+[SUCCESS] Training EFFICIENTNET_B2 completed successfully
+[SUCCESS] Classification model saved directly to: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\models\efficientnet_b2\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_efficientnet_b2_cls
+   [START] Training RESNET101
+
+[START] Training RESNET101
+Command: python scripts/training/12_train_pytorch_classification.py --data results\exp_multi_pipeline_20250927_161328_mp_idb_stages\crop_data\crops_from_yolo11_multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det\crops --model resnet101 --epochs 2 --batch 128 --device cuda --name multi_pipeline_20250927_161328_mp_idb_stages_yolo11_resnet101_cls --save-dir results\exp_multi_pipeline_20250927_161328_mp_idb_stages\models\resnet101\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_resnet101_cls
+[OUTPUT] ============================================================
+PYTORCH PARASITE CLASSIFICATION TRAINING
+============================================================
+[SAVE] Using custom save directory: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\models\resnet101\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_resnet101_cls
+[DATA] Using dataset: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\crop_data\crops_from_yolo11_multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det\crops
+[MODEL] Model: resnet101
+[TRAIN] Epochs: 2
+[IMG] Image size: 224
+[BATCH] Batch size: 128
+[DEVICE] Device: cuda
+[LR] Learning rate: 0.001
+[TEST] Found test dataset with 25 images
+[BATCH] Adjusted batch size: 128 (original: 128)
+[BATCH] Drop last: False
+
+[DATASET] Dataset composition:
+   Classes: ['gametocyte', 'ring', 'schizont', 'trophozoite']
+   Train: 198 images
+   Val: 71 images
+   Test: 25 images
+
+[LOAD] Loading resnet101 model...
+[MODEL] Total parameters: 42,508,356
+[MODEL] Trainable parameters: 42,508,356
+[RTX 3060] Mixed precision training enabled - expect 2x speedup!
+
+[TIMER] Starting training...
+
+Epoch 1/2
+------------------------------
+Train Loss: 1.1153, Train Acc: 56.57%
+Val Loss: 7.7055, Val Acc: 81.69%
+[SAVE] Saved best model (Val Acc: 81.69%)
+
+Epoch 2/2
+------------------------------
+Train Loss: 0.8534, Train Acc: 72.22%
+Val Loss: 0.7073, Val Acc: 81.69%
+
+============================================================
+[DONE] PYTORCH CLASSIFICATION TRAINING COMPLETED!
+============================================================
+[TIMER] Training time: 0.1 minutes
+[RESULTS] Results saved to: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\models\resnet101\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_resnet101_cls
+[BEST] Best validation accuracy: 81.69%
+
+[TEST] Running test evaluation...
+
+[TEST] Test Results:
+   Test Accuracy: 28.00%
+   Test Loss: 26.7119
+
+[REPORT] Classification Report:
+              precision    recall  f1-score   support
+
+  gametocyte       0.00      0.00      0.00         5
+        ring       0.28      1.00      0.44         7
+    schizont       0.00      0.00      0.00         6
+ trophozoite       0.00      0.00      0.00         7
+
+    accuracy                           0.28        25
+   macro avg       0.07      0.25      0.11        25
+weighted avg       0.08      0.28      0.12        25
+
+
+[DONE] resnet101 classification training completed successfully!
+[SUMMARY] Results summary:
+   - Model: resnet101
+   - Classes: 4
+   - Best Val Acc: 81.69%
+   - Test Acc: 28.00%
+   - Parameters: 42,508,356
+[ERROR] C:\Users\MyPC PRO\Documents\hello_world\scripts\training\12_train_pytorch_classification.py:501: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(experiment_path / 'best.pt', map_location=device)
+[SUCCESS] Training RESNET101 completed successfully
+[SUCCESS] Classification model saved directly to: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\models\resnet101\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_resnet101_cls
+
+[ANALYZE] STAGE 4: Creating organized analysis for yolo11
+   [INFO] Running IoU variation analysis
+
+[START] IoU Analysis for yolo11
+Command: python scripts/analysis/compare_models_performance.py --iou-analysis --model results\exp_multi_pipeline_20250927_161328_mp_idb_stages\detection\yolov11_detection\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det\weights\best.pt --output results\exp_multi_pipeline_20250927_161328_mp_idb_stages\analysis\yolo11_densenet121_iou_variation
+[OUTPUT] [INFO] Performance Analyzer initialized
+[INFO] Output directory: analysis_results_20250927_161601
+[IOI] IoU VARIATION ANALYSIS
+Model: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\detection\yolov11_detection\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det\weights\best.pt
+Output: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\analysis\yolo11_densenet121_iou_variation
+IoU Thresholds: [0.3, 0.5, 0.7]
+Auto-detecting training dataset...
+[SUCCESS] Using consistent dataset: data/processed/species/data.yaml
+Loaded model: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\detection\yolov11_detection\multi_pipeline_20250927_161328_mp_idb_stages_yolo11_det\weights\best.pt
+Dataset for evaluation: data/processed/species/data.yaml
+Running YOLO built-in validation with standard settings...
+Ultralytics 8.3.203  Python-3.11.13 torch-2.5.1+cu121 CUDA:0 (NVIDIA GeForce RTX 3060, 12288MiB)
+YOLO11m summary (fused): 125 layers, 20,033,116 parameters, 0 gradients, 67.7 GFLOPs
+[34m[1mval: [0mFast image access  (ping: 0.30.1 ms, read: 459.9325.5 MB/s, size: 3218.7 KB)
+
+[K[34m[1mval: [0mScanning C:\Users\MyPC PRO\Documents\hello_world\data\processed\species\test\labels.cache... 21 images, 0 backgrounds, 0 corrupt: 100% ???????????? 21/21  0.0s
+[K[34m[1mval: [0mScanning C:\Users\MyPC PRO\Documents\hello_world\data\processed\species\test\labels.cache... 21 images, 0 backgrounds, 0 corrupt: 100% ???????????? 21/21  0.0s
+
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 50% ???????????? 1/2 0.3it/s 1.0s<3.4s
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ???????????? 2/2 1.7it/s 1.2s
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ???????????? 2/2 1.7it/s 1.2s
+                   all         21         97      0.678      0.629      0.641      0.357
+Speed: 2.2ms preprocess, 16.1ms inference, 0.0ms loss, 7.3ms postprocess per image
+Results saved to [1mC:\Users\MyPC PRO\Documents\hello_world\runs\detect\val3[0m
+[IoU 0.5] mAP@0.5: 0.641131
+[IoU 0.75] mAP@0.75: 0.357531
+[IoU 0.5:0.95] mAP Average: 0.356504
+
+[CORRECT] YOLO evaluation IoU thresholds:
+- IoU 0.5: 0.641131 (standard - should be highest)
+- IoU 0.75: 0.357531 (strict - should be lower)
+- IoU 0.5:0.95: 0.356504 (comprehensive average)
+
+Pattern: Higher IoU threshold ? Lower mAP (as expected in research)
+
+[SUCCESS] IoU analysis completed!
+[SAVE] Results saved to: results\exp_multi_pipeline_20250927_161328_mp_idb_stages\analysis\yolo11_densenet121_iou_variation
+[YOLO] mAP@0.5: 0.641, mAP@0.75: 0.358, mAP@0.5:0.95: 0.357
+
+[SUCCESS] IoU analysis completed successfully!
+[SUCCESS] IoU Analysis for yolo11 completed successfully
+
+[SUCCESS] YOLO11 PIPELINE COMPLETED
+
+[DONE] PIPELINE FINISHED
+
+[SUCCESS] SUCCESSFUL (1):
+   yolo11 (densenet121, efficientnet_b1, convnext_tiny, mobilenet_v3_large, efficientnet_b2, resnet101)
+
+Success Rate: 1/1
+
+[ARCHIVE] CREATING ZIP ARCHIVE FROM CENTRALIZED RESULTS
+[ARCHIVE] Creating ZIP archive: results\exp_multi_pipeline_20250927_161328_mp_idb_stages.zip
+[SUCCESS] ZIP created: results\exp_multi_pipeline_20250927_161328_mp_idb_stages.zip (2054.1 MB)
+
+[TARGET] FINAL DELIVERABLE:
+[ARCHIVE] Download: results\exp_multi_pipeline_20250927_161328_mp_idb_stages.zip
+[INFO] Or browse: results\exp_multi_pipeline_20250927_161328_mp_idb_stages/

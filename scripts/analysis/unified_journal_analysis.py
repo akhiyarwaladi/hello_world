@@ -22,7 +22,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 def get_consistent_dataset_for_analysis(model_path):
     """Get consistent dataset for analysis - prioritize Kaggle dataset"""
-    kaggle_path = "data/kaggle_pipeline_ready/data.yaml"
+    kaggle_path = "data/processed/species/data.yaml"
     if os.path.exists(kaggle_path):
         return kaggle_path
 
