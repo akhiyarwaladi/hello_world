@@ -689,11 +689,11 @@ def main():
                     failed_models.append(f"{model_key} (no MP-IDB stages dataset)")
                     continue
             else:  # mp_idb_species
-                # MP-IDB species dataset logic
-                kaggle_path = Path("data/kaggle_pipeline_ready")
-                if kaggle_path.exists() and (kaggle_path / "data.yaml").exists():
-                    data_yaml = "data/kaggle_pipeline_ready/data.yaml"
-                    print(f"[MP_IDB_SPECIES] Using MP-IDB species dataset for detection training")
+                # MP-IDB species dataset logic (temporarily using stage dataset until species dataset is fixed)
+                species_path = Path("data/kaggle_stage_pipeline_ready")
+                if species_path.exists() and (species_path / "data.yaml").exists():
+                    data_yaml = "data/kaggle_stage_pipeline_ready/data.yaml"
+                    print(f"[MP_IDB_SPECIES] Using Kaggle stage dataset for detection training (4 stages) - TEMP FIX")
                 else:
                     print(f"[ERROR] MP-IDB species dataset not found! Setup first.")
                     failed_models.append(f"{model_key} (no MP-IDB species dataset)")
@@ -779,13 +779,13 @@ def main():
                     failed_models.append(f"{model_key} (no MP-IDB stages dataset)")
                     continue
             else:  # mp_idb_species
-                # MP-IDB species dataset logic
-                kaggle_path = Path("data/kaggle_pipeline_ready")
-                if kaggle_path.exists() and (kaggle_path / "data.yaml").exists():
-                    input_path = "data/kaggle_pipeline_ready"
-                    print(f"[MP_IDB_SPECIES] Using MP-IDB species dataset for crop generation")
+                # MP-IDB species dataset logic (temporarily using stage dataset until species dataset is fixed)
+                species_path = Path("data/kaggle_stage_pipeline_ready")
+                if species_path.exists() and (species_path / "data.yaml").exists():
+                    input_path = "data/kaggle_stage_pipeline_ready"
+                    print(f"[MP_IDB_SPECIES] Using Kaggle stage dataset for crop generation (4 stages) - TEMP FIX")
                 else:
-                    print(f"[ERROR] MP-IDB species dataset not found! Setup first.")
+                    print(f"[ERROR] MP-IDB species dataset not found! setup first.")
                     failed_models.append(f"{model_key} (no MP-IDB species dataset)")
                     continue
 

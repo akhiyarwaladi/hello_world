@@ -95,7 +95,7 @@ def main():
             print(f"   Latest: {latest_file['name']}, saved {latest_file['modified']}")
 
         elif status == "not_started":
-            print(f"⭕ {model_name}: NOT STARTED")
+            print(f"* {model_name}: NOT STARTED")
 
         print()
 

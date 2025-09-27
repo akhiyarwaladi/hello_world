@@ -37,15 +37,70 @@ def _cleanup_empty_class_folders(crops_dir):
     if removed_count > 0:
         print(f"[CLEANUP] Removed {removed_count} empty class folders to avoid YOLO class count mismatch")
 
-def load_class_names(data_yaml_path="data/integrated/yolo/data.yaml"):
-    """Load class names from YOLO data.yaml file"""
-    try:
-        with open(data_yaml_path, 'r') as f:
-            data = yaml.safe_load(f)
-        return data.get('names', [])
-    except:
-        # Default class names if file not found
+def detect_dataset_type(input_dir):
+    """Detect dataset type from input directory path"""
+    input_path = str(input_dir).lower()
+
+    if "kaggle_pipeline_ready" in input_path:
+        return "mp_idb_species"
+    elif "kaggle_stage_pipeline_ready" in input_path:
+        return "mp_idb_stages"
+    elif "lifecycle_pipeline_ready" in input_path:
+        return "iml_lifecycle"
+    else:
+        # Try to detect from data.yaml if exists
+        potential_yaml = Path(input_dir) / "data.yaml"
+        if potential_yaml.exists():
+            try:
+                with open(potential_yaml, 'r') as f:
+                    data = yaml.safe_load(f)
+                names = data.get('names', [])
+                if len(names) == 1 and names[0] in ['parasite', 'parasit']:
+                    return "mp_idb_species"
+                elif len(names) == 4 and 'ring' in names:
+                    if 'schizont' in names:
+                        return "mp_idb_stages" if 'trophozoite' in names else "iml_lifecycle"
+                    return "iml_lifecycle"
+            except:
+                pass
+        return "unknown"
+
+def load_class_names_by_dataset(input_dir):
+    """Load class names based on detected dataset type"""
+    dataset_type = detect_dataset_type(input_dir)
+
+    if dataset_type == "mp_idb_species":
+        # For species detection, use 4 species classes for final classification
         return ["P_falciparum", "P_vivax", "P_malariae", "P_ovale"]
+
+    elif dataset_type == "mp_idb_stages":
+        # Load from kaggle_stage_pipeline_ready
+        try:
+            with open("data/kaggle_stage_pipeline_ready/data.yaml", 'r') as f:
+                data = yaml.safe_load(f)
+            return data.get('names', ["ring", "schizont", "trophozoite", "gametocyte"])
+        except:
+            return ["ring", "schizont", "trophozoite", "gametocyte"]
+
+    elif dataset_type == "iml_lifecycle":
+        # Load from lifecycle_pipeline_ready
+        try:
+            with open("data/lifecycle_pipeline_ready/data.yaml", 'r') as f:
+                data = yaml.safe_load(f)
+            return data.get('names', ["ring", "gametocyte", "trophozoite", "schizont"])
+        except:
+            return ["ring", "gametocyte", "trophozoite", "schizont"]
+
+    else:
+        # Try to load from input directory's data.yaml
+        try:
+            data_yaml_path = Path(input_dir) / "data.yaml"
+            with open(data_yaml_path, 'r') as f:
+                data = yaml.safe_load(f)
+            return data.get('names', ["P_falciparum", "P_vivax", "P_malariae", "P_ovale"])
+        except:
+            # Final fallback
+            return ["P_falciparum", "P_vivax", "P_malariae", "P_ovale"]
 
 def get_species_from_raw_data_simple(image_filename):
     """Simple approach: check which raw data folder contains the image"""
@@ -153,8 +208,8 @@ def get_species_from_csv_overlap(image_filename, crop_coords, csv_annotations):
 
     return best_species if best_overlap > 0.3 else None  # Minimum 30% overlap
 
-def get_ground_truth_class(image_path, input_dir):
-    """Get ground truth class for an image based on YOLO label file"""
+def get_ground_truth_class_single(image_path, input_dir):
+    """Get ground truth class for an image based on YOLO label file (single class per image)"""
     try:
         # Convert image path to corresponding label path
         input_path = Path(input_dir)
@@ -190,6 +245,81 @@ def get_ground_truth_class(image_path, input_dir):
     except Exception as e:
         print(f"Warning: Could not get ground truth for {image_path}: {e}")
         return 0
+
+def get_ground_truth_class_bbox_match(image_path, input_dir, crop_coords):
+    """Get ground truth class by matching crop coordinates with label bboxes"""
+    try:
+        # Convert image path to corresponding label path
+        input_path = Path(input_dir)
+        image_rel_path = Path(image_path).relative_to(input_path)
+
+        # Handle different split structures
+        if 'images' in image_rel_path.parts:
+            label_parts = list(image_rel_path.parts)
+            for i, part in enumerate(label_parts):
+                if part == 'images':
+                    label_parts[i] = 'labels'
+                    break
+            label_rel_path = Path(*label_parts).with_suffix('.txt')
+        else:
+            label_rel_path = image_rel_path.with_suffix('.txt')
+
+        label_path = input_path / label_rel_path
+
+        if label_path.exists():
+            # Load image to get dimensions
+            image = cv2.imread(str(image_path))
+            if image is None:
+                return 0
+            img_h, img_w = image.shape[:2]
+
+            crop_x1, crop_y1, crop_x2, crop_y2 = crop_coords
+            crop_center_x = (crop_x1 + crop_x2) / 2
+            crop_center_y = (crop_y1 + crop_y2) / 2
+
+            with open(label_path, 'r') as f:
+                lines = f.readlines()
+
+            best_class = -1  # -1 indicates no match found
+            best_overlap = 0
+
+            for line in lines:
+                parts = line.strip().split()
+                if len(parts) >= 5:
+                    class_id = int(parts[0])
+                    x_center = float(parts[1]) * img_w
+                    y_center = float(parts[2]) * img_h
+                    bbox_w = float(parts[3]) * img_w
+                    bbox_h = float(parts[4]) * img_h
+
+                    # Convert to absolute coordinates
+                    gt_x1 = x_center - bbox_w / 2
+                    gt_y1 = y_center - bbox_h / 2
+                    gt_x2 = x_center + bbox_w / 2
+                    gt_y2 = y_center + bbox_h / 2
+
+                    # Calculate overlap
+                    overlap_x1 = max(crop_x1, gt_x1)
+                    overlap_y1 = max(crop_y1, gt_y1)
+                    overlap_x2 = min(crop_x2, gt_x2)
+                    overlap_y2 = min(crop_y2, gt_y2)
+
+                    if overlap_x1 < overlap_x2 and overlap_y1 < overlap_y2:
+                        overlap_area = (overlap_x2 - overlap_x1) * (overlap_y2 - overlap_y1)
+                        crop_area = (crop_x2 - crop_x1) * (crop_y2 - crop_y1)
+                        overlap_ratio = overlap_area / crop_area if crop_area > 0 else 0
+
+                        if overlap_ratio > best_overlap:
+                            best_overlap = overlap_ratio
+                            best_class = class_id
+
+            # DEBUG: Return best match regardless of overlap to test logic
+            return best_class if best_class >= 0 else -1  # Return any match found
+
+        return -1
+    except Exception as e:
+        print(f"Warning: Could not get bbox-matched ground truth for {image_path}: {e}")
+        return -1
 
 def load_detection_model(model_path):
     """Load trained detection model"""
@@ -253,19 +383,18 @@ def process_dataset(model, input_dir, output_dir, dataset_name, confidence=0.25,
     input_path = Path(input_dir)
     output_path = Path(output_dir)
 
-    # Load class names for PyTorch structure
-    # For Kaggle dataset, use 4 malaria species regardless of detection model classes
-    if "kaggle" in str(input_dir).lower():
-        class_names = ["P_falciparum", "P_vivax", "P_malariae", "P_ovale"]
-        print(f"[INFO] Using Kaggle dataset class names: {class_names}")
+    # Detect dataset type and load appropriate class names
+    dataset_type = detect_dataset_type(input_dir)
+    class_names = load_class_names_by_dataset(input_dir)
+    print(f"[INFO] Detected dataset type: {dataset_type}")
+    print(f"[INFO] Using class names: {class_names}")
 
-        # Load MP-IDB CSV annotations for accurate species classification
-        print("[INFO] Loading MP-IDB CSV annotations...")
+    # Load CSV annotations only for MP-IDB species dataset
+    if dataset_type == "mp_idb_species":
+        print("[INFO] Loading MP-IDB CSV annotations for species classification...")
         csv_annotations = load_mp_idb_csv_data()
         print(f"[INFO] Loaded annotations for {len(csv_annotations)} images")
     else:
-        class_names = load_class_names()
-        print(f"[INFO] Using class names: {class_names}")
         csv_annotations = None
 
     # Create output directories
@@ -314,9 +443,9 @@ def process_dataset(model, input_dir, output_dir, dataset_name, confidence=0.25,
                 # Generate crop filename
                 crop_filename = f"{image_path.stem}_crop_{i:03d}.jpg"
 
-                # For Kaggle dataset, use simplified MP-IDB approach
-                if "kaggle" in str(input_dir).lower():
-                    # First try simple folder lookup (for Vivax, Malariae, Ovale)
+                # Apply dataset-specific classification logic based on detected dataset type
+                if dataset_type == "mp_idb_species":
+                    # For MP-IDB species: use folder/CSV lookup for species classification
                     class_name = get_species_from_raw_data_simple(Path(image_path).name)
 
                     # If not found in simple folders, try CSV for Falciparum (mixed infections)
@@ -334,13 +463,37 @@ def process_dataset(model, input_dir, output_dir, dataset_name, confidence=0.25,
                             print(f"Default Falciparum: {Path(image_path).name} crop {i} -> {class_name}")
                     else:
                         print(f"Folder-based: {Path(image_path).name} crop {i} -> {class_name}")
-                else:
-                    # Use original YOLO label-based classification
-                    ground_truth_class = get_ground_truth_class(image_path, input_dir)
+
+                elif dataset_type == "mp_idb_stages":
+                    # For MP-IDB stages: use single class per image from YOLO labels
+                    ground_truth_class = get_ground_truth_class_single(image_path, input_dir)
                     if 0 <= ground_truth_class < len(class_names):
                         class_name = class_names[ground_truth_class]
                     else:
                         class_name = class_names[0]  # Default to first class
+                    print(f"Stage-based: {Path(image_path).name} crop {i} -> {class_name} (class {ground_truth_class})")
+
+                elif dataset_type == "iml_lifecycle":
+                    # For IML lifecycle: use bbox matching for multi-object images
+                    ground_truth_class = get_ground_truth_class_bbox_match(
+                        image_path, input_dir, crop_data['crop_coords']
+                    )
+                    if ground_truth_class >= 0 and ground_truth_class < len(class_names):
+                        class_name = class_names[ground_truth_class]
+                        print(f"Lifecycle bbox-match: {Path(image_path).name} crop {i} -> {class_name} (class {ground_truth_class})")
+                    else:
+                        # Skip false positive detections (no good IoU match)
+                        print(f"Lifecycle bbox-match: {Path(image_path).name} crop {i} -> SKIPPED (no IoU match)")
+                        continue  # Skip this crop
+
+                else:
+                    # Fallback: use single class per image
+                    ground_truth_class = get_ground_truth_class_single(image_path, input_dir)
+                    if 0 <= ground_truth_class < len(class_names):
+                        class_name = class_names[ground_truth_class]
+                    else:
+                        class_name = class_names[0]  # Default to first class
+                    print(f"Fallback: {Path(image_path).name} crop {i} -> {class_name} (class {ground_truth_class})")
 
                 # Map class name to class ID
                 try:
@@ -424,8 +577,9 @@ def create_yolo_classification_structure(crops_dir, metadata_df, output_dir):
     """Create YOLO classification directory structure"""
     yolo_dir = Path(output_dir) / "yolo_classification"
 
-    # Load class names for proper species structure
-    class_names = load_class_names()
+    # Load class names based on dataset type
+    dataset_type = detect_dataset_type(Path(crops_dir).parent.parent)
+    class_names = load_class_names_by_dataset(Path(crops_dir).parent.parent)
 
     for split in ['train', 'val', 'test']:
         split_crops = metadata_df[metadata_df['split'] == split]
