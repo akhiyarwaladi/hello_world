@@ -8,6 +8,7 @@ For comparison with YOLO classification models
 import os
 import sys
 import time
+import json
 import argparse
 import torch
 import torch.nn as nn
@@ -676,19 +677,54 @@ def main():
         print(f"   Test Loss: {test_loss:.4f}")
 
         # MEDICAL AI SAFETY: Calculate balanced accuracy
-        balanced_acc = balanced_accuracy_score(test_labels, test_preds)
+        balanced_acc = balanced_accuracy_score(test_labels, test_preds) * 100  # Convert to percentage
         print(f"   Balanced Accuracy: {balanced_acc:.2f}% (Medical AI critical metric)")
 
         # Generate classification report with zero_division handling
         report = classification_report(test_labels, test_preds, target_names=class_names, zero_division=0)
         print(f"\n[REPORT] Classification Report:")
         print(report)
+
+        # Generate structured classification report (JSON) for Table 9 analysis
+        report_dict = classification_report(test_labels, test_preds, target_names=class_names,
+                                          zero_division=0, output_dict=True)
+
+        # Create structured metrics for Table 9
+        table9_metrics = {
+            'overall_accuracy': report_dict['accuracy'],
+            'overall_balanced_accuracy': balanced_acc / 100,  # Convert back to decimal
+            'test_accuracy': test_acc / 100,  # Convert to decimal for consistency
+            'per_class_metrics': {}
+        }
+
+        # Extract per-class metrics for Table 9
+        for class_idx, class_name in enumerate(class_names):
+            if class_name in report_dict:
+                table9_metrics['per_class_metrics'][f'class_{class_idx}'] = {
+                    'class_name': class_name,
+                    'class_index': class_idx,
+                    'precision': report_dict[class_name]['precision'],
+                    'recall': report_dict[class_name]['recall'],
+                    'f1_score': report_dict[class_name]['f1-score'],
+                    'support': report_dict[class_name]['support']
+                }
+
+        print(f"\n[TABLE9] Structured metrics saved for Table 9 analysis")
     else:
         print(f"\n[TEST] No test data available, skipping test evaluation")
         test_acc = 0.0
         test_loss = 0.0
         balanced_acc = 0.0
         report = "No test data available"
+
+        # Create placeholder metrics for no-test case
+        table9_metrics = {
+            'overall_accuracy': 0.0,
+            'overall_balanced_accuracy': 0.0,
+            'test_accuracy': 0.0,
+            'per_class_metrics': {},
+            'note': 'No test data available'
+        }
 
     # Save results
     with open(experiment_path / 'results.txt', 'w') as f:
@@ -703,6 +739,11 @@ def main():
         f.write(f"Training Time: {training_time/60:.1f} min\n\n")
         f.write("Classification Report:\n")
         f.write(report)
+
+    # Save structured metrics for Table 9 analysis (JSON format)
+    with open(experiment_path / 'table9_metrics.json', 'w') as f:
+        json.dump(table9_metrics, f, indent=2)
+    print(f"[TABLE9] ✅ Structured metrics saved: {experiment_path / 'table9_metrics.json'}")
 
     # Save confusion matrix (only if test data exists)
     if test_loader is not None and len(test_dataset) > 0:

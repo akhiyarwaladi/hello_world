@@ -848,23 +848,11 @@ def run_pipeline_for_dataset(args):
 
     detection_results = {}  # Store detection model paths for crop generation
 
-    # OPTION A: SHARED CLASSIFICATION ARCHITECTURE
-    # ===========================================
-    # STAGE 1: Train ALL Detection Models (independent)
-    # STAGE 2: Generate Ground Truth Crops ONCE (shared)
-    # STAGE 3: Train Classification Models ONCE (shared, independent of detection)
-    # STAGE 4: Analysis (separate detection vs classification)
-
+    # STAGE 1: Train ALL Detection Models First
     print(f"\n{'='*80}")
-    print(f"STAGE 1: DETECTION TRAINING - All Models (Independent)")
+    print(f"STAGE 1: DETECTION TRAINING - All Models")
     print(f"{'='*80}")
-    print(f"[ARCHITECTURE] Using Option A: Shared Classification")
-    print(f"[EFFICIENCY] Crops and classification will be generated once, not per detection model")
 
-    detection_models_trained = []
-    detection_models_failed = []
-
-    # STAGE 1: Train detection models only (no crops/classification per model)
     for model_key in models_to_run:
         print(f"\n[DETECTION] Training {model_key.upper()} detection model")
 
@@ -1006,43 +994,14 @@ def run_pipeline_for_dataset(args):
 
             print(f"[SUCCESS] Detection model saved directly to: {centralized_detection_path}")
 
-        # Store detection model info for later stages
-        if centralized_detection_path:
-            detection_models_trained.append({
-                'model_key': model_key,
-                'detection_model': detection_model,
-                'det_exp_name': det_exp_name,
-                'path': centralized_detection_path
-            })
-            print(f"[SUCCESS] {model_key.upper()} detection training completed")
-        else:
-            detection_models_failed.append(model_key)
-            print(f"[FAILED] {model_key.upper()} detection training failed")
-
         # CHECK: Stop after detection stage if requested
         if hasattr(args, 'stop_stage') and args.stop_stage == 'detection':
             print(f"\n[STOP] Stopping after detection stage as requested (--stop-stage detection)")
+            successful_models.append(model_key)
             continue
 
-    # END OF DETECTION TRAINING LOOP
-    print(f"\n[SUMMARY] Detection Training Results:")
-    print(f"   Successful: {len(detection_models_trained)} models")
-    print(f"   Failed: {len(detection_models_failed)} models")
-
-    if not detection_models_trained and start_stage in [None, 'detection']:
-        print(f"[ERROR] No detection models trained successfully. Cannot continue.")
-        return
-
-    # =============================================================================
-    # STAGE 2: GENERATE GROUND TRUTH CROPS (ONCE, SHARED)
-    # =============================================================================
-
-    shared_crops_path = None
-    print(f"\n{'='*80}")
-    print(f"STAGE 2: GROUND TRUTH CROPS GENERATION (SHARED)")
-    print(f"{'='*80}")
-
-    if start_stage is None or start_stage in ['detection', 'crop']:
+        # STAGE 2: Generate Ground Truth Crops (IMPROVED: Use ground truth instead of detection-based crops)
+        if start_stage is None or start_stage in ['detection', 'crop']:
             print(f"\n[PROCESS] STAGE 2: Generating ground truth crops for {model_key}")
             print(f"   [IMPROVED] Using ground truth annotations for cleaner classification training")
             print(f"   [INFO] Ground truth crops eliminate detection noise from classification training")

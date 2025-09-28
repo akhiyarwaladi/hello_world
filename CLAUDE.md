@@ -86,6 +86,32 @@ hello_world/
 - Weighted sampling and loss functions
 - Class-specific transform strategies
 
+### Dataset Statistics Analysis
+**Comprehensive Dataset Analysis**: Pipeline automatically generates:
+- **Train/Val/Test Split Analysis**: Count and percentage for all datasets
+- **Augmentation Effects**: Estimated data variety increase (~4.4x detection, ~3.5x classification)
+- **Before/After Comparison**: Original vs effective training data volume
+- **Medical-Safe Parameters**: Documentation of conservative augmentation settings
+- **Fair Evaluation Guarantee**: Val/test never augmented for unbiased metrics
+
+**Example Output** (2 Separate Tables):
+
+**Detection Model Dataset Statistics:**
+```
+       Dataset  Original_Train  Original_Val  Original_Test  Augmented_Train  Augmented_Total  Multiplier
+ iml_lifecycle             218            62             33              956             1051        4.4x
+mp_idb_species             146            42             21              640              703        4.4x
+ mp_idb_stages             146            42             21              640              703        4.4x
+```
+
+**Classification Model Dataset Statistics:**
+```
+       Dataset  Original_Train  Original_Val  Original_Test  Augmented_Train  Augmented_Total  Multiplier
+ iml_lifecycle             218            62             33              765              860        3.5x
+mp_idb_species             146            42             21              512              575        3.5x
+ mp_idb_stages             146            42             21              512              575        3.5x
+```
+
 ### Model-Specific Optimizations
 - **RT-DETR**: Lower learning rate (0.0001) for transformer architecture
 - **YOLO**: Standard learning rate (0.0005) for CNN architecture
@@ -245,6 +271,26 @@ python run_multiple_models_pipeline_ground_truth_version.py \
 python run_multiple_models_pipeline_ground_truth_version.py \
   --continue-from exp_multi_pipeline_20250928_130011_iml_lifecycle \
   --start-stage analysis
+```
+
+#### Manual Analysis Commands
+```bash
+# Dataset statistics analysis (standalone)
+python scripts/analysis/dataset_statistics_analyzer.py \
+  --output dataset_analysis_results
+
+# Fast IoU analysis from training results (no re-testing)
+python scripts/analysis/compare_models_performance.py \
+  --iou-from-results \
+  --results-csv path/to/detection/results.csv \
+  --output iou_analysis_results \
+  --experiment-name experiment_name
+
+# Deprecated: IoU analysis with re-testing (slow)
+python scripts/analysis/compare_models_performance.py \
+  --iou-analysis \
+  --model path/to/detection/best.pt \
+  --output iou_analysis_results
 ```
 
 ---
