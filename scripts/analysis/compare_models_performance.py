@@ -947,15 +947,31 @@ This analysis provides insights into the performance of different detection-clas
             # Auto-detect dataset if not provided
             if data_yaml is None:
                 print("Auto-detecting training dataset...")
-                # Prioritize Kaggle dataset
-                kaggle_path = "data/processed/species/data.yaml"
-                if os.path.exists(kaggle_path):
-                    data_yaml = kaggle_path
-                elif os.path.exists("data/integrated/data.yaml"):
-                    data_yaml = "data/integrated/data.yaml"
+
+                # SMART DETECTION: Detect dataset from model path or experiment name
+                dataset_type = None
+                if "lifecycle" in str(model_path).lower():
+                    dataset_type = "lifecycle"
+                elif "species" in str(model_path).lower():
+                    dataset_type = "species"
+                elif "stages" in str(model_path).lower():
+                    dataset_type = "stages"
+
+                # Try to match dataset based on detected type
+                if dataset_type:
+                    smart_path = f"data/processed/{dataset_type}/data.yaml"
+                    if os.path.exists(smart_path):
+                        data_yaml = smart_path
+                        print(f"[SMART] Auto-detected {dataset_type} dataset from model path")
+                    else:
+                        print(f"[WARNING] {dataset_type} dataset not found, falling back to species")
+                        data_yaml = "data/processed/species/data.yaml"
                 else:
-                    data_yaml = "data/yolo/data.yaml"
-                print(f"[SUCCESS] Using consistent dataset: {data_yaml}")
+                    # Fallback to species if no smart detection
+                    data_yaml = "data/processed/species/data.yaml"
+                    print(f"[FALLBACK] Using species dataset (no dataset type detected)")
+
+                print(f"[SUCCESS] Using dataset: {data_yaml}")
             else:
                 print(f"[DATA] Using specified dataset: {data_yaml}")
 

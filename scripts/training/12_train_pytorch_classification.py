@@ -17,7 +17,7 @@ from torch.utils.data import DataLoader, WeightedRandomSampler
 from torch.amp import autocast, GradScaler  # Mixed precision for RTX 3060
 from torchvision import datasets, transforms, models
 from pathlib import Path
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix, balanced_accuracy_score
 from sklearn.utils.class_weight import compute_class_weight
 from collections import Counter
 import numpy as np
@@ -355,22 +355,22 @@ def main():
     parser = argparse.ArgumentParser(description="Train PyTorch Classification Models")
     parser.add_argument("--data", default="data/classification_multispecies",
                        help="Classification dataset root")
-    parser.add_argument("--model", default="resnet18",
+    parser.add_argument("--model", default="efficientnet_b0",  # OPTIMAL: Changed from resnet18 to efficientnet_b0
                        choices=['resnet18', 'resnet34', 'resnet101',  # Removed resnet50 (duplicate)
                                'efficientnet_b0', 'efficientnet_b1', 'efficientnet_b2', 'efficientnet_b3',
                                'mobilenet_v2', 'mobilenet_v3_small', 'mobilenet_v3_large',
                                'densenet121', 'densenet161', 'densenet169',
                                'convnext_tiny', 'convnext_small',  # Added ConvNeXt for speed
                                'vit_b_16', 'vit_b_32'],  # Keep ViT but optimize CPU usage
-                       help="Model architecture")
+                       help="Model architecture (EfficientNet-B0 recommended for medical AI)")
     parser.add_argument("--epochs", type=int, default=25,  # Increased from 10
                        help="Number of epochs (default: 25 for better convergence)")
     parser.add_argument("--batch", type=int, default=32,  # Optimized for 224px images
                        help="Batch size (default: 32 optimized for 224px images)")
-    parser.add_argument("--lr", type=float, default=0.001,
-                       help="Learning rate (default: 0.001, focal loss may need lower lr like 0.0005)")
-    parser.add_argument("--loss", choices=['cross_entropy', 'focal'], default='cross_entropy',
-                       help="Loss function type (default: cross_entropy)")
+    parser.add_argument("--lr", type=float, default=0.0005,  # OPTIMAL: Changed from 0.001 to 0.0005
+                       help="Learning rate (default: 0.0005 optimized for focal loss)")
+    parser.add_argument("--loss", choices=['cross_entropy', 'focal'], default='focal',  # OPTIMAL: Changed to focal
+                       help="Loss function type (focal recommended for medical AI class imbalance)")
     parser.add_argument("--focal_alpha", type=float, default=1.0,
                        help="Focal loss alpha parameter")
     parser.add_argument("--focal_gamma", type=float, default=2.0,
@@ -675,6 +675,10 @@ def main():
         print(f"   Test Accuracy: {test_acc:.2f}%")
         print(f"   Test Loss: {test_loss:.4f}")
 
+        # MEDICAL AI SAFETY: Calculate balanced accuracy
+        balanced_acc = balanced_accuracy_score(test_labels, test_preds)
+        print(f"   Balanced Accuracy: {balanced_acc:.2f}% (Medical AI critical metric)")
+
         # Generate classification report with zero_division handling
         report = classification_report(test_labels, test_preds, target_names=class_names, zero_division=0)
         print(f"\n[REPORT] Classification Report:")
@@ -683,6 +687,7 @@ def main():
         print(f"\n[TEST] No test data available, skipping test evaluation")
         test_acc = 0.0
         test_loss = 0.0
+        balanced_acc = 0.0
         report = "No test data available"
 
     # Save results
@@ -691,8 +696,10 @@ def main():
         f.write(f"Best Val Acc: {best_val_acc:.2f}%\n")
         if test_loader is not None and len(test_dataset) > 0:
             f.write(f"Test Acc: {test_acc:.2f}%\n")
+            f.write(f"Balanced Acc: {balanced_acc:.2f}%\n")
         else:
             f.write(f"Test Acc: N/A (no test data)\n")
+            f.write(f"Balanced Acc: N/A (no test data)\n")
         f.write(f"Training Time: {training_time/60:.1f} min\n\n")
         f.write("Classification Report:\n")
         f.write(report)
