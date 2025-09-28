@@ -21,9 +21,30 @@ import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 def get_consistent_dataset_for_analysis(model_path):
-    """Get consistent dataset for analysis - prioritize Kaggle dataset"""
+    """Get consistent dataset for analysis with smart detection"""
+
+    # SMART DETECTION: Detect dataset from model path
+    dataset_type = None
+    if "lifecycle" in str(model_path).lower():
+        dataset_type = "lifecycle"
+    elif "species" in str(model_path).lower():
+        dataset_type = "species"
+    elif "stages" in str(model_path).lower():
+        dataset_type = "stages"
+
+    # Try to match dataset based on detected type
+    if dataset_type:
+        smart_path = f"data/processed/{dataset_type}/data.yaml"
+        if os.path.exists(smart_path):
+            print(f"[SMART] Auto-detected {dataset_type} dataset for analysis")
+            return smart_path
+        else:
+            print(f"[WARNING] {dataset_type} dataset not found, falling back to species")
+
+    # Fallback to species dataset
     kaggle_path = "data/processed/species/data.yaml"
     if os.path.exists(kaggle_path):
+        print(f"[FALLBACK] Using species dataset")
         return kaggle_path
 
     # Fallback to integrated dataset

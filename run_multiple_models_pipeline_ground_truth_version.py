@@ -489,8 +489,10 @@ def main():
         print("[ERROR] No detection models to run after exclusions!")
         return
 
-    # Define classification models - SYSTEMATIC COMPARISON: 6 Models × 2 Loss Functions = 12 Experiments
-    base_models = ["densenet121", "efficientnet_b1", "convnext_tiny", "mobilenet_v3_large", "efficientnet_b2", "resnet101"]
+    # Define classification models - SYSTEMATIC COMPARISON: 7 Models × 2 Loss Functions = 14 Experiments
+    # FIXED: Include EfficientNet-B0 (optimal model) instead of B1 (overfits)
+    # ADDED: ResNet18 as lightweight baseline model for faster training
+    base_models = ["resnet18", "densenet121", "efficientnet_b0", "convnext_tiny", "mobilenet_v3_large", "efficientnet_b2", "resnet101"]
 
     classification_configs = {}
 
@@ -504,7 +506,7 @@ def main():
             "loss": "cross_entropy",
             "epochs": 25,        # Standardized epochs
             "batch": 32,         # Optimized for 224px images
-            "lr": 0.001,
+            "lr": 0.0005,        # FIXED: Optimal LR (was 0.001)
             "display_name": f"{model.upper()} (Cross-Entropy)"
         }
 
@@ -514,7 +516,7 @@ def main():
             "script": "scripts/training/12_train_pytorch_classification.py",
             "model": model,
             "loss": "focal",
-            "focal_alpha": 2.0,  # Optimized for imbalance
+            "focal_alpha": 1.0,  # FIXED: Optimal alpha (was 2.0)
             "focal_gamma": 2.0,
             "epochs": 25,        # Standardized epochs
             "batch": 32,         # Optimized for 224px images
