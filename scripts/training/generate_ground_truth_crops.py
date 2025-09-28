@@ -220,7 +220,10 @@ class GroundTruthCropGenerator:
 
         if dataset_type == 'iml_lifecycle' and original_annotations:
             # For IML lifecycle, stratify by dominant class in each image
-            for image_name, anns in original_annotations.items():
+            # Sort image names for deterministic file ordering
+            sorted_image_names = sorted(original_annotations.keys())
+            for image_name in sorted_image_names:
+                anns = original_annotations[image_name]
                 if anns:
                     image_files.append(image_name)
                     # Use most frequent class in image for stratification
@@ -232,7 +235,8 @@ class GroundTruthCropGenerator:
             images_dir = self.dataset_path / "images"
             labels_dir = self.dataset_path / "labels"
 
-            for image_file in images_dir.glob("*.jpg"):
+            # Sort image files for deterministic file ordering
+            for image_file in sorted(images_dir.glob("*.jpg")):
                 label_file = labels_dir / f"{image_file.stem}.txt"
                 if label_file.exists():
                     image_files.append(image_file.name)
