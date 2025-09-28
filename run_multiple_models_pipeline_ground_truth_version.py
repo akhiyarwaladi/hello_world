@@ -219,6 +219,9 @@ def create_centralized_zip(base_exp_name, results_manager):
     with open(centralized_dir / "master_summary.json", "w") as f:
         json.dump(master_summary, f, indent=2)
 
+    # Create Excel version of master summary (EASIER TO READ)
+    create_master_summary_excel(centralized_dir, master_summary)
+
     # Create README
     readme_content = f"""# Centralized Pipeline Results: {base_exp_name}
 
@@ -299,7 +302,9 @@ def create_experiment_summary(exp_dir, model_key, det_exp_name, cls_exp_name, de
         if cls_model_name in ["yolo11"]:
             cls_results_path = experiment_path / "models" / "yolo11_classification" / cls_exp_name / "results.csv"
         else:
-            cls_results_path = experiment_path / "models" / cls_model_name / cls_exp_name / "results.csv"
+            # Extract base model name from cls_model_name (e.g., "densenet121_focal" -> "densenet121")
+            base_model_name = cls_model_name.split('_')[0] if '_' in cls_model_name else cls_model_name
+            cls_results_path = experiment_path / "models" / base_model_name / cls_exp_name / "results.csv"
 
         if cls_results_path.exists():
             cls_df = pd.read_csv(cls_results_path)
@@ -363,13 +368,147 @@ def create_experiment_summary(exp_dir, model_key, det_exp_name, cls_exp_name, de
         with open(f"{exp_dir}/experiment_summary.md", 'w') as f:
             f.write(md_content)
 
+        # Create Excel version of experiment summary (EASIER TO READ)
+        create_experiment_summary_excel(exp_dir, summary_data)
+
     except Exception as e:
         print(f"[WARNING] Could not create experiment summary: {e}")
+
+def create_master_summary_excel(centralized_dir, master_summary):
+    """Create Excel version of master summary - easier to read than JSON"""
+    try:
+        import pandas as pd
+
+        # Create summary data for Excel
+        summary_data = []
+
+        # Basic info
+        summary_data.append({
+            'Category': 'Experiment Info',
+            'Metric': 'Experiment Name',
+            'Value': master_summary.get('experiment_name', 'Unknown'),
+            'Description': 'Name of the experiment'
+        })
+
+        summary_data.append({
+            'Category': 'Experiment Info',
+            'Metric': 'Generated Timestamp',
+            'Value': master_summary.get('timestamp', 'Unknown'),
+            'Description': 'When the experiment was created'
+        })
+
+        summary_data.append({
+            'Category': 'Experiment Info',
+            'Metric': 'Pipeline Type',
+            'Value': master_summary.get('pipeline_type', 'Unknown'),
+            'Description': 'Type of pipeline execution'
+        })
+
+        # Folder structure
+        folder_structure = master_summary.get('folder_structure', {})
+        for folder_name, count in folder_structure.items():
+            summary_data.append({
+                'Category': 'Folder Structure',
+                'Metric': f'{folder_name.title()} Files',
+                'Value': count,
+                'Description': f'Number of files/folders in {folder_name}/'
+            })
+
+        total_components = sum(folder_structure.values())
+        summary_data.append({
+            'Category': 'Folder Structure',
+            'Metric': 'Total Components',
+            'Value': total_components,
+            'Description': 'Total number of files/folders generated'
+        })
+
+        # Save as Excel
+        excel_path = centralized_dir / "master_summary.xlsx"
+        try:
+            with pd.ExcelWriter(excel_path, engine='openpyxl') as writer:
+                pd.DataFrame(summary_data).to_excel(writer, sheet_name='Master_Summary', index=False)
+            print(f"[EXCEL] ✅ Master summary saved: {excel_path}")
+        except ImportError:
+            # Fallback to xlsxwriter if openpyxl not available
+            with pd.ExcelWriter(excel_path, engine='xlsxwriter') as writer:
+                pd.DataFrame(summary_data).to_excel(writer, sheet_name='Master_Summary', index=False)
+            print(f"[EXCEL] ✅ Master summary saved (xlsxwriter): {excel_path}")
+
+    except Exception as e:
+        print(f"[WARNING] Could not create Excel master summary: {e}")
+
+def create_experiment_summary_excel(exp_dir, summary_data):
+    """Create Excel version of experiment summary - easier to read than JSON"""
+    try:
+        import pandas as pd
+
+        # Create structured data for Excel
+        excel_data = []
+
+        # Experiment info
+        exp_info = summary_data.get('experiment_info', {})
+        for key, value in exp_info.items():
+            excel_data.append({
+                'Category': 'Experiment Info',
+                'Metric': key.replace('_', ' ').title(),
+                'Value': value,
+                'Stage': 'General'
+            })
+
+        # Detection metrics
+        detection = summary_data.get('detection', {})
+        for key, value in detection.items():
+            excel_data.append({
+                'Category': 'Detection Performance',
+                'Metric': key.replace('_', ' ').title(),
+                'Value': value,
+                'Stage': 'Detection'
+            })
+
+        # Classification metrics
+        classification = summary_data.get('classification', {})
+        for key, value in classification.items():
+            excel_data.append({
+                'Category': 'Classification Performance',
+                'Metric': key.replace('_', ' ').title(),
+                'Value': value,
+                'Stage': 'Classification'
+            })
+
+        # IoU Analysis (if available)
+        iou_analysis = summary_data.get('iou_analysis', {})
+        for iou_threshold, metrics in iou_analysis.items():
+            for metric_key, metric_value in metrics.items():
+                excel_data.append({
+                    'Category': f'IoU Analysis ({iou_threshold})',
+                    'Metric': metric_key.replace('_', ' ').title(),
+                    'Value': metric_value,
+                    'Stage': 'Analysis'
+                })
+
+        # Save as Excel
+        excel_path = Path(exp_dir) / "experiment_summary.xlsx"
+        try:
+            with pd.ExcelWriter(excel_path, engine='openpyxl') as writer:
+                pd.DataFrame(excel_data).to_excel(writer, sheet_name='Experiment_Summary', index=False)
+            print(f"[EXCEL] ✅ Experiment summary saved: {excel_path}")
+        except ImportError:
+            # Fallback to xlsxwriter if openpyxl not available
+            with pd.ExcelWriter(excel_path, engine='xlsxwriter') as writer:
+                pd.DataFrame(excel_data).to_excel(writer, sheet_name='Experiment_Summary', index=False)
+            print(f"[EXCEL] ✅ Experiment summary saved (xlsxwriter): {excel_path}")
+
+    except Exception as e:
+        print(f"[WARNING] Could not create Excel experiment summary: {e}")
 
 def main():
     parser = argparse.ArgumentParser(
         description="Multiple Models Pipeline: Train multiple detection models -> Generate Crops -> Train Classification",
         epilog="""
+Multi-Dataset Examples:
+  All datasets:        (no --dataset parameter, runs all 3 datasets)
+  Single dataset:      --dataset iml_lifecycle
+
 Stage Control Examples:
   Detection only:      --stop-stage detection
   Crop generation:     --start-stage detection --stop-stage crop
@@ -380,7 +519,7 @@ Stage Control Examples:
     )
     parser.add_argument("--include", nargs="+",
                        choices=["yolo10", "yolo11", "yolo12", "rtdetr"],
-                       help="Detection models to include (if not specified, includes all)")
+                       help="Detection models to include (if not specified, includes yolo10, yolo11, yolo12)")
     parser.add_argument("--exclude-detection", nargs="+",
                        choices=["yolo10", "yolo11", "yolo12", "rtdetr"],
                        default=[],
@@ -391,8 +530,8 @@ Stage Control Examples:
                        help="Epochs for classification training")
     parser.add_argument("--experiment-name", default="multi_pipeline",
                        help="Base name for experiments")
-    parser.add_argument("--dataset", choices=["mp_idb_species", "mp_idb_stages", "iml_lifecycle"], default="mp_idb_species",
-                       help="Dataset selection: mp_idb_species (4 species), mp_idb_stages (4 stages), iml_lifecycle (healthy+4 stages)")
+    parser.add_argument("--dataset", choices=["mp_idb_species", "mp_idb_stages", "iml_lifecycle", "all"], default="all",
+                       help="Dataset selection: mp_idb_species (4 species), mp_idb_stages (4 stages), iml_lifecycle (4 stages), all (run all datasets)")
     parser.add_argument("--classification-models", nargs="+",
                        choices=["densenet121", "efficientnet_b1", "convnext_tiny", "mobilenet_v3_large", "efficientnet_b2", "resnet101", "all"],
                        default=["all"],
@@ -415,6 +554,45 @@ Stage Control Examples:
                        help="List available experiments and exit")
 
     args = parser.parse_args()
+
+    # Handle multi-dataset execution
+    if args.dataset == "all":
+        print("[MULTI-DATASET] Running pipeline for ALL datasets!")
+        datasets_to_run = ["mp_idb_species", "mp_idb_stages", "iml_lifecycle"]
+        all_results = []
+
+        for dataset in datasets_to_run:
+            print(f"\n{'='*80}")
+            print(f"[TARGET] STARTING DATASET: {dataset.upper()}")
+            print(f"{'='*80}")
+
+            # Create a copy of args with the specific dataset
+            dataset_args = argparse.Namespace(**vars(args))
+            dataset_args.dataset = dataset
+
+            try:
+                result = run_pipeline_for_dataset(dataset_args)
+                all_results.append((dataset, result))
+                print(f"[SUCCESS] COMPLETED DATASET: {dataset.upper()}")
+            except Exception as e:
+                print(f"[ERROR] FAILED DATASET: {dataset.upper()} - {e}")
+                all_results.append((dataset, None))
+
+        # Print final summary
+        print(f"\n{'='*80}")
+        print(f"[FINISH] MULTI-DATASET PIPELINE SUMMARY")
+        print(f"{'='*80}")
+        for dataset, result in all_results:
+            status = "[SUCCESS]" if result else "[FAILED]"
+            print(f"{dataset:15} {status}")
+
+        return
+
+    # Single dataset execution
+    return run_pipeline_for_dataset(args)
+
+def run_pipeline_for_dataset(args):
+    """Run the complete pipeline for a single dataset"""
 
     # Handle special commands first
     if args.list_experiments:
@@ -488,11 +666,13 @@ Stage Control Examples:
 
     # Determine which detection models to run
     all_detection_models = ["yolo10", "yolo11", "yolo12", "rtdetr"]
+    # Default models (exclude rtdetr since it's not yet fixed)
+    default_detection_models = ["yolo10", "yolo11", "yolo12"]
 
     if args.include:
         models_to_run = args.include
     else:
-        models_to_run = all_detection_models
+        models_to_run = default_detection_models
 
     # Remove excluded detection models
     models_to_run = [model for model in models_to_run if model not in args.exclude_detection]
@@ -668,11 +848,23 @@ Stage Control Examples:
 
     detection_results = {}  # Store detection model paths for crop generation
 
-    # STAGE 1: Train ALL Detection Models First
-    print(f"\n{'='*80}")
-    print(f"STAGE 1: DETECTION TRAINING - All Models")
-    print(f"{'='*80}")
+    # OPTION A: SHARED CLASSIFICATION ARCHITECTURE
+    # ===========================================
+    # STAGE 1: Train ALL Detection Models (independent)
+    # STAGE 2: Generate Ground Truth Crops ONCE (shared)
+    # STAGE 3: Train Classification Models ONCE (shared, independent of detection)
+    # STAGE 4: Analysis (separate detection vs classification)
 
+    print(f"\n{'='*80}")
+    print(f"STAGE 1: DETECTION TRAINING - All Models (Independent)")
+    print(f"{'='*80}")
+    print(f"[ARCHITECTURE] Using Option A: Shared Classification")
+    print(f"[EFFICIENCY] Crops and classification will be generated once, not per detection model")
+
+    detection_models_trained = []
+    detection_models_failed = []
+
+    # STAGE 1: Train detection models only (no crops/classification per model)
     for model_key in models_to_run:
         print(f"\n[DETECTION] Training {model_key.upper()} detection model")
 
@@ -814,14 +1006,43 @@ Stage Control Examples:
 
             print(f"[SUCCESS] Detection model saved directly to: {centralized_detection_path}")
 
+        # Store detection model info for later stages
+        if centralized_detection_path:
+            detection_models_trained.append({
+                'model_key': model_key,
+                'detection_model': detection_model,
+                'det_exp_name': det_exp_name,
+                'path': centralized_detection_path
+            })
+            print(f"[SUCCESS] {model_key.upper()} detection training completed")
+        else:
+            detection_models_failed.append(model_key)
+            print(f"[FAILED] {model_key.upper()} detection training failed")
+
         # CHECK: Stop after detection stage if requested
         if hasattr(args, 'stop_stage') and args.stop_stage == 'detection':
             print(f"\n[STOP] Stopping after detection stage as requested (--stop-stage detection)")
-            successful_models.append(model_key)
             continue
 
-        # STAGE 2: Generate Ground Truth Crops (IMPROVED: Use ground truth instead of detection-based crops)
-        if start_stage is None or start_stage in ['detection', 'crop']:
+    # END OF DETECTION TRAINING LOOP
+    print(f"\n[SUMMARY] Detection Training Results:")
+    print(f"   Successful: {len(detection_models_trained)} models")
+    print(f"   Failed: {len(detection_models_failed)} models")
+
+    if not detection_models_trained and start_stage in [None, 'detection']:
+        print(f"[ERROR] No detection models trained successfully. Cannot continue.")
+        return
+
+    # =============================================================================
+    # STAGE 2: GENERATE GROUND TRUTH CROPS (ONCE, SHARED)
+    # =============================================================================
+
+    shared_crops_path = None
+    print(f"\n{'='*80}")
+    print(f"STAGE 2: GROUND TRUTH CROPS GENERATION (SHARED)")
+    print(f"{'='*80}")
+
+    if start_stage is None or start_stage in ['detection', 'crop']:
             print(f"\n[PROCESS] STAGE 2: Generating ground truth crops for {model_key}")
             print(f"   [IMPROVED] Using ground truth annotations for cleaner classification training")
             print(f"   [INFO] Ground truth crops eliminate detection noise from classification training")
@@ -1060,30 +1281,35 @@ Stage Control Examples:
 
                     run_command(analysis_cmd, f"Analysis for {cls_model_name.upper()}")
 
-            # STAGE 4B: IoU Variation Analysis (on TEST SET) - once per detection model
-            # Run IoU analysis in all modes to ensure complete pipeline validation
-            print(f"   [INFO] Running IoU variation analysis")
+            # STAGE 4B: IoU Variation Analysis (NO RE-TESTING) - once per detection model
+            # Use pre-computed training results for IoU analysis (much faster!)
+            print(f"   [INFO] Running IoU variation analysis from training results (no re-testing)")
 
-            # Use CENTRALIZED detection model path
-            detection_model_centralized = centralized_detection_path / "weights" / "best.pt"
+            # Use CENTRALIZED detection results.csv path
+            detection_results_csv = centralized_detection_path / "results.csv"
 
-            if detection_model_centralized.exists() and classification_success:
+            if detection_results_csv.exists() and classification_success:
                 first_cls = classification_success[0]
                 # Use centralized analysis path for IoU
                 iou_analysis_path = results_manager.create_analysis_path(f"{model_key}_{first_cls}_iou_variation")
                 iou_analysis_dir = str(iou_analysis_path)
 
-                # Use standalone IoU analysis script
+                # Use improved IoU analysis script (no model loading or re-testing)
                 iou_cmd = [
                     "python", "scripts/analysis/compare_models_performance.py",
-                    "--iou-analysis",
-                    "--model", str(detection_model_centralized),
-                    "--output", iou_analysis_dir
+                    "--iou-from-results",
+                    "--results-csv", str(detection_results_csv),
+                    "--output", iou_analysis_dir,
+                    "--experiment-name", f"{model_key}_{det_exp_name}"
                 ]
 
-                run_command(iou_cmd, f"IoU Analysis for {model_key}")
+                print(f"   [FAST] Using pre-computed results from: {detection_results_csv}")
+                print(f"   [ADVANTAGE] No model loading or re-prediction required")
+                run_command(iou_cmd, f"IoU Analysis (Fast) for {model_key}")
             else:
-                print(f"   [WARNING] Skipping IoU analysis - detection model not found or no classification success")
+                print(f"   [WARNING] Skipping IoU analysis - detection results.csv not found or no classification success")
+                if not detection_results_csv.exists():
+                    print(f"   [DEBUG] Expected results.csv at: {detection_results_csv}")
 
             # STAGE 4C: IEEE Access Compliant Analysis (Journal Ready)
             if args.continue_from and classification_success:
@@ -1097,6 +1323,25 @@ Stage Control Examples:
                     print(f"   [SUCCESS] IEEE compliant analysis completed")
                 except Exception as e:
                     print(f"   [WARNING] IEEE analysis failed: {e}")
+
+            # STAGE 4D: Dataset Statistics Analysis (Train/Val/Test + Augmentation Effects)
+            print(f"   [INFO] Running dataset statistics analysis")
+            try:
+                # Use centralized analysis path for dataset stats
+                dataset_stats_path = results_manager.create_analysis_path(f"{model_key}_dataset_statistics")
+                dataset_stats_dir = str(dataset_stats_path)
+
+                # Run dataset statistics analyzer
+                dataset_stats_cmd = [
+                    "python", "scripts/analysis/dataset_statistics_analyzer.py",
+                    "--output", dataset_stats_dir
+                ]
+
+                run_command(dataset_stats_cmd, f"Dataset Statistics Analysis")
+                print(f"   [SUCCESS] Dataset statistics analysis completed")
+                print(f"   [INFO] Dataset splits and augmentation effects analyzed")
+            except Exception as e:
+                print(f"   [WARNING] Dataset statistics analysis failed: {e}")
 
             # Create experiment summaries in centralized location
             for cls_model_name in classification_success:
