@@ -842,7 +842,7 @@ def main():
                 "--dataset", raw_dataset_path,
                 "--output", output_path,
                 "--type", dataset_type,
-                "--crop_size", "128"
+                "--crop_size", "224"  # FIXED: Use 224px to match pre-processed ground truth
             ]
 
             if not run_command(cmd2, f"Generating ground truth crops for {model_key}"):
