@@ -367,7 +367,17 @@ def create_experiment_summary(exp_dir, model_key, det_exp_name, cls_exp_name, de
         print(f"[WARNING] Could not create experiment summary: {e}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Multiple Models Pipeline: Train multiple detection models -> Generate Crops -> Train Classification")
+    parser = argparse.ArgumentParser(
+        description="Multiple Models Pipeline: Train multiple detection models -> Generate Crops -> Train Classification",
+        epilog="""
+Stage Control Examples:
+  Detection only:      --stop-stage detection
+  Crop generation:     --start-stage detection --stop-stage crop
+  Classification only: --start-stage classification --stop-stage classification
+  Analysis only:       --start-stage analysis
+        """,
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument("--include", nargs="+",
                        choices=["yolo10", "yolo11", "yolo12", "rtdetr"],
                        help="Detection models to include (if not specified, includes all)")
@@ -399,6 +409,8 @@ def main():
                        help="Continue from existing experiment (e.g., exp_multi_pipeline_20250921_144544)")
     parser.add_argument("--start-stage", choices=["detection", "crop", "classification", "analysis"],
                        help="Force start from specific stage (auto-detected if not specified)")
+    parser.add_argument("--stop-stage", choices=["detection", "crop", "classification", "analysis"],
+                       help="Stop after completing this stage (default: run all stages)")
     parser.add_argument("--list-experiments", action="store_true",
                        help="List available experiments and exit")
 
@@ -802,6 +814,12 @@ def main():
 
             print(f"[SUCCESS] Detection model saved directly to: {centralized_detection_path}")
 
+        # CHECK: Stop after detection stage if requested
+        if hasattr(args, 'stop_stage') and args.stop_stage == 'detection':
+            print(f"\n[STOP] Stopping after detection stage as requested (--stop-stage detection)")
+            successful_models.append(model_key)
+            continue
+
         # STAGE 2: Generate Ground Truth Crops (IMPROVED: Use ground truth instead of detection-based crops)
         if start_stage is None or start_stage in ['detection', 'crop']:
             print(f"\n[PROCESS] STAGE 2: Generating ground truth crops for {model_key}")
@@ -872,6 +890,12 @@ def main():
             if total_crops == 0:
                 failed_models.append(f"{model_key} (no ground truth crops generated)")
                 continue
+
+        # CHECK: Stop after crop generation stage if requested
+        if hasattr(args, 'stop_stage') and args.stop_stage == 'crop':
+            print(f"\n[STOP] Stopping after crop generation stage as requested (--stop-stage crop)")
+            successful_models.append(model_key)
+            continue
         elif start_stage in ['classification', 'analysis']:
             print(f"\n[SKIP] STAGE 2: Skipping crop generation (start_stage={start_stage})")
             # Try to find existing crop data
@@ -961,6 +985,12 @@ def main():
             if not classification_success:
                 failed_models.append(f"{model_key} (all classification)")
                 continue
+
+        # CHECK: Stop after classification stage if requested
+        if hasattr(args, 'stop_stage') and args.stop_stage == 'classification':
+            print(f"\n[STOP] Stopping after classification stage as requested (--stop-stage classification)")
+            successful_models.append(model_key)
+            continue
         elif start_stage == 'analysis':
             print(f"\n[SKIP] STAGE 3: Skipping classification training (start_stage={start_stage})")
             # Try to find existing classification models

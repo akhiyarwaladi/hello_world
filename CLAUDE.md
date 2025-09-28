@@ -190,10 +190,13 @@ results/exp_[name]_[timestamp]_[dataset]/
 - `--epochs-det/--epochs-cls`: Training epochs
 - `--experiment-name`: Custom experiment name
 - `--continue-from`: Resume existing experiment
-- `--start-stage`: Start from specific stage
+- `--start-stage`: Start from specific stage (detection, crop, classification, analysis)
+- `--stop-stage`: Stop after completing specific stage (detection, crop, classification, analysis)
 - `--no-zip`: Skip result archiving
 
 ### Example Commands
+
+#### Basic Usage
 ```bash
 # List available experiments
 python run_multiple_models_pipeline_ground_truth_version.py --list-experiments
@@ -214,6 +217,34 @@ python run_multiple_models_pipeline_ground_truth_version.py \
   --epochs-det 10 \
   --epochs-cls 10 \
   --no-zip
+```
+
+#### Stage Control Commands
+```bash
+# Detection training only
+python run_multiple_models_pipeline_ground_truth_version.py \
+  --dataset iml_lifecycle \
+  --include yolo11 \
+  --epochs-det 50 \
+  --stop-stage detection
+
+# Crop generation only (requires existing detection)
+python run_multiple_models_pipeline_ground_truth_version.py \
+  --continue-from exp_multi_pipeline_20250928_130011_iml_lifecycle \
+  --start-stage detection \
+  --stop-stage crop
+
+# Classification training only
+python run_multiple_models_pipeline_ground_truth_version.py \
+  --continue-from exp_multi_pipeline_20250928_130011_iml_lifecycle \
+  --start-stage classification \
+  --stop-stage classification \
+  --epochs-cls 30
+
+# Analysis only (requires existing models)
+python run_multiple_models_pipeline_ground_truth_version.py \
+  --continue-from exp_multi_pipeline_20250928_130011_iml_lifecycle \
+  --start-stage analysis
 ```
 
 ---
