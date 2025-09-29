@@ -486,7 +486,8 @@ Stage Control Examples:
     )
     parser.add_argument("--include", nargs="+",
                        choices=["yolo10", "yolo11", "yolo12", "rtdetr"],
-                       help="Detection models to include (if not specified, includes yolo10, yolo11, yolo12)")
+                       default=["yolo11"],
+                       help="Detection models to include (default: yolo11 only to reduce folder creation)")
     parser.add_argument("--exclude-detection", nargs="+",
                        choices=["yolo10", "yolo11", "yolo12", "rtdetr"],
                        default=[],
@@ -495,14 +496,14 @@ Stage Control Examples:
                        help="Epochs for detection training")
     parser.add_argument("--epochs-cls", type=int, default=30,
                        help="Epochs for classification training")
-    parser.add_argument("--experiment-name", default="multi_pipeline_option_a",
+    parser.add_argument("--experiment-name", default="optA",
                        help="Base name for experiments")
-    parser.add_argument("--dataset", choices=["mp_idb_species", "mp_idb_stages", "iml_lifecycle", "all"], default="all",
+    parser.add_argument("--dataset", choices=["mp_idb_species", "mp_idb_stages", "iml_lifecycle", "all"], default="iml_lifecycle",
                        help="Dataset selection: mp_idb_species (4 species), mp_idb_stages (4 stages), iml_lifecycle (4 stages), all (run all datasets)")
     parser.add_argument("--classification-models", nargs="+",
                        choices=["densenet121", "efficientnet_b1", "convnext_tiny", "mobilenet_v3_large", "efficientnet_b2", "resnet101", "all"],
-                       default=["all"],
-                       help="6 optimized classification models (2024): DenseNet121, EfficientNet-B1, ConvNeXt-Tiny, MobileNetV3-Large, EfficientNet-B2, ResNet101")
+                       default=["densenet121"],
+                       help="Classification models (default: densenet121 only to reduce folder creation, use 'all' for full comparison)")
     parser.add_argument("--exclude-classification", nargs="+",
                        choices=["densenet121", "efficientnet_b1", "convnext_tiny", "mobilenet_v3_large", "efficientnet_b2", "resnet101"],
                        default=[],
@@ -522,9 +523,21 @@ Stage Control Examples:
 
     args = parser.parse_args()
 
-    # Handle multi-dataset execution
+    # Handle multi-dataset execution with parent folder structure
     if args.dataset == "all":
         print("[MULTI-DATASET] Running Option A pipeline for ALL datasets!")
+        print("[FOLDER] Using parent folder structure for organized results")
+
+        # Create short parent experiment name with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        parent_exp_name = f"{args.experiment_name}_{timestamp}"
+
+        # Import OptionAResultsManager for parent folder structure
+        from utils.results_manager import create_option_a_manager
+        parent_manager = create_option_a_manager(parent_exp_name)
+
+        print(f"[PARENT] Created: {parent_manager.parent_folder}")
+
         datasets_to_run = ["mp_idb_species", "mp_idb_stages", "iml_lifecycle"]
         all_results = []
 
@@ -533,9 +546,11 @@ Stage Control Examples:
             print(f"[TARGET] STARTING DATASET: {dataset.upper()}")
             print(f"{'='*80}")
 
-            # Create a copy of args with the specific dataset
+            # Create a copy of args with the specific dataset and parent info
             dataset_args = argparse.Namespace(**vars(args))
             dataset_args.dataset = dataset
+            dataset_args._parent_manager = parent_manager  # Pass parent manager
+            dataset_args._parent_exp_name = parent_exp_name  # Pass parent name
 
             try:
                 result = run_pipeline_for_dataset(dataset_args)
@@ -549,6 +564,7 @@ Stage Control Examples:
         print(f"\n{'='*80}")
         print(f"[FINISH] MULTI-DATASET PIPELINE SUMMARY")
         print(f"{'='*80}")
+        print(f"[FOLDER] All results: {parent_manager.parent_folder}")
         for dataset, result in all_results:
             status = "[SUCCESS]" if result else "[FAILED]"
             print(f"{dataset:15} {status}")
@@ -633,13 +649,9 @@ def run_pipeline_for_dataset(args):
 
     # Determine which detection models to run
     all_detection_models = ["yolo10", "yolo11", "yolo12", "rtdetr"]
-    # Default models (exclude rtdetr since it's not yet fixed)
-    default_detection_models = ["yolo10", "yolo11", "yolo12"]
 
-    if args.include:
-        models_to_run = args.include
-    else:
-        models_to_run = default_detection_models
+    # Use args.include which now has default=["yolo11"]
+    models_to_run = args.include
 
     # Remove excluded detection models
     models_to_run = [model for model in models_to_run if model not in args.exclude_detection]
@@ -648,8 +660,9 @@ def run_pipeline_for_dataset(args):
         print("[ERROR] No detection models to run after exclusions!")
         return
 
-    # Define classification models - SYSTEMATIC COMPARISON: 7 Models × 2 Loss Functions = 14 Experiments
-    base_models = ["resnet18", "densenet121", "efficientnet_b0", "convnext_tiny", "mobilenet_v3_large", "efficientnet_b2", "resnet101"]
+    # Define classification models - SIMPLIFIED: 3 Best Models × 2 Loss Functions = 6 Experiments
+    # REDUCED from 14 to 6 experiments to minimize folder creation
+    base_models = ["densenet121", "efficientnet_b1", "convnext_tiny"]
 
     classification_configs = {}
 
@@ -718,29 +731,48 @@ def run_pipeline_for_dataset(args):
         results_manager = get_results_manager(pipeline_name=base_exp_name)
         print(f"[INFO] CONTINUING: {experiment_dir}/")
     else:
-        # Add timestamp to experiment name for uniqueness
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        base_exp_name = f"{args.experiment_name}_{timestamp}"
+        # Check if this is part of a multi-dataset parent experiment
+        if hasattr(args, '_parent_manager') and args._parent_manager:
+            # Use parent folder structure for multi-dataset experiments
+            parent_manager = args._parent_manager
+            parent_exp_name = args._parent_exp_name
 
-        # Add dataset type to experiment name
-        if args.dataset == "iml_lifecycle":
-            base_exp_name += "_iml_lifecycle"
-        elif args.dataset == "mp_idb_stages":
-            base_exp_name += "_mp_idb_stages"
-        elif args.dataset == "mp_idb_species":
-            base_exp_name += "_mp_idb_species"
+            # Create experiment within parent structure
+            dataset_exp_path = parent_manager.add_experiment(
+                experiment_name="experiment",
+                dataset=args.dataset,
+                models=models_to_run
+            )
 
-        # NEW: Initialize centralized results manager
-        results_manager = get_results_manager(pipeline_name=base_exp_name)
-        print(f"[INFO] RESULTS: results/exp_{base_exp_name}/")
+            # Use a simple dataset-specific experiment name for ResultsManager
+            base_exp_name = f"{parent_exp_name}_{args.dataset}"
+            results_manager = get_results_manager(pipeline_name=base_exp_name)
+            print(f"[INFO] RESULTS: {dataset_exp_path}/")
+        else:
+            # Single dataset execution - use original naming
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            base_exp_name = f"{args.experiment_name}_{timestamp}"
+
+            # Add dataset type to experiment name
+            if args.dataset == "iml_lifecycle":
+                base_exp_name += "_iml_lifecycle"
+            elif args.dataset == "mp_idb_stages":
+                base_exp_name += "_mp_idb_stages"
+            elif args.dataset == "mp_idb_species":
+                base_exp_name += "_mp_idb_species"
+
+            # Initialize SIMPLIFIED results manager - minimal folder creation
+            results_manager = get_results_manager(pipeline_name=base_exp_name)
+            print(f"[INFO] SIMPLIFIED RESULTS: results/exp_{base_exp_name}/")
 
     print(f"\n{'='*80}")
     print(f"OPTION A: SHARED CLASSIFICATION ARCHITECTURE")
     print(f"{'='*80}")
     print(f"[ARCHITECTURE] Using Option A: Shared Classification")
     print(f"[EFFICIENCY] ~70% storage reduction, ~60% training time reduction")
+    print(f"[SIMPLIFIED] Minimal folder structure to reduce clutter")
     print(f"Detection models: {', '.join(models_to_run)}")
-    print(f"Classification: {len(base_models)} architectures × 2 loss functions = {len(classification_configs)} experiments")
+    print(f"Classification: {len(base_models)} best models × 2 loss functions = {len(classification_configs)} experiments")
     print(f"Loss Functions: Cross-Entropy (baseline) vs Focal Loss (novel contribution)")
     print(f"Epochs: {args.epochs_det} det, 25 cls (standardized)")
     print(f"Confidence: {confidence_threshold}")
@@ -842,7 +874,7 @@ def run_pipeline_for_dataset(args):
             # Simplified naming to avoid Windows path limits
             det_exp_name = f"det_{model_key}"
 
-            # NEW: Get centralized path but let YOLO create the experiment folder to avoid conflicts
+            # SIMPLIFIED: Use simple centralized path for detection training
             centralized_detection_path = results_manager.get_experiment_path("training", detection_model, det_exp_name)
 
             # Direct YOLO training command with auto-download for YOLOv10, YOLOv11, YOLOv12
@@ -1029,7 +1061,7 @@ def run_pipeline_for_dataset(args):
             print(f"[ERROR] Raw dataset not found: {raw_dataset_path}")
             return
 
-        # NEW: Use centralized crops path (shared) - simplified name
+        # SIMPLIFIED: Use simple crops path name
         shared_crops_path = results_manager.get_crops_path("shared", "gt_crops")
         output_path = str(shared_crops_path)
 
@@ -1122,7 +1154,7 @@ def run_pipeline_for_dataset(args):
 
             print(f"   [START] Training {cls_config.get('display_name', cls_model_name.upper())} (SHARED)")
 
-            # NEW: Create centralized path for classification (folder needed for saving)
+            # SIMPLIFIED: Create simple centralized path for classification
             centralized_cls_path = results_manager.create_experiment_path("training", f"classification_{cls_config['model']}", cls_exp_name)
 
             if cls_config["type"] == "yolo":
@@ -1267,23 +1299,182 @@ def run_pipeline_for_dataset(args):
             # Use centralized test data path (shared)
             test_data = crop_data_path / "test"
 
-            # Check if paths exist before running analysis
-            if Path(classification_model).exists() and Path(test_data).exists():
-                print(f"   [INFO] Classification analysis for {cls_model_name.upper()}")
+            # Create analysis from existing table9_metrics.json (Option A compatible)
+            table9_metrics_file = centralized_classification_path / "table9_metrics.json"
 
-                # Use standalone classification analysis script
-                analysis_cmd = [
-                    "python", "scripts/analysis/classification_deep_analysis.py",
-                    "--model", classification_model,
-                    "--test-data", test_data,
-                    "--output", analysis_dir
-                ]
+            if table9_metrics_file.exists():
+                print(f"   [INFO] Creating classification analysis for {cls_model_name.upper()}")
 
-                run_command(analysis_cmd, f"Classification Analysis for {cls_model_name.upper()}")
+                # Create analysis from table9 metrics
+                try:
+                    import json
+                    with open(table9_metrics_file, 'r') as f:
+                        metrics = json.load(f)
+
+                    # Create analysis summary
+                    analysis_summary = {
+                        'model_name': cls_model_name,
+                        'overall_accuracy': metrics['overall_accuracy'],
+                        'overall_balanced_accuracy': metrics['overall_balanced_accuracy'],
+                        'test_accuracy': metrics['test_accuracy'],
+                        'class_performance': {}
+                    }
+
+                    # Add per-class performance
+                    for class_key, class_metrics in metrics['per_class_metrics'].items():
+                        class_name = class_metrics['class_name']
+                        analysis_summary['class_performance'][class_name] = {
+                            'precision': class_metrics['precision'],
+                            'recall': class_metrics['recall'],
+                            'f1_score': class_metrics['f1_score'],
+                            'support': class_metrics['support']
+                        }
+
+                    # Save analysis summary
+                    analysis_file = Path(analysis_dir) / 'classification_analysis.json'
+                    with open(analysis_file, 'w') as f:
+                        json.dump(analysis_summary, f, indent=2)
+
+                    # Create performance summary text
+                    summary_text = f'''Classification Analysis: {cls_model_name}
+===============================================
+
+Overall Performance:
+- Accuracy: {metrics['overall_accuracy']:.4f}
+- Balanced Accuracy: {metrics['overall_balanced_accuracy']:.4f}
+- Test Accuracy: {metrics['test_accuracy']:.4f}
+
+Per-Class Performance:
+'''
+
+                    for class_key, class_metrics in metrics['per_class_metrics'].items():
+                        class_name = class_metrics['class_name']
+                        summary_text += f'''
+{class_name}:
+  - Precision: {class_metrics['precision']:.4f}
+  - Recall: {class_metrics['recall']:.4f}
+  - F1-Score: {class_metrics['f1_score']:.4f}
+  - Support: {int(class_metrics['support'])}'''
+
+                    # Save text summary
+                    summary_file = Path(analysis_dir) / 'performance_summary.txt'
+                    with open(summary_file, 'w') as f:
+                        f.write(summary_text)
+
+                    print(f"   [SUCCESS] Analysis created for {cls_model_name}")
+
+                except Exception as e:
+                    print(f"   [ERROR] Failed to create analysis for {cls_model_name}: {e}")
             else:
-                print(f"   [WARNING] Classification model or test data not found for {cls_model_name}")
+                print(f"   [WARNING] table9_metrics.json not found for {cls_model_name}")
 
-        # 4C: Create comprehensive experiment summary for Option A
+        # 4C: Create Table 9 Pivot Summary (Cross Entropy vs Focal Loss)
+        print(f"\n[PIVOT] Creating Table 9 Classification Pivot")
+        try:
+            import pandas as pd
+
+            # Collect metrics separated by loss function
+            ce_metrics = {}
+            focal_metrics = {}
+
+            for cls_model_name in classification_models_trained:
+                cls_config = classification_configs[cls_model_name]
+                model_short = cls_config['model'][:6] if len(cls_config['model']) > 6 else cls_config['model']
+                loss_short = 'ce' if cls_config['loss'] == 'cross_entropy' else 'focal'
+                cls_exp_name = f"cls_{model_short}_{loss_short}"
+
+                centralized_classification_path = results_manager.get_classification_path(cls_exp_name)
+                table9_metrics_file = centralized_classification_path / "table9_metrics.json"
+
+                if table9_metrics_file.exists():
+                    import json
+                    with open(table9_metrics_file, 'r') as f:
+                        metrics = json.load(f)
+
+                    if loss_short == 'ce':
+                        ce_metrics[model_short] = metrics
+                    else:
+                        focal_metrics[model_short] = metrics
+
+            def create_pivot_table(metrics_dict, loss_name):
+                if not metrics_dict:
+                    return None
+
+                # Get all class names from first model
+                first_model = next(iter(metrics_dict.values()))
+                classes = [cls_data['class_name'] for cls_data in first_model['per_class_metrics'].values()]
+
+                # Create data structure for pivot
+                rows = []
+                index_data = []
+
+                # Add overall metrics
+                for metric in ['accuracy', 'balanced_accuracy']:
+                    row_data = []
+                    for model in sorted(metrics_dict.keys()):
+                        if metric == 'accuracy':
+                            row_data.append(round(metrics_dict[model]['overall_accuracy'], 4))
+                        else:
+                            row_data.append(round(metrics_dict[model]['overall_balanced_accuracy'], 4))
+                    rows.append(row_data)
+                    index_data.append(('Overall', metric))
+
+                # Add per-class metrics
+                for class_name in sorted(classes):
+                    for metric in ['precision', 'recall', 'f1_score', 'support']:
+                        row_data = []
+                        for model in sorted(metrics_dict.keys()):
+                            # Find the class in this model's metrics
+                            value = None
+                            for cls_data in metrics_dict[model]['per_class_metrics'].values():
+                                if cls_data['class_name'] == class_name:
+                                    if metric == 'support':
+                                        value = int(cls_data[metric])
+                                    else:
+                                        value = round(cls_data[metric], 4)
+                                    break
+                            row_data.append(value)
+                        rows.append(row_data)
+                        index_data.append((class_name, metric))
+
+                # Create DataFrame with MultiIndex
+                columns = sorted(metrics_dict.keys())
+                index = pd.MultiIndex.from_tuples(index_data, names=['Class', 'Metric'])
+                df = pd.DataFrame(rows, index=index, columns=columns)
+
+                return df
+
+            # Create pivot tables
+            ce_pivot = create_pivot_table(ce_metrics, 'Cross Entropy')
+            focal_pivot = create_pivot_table(focal_metrics, 'Focal Loss')
+
+            # Save to experiment root directory
+            centralized_dir = results_manager.base_dir / base_exp_name
+            output_file = centralized_dir / 'table9_classification_pivot.xlsx'
+
+            with pd.ExcelWriter(output_file) as writer:
+                if ce_pivot is not None:
+                    ce_pivot.to_excel(writer, sheet_name='Cross_Entropy')
+                    print(f"   [SUCCESS] Cross Entropy pivot: {ce_pivot.shape[0]} rows x {ce_pivot.shape[1]} cols")
+
+                    # Also save as CSV
+                    ce_csv = centralized_dir / 'table9_cross_entropy.csv'
+                    ce_pivot.to_csv(ce_csv)
+
+                if focal_pivot is not None:
+                    focal_pivot.to_excel(writer, sheet_name='Focal_Loss')
+                    print(f"   [SUCCESS] Focal Loss pivot: {focal_pivot.shape[0]} rows x {focal_pivot.shape[1]} cols")
+
+                    # Also save as CSV
+                    focal_csv = centralized_dir / 'table9_focal_loss.csv'
+                    focal_pivot.to_csv(focal_csv)
+
+            print(f"   [EXCEL] ✅ Table 9 pivot saved: {output_file}")
+
+        except Exception as e:
+            print(f"   [ERROR] Failed to create Table 9 pivot: {e}")
+
+        # 4D: Create comprehensive experiment summary for Option A
         print(f"\n[SUMMARY] Creating Option A experiment summary")
         summary_path = results_manager.create_analysis_path("option_a_summary")
         det_model_names = [info['model_key'] for info in detection_models_trained]
