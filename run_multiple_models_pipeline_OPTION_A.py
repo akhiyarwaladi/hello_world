@@ -486,7 +486,7 @@ Stage Control Examples:
     )
     parser.add_argument("--include", nargs="+",
                        choices=["yolo10", "yolo11", "yolo12", "rtdetr"],
-                       help="Detection models to include (if not specified, includes all: yolo10, yolo11, yolo12, rtdetr)")
+                       help="Detection models to include (default: yolo10, yolo11, yolo12 - RT-DETR available but not default due to speed)")
     parser.add_argument("--exclude-detection", nargs="+",
                        choices=["yolo10", "yolo11", "yolo12", "rtdetr"],
                        default=[],
@@ -584,7 +584,7 @@ Stage Control Examples:
                     "total_datasets": len(successful_datasets),
                     "successful_datasets": successful_datasets,
                     "analysis_timestamp": datetime.now().isoformat(),
-                    "detection_models": args.include if args.include else ["yolo10", "yolo11", "yolo12", "rtdetr"],
+                    "detection_models": args.include if args.include else ["yolo10", "yolo11", "yolo12"],
                     "classification_models": args.classification_models if args.classification_models != ["all"] else ["all_6_models"],
                     "cross_dataset_performance": {}
                 }
@@ -601,7 +601,7 @@ Stage Control Examples:
 ## Experiment Overview
 - **Parent Experiment**: {parent_exp_name}
 - **Datasets Analyzed**: {', '.join(successful_datasets)}
-- **Detection Models**: {len(args.include if args.include else 4)} models
+- **Detection Models**: {len(args.include if args.include else 3)} models
 - **Classification Models**: {len(args.classification_models) if args.classification_models != ["all"] else 6} models × 2 loss functions
 - **Generated**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
@@ -710,10 +710,10 @@ def run_pipeline_for_dataset(args):
 
         print()
 
-    # Determine which detection models to run
-    all_detection_models = ["yolo10", "yolo11", "yolo12", "rtdetr"]
+    # Determine which detection models to run (YOLO models only for speed)
+    all_detection_models = ["yolo10", "yolo11", "yolo12"]  # Removed rtdetr (too slow)
 
-    # Use args.include if specified, otherwise use all detection models
+    # Use args.include if specified, otherwise use all YOLO detection models
     if args.include:
         models_to_run = args.include
     else:
