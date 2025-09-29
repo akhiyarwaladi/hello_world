@@ -486,8 +486,7 @@ Stage Control Examples:
     )
     parser.add_argument("--include", nargs="+",
                        choices=["yolo10", "yolo11", "yolo12", "rtdetr"],
-                       default=["yolo11"],
-                       help="Detection models to include (default: yolo11 only to reduce folder creation)")
+                       help="Detection models to include (if not specified, includes all: yolo10, yolo11, yolo12, rtdetr)")
     parser.add_argument("--exclude-detection", nargs="+",
                        choices=["yolo10", "yolo11", "yolo12", "rtdetr"],
                        default=[],
@@ -498,12 +497,12 @@ Stage Control Examples:
                        help="Epochs for classification training")
     parser.add_argument("--experiment-name", default="optA",
                        help="Base name for experiments")
-    parser.add_argument("--dataset", choices=["mp_idb_species", "mp_idb_stages", "iml_lifecycle", "all"], default="iml_lifecycle",
-                       help="Dataset selection: mp_idb_species (4 species), mp_idb_stages (4 stages), iml_lifecycle (4 stages), all (run all datasets)")
+    parser.add_argument("--dataset", choices=["mp_idb_species", "mp_idb_stages", "iml_lifecycle", "all"], default="all",
+                       help="Dataset selection: mp_idb_species (4 species), mp_idb_stages (4 stages), iml_lifecycle (4 stages), all (run all datasets - DEFAULT)")
     parser.add_argument("--classification-models", nargs="+",
                        choices=["densenet121", "efficientnet_b1", "convnext_tiny", "mobilenet_v3_large", "efficientnet_b2", "resnet101", "all"],
-                       default=["densenet121"],
-                       help="Classification models (default: densenet121 only to reduce folder creation, use 'all' for full comparison)")
+                       default=["all"],
+                       help="Classification models: ALL 6 optimized models (DenseNet121, EfficientNet-B1, ConvNeXt-Tiny, MobileNetV3-Large, EfficientNet-B2, ResNet101) - DEFAULT")
     parser.add_argument("--exclude-classification", nargs="+",
                        choices=["densenet121", "efficientnet_b1", "convnext_tiny", "mobilenet_v3_large", "efficientnet_b2", "resnet101"],
                        default=[],
@@ -650,8 +649,11 @@ def run_pipeline_for_dataset(args):
     # Determine which detection models to run
     all_detection_models = ["yolo10", "yolo11", "yolo12", "rtdetr"]
 
-    # Use args.include which now has default=["yolo11"]
-    models_to_run = args.include
+    # Use args.include if specified, otherwise use all detection models
+    if args.include:
+        models_to_run = args.include
+    else:
+        models_to_run = all_detection_models
 
     # Remove excluded detection models
     models_to_run = [model for model in models_to_run if model not in args.exclude_detection]
@@ -660,9 +662,9 @@ def run_pipeline_for_dataset(args):
         print("[ERROR] No detection models to run after exclusions!")
         return
 
-    # Define classification models - SIMPLIFIED: 3 Best Models × 2 Loss Functions = 6 Experiments
-    # REDUCED from 14 to 6 experiments to minimize folder creation
-    base_models = ["densenet121", "efficientnet_b1", "convnext_tiny"]
+    # Define classification models - ALL 6 Optimized Models × 2 Loss Functions = 12 Experiments
+    # Full comparison of best performing architectures with both Cross-Entropy and Focal Loss
+    base_models = ["densenet121", "efficientnet_b1", "convnext_tiny", "mobilenet_v3_large", "efficientnet_b2", "resnet101"]
 
     classification_configs = {}
 
@@ -770,7 +772,7 @@ def run_pipeline_for_dataset(args):
     print(f"{'='*80}")
     print(f"[ARCHITECTURE] Using Option A: Shared Classification")
     print(f"[EFFICIENCY] ~70% storage reduction, ~60% training time reduction")
-    print(f"[SIMPLIFIED] Minimal folder structure to reduce clutter")
+    print(f"[COMPREHENSIVE] Full multi-model multi-dataset experiments")
     print(f"Detection models: {', '.join(models_to_run)}")
     print(f"Classification: {len(base_models)} best models × 2 loss functions = {len(classification_configs)} experiments")
     print(f"Loss Functions: Cross-Entropy (baseline) vs Focal Loss (novel contribution)")
