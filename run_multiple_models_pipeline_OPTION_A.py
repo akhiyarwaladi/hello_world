@@ -735,7 +735,7 @@ def run_pipeline_for_dataset(args):
     else:
         # Check if this is part of a multi-dataset parent experiment
         if hasattr(args, '_parent_manager') and args._parent_manager:
-            # Use parent folder structure for multi-dataset experiments
+            # Use ONLY parent folder structure for multi-dataset experiments (no duplicate)
             parent_manager = args._parent_manager
             parent_exp_name = args._parent_exp_name
 
@@ -746,10 +746,41 @@ def run_pipeline_for_dataset(args):
                 models=models_to_run
             )
 
-            # Use a simple dataset-specific experiment name for ResultsManager
+            # Use dataset_exp_path directly as our experiment directory (no separate ResultsManager)
             base_exp_name = f"{parent_exp_name}_{args.dataset}"
-            results_manager = get_results_manager(pipeline_name=base_exp_name)
-            print(f"[INFO] RESULTS: {dataset_exp_path}/")
+
+            # Create a mock results manager that uses the parent structure
+            class ParentStructureManager:
+                def __init__(self, dataset_path):
+                    self.pipeline_dir = dataset_exp_path
+                    self.base_dir = dataset_exp_path
+
+                def get_experiment_path(self, exp_type, model_name, exp_name):
+                    return self.pipeline_dir / exp_name
+
+                def create_experiment_path(self, exp_type, model_name, exp_name):
+                    path = self.get_experiment_path(exp_type, model_name, exp_name)
+                    path.mkdir(parents=True, exist_ok=True)
+                    return path
+
+                def get_crops_path(self, detection_model, experiment_name):
+                    return self.pipeline_dir / f"crops_{experiment_name}"
+
+                def create_crops_path(self, detection_model, experiment_name):
+                    path = self.get_crops_path(detection_model, experiment_name)
+                    path.mkdir(parents=True, exist_ok=True)
+                    return path
+
+                def get_analysis_path(self, analysis_type):
+                    return self.pipeline_dir / f"analysis_{analysis_type}"
+
+                def create_analysis_path(self, analysis_type):
+                    path = self.get_analysis_path(analysis_type)
+                    path.mkdir(parents=True, exist_ok=True)
+                    return path
+
+            results_manager = ParentStructureManager(dataset_exp_path)
+            print(f"[INFO] UNIFIED RESULTS: {dataset_exp_path}/")
         else:
             # Single dataset execution - use original naming
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
