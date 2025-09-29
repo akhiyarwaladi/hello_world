@@ -54,13 +54,9 @@ def run_optimized_training(model_name, data_yaml, epochs, exp_name, centralized_
         # Load model
         model = YOLO(model_name)
 
-        # Configure parameters based on model and dataset
-        # FIXED: RT-DETR needs different LR than YOLO due to transformer architecture
-        if 'rtdetr' in model_name.lower():
-            lr_value = 0.0001  # Lower LR for RT-DETR transformer
-            print(f"   [FIXED] Using RT-DETR optimized LR: {lr_value}")
-        else:
-            lr_value = 0.0005  # Standard LR for YOLO models
+        # Configure parameters for YOLO models
+        lr_value = 0.0005  # Standard LR for YOLO models
+        print(f"   [CONFIG] Using YOLO optimized LR: {lr_value}")
 
         # Dataset-specific configurations
         if dataset_type == "mp_idb_species":
@@ -485,10 +481,10 @@ Stage Control Examples:
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("--include", nargs="+",
-                       choices=["yolo10", "yolo11", "yolo12", "rtdetr"],
-                       help="Detection models to include (default: yolo10, yolo11, yolo12 - RT-DETR available but not default due to speed)")
+                       choices=["yolo10", "yolo11", "yolo12"],
+                       help="Detection models to include (default: all YOLO models - YOLO10, YOLO11, YOLO12)")
     parser.add_argument("--exclude-detection", nargs="+",
-                       choices=["yolo10", "yolo11", "yolo12", "rtdetr"],
+                       choices=["yolo10", "yolo11", "yolo12"],
                        default=[],
                        help="Detection models to exclude")
     parser.add_argument("--epochs-det", type=int, default=50,
@@ -938,12 +934,11 @@ def run_pipeline_for_dataset(args):
                 return
         print(f"[INFO] Dataset: MP-IDB Species Pipeline Ready (data/processed/species/)")
 
-    # Model mapping
+    # Model mapping (YOLO models only)
     detection_models = {
         "yolo10": "yolov10_detection",
         "yolo11": "yolov11_detection",
-        "yolo12": "yolov12_detection",
-        "rtdetr": "rtdetr_detection"
+        "yolo12": "yolov12_detection"
     }
 
     successful_models = []
@@ -974,15 +969,13 @@ def run_pipeline_for_dataset(args):
             # SIMPLIFIED: Use simple centralized path for detection training
             centralized_detection_path = results_manager.get_experiment_path("training", detection_model, det_exp_name)
 
-            # Direct YOLO training command with auto-download for YOLOv10, YOLOv11, YOLOv12
+            # Direct YOLO training command with auto-download for YOLO models
             if detection_model == "yolov10_detection":
                 yolo_model = "yolov10m.pt"  # YOLOv10 medium
             elif detection_model == "yolov11_detection":
-                yolo_model = "yolo11m.pt"
+                yolo_model = "yolo11m.pt"    # YOLOv11 medium
             elif detection_model == "yolov12_detection":
-                yolo_model = "yolo12m.pt"  # YOLOv12 medium
-            elif detection_model == "rtdetr_detection":
-                yolo_model = "rtdetr-l.pt"
+                yolo_model = "yolo12m.pt"    # YOLOv12 medium
 
             # Auto-detect dataset based on selection
             if args.dataset == "iml_lifecycle":
@@ -1081,15 +1074,13 @@ def run_pipeline_for_dataset(args):
         if continue_mode:
             existing_models = find_detection_models(experiment_dir)
             for model_key in models_to_run:
-                # Map model_key to detection model naming
+                # Map model_key to detection model naming (YOLO models only)
                 if model_key == 'yolo10':
                     model_type = 'yolov10'
                 elif model_key == 'yolo11':
                     model_type = 'yolov11'
                 elif model_key == 'yolo12':
                     model_type = 'yolov12'
-                elif model_key == 'rtdetr':
-                    model_type = 'rtdetr'
                 else:
                     model_type = model_key
 
