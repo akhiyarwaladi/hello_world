@@ -100,19 +100,52 @@ hello_world/
 - Medical-safe transform strategies
 
 ### Comprehensive Analysis Suite
-**Pipeline Automatically Generates:**
-- **Table 9 Classification Pivot**: Cross-Entropy vs Focal Loss comparison
-- **Dataset Statistics**: Before/after augmentation effects (~4.4x detection, ~3.5x classification)
-- **Detection Models Comparison**: Performance across all YOLO models
-- **Individual Model Analysis**: Per-model IoU and classification metrics
-- **Multi-Dataset Analysis**: Cross-dataset insights and optimal model recommendations
 
-**Example Dataset Statistics Output:**
+#### Per-Dataset Analysis (Both Single & Multi-Dataset):
+- ✅ **Table 9 Classification Pivot**: Cross-Entropy vs Focal Loss comparison per dataset
+- ✅ **Detection IoU Analysis**: Per-model mAP@0.5, mAP@0.75, mAP@0.5:0.95
+- ✅ **Classification Metrics**: Accuracy, balanced accuracy, precision, recall, F1-score per class
+- ✅ **Model Performance Reports**: Individual analysis for each trained model
+
+#### Multi-Dataset Consolidated Analysis (ONLY with `--dataset all`):
+**Automatically Generated (9 files):**
+1. ✅ `dataset_statistics_all.csv` - Augmentation effects across all datasets
+2. ✅ `detection_performance_all_datasets.csv/xlsx` - YOLO comparison (CSV + Excel)
+3. ✅ `classification_cross_entropy_all_datasets.csv` - CE results across datasets
+4. ✅ `classification_focal_loss_all_datasets.csv` - Focal Loss results across datasets
+5. ✅ `classification_performance_all_datasets.xlsx` - Combined Excel (2 sheets: CE + Focal)
+6. ✅ `comprehensive_summary.json` - Complete data in JSON format (34 KB)
+7. ✅ `README.md` - Overview with detailed tables
+
+**Dataset Statistics Example:**
 ```
-       Dataset  Original_Train  Original_Val  Original_Test  Augmented_Train  Augmented_Total  Multiplier
- iml_lifecycle             218            62             33              956             1051        4.4x
-mp_idb_species             146            42             21              640              703        4.4x
- mp_idb_stages             146            42             21              640              703        4.4x
+| Dataset | Original Train | Detection Aug | Classification Aug | Det Multiplier | Cls Multiplier |
+|---------|----------------|---------------|-------------------|----------------|----------------|
+| iml_lifecycle | 218 | 956 | 765 | 4.4x | 3.5x |
+| mp_idb_species | 146 | 640 | 512 | 4.4x | 3.5x |
+| mp_idb_stages | 146 | 640 | 512 | 4.4x | 3.5x |
+```
+
+**Detection Performance Example:**
+```
+| Dataset | Model | mAP@50 | mAP@50-95 | Precision | Recall |
+|---------|-------|--------|-----------|-----------|--------|
+| iml_lifecycle | YOLO11 | 0.9457 | 0.8006 | 0.9160 | 0.9510 |
+| mp_idb_species | YOLO11 | 0.9288 | 0.5575 | 0.8868 | 0.8957 |
+```
+
+**Classification Performance Example (Table 9 Summary):**
+```
+### IML_LIFECYCLE
+Cross-Entropy:
+- densenet121: 0.8333
+- efficientnet_b1: 0.7963
+- efficientnet_b2: 0.8333
+
+Focal Loss:
+- densenet121: 0.7778
+- efficientnet_b1: 0.8333
+- efficientnet_b2: 0.8333
 ```
 
 ## 🚀 PERFORMANCE OPTIMIZATIONS
@@ -186,34 +219,91 @@ python run_multiple_models_pipeline_OPTION_A.py \
 
 ## 💾 RESULTS STRUCTURE
 
-### Multi-Dataset Experiments (Default)
+### 🔹 Multi-Dataset Mode (Default: `--dataset all`)
+**Folder Pattern**: `optA_[timestamp]/`
+**Manager**: `ParentStructureManager` (nested with `experiments/`)
+
 ```
-results/optA_20250929_203726/
-├── experiments/
-│   ├── experiment_iml_lifecycle/       # Dataset-specific results
-│   ├── experiment_mp_idb_species/
-│   └── experiment_mp_idb_stages/
-├── consolidated_analysis/              # Cross-dataset comparison
+results/optA_20251001_183508/                   ← Parent folder
+├── experiments/                                 ← Container for all datasets
+│   ├── experiment_iml_lifecycle/               ← Dataset folder
+│   │   ├── det_yolo10/                         ← Detection models
+│   │   ├── det_yolo11/
+│   │   ├── det_yolo12/
+│   │   ├── cls_densen_ce_classification/       ← Classification models (12 total)
+│   │   ├── cls_densen_focal_classification/
+│   │   ├── cls_efficientnet_b1_ce_classification/
+│   │   ├── cls_efficientnet_b1_focal_classification/
+│   │   ├── ... (8 more classification models)
+│   │   ├── crops_gt_crops/                     ← Ground truth crops (shared)
+│   │   ├── analysis_detection_yolo10/          ← Analysis folders
+│   │   ├── analysis_classification_*/
+│   │   ├── table9_cross_entropy.csv            ← Table 9 pivots
+│   │   ├── table9_focal_loss.csv
+│   │   └── table9_classification_pivot.xlsx
+│   ├── experiment_mp_idb_species/              ← Same structure
+│   └── experiment_mp_idb_stages/               ← Same structure
+├── consolidated_analysis/                      ← **Cross-dataset comparison (ONLY in multi-dataset)**
 │   └── cross_dataset_comparison/
+│       ├── dataset_statistics_all.csv          ← Augmentation effects
+│       ├── detection_performance_all_datasets.csv/xlsx  ← YOLO comparison
+│       ├── classification_cross_entropy_all_datasets.csv
+│       ├── classification_focal_loss_all_datasets.csv
+│       ├── classification_performance_all_datasets.xlsx  ← 2 sheets
+│       ├── comprehensive_summary.json          ← Complete data (34 KB)
+│       └── README.md                           ← Overview with tables
 ├── README.md
-└── optA_20250929_203726.zip           # Auto-generated archive
+└── optA_20251001_183508.zip                    ← Auto-generated archive
 ```
 
-### Single Dataset Experiments
+**Why Nested Structure?**
+- Organized comparison across multiple datasets
+- Consolidated analysis for cross-dataset insights
+- Clean separation of dataset-specific results
+
+---
+
+### 🔸 Single Dataset Mode (`--dataset iml_lifecycle`)
+**Folder Pattern**: `exp_optA_[timestamp]_[dataset]/`
+**Manager**: `ResultsManager` (flat, no `experiments/` subfolder)
+
 ```
-results/exp_optA_20250929_203726_iml_lifecycle/
-├── det_yolo10/                        # Detection model results
+results/exp_optA_20251001_183405_iml_lifecycle/ ← Flat structure
+├── det_yolo10/                                  ← Detection models (direct)
 ├── det_yolo11/
 ├── det_yolo12/
-├── cls_denset_ce/                     # Classification model results
-├── cls_denset_focal/
-├── cls_effnet_ce/
-├── ... (12 classification models total)
-├── crops_gt_crops/                    # Shared ground truth crops
-├── analysis_*/                       # Individual analysis results
-├── table9_classification_pivot.xlsx   # Cross-Entropy vs Focal comparison
-└── exp_optA_20250929_203726_iml_lifecycle.zip
+├── cls_densen_ce_classification/               ← Classification models (12 total)
+├── cls_densen_focal_classification/
+├── cls_efficientnet_b1_ce_classification/
+├── cls_efficientnet_b1_focal_classification/
+├── ... (8 more classification models)
+├── crops_gt_crops/                             ← Ground truth crops
+├── analysis_detection_yolo10/                  ← Analysis folders
+├── analysis_classification_*/
+├── table9_cross_entropy.csv                    ← Table 9 pivots
+├── table9_focal_loss.csv
+├── table9_classification_pivot.xlsx
+└── exp_optA_20251001_183405_iml_lifecycle.zip  ← Auto-generated archive
 ```
+
+**Why Flat Structure?**
+- Simpler for single dataset experiments
+- No need for nested organization
+- Faster navigation to results
+- **No consolidated analysis** (only one dataset)
+
+---
+
+### 📋 Structure Comparison Summary
+
+| Aspect | Multi-Dataset | Single Dataset |
+|--------|--------------|----------------|
+| **Pattern** | `optA_[timestamp]/` | `exp_optA_[timestamp]_[dataset]/` |
+| **Structure** | Nested (`experiments/`) | Flat (direct) |
+| **Manager** | `ParentStructureManager` | `ResultsManager` |
+| **Consolidated Analysis** | ✅ Yes (cross-dataset) | ❌ No |
+| **Use Case** | Compare performance across datasets | Focused single dataset study |
+| **Command** | `--dataset all` (default) | `--dataset iml_lifecycle` |
 
 ## 📝 COMMAND REFERENCE
 
