@@ -137,8 +137,25 @@ def convert_lifecycle_json_to_yolo(raw_dir, output_dir):
 
     return converted_data
 
-def create_yolo_splits(converted_data, output_dir, single_class=False):
-    """Create train/val/test splits in YOLO format with stratified splitting"""
+def create_yolo_splits(converted_data, output_dir, single_class=False,
+                      train_ratio=0.70, val_ratio=0.20, test_ratio=0.10):
+    """Create train/val/test splits in YOLO format with stratified splitting
+
+    Args:
+        converted_data: List of converted image data
+        output_dir: Output directory for splits
+        single_class: If True, use single class (parasite). If False, multi-class
+        train_ratio: Ratio for training set (default: 0.70 = 70%)
+        val_ratio: Ratio for validation set (default: 0.20 = 20%)
+        test_ratio: Ratio for test set (default: 0.10 = 10%)
+    """
+    # Verify ratios sum to 1.0
+    total_ratio = train_ratio + val_ratio + test_ratio
+    if abs(total_ratio - 1.0) > 1e-6:
+        raise ValueError(f"Ratios must sum to 1.0, got {total_ratio:.4f}")
+
+    print(f"[SPLIT] Using split ratios: Train={train_ratio:.2%}, Val={val_ratio:.2%}, Test={test_ratio:.2%}")
+
     output_path = Path(output_dir)
 
     # Remove existing output if exists
@@ -173,15 +190,19 @@ def create_yolo_splits(converted_data, output_dir, single_class=False):
     for class_id, count in sorted(class_dist.items()):
         print(f"   Class {class_id}: {count} images")
 
-    # Stratified split: 70% train, 20% val, 10% test
+    # Stratified split with custom ratios
     try:
+        # First split: separate test set
+        temp_size = val_ratio + test_ratio  # Remaining after train
         train_data, temp_data, train_labels, temp_labels = train_test_split(
             converted_data, stratify_labels,
-            test_size=0.3, random_state=42, stratify=stratify_labels
+            test_size=temp_size, random_state=42, stratify=stratify_labels
         )
+        # Second split: separate val and test from remaining
+        val_adjusted = val_ratio / (val_ratio + test_ratio)
         val_data, test_data, val_labels, test_labels = train_test_split(
             temp_data, temp_labels,
-            test_size=0.33, random_state=42, stratify=temp_labels
+            test_size=(1 - val_adjusted), random_state=42, stratify=temp_labels
         )
         print(f"[STRATIFY] Successfully applied stratified splitting")
     except ValueError as e:
@@ -200,8 +221,8 @@ def create_yolo_splits(converted_data, output_dir, single_class=False):
         for class_id, items in class_groups.items():
             n_total = len(items)
             # Ensure at least 1 sample in each split for each class
-            n_test = max(1, int(n_total * 0.1))
-            n_val = max(1, int(n_total * 0.2))
+            n_test = max(1, int(n_total * test_ratio))
+            n_val = max(1, int(n_total * val_ratio))
             n_train = n_total - n_test - n_val
 
             if n_train < 1:
@@ -332,8 +353,15 @@ def create_data_yaml(output_dir, single_class=False):
 
     return yaml_path
 
-def setup_lifecycle_for_pipeline(single_class=True):
-    """Main setup function for lifecycle dataset"""
+def setup_lifecycle_for_pipeline(single_class=True, train_ratio=0.70, val_ratio=0.20, test_ratio=0.10):
+    """Main setup function for lifecycle dataset
+
+    Args:
+        single_class: If True, single-class detection. If False, multi-class
+        train_ratio: Training set ratio (default: 0.70 = 70%)
+        val_ratio: Validation set ratio (default: 0.20 = 20%)
+        test_ratio: Test set ratio (default: 0.10 = 10%)
+    """
     if single_class:
         print("[SETUP] Setting up Malaria Lifecycle Single-Class Detection Dataset for pipeline...")
     else:
@@ -362,7 +390,8 @@ def setup_lifecycle_for_pipeline(single_class=True):
         output_dir = "data/processed/lifecycle"
     else:
         output_dir = "data/processed/lifecycle"
-    splits, stats = create_yolo_splits(converted_data, output_dir, single_class)
+    splits, stats = create_yolo_splits(converted_data, output_dir, single_class,
+                                      train_ratio, val_ratio, test_ratio)
 
     # Step 4: Create data.yaml
     yaml_path = create_data_yaml(output_dir, single_class)
@@ -400,7 +429,16 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Setup Malaria Lifecycle dataset for pipeline use")
     parser.add_argument("--multi-class", action="store_true",
                        help="Generate 5-class lifecycle detection dataset instead of single-class (parasite)")
+    parser.add_argument("--train-ratio", type=float, default=0.66,
+                       help="Training set ratio (default: 0.66 = 66%%)")
+    parser.add_argument("--val-ratio", type=float, default=0.17,
+                       help="Validation set ratio (default: 0.17 = 17%%)")
+    parser.add_argument("--test-ratio", type=float, default=0.17,
+                       help="Test set ratio (default: 0.17 = 17%%)")
 
     args = parser.parse_args()
     # Default is now single-class, unless --multi-class is specified
-    setup_lifecycle_for_pipeline(single_class=not args.multi_class)
+    setup_lifecycle_for_pipeline(single_class=not args.multi_class,
+                                train_ratio=args.train_ratio,
+                                val_ratio=args.val_ratio,
+                                test_ratio=args.test_ratio)

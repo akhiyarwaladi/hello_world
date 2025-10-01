@@ -124,16 +124,16 @@ def get_model(model_name, num_classes=4, pretrained=True):
         # Modify final layer
         model.classifier = nn.Linear(model.classifier.in_features, num_classes)
 
-    elif model_name.startswith('convnext'):
-        if model_name == 'convnext_tiny':
-            model = models.convnext_tiny(weights='IMAGENET1K_V1' if pretrained else None)
-        elif model_name == 'convnext_small':
-            model = models.convnext_small(weights='IMAGENET1K_V1' if pretrained else None)
+    elif model_name.startswith('vgg'):
+        if model_name == 'vgg16':
+            model = models.vgg16(weights='IMAGENET1K_V1' if pretrained else None)
+        elif model_name == 'vgg19':
+            model = models.vgg19(weights='IMAGENET1K_V1' if pretrained else None)
         else:
-            raise ValueError(f"Unknown ConvNeXt model: {model_name}")
+            raise ValueError(f"Unknown VGG model: {model_name}")
 
         # Modify final layer
-        model.classifier[2] = nn.Linear(model.classifier[2].in_features, num_classes)
+        model.classifier[6] = nn.Linear(model.classifier[6].in_features, num_classes)
 
     elif model_name.startswith('vit'):
         if model_name == 'vit_b_16':
@@ -357,11 +357,11 @@ def main():
     parser.add_argument("--data", default="data/classification_multispecies",
                        help="Classification dataset root")
     parser.add_argument("--model", default="efficientnet_b0",  # OPTIMAL: Changed from resnet18 to efficientnet_b0
-                       choices=['resnet18', 'resnet34', 'resnet101',  # Removed resnet50 (duplicate)
+                       choices=['resnet18', 'resnet34', 'resnet50', 'resnet101',
                                'efficientnet_b0', 'efficientnet_b1', 'efficientnet_b2', 'efficientnet_b3',
                                'mobilenet_v2', 'mobilenet_v3_small', 'mobilenet_v3_large',
                                'densenet121', 'densenet161', 'densenet169',
-                               'convnext_tiny', 'convnext_small',  # Added ConvNeXt for speed
+                               'vgg16', 'vgg19',  # VGG models for strong feature extraction
                                'vit_b_16', 'vit_b_32'],  # Keep ViT but optimize CPU usage
                        help="Model architecture (EfficientNet-B0 recommended for medical AI)")
     parser.add_argument("--epochs", type=int, default=25,  # Increased from 10

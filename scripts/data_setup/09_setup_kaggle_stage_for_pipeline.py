@@ -82,8 +82,25 @@ def check_kaggle_dataset():
     return str(kaggle_dir)
 
 
-def convert_kaggle_to_stage_format(kaggle_dir, output_dir, single_class=False):
-    """Simply copy dataset and convert class IDs for single-class detection"""
+def convert_kaggle_to_stage_format(kaggle_dir, output_dir, single_class=False,
+                                   train_ratio=0.70, val_ratio=0.20, test_ratio=0.10):
+    """Simply copy dataset and convert class IDs for single-class detection
+
+    Args:
+        kaggle_dir: Source directory path
+        output_dir: Output directory path
+        single_class: If True, single-class detection. If False, multi-class
+        train_ratio: Training set ratio (default: 0.70 = 70%)
+        val_ratio: Validation set ratio (default: 0.20 = 20%)
+        test_ratio: Test set ratio (default: 0.10 = 10%)
+    """
+    # Verify ratios sum to 1.0
+    total_ratio = train_ratio + val_ratio + test_ratio
+    if abs(total_ratio - 1.0) > 1e-6:
+        raise ValueError(f"Ratios must sum to 1.0, got {total_ratio:.4f}")
+
+    print(f"[SPLIT] Using split ratios: Train={train_ratio:.2%}, Val={val_ratio:.2%}, Test={test_ratio:.2%}")
+
     if single_class:
         print(f"[CONVERT] Converting to single parasite class (copying all files)...")
     else:
@@ -152,21 +169,27 @@ def convert_kaggle_to_stage_format(kaggle_dir, output_dir, single_class=False):
         stage_name = stage_names[stage_id] if stage_id < len(stage_names) else f"stage_{stage_id}"
         print(f"   {stage_name}: {count} images")
 
-    # Stratified split: 70% train, 20% val, 10% test
+    # Stratified split with custom ratios
     try:
+        # First split: separate train set
+        temp_size = val_ratio + test_ratio  # Remaining after train
         train_images, temp_images, train_labels, temp_labels = train_test_split(
             valid_images, stratify_labels,
-            test_size=0.3, random_state=42, stratify=stratify_labels
+            test_size=temp_size, random_state=42, stratify=stratify_labels
         )
+        # Second split: separate val and test from remaining
+        val_adjusted = val_ratio / (val_ratio + test_ratio)
         val_images, test_images, val_labels, test_labels = train_test_split(
             temp_images, temp_labels,
-            test_size=0.33, random_state=42, stratify=temp_labels
+            test_size=(1 - val_adjusted), random_state=42, stratify=temp_labels
         )
         print(f"[STRATIFY] Successfully applied stratified splitting")
     except ValueError as e:
         print(f"[WARNING] Stratified split failed ({e}), using random split")
-        train_images, temp_images = train_test_split(valid_images, test_size=0.3, random_state=42)
-        val_images, test_images = train_test_split(temp_images, test_size=0.33, random_state=42)
+        temp_size = val_ratio + test_ratio
+        train_images, temp_images = train_test_split(valid_images, test_size=temp_size, random_state=42)
+        val_adjusted = val_ratio / (val_ratio + test_ratio)
+        val_images, test_images = train_test_split(temp_images, test_size=(1 - val_adjusted), random_state=42)
 
     splits = {
         'train': train_images,
@@ -320,8 +343,15 @@ def update_pipeline_for_stage_dataset():
     print(f"[INFO] Stage dataset ready - use --dataset-type stage with pipeline")
 
 
-def setup_kaggle_stage_for_pipeline(single_class=True):
-    """Main setup function for Kaggle stage dataset"""
+def setup_kaggle_stage_for_pipeline(single_class=True, train_ratio=0.70, val_ratio=0.20, test_ratio=0.10):
+    """Main setup function for Kaggle stage dataset
+
+    Args:
+        single_class: If True, single-class detection. If False, multi-class
+        train_ratio: Training set ratio (default: 0.70 = 70%)
+        val_ratio: Validation set ratio (default: 0.20 = 20%)
+        test_ratio: Test set ratio (default: 0.10 = 10%)
+    """
     print("="*60)
     if single_class:
         print(" SETUP KAGGLE SINGLE-CLASS DETECTION DATASET ")
@@ -348,7 +378,8 @@ def setup_kaggle_stage_for_pipeline(single_class=True):
         output_dir = "data/processed/stages"
     else:
         output_dir = "data/processed/stages"
-    success = convert_kaggle_to_stage_format(kaggle_dir, output_dir, single_class)
+    success = convert_kaggle_to_stage_format(kaggle_dir, output_dir, single_class,
+                                            train_ratio, val_ratio, test_ratio)
     if not success:
         print("[ERROR] Failed to convert Kaggle dataset to stage format")
         return False
@@ -398,7 +429,16 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Setup Kaggle MP-IDB dataset for pipeline use")
     parser.add_argument("--multi-class", action="store_true",
                        help="Generate 4-class stages detection dataset instead of single-class (parasite)")
+    parser.add_argument("--train-ratio", type=float, default=0.66,
+                       help="Training set ratio (default: 0.66 = 66%%)")
+    parser.add_argument("--val-ratio", type=float, default=0.17,
+                       help="Validation set ratio (default: 0.17 = 17%%)")
+    parser.add_argument("--test-ratio", type=float, default=0.17,
+                       help="Test set ratio (default: 0.17 = 17%%)")
 
     args = parser.parse_args()
     # Default is now single-class, unless --multi-class is specified
-    setup_kaggle_stage_for_pipeline(single_class=not args.multi_class)
+    setup_kaggle_stage_for_pipeline(single_class=not args.multi_class,
+                                    train_ratio=args.train_ratio,
+                                    val_ratio=args.val_ratio,
+                                    test_ratio=args.test_ratio)

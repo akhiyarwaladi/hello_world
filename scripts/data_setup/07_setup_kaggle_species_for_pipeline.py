@@ -51,14 +51,24 @@ def polygon_to_bbox(polygon_coords):
 
     return [center_x, center_y, width, height]
 
-def setup_kaggle_for_pipeline(output_type="species", single_class=True):
+def setup_kaggle_for_pipeline(output_type="species", single_class=True,
+                             train_ratio=0.70, val_ratio=0.20, test_ratio=0.10):
     """
     Setup Kaggle dataset for pipeline use
 
     Args:
         output_type: "species" or "stages"
         single_class: True for single parasite class, False for multi-class
+        train_ratio: Training set ratio (default: 0.70 = 70%)
+        val_ratio: Validation set ratio (default: 0.20 = 20%)
+        test_ratio: Test set ratio (default: 0.10 = 10%)
     """
+    # Verify ratios sum to 1.0
+    total_ratio = train_ratio + val_ratio + test_ratio
+    if abs(total_ratio - 1.0) > 1e-6:
+        raise ValueError(f"Ratios must sum to 1.0, got {total_ratio:.4f}")
+
+    print(f"[SPLIT] Using split ratios: Train={train_ratio:.2%}, Val={val_ratio:.2%}, Test={test_ratio:.2%}")
 
     if output_type == "species":
         print("[SETUP] Setting up Kaggle MP-IDB for SPECIES classification...")
@@ -148,21 +158,27 @@ def setup_kaggle_for_pipeline(output_type="species", single_class=True):
         species_name = species_names[species_id] if species_id < len(species_names) else f"species_{species_id}"
         print(f"   {species_name}: {count} images")
 
-    # Stratified split: 70% train, 20% val, 10% test
+    # Stratified split with custom ratios
     try:
+        # First split: separate train set
+        temp_size = val_ratio + test_ratio  # Remaining after train
         train_files, temp_files, train_labels, temp_labels = train_test_split(
             image_files, stratify_labels,
-            test_size=0.3, random_state=42, stratify=stratify_labels
+            test_size=temp_size, random_state=42, stratify=stratify_labels
         )
+        # Second split: separate val and test from remaining
+        val_adjusted = val_ratio / (val_ratio + test_ratio)
         val_files, test_files, val_labels, test_labels = train_test_split(
             temp_files, temp_labels,
-            test_size=0.33, random_state=42, stratify=temp_labels
+            test_size=(1 - val_adjusted), random_state=42, stratify=temp_labels
         )
         print(f"[STRATIFY] Successfully applied stratified splitting")
     except ValueError as e:
         print(f"[WARNING] Stratified split failed ({e}), using random split")
-        train_files, temp_files = train_test_split(image_files, test_size=0.3, random_state=42)
-        val_files, test_files = train_test_split(temp_files, test_size=0.33, random_state=42)
+        temp_size = val_ratio + test_ratio
+        train_files, temp_files = train_test_split(image_files, test_size=temp_size, random_state=42)
+        val_adjusted = val_ratio / (val_ratio + test_ratio)
+        val_files, test_files = train_test_split(temp_files, test_size=(1 - val_adjusted), random_state=42)
 
     print(f"[SPLIT] {len(train_files)} train, {len(val_files)} val, {len(test_files)} test")
 
@@ -283,4 +299,17 @@ def setup_kaggle_for_pipeline(output_type="species", single_class=True):
     return str(yaml_path)
 
 if __name__ == "__main__":
-    setup_kaggle_for_pipeline()
+    import argparse
+    parser = argparse.ArgumentParser(description="Setup Kaggle MP-IDB dataset for species classification")
+    parser.add_argument("--train-ratio", type=float, default=0.66,
+                       help="Training set ratio (default: 0.66 = 66%%)")
+    parser.add_argument("--val-ratio", type=float, default=0.17,
+                       help="Validation set ratio (default: 0.17 = 17%%)")
+    parser.add_argument("--test-ratio", type=float, default=0.17,
+                       help="Test set ratio (default: 0.17 = 17%%)")
+
+    args = parser.parse_args()
+    setup_kaggle_for_pipeline(output_type="species", single_class=True,
+                             train_ratio=args.train_ratio,
+                             val_ratio=args.val_ratio,
+                             test_ratio=args.test_ratio)

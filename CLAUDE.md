@@ -47,8 +47,8 @@ python run_multiple_models_pipeline_OPTION_A.py --epochs-det 100 --epochs-cls 50
 ### Classification Models (6 Architectures × 2 Loss Functions = 12 Models)
 - **DenseNet121** (`densenet121`): Dense connections - CE + Focal Loss
 - **EfficientNet-B1** (`efficientnet_b1`): Efficient architecture - CE + Focal Loss
-- **ConvNeXt-Tiny** (`convnext_tiny`): Modern CNN - CE + Focal Loss
-- **MobileNet-V3-Large** (`mobilenet_v3_large`): Mobile-optimized - CE + Focal Loss
+- **VGG16** (`vgg16`): Classic deep CNN with strong feature extraction - CE + Focal Loss
+- **ResNet50** (`resnet50`): Medium-deep residual network - CE + Focal Loss
 - **EfficientNet-B2** (`efficientnet_b2`): Larger EfficientNet - CE + Focal Loss
 - **ResNet101** (`resnet101`): Deep residual network - CE + Focal Loss
 
@@ -164,7 +164,7 @@ Focal Loss:
 
 ### Data Quality
 - Ground truth crops eliminate detection noise
-- Stratified train/val/test splits (70%/20%/10%)
+- Stratified train/val/test splits (customizable, default: 66%/17%/17%)
 - Class balance maintained across splits
 - Medical-specific augmentation strategies
 
@@ -314,6 +314,12 @@ results/exp_optA_20251001_183405_iml_lifecycle/ ← Flat structure
 - `--epochs-det`: Detection training epochs (default: 50)
 - `--epochs-cls`: Classification training epochs (default: 30)
 
+### Data Split Options (NEW!)
+- `--train-ratio`: Training set ratio (default: 0.66 = 66%)
+- `--val-ratio`: Validation set ratio (default: 0.17 = 17%)
+- `--test-ratio`: Test set ratio (default: 0.17 = 17%)
+  - **Note**: Ratios must sum to 1.0
+
 ### Experiment Control
 - `--experiment-name`: Custom experiment name (default: `optA`)
 - `--continue-from`: Resume existing experiment
@@ -336,6 +342,22 @@ python run_multiple_models_pipeline_OPTION_A.py --include yolo11 yolo12
 
 # Specific classification models
 python run_multiple_models_pipeline_OPTION_A.py --classification-models densenet121 efficientnet_b1
+```
+
+#### Custom Data Splits
+```bash
+# Custom 66/17/17 split (as requested)
+python run_multiple_models_pipeline_OPTION_A.py \
+  --train-ratio 0.66 \
+  --val-ratio 0.17 \
+  --test-ratio 0.17
+
+# Custom 80/10/10 split
+python run_multiple_models_pipeline_OPTION_A.py \
+  --dataset iml_lifecycle \
+  --train-ratio 0.80 \
+  --val-ratio 0.10 \
+  --test-ratio 0.10
 ```
 
 #### Stage Control
