@@ -3,10 +3,13 @@
 Generate Detection + Classification Figures for Paper
 
 For each test image, generates 4 separate visualizations:
-1. gt_detection/     - Ground truth detection boxes only
-2. pred_detection/   - Predicted detection boxes only
-3. gt_classification/ - Ground truth boxes with class labels
-4. pred_classification/ - Predicted boxes with classification results
+1. gt_detection/          - Ground truth boxes with 'parasite' labels (blue)
+2. pred_detection/        - Predicted detection boxes with confidence scores (green)
+3. gt_classification/     - Ground truth boxes with class labels (blue)
+4. pred_classification/   - GT boxes with predicted class labels (green=correct, red=wrong)
+
+IMPORTANT: pred_classification uses GT boxes (not predicted boxes) to evaluate
+pure classification performance, matching training methodology.
 
 Default: Process ALL test images
 """
@@ -215,7 +218,7 @@ def generate_gt_detection(image_path, label_file, output_dir):
 
 
 def generate_pred_detection(image_path, detection_model, output_dir, conf_threshold=0.25):
-    """Generate predicted detection visualization (boxes only, no classification)"""
+    """Generate predicted detection visualization (boxes with confidence scores)"""
     image = cv2.imread(str(image_path))
     image_name = Path(image_path).stem
 
@@ -223,14 +226,17 @@ def generate_pred_detection(image_path, detection_model, output_dir, conf_thresh
     det_results = run_detection(image_path, detection_model, conf_threshold)
 
     pred_boxes = []
+    pred_labels = []
     if det_results.boxes is not None and len(det_results.boxes) > 0:
         for box in det_results.boxes:
             box_coords = box.xyxy[0].cpu().numpy()
+            confidence = box.conf[0].cpu().numpy()
             pred_boxes.append([int(c) for c in box_coords])
+            pred_labels.append(f"parasite {confidence:.2f}")
 
-    # Draw green boxes (no labels)
+    # Draw green boxes with confidence labels
     colors = [(0, 255, 0)] * len(pred_boxes)  # Green
-    img_with_boxes = draw_boxes(image, pred_boxes, labels=None, colors=colors)
+    img_with_boxes = draw_boxes(image, pred_boxes, labels=pred_labels, colors=colors)
 
     # Save
     output_path = Path(output_dir) / "pred_detection"
@@ -434,8 +440,9 @@ def main():
     # Load classification model
     checkpoint = torch.load(args.classification_model, map_location=device, weights_only=False)
 
-    # Infer model architecture (simplified)
+    # Infer model architecture
     model_name = checkpoint.get('model_name', 'densenet121')
+    print(f"   Loading architecture: {model_name}")
 
     if 'efficientnet_b1' in model_name.lower():
         classification_model = models.efficientnet_b1(weights=None)
@@ -446,6 +453,16 @@ def main():
         classification_model = models.efficientnet_b2(weights=None)
         classification_model.classifier[1] = torch.nn.Linear(
             classification_model.classifier[1].in_features, len(class_names)
+        )
+    elif 'convnext' in model_name.lower():
+        classification_model = models.convnext_tiny(weights=None)
+        classification_model.classifier[2] = torch.nn.Linear(
+            classification_model.classifier[2].in_features, len(class_names)
+        )
+    elif 'mobilenet' in model_name.lower():
+        classification_model = models.mobilenet_v3_large(weights=None)
+        classification_model.classifier[3] = torch.nn.Linear(
+            classification_model.classifier[3].in_features, len(class_names)
         )
     elif 'resnet' in model_name.lower():
         classification_model = models.resnet101(weights=None)
