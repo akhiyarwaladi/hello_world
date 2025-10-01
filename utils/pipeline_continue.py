@@ -282,9 +282,18 @@ def validate_experiment_dir(experiment_dir: str) -> bool:
     expected_subdirs = ['detection', 'crop_data', 'models']
     has_any_subdir = any((exp_path / subdir).exists() for subdir in expected_subdirs)
 
-    if not has_any_subdir:
-        print(f"[WARNING] Directory doesn't appear to be an experiment (no detection/crop_data/models dirs)")
+    # FIX: Also check for multi-dataset parent structure
+    is_multi_dataset_parent = (exp_path / 'experiments').exists() and (exp_path / 'experiments').is_dir()
+
+    if not has_any_subdir and not is_multi_dataset_parent:
+        print(f"[WARNING] Directory doesn't appear to be an experiment (no detection/crop_data/models or experiments dirs)")
         print(f"   Contents: {[item.name for item in exp_path.iterdir()]}")
+
+        import sys
+        # Skip confirmation if not in interactive terminal
+        if not sys.stdin.isatty():
+            print(f"[AUTO] Non-interactive mode, skipping validation")
+            return True
 
         confirm = input("Continue anyway? (y/n): ")
         if confirm.lower() != 'y':
