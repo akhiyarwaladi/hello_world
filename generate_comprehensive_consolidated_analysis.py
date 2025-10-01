@@ -1,14 +1,21 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Generate COMPREHENSIVE Consolidated Multi-Dataset Analysis
 Includes: Dataset statistics, Detection performance, Classification performance, Table 9 comparisons
 """
 
+import sys
 import json
 import pandas as pd
 import argparse
 from pathlib import Path
 from datetime import datetime
+
+# Fix Windows console encoding for emoji support
+if sys.platform == 'win32':
+    import codecs
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'ignore')
 
 def load_dataset_statistics(experiment_path):
     """Load dataset statistics (augmentation data)"""

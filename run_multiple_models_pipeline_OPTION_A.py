@@ -477,6 +477,10 @@ Stage Control Examples:
   Crop generation:     --start-stage detection --stop-stage crop
   Classification only: --start-stage classification --stop-stage classification
   Analysis only:       --start-stage analysis
+
+Multi-Dataset Continue Examples:
+  Continue experiment: --continue-from optA_20251001_210647 --dataset all
+  Rerun consolidated:  --continue-from optA_20251001_210647 --consolidated-only
         """,
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
@@ -521,6 +525,8 @@ Stage Control Examples:
                        help="Force start from specific stage (auto-detected if not specified)")
     parser.add_argument("--stop-stage", choices=["detection", "crop", "classification", "analysis"],
                        help="Stop after completing this stage (default: run all stages)")
+    parser.add_argument("--consolidated-only", action="store_true",
+                       help="Run only consolidated analysis (for multi-dataset experiments). Requires --continue-from")
     parser.add_argument("--list-experiments", action="store_true",
                        help="List available experiments and exit")
 
@@ -542,37 +548,64 @@ Stage Control Examples:
         print("[MULTI-DATASET] Running Option A pipeline for ALL datasets!")
         print("[FOLDER] Using parent folder structure for organized results")
 
-        # Create short parent experiment name with timestamp
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        parent_exp_name = f"{args.experiment_name}_{timestamp}"
-
-        # Import OptionAResultsManager for parent folder structure
+        # Check if continuing from existing multi-dataset experiment
         from utils.results_manager import create_option_a_manager
-        parent_manager = create_option_a_manager(parent_exp_name)
 
-        print(f"[PARENT] Created: {parent_manager.parent_folder}")
+        if args.continue_from:
+            # Try to reuse existing parent experiment
+            parent_exp_name = args.continue_from.replace("results/", "").replace("results\\", "")
+            parent_folder_path = Path("results") / parent_exp_name
+
+            if parent_folder_path.exists() and (parent_folder_path / "experiments").exists():
+                print(f"[CONTINUE] Continuing multi-dataset experiment: {parent_exp_name}")
+                parent_manager = create_option_a_manager(parent_exp_name)
+                print(f"[PARENT] Reusing: {parent_manager.parent_folder}")
+            else:
+                print(f"[WARNING] Continue target is not a multi-dataset experiment or doesn't exist")
+                print(f"[INFO] Creating new multi-dataset experiment instead")
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                parent_exp_name = f"{args.experiment_name}_{timestamp}"
+                parent_manager = create_option_a_manager(parent_exp_name)
+                print(f"[PARENT] Created: {parent_manager.parent_folder}")
+        else:
+            # Create new multi-dataset experiment
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            parent_exp_name = f"{args.experiment_name}_{timestamp}"
+            parent_manager = create_option_a_manager(parent_exp_name)
+            print(f"[PARENT] Created: {parent_manager.parent_folder}")
 
         datasets_to_run = ["mp_idb_species", "mp_idb_stages", "iml_lifecycle"]
         all_results = []
 
-        for dataset in datasets_to_run:
-            print(f"\n{'='*80}")
-            print(f"[TARGET] STARTING DATASET: {dataset.upper()}")
-            print(f"{'='*80}")
+        # Handle --consolidated-only flag
+        if args.consolidated_only:
+            if not args.continue_from:
+                print("[ERROR] --consolidated-only requires --continue-from to specify existing experiment")
+                return
+            print(f"[CONSOLIDATED-ONLY] Skipping dataset processing, will run consolidated analysis only")
+            # Mark all datasets as completed (assume they exist)
+            for dataset in datasets_to_run:
+                all_results.append((dataset, True))
+        else:
+            # Normal processing: run pipeline for each dataset
+            for dataset in datasets_to_run:
+                print(f"\n{'='*80}")
+                print(f"[TARGET] STARTING DATASET: {dataset.upper()}")
+                print(f"{'='*80}")
 
-            # Create a copy of args with the specific dataset and parent info
-            dataset_args = argparse.Namespace(**vars(args))
-            dataset_args.dataset = dataset
-            dataset_args._parent_manager = parent_manager  # Pass parent manager
-            dataset_args._parent_exp_name = parent_exp_name  # Pass parent name
+                # Create a copy of args with the specific dataset and parent info
+                dataset_args = argparse.Namespace(**vars(args))
+                dataset_args.dataset = dataset
+                dataset_args._parent_manager = parent_manager  # Pass parent manager
+                dataset_args._parent_exp_name = parent_exp_name  # Pass parent name
 
-            try:
-                result = run_pipeline_for_dataset(dataset_args)
-                all_results.append((dataset, result))
-                print(f"[SUCCESS] COMPLETED DATASET: {dataset.upper()}")
-            except Exception as e:
-                print(f"[ERROR] FAILED DATASET: {dataset.upper()} - {e}")
-                all_results.append((dataset, None))
+                try:
+                    result = run_pipeline_for_dataset(dataset_args)
+                    all_results.append((dataset, result))
+                    print(f"[SUCCESS] COMPLETED DATASET: {dataset.upper()}")
+                except Exception as e:
+                    print(f"[ERROR] FAILED DATASET: {dataset.upper()} - {e}")
+                    all_results.append((dataset, None))
 
         # Print final summary
         print(f"\n{'='*80}")
@@ -662,7 +695,9 @@ Generated by Option A Pipeline - Multi-Dataset Mode
                             [sys.executable, str(comprehensive_script), str(parent_manager.parent_folder)],
                             check=True,
                             capture_output=True,
-                            text=True
+                            text=True,
+                            encoding='utf-8',
+                            errors='ignore'
                         )
                         print(result.stdout)
                         print(f"   [SUCCESS] Comprehensive consolidated analysis completed!")
