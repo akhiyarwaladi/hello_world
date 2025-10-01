@@ -1436,8 +1436,9 @@ def run_pipeline_for_dataset(args):
             # Use centralized test data path (shared)
             test_data = crop_data_path / "test"
 
-            # FIX: Define centralized_classification_path before using it
-            centralized_classification_path = results_manager.get_classification_path(cls_exp_name)
+            # FIX: Use direct path for classification folder (works for both ParentStructureManager and ResultsManager)
+            cls_folder_name = f"{cls_exp_name}_classification"
+            centralized_classification_path = results_manager.base_dir / base_exp_name / cls_folder_name
 
             # Create analysis from existing table9_metrics.json (Option A compatible)
             table9_metrics_file = centralized_classification_path / "table9_metrics.json"
