@@ -1428,14 +1428,10 @@ def run_pipeline_for_dataset(args):
             cls_analysis_path = results_manager.create_analysis_path(f"classification_{cls_model_name}")
             analysis_dir = str(cls_analysis_path)
 
-            # Find classification model in CENTRALIZED location
-            if cls_model_name in ["yolo11"]:
-                cls_config_name = "classification_yolov11_classification"
-                classification_model = results_manager.find_experiment_path("training", cls_config_name, cls_exp_name) / "weights" / "best.pt"
-            else:
-                # PyTorch models in centralized location - uses .pt extension
-                model_base = cls_model_name.split('_')[0] if '_' in cls_model_name else cls_model_name
-                classification_model = results_manager.find_experiment_path("training", f"classification_{model_base}", cls_exp_name) / "best.pt"
+            # Find classification model in CENTRALIZED location (Option A structure)
+            # FIX: Use direct path instead of find_experiment_path (which doesn't exist in ResultsManager)
+            cls_folder_name = f"{cls_exp_name}_classification"  # e.g., cls_densen_ce_classification
+            classification_model = results_manager.base_dir / base_exp_name / cls_folder_name / "best.pt"
 
             # Use centralized test data path (shared)
             test_data = crop_data_path / "test"
