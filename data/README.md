@@ -77,8 +77,8 @@ python run_multiple_models_pipeline_OPTION_A.py
 # Models trained (6 architectures × 2 loss functions = 12):
 # - DenseNet121 (Cross-Entropy + Focal Loss)
 # - EfficientNet-B1 (Cross-Entropy + Focal Loss)
-# - ConvNeXt-Tiny (Cross-Entropy + Focal Loss)
-# - MobileNet-V3-Large (Cross-Entropy + Focal Loss)
+# - VGG16 (Cross-Entropy + Focal Loss)
+# - ResNet50 (Cross-Entropy + Focal Loss)
 # - EfficientNet-B2 (Cross-Entropy + Focal Loss)
 # - ResNet101 (Cross-Entropy + Focal Loss)
 ```

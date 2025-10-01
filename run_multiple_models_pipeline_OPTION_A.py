@@ -496,15 +496,23 @@ Stage Control Examples:
     parser.add_argument("--dataset", choices=["mp_idb_species", "mp_idb_stages", "iml_lifecycle", "all"], default="all",
                        help="Dataset selection: mp_idb_species (4 species), mp_idb_stages (4 stages), iml_lifecycle (4 stages), all (run all datasets - DEFAULT)")
     parser.add_argument("--classification-models", nargs="+",
-                       choices=["densenet121", "efficientnet_b1", "convnext_tiny", "mobilenet_v3_large", "efficientnet_b2", "resnet101", "all"],
+                       choices=["densenet121", "efficientnet_b1", "vgg16", "resnet50", "efficientnet_b2", "resnet101", "all"],
                        default=["all"],
-                       help="Classification models: ALL 6 optimized models (DenseNet121, EfficientNet-B1, ConvNeXt-Tiny, MobileNetV3-Large, EfficientNet-B2, ResNet101) - DEFAULT")
+                       help="Classification models: ALL 6 optimized models (DenseNet121, EfficientNet-B1, VGG16, ResNet50, EfficientNet-B2, ResNet101) - DEFAULT")
     parser.add_argument("--exclude-classification", nargs="+",
-                       choices=["densenet121", "efficientnet_b1", "convnext_tiny", "mobilenet_v3_large", "efficientnet_b2", "resnet101"],
+                       choices=["densenet121", "efficientnet_b1", "vgg16", "resnet50", "efficientnet_b2", "resnet101"],
                        default=[],
                        help="Classification models to exclude")
     parser.add_argument("--no-zip", action="store_true",
                        help="Skip creating ZIP archive of results (default: always create ZIP)")
+
+    # Data split ratios
+    parser.add_argument("--train-ratio", type=float, default=0.66,
+                       help="Training set ratio (default: 0.66 = 66%%)")
+    parser.add_argument("--val-ratio", type=float, default=0.17,
+                       help="Validation set ratio (default: 0.17 = 17%%)")
+    parser.add_argument("--test-ratio", type=float, default=0.17,
+                       help="Test set ratio (default: 0.17 = 17%%)")
 
     # Continue/Resume functionality
     parser.add_argument("--continue-from", type=str, metavar="EXPERIMENT_NAME",
@@ -517,6 +525,17 @@ Stage Control Examples:
                        help="List available experiments and exit")
 
     args = parser.parse_args()
+
+    # Validate split ratios
+    total_ratio = args.train_ratio + args.val_ratio + args.test_ratio
+    if abs(total_ratio - 1.0) > 1e-6:
+        print(f"[ERROR] Train/val/test ratios must sum to 1.0, got {total_ratio:.4f}")
+        print(f"  --train-ratio: {args.train_ratio}")
+        print(f"  --val-ratio: {args.val_ratio}")
+        print(f"  --test-ratio: {args.test_ratio}")
+        return
+
+    print(f"[SPLIT RATIOS] Train={args.train_ratio:.0%}, Val={args.val_ratio:.0%}, Test={args.test_ratio:.0%}")
 
     # Handle multi-dataset execution with parent folder structure
     if args.dataset == "all":
@@ -754,25 +773,30 @@ def run_pipeline_for_dataset(args):
 
     # Define classification models - ALL 6 Optimized Models × 2 Loss Functions = 12 Experiments
     # Full comparison of best performing architectures with both Cross-Entropy and Focal Loss
-    base_models = ["densenet121", "efficientnet_b1", "convnext_tiny", "mobilenet_v3_large", "efficientnet_b2", "resnet101"]
+    base_models = ["densenet121", "efficientnet_b1", "vgg16", "resnet50", "efficientnet_b2", "resnet101"]
 
     classification_configs = {}
 
+    # OPTION: Set use_focal_only=True to run only Focal Loss (6 experiments instead of 12)
+    # Based on analysis: Focal Loss is more robust and prevents catastrophic failures
+    use_focal_only = False  # Set to True to use only Focal Loss
+
     # Generate configurations for each model with both loss functions
     for model in base_models:
-        # Configuration 1: Cross-Entropy (Baseline)
-        classification_configs[f"{model}_ce"] = {
-            "type": "pytorch",
-            "script": "scripts/training/12_train_pytorch_classification.py",
-            "model": model,
-            "loss": "cross_entropy",
-            "epochs": 25,        # Standardized epochs
-            "batch": 32,         # Optimized for 224px images
-            "lr": 0.0005,        # FIXED: Optimal LR (was 0.001)
-            "display_name": f"{model.upper()} (Cross-Entropy)"
-        }
+        if not use_focal_only:
+            # Configuration 1: Cross-Entropy (Baseline)
+            classification_configs[f"{model}_ce"] = {
+                "type": "pytorch",
+                "script": "scripts/training/12_train_pytorch_classification.py",
+                "model": model,
+                "loss": "cross_entropy",
+                "epochs": 25,        # Standardized epochs
+                "batch": 32,         # Optimized for 224px images
+                "lr": 0.0005,        # FIXED: Optimal LR (was 0.001)
+                "display_name": f"{model.upper()} (Cross-Entropy)"
+            }
 
-        # Configuration 2: Focal Loss (Novel Contribution)
+        # Configuration 2: Focal Loss (Novel Contribution - Recommended)
         classification_configs[f"{model}_focal"] = {
             "type": "pytorch",
             "script": "scripts/training/12_train_pytorch_classification.py",
@@ -927,7 +951,10 @@ def run_pipeline_for_dataset(args):
 
             # Setup using lifecycle setup script
             # Convert to lifecycle format (now defaults to single-class detection for consistency)
-            setup_result = subprocess.run([sys.executable, "scripts/data_setup/08_setup_lifecycle_for_pipeline.py"],
+            setup_result = subprocess.run([sys.executable, "scripts/data_setup/08_setup_lifecycle_for_pipeline.py",
+                                         "--train-ratio", str(args.train_ratio),
+                                         "--val-ratio", str(args.val_ratio),
+                                         "--test-ratio", str(args.test_ratio)],
                                         capture_output=True, text=True, encoding='utf-8', errors='replace')
             if setup_result.returncode != 0:
                 print(f"[ERROR] Failed to setup IML lifecycle dataset: {setup_result.stderr}")
@@ -951,7 +978,10 @@ def run_pipeline_for_dataset(args):
                 return
 
             # Convert to stage format (now defaults to single-class detection for consistency)
-            setup_result = subprocess.run([sys.executable, "scripts/data_setup/09_setup_kaggle_stage_for_pipeline.py"],
+            setup_result = subprocess.run([sys.executable, "scripts/data_setup/09_setup_kaggle_stage_for_pipeline.py",
+                                         "--train-ratio", str(args.train_ratio),
+                                         "--val-ratio", str(args.val_ratio),
+                                         "--test-ratio", str(args.test_ratio)],
                                         capture_output=True, text=True, encoding='utf-8', errors='replace')
             if setup_result.returncode != 0:
                 print(f"[ERROR] Failed to setup MP-IDB stages dataset: {setup_result.stderr}")
@@ -966,7 +996,10 @@ def run_pipeline_for_dataset(args):
         if not kaggle_ready_path.exists():
             print("[SETUP] Setting up MP-IDB species dataset for pipeline...")
             import subprocess
-            result = subprocess.run([sys.executable, "scripts/data_setup/07_setup_kaggle_species_for_pipeline.py"],
+            result = subprocess.run([sys.executable, "scripts/data_setup/07_setup_kaggle_species_for_pipeline.py",
+                                   "--train-ratio", str(args.train_ratio),
+                                   "--val-ratio", str(args.val_ratio),
+                                   "--test-ratio", str(args.test_ratio)],
                                   capture_output=True, text=True, encoding='utf-8', errors='replace')
             if result.returncode != 0:
                 print(f"[ERROR] Failed to setup MP-IDB species dataset: {result.stderr}")
