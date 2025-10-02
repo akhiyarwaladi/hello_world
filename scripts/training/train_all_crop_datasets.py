@@ -137,7 +137,7 @@ class MultiDatasetTrainer:
         print(f"   Imbalance Level: {config['imbalance_level']}")
 
         if not dataset_path.exists():
-            print(f"❌ Dataset not found: {dataset_path}")
+            print(f"[FAILED] Dataset not found: {dataset_path}")
             return False
 
         # Check splits and compare with expected counts
@@ -147,30 +147,30 @@ class MultiDatasetTrainer:
         for split in ['train', 'val', 'test']:
             split_path = dataset_path / split
             if not split_path.exists():
-                print(f"❌ Split not found: {split_path}")
+                print(f"[FAILED] Split not found: {split_path}")
                 return False
 
             # Count samples
             sample_count = len(list(split_path.rglob("*.jpg")))
             if sample_count == 0:
-                print(f"❌ No samples found in: {split_path}")
+                print(f"[FAILED] No samples found in: {split_path}")
                 return False
 
             expected = expected_samples.get(split, 'unknown')
-            status = "✅" if sample_count == expected else "⚠️"
+            status = "[OK]" if sample_count == expected else "[WARNING]"
             print(f"   {status} {split}: {sample_count} samples (expected: {expected})")
             total_found += sample_count
 
-        print(f"   📊 Total samples: {total_found}")
+        print(f"   [DATA] Total samples: {total_found}")
 
         # Verify classes exist
         train_classes = [d.name for d in (dataset_path / 'train').iterdir() if d.is_dir()]
         expected_classes = config['expected_classes']
 
         if set(train_classes) == set(expected_classes):
-            print(f"   ✅ Classes: {train_classes}")
+            print(f"   [OK] Classes: {train_classes}")
         else:
-            print(f"   ⚠️ Class mismatch:")
+            print(f"   [WARNING] Class mismatch:")
             print(f"     Found: {train_classes}")
             print(f"     Expected: {expected_classes}")
 
@@ -183,7 +183,7 @@ class MultiDatasetTrainer:
 
         experiment_name = f"{dataset_key}_{training_config['name']}"
         print(f"\n{'='*80}")
-        print(f"🚀 TRAINING: {experiment_name}")
+        print(f"[RUN] TRAINING: {experiment_name}")
         print(f"{'='*80}")
         print(f"Dataset: {dataset_config['name']}")
         print(f"Config: {training_config['description']}")
@@ -198,7 +198,7 @@ class MultiDatasetTrainer:
         if imbalance_level == 'extreme':
             # Add more epochs for extreme imbalance
             epochs = int(epochs * 1.2)  # 20% more epochs
-            print(f"📈 Adjusted epochs for extreme imbalance: {training_config['epochs']} → {epochs}")
+            print(f"[CHART] Adjusted epochs for extreme imbalance: {training_config['epochs']} → {epochs}")
 
         try:
             # Initialize trainer directly (no subprocess!)
@@ -229,7 +229,7 @@ class MultiDatasetTrainer:
             # Evaluate model
             evaluation_results = trainer.evaluate_model(save_plots=True)
 
-            print("✅ Training completed successfully!")
+            print("[OK] Training completed successfully!")
 
             # Store results
             self.results[experiment_name] = {
@@ -241,7 +241,7 @@ class MultiDatasetTrainer:
             }
 
             # Print key metrics
-            print(f"📊 Results:")
+            print(f"[DATA] Results:")
             print(f"   Accuracy: {evaluation_results['accuracy']:.4f}")
             print(f"   Balanced Accuracy: {evaluation_results['balanced_accuracy']:.4f}")
             print(f"   Macro F1: {evaluation_results['macro_f1']:.4f}")
@@ -262,14 +262,14 @@ class MultiDatasetTrainer:
     def generate_comparison_report(self):
         """Generate comprehensive comparison report"""
         print(f"\n{'='*80}")
-        print("📊 GENERATING COMPARISON REPORT")
+        print("[DATA] GENERATING COMPARISON REPORT")
         print(f"{'='*80}")
 
         # Filter successful results
         successful_results = {k: v for k, v in self.results.items() if v['status'] == 'success'}
 
         if not successful_results:
-            print("❌ No successful training results to analyze")
+            print("[FAILED] No successful training results to analyze")
             return
 
         # Create summary table
@@ -323,7 +323,7 @@ class MultiDatasetTrainer:
         # Create visualization
         self.create_comparison_plots(df)
 
-        print(f"\n📁 Files saved:")
+        print(f"\n[FILES] Files saved:")
         print(f"   Detailed results: {results_summary_file}")
         print(f"   Summary CSV: {csv_file}")
 
@@ -400,9 +400,9 @@ class MultiDatasetTrainer:
         if configs_to_run is None:
             configs_to_run = list(range(len(self.training_configs)))
 
-        print(f"🎯 MULTI-DATASET TRAINING PIPELINE")
+        print(f"[TARGET] MULTI-DATASET TRAINING PIPELINE")
         print(f"📅 Timestamp: {self.timestamp}")
-        print(f"📊 Datasets to train: {datasets_to_run}")
+        print(f"[DATA] Datasets to train: {datasets_to_run}")
         print(f"⚙️ Configurations to test: {len(configs_to_run)}")
         print(f"🔢 Total experiments: {len(datasets_to_run)} × {len(configs_to_run)} = {len(datasets_to_run) * len(configs_to_run)}")
 
@@ -411,11 +411,11 @@ class MultiDatasetTrainer:
         for dataset_key in datasets_to_run:
             print(f"\n🔍 Checking {dataset_key}:")
             if not self.verify_dataset(dataset_key):
-                print(f"❌ Skipping {dataset_key} due to verification failure")
+                print(f"[FAILED] Skipping {dataset_key} due to verification failure")
                 datasets_to_run.remove(dataset_key)
 
         if not datasets_to_run:
-            print("❌ No valid datasets found!")
+            print("[FAILED] No valid datasets found!")
             return
 
         # Run all experiments
@@ -425,14 +425,14 @@ class MultiDatasetTrainer:
         for dataset_key in datasets_to_run:
             for config_idx in configs_to_run:
                 current_experiment += 1
-                print(f"\n🎯 EXPERIMENT {current_experiment}/{total_experiments}")
+                print(f"\n[TARGET] EXPERIMENT {current_experiment}/{total_experiments}")
                 self.run_single_training(dataset_key, config_idx)
 
         # Generate final report
         self.generate_comparison_report()
 
         print(f"\n🎉 ALL EXPERIMENTS COMPLETED!")
-        print(f"📁 Results saved in: {self.base_results_dir}")
+        print(f"[FILES] Results saved in: {self.base_results_dir}")
 
 def main():
     """Main function"""
@@ -456,7 +456,7 @@ def main():
     if args.quick:
         # Only run ResNet18 weighted configuration for quick testing
         configs_to_run = [1]  # ResNet18_Weighted
-        print("🚀 QUICK MODE: Running only ResNet18 with weighted loss")
+        print("[RUN] QUICK MODE: Running only ResNet18 with weighted loss")
     else:
         # Run all configurations
         configs_to_run = None

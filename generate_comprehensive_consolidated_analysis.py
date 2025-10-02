@@ -264,7 +264,7 @@ def generate_comprehensive_consolidated_analysis(results_dir: str):
 
 ---
 
-## 📊 Dataset Statistics (Augmentation Effects)
+## [DATA] Dataset Statistics (Augmentation Effects)
 
 """
 
@@ -275,7 +275,7 @@ def generate_comprehensive_consolidated_analysis(results_dir: str):
         for stat in all_dataset_stats:
             readme_content += f"| {stat['Dataset']} | {stat['Original_Train']} | {stat['Original_Val']} | {stat['Original_Test']} | {stat['Detection_Aug_Train']} | {stat['Classification_Aug_Train']} | {stat['Detection_Multiplier']} | {stat['Classification_Multiplier']} |\n"
 
-    readme_content += "\n---\n\n## 🎯 Detection Model Performance\n\n"
+    readme_content += "\n---\n\n## [TARGET] Detection Model Performance\n\n"
 
     if all_detection_performance:
         for dataset, models in all_detection_performance.items():
@@ -286,7 +286,7 @@ def generate_comprehensive_consolidated_analysis(results_dir: str):
             for model_name, metrics in models.items():
                 readme_content += f"| {model_name.upper()} | {metrics.get('mAP50', 0):.4f} | {metrics.get('mAP50_95', 0):.4f} | {metrics.get('precision', 0):.4f} | {metrics.get('recall', 0):.4f} |\n"
 
-    readme_content += "\n---\n\n## 🧬 Classification Model Performance (Table 9 Summary)\n\n"
+    readme_content += "\n---\n\n## [CLASS] Classification Model Performance (Table 9 Summary)\n\n"
 
     if all_classification_performance:
         for dataset, table9_data in all_classification_performance.items():
@@ -322,7 +322,7 @@ def generate_comprehensive_consolidated_analysis(results_dir: str):
     readme_content += """
 ---
 
-## 📁 Files Generated
+## [FILES] Files Generated
 
 ### Dataset Statistics:
 - `dataset_statistics_all.csv` - Augmentation effects across all datasets
@@ -343,7 +343,7 @@ def generate_comprehensive_consolidated_analysis(results_dir: str):
 
 ---
 
-## 📈 How to Use
+## [CHART] How to Use
 
 1. **Dataset Comparison**: Check `dataset_statistics_all.csv` for augmentation effects
 2. **Detection Models**: Review `detection_performance_all_datasets.xlsx` for YOLO comparisons
@@ -366,17 +366,17 @@ def generate_comprehensive_consolidated_analysis(results_dir: str):
     print(f"{'='*80}")
     print(f"[LOCATION] {consolidated_path}")
     print(f"\n[FILES] Generated:")
-    print(f"   📊 Dataset Statistics:")
+    print(f"   [DATA] Dataset Statistics:")
     print(f"      - dataset_statistics_all.csv")
-    print(f"   🎯 Detection Performance:")
+    print(f"   [TARGET] Detection Performance:")
     print(f"      - detection_performance_all_datasets.csv")
     print(f"      - detection_performance_all_datasets.xlsx")
-    print(f"   🧬 Classification Performance (3 Loss Functions):")
+    print(f"   [CLASS] Classification Performance (3 Loss Functions):")
     print(f"      - classification_cross_entropy_all_datasets.csv")
     print(f"      - classification_focal_loss_all_datasets.csv")
     print(f"      - classification_class_balanced_all_datasets.csv")
     print(f"      - classification_performance_all_datasets.xlsx (3 sheets)")
-    print(f"   📝 Summary:")
+    print(f"   [NOTE] Summary:")
     print(f"      - comprehensive_summary.json")
     print(f"      - README.md")
 

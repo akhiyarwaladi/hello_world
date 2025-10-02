@@ -312,4 +312,4 @@ if __name__ == "__main__":
     combined = CombinedLoss([(ce_loss, 0.5), (focal_loss, 0.5)])
     print(f"   Loss: {combined(pred, target).item():.4f}")
 
-    print("\nAll tests passed! ✅")
+    print("\nAll tests passed! [OK]")

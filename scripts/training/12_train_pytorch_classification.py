@@ -779,7 +779,7 @@ def main():
     # Save structured metrics for Table 9 analysis (JSON format)
     with open(experiment_path / 'table9_metrics.json', 'w') as f:
         json.dump(table9_metrics, f, indent=2)
-    print(f"[TABLE9] ✅ Structured metrics saved: {experiment_path / 'table9_metrics.json'}")
+    print(f"[TABLE9] [OK] Structured metrics saved: {experiment_path / 'table9_metrics.json'}")
 
     # Save confusion matrix (only if test data exists)
     if test_loader is not None and len(test_dataset) > 0:
