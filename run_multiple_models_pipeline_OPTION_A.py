@@ -628,13 +628,19 @@ Multi-Dataset Continue Examples:
                 consolidated_path = parent_manager.create_consolidated_analysis("cross_dataset_comparison")
 
                 # Create cross-dataset performance comparison
+                # FIX: Calculate model counts first to avoid type errors
+                det_models_list = args.include if args.include else ["yolo10", "yolo11", "yolo12"]
+                cls_models_list = args.classification_models if args.classification_models != ["all"] else ["all_6_models"]
+                det_model_count = len(det_models_list)
+                cls_model_count = len(cls_models_list)
+
                 cross_dataset_summary = {
                     "parent_experiment": parent_exp_name,
                     "total_datasets": len(all_dataset_names),
                     "datasets_analyzed": all_dataset_names,
                     "analysis_timestamp": datetime.now().isoformat(),
-                    "detection_models": args.include if args.include else ["yolo10", "yolo11", "yolo12"],
-                    "classification_models": args.classification_models if args.classification_models != ["all"] else ["all_6_models"],
+                    "detection_models": det_models_list,
+                    "classification_models": cls_models_list,
                     "cross_dataset_performance": {}
                 }
 
@@ -645,17 +651,14 @@ Multi-Dataset Continue Examples:
                     json.dump(cross_dataset_summary, f, indent=2)
 
                 # Create consolidated README
-                # Calculate model counts
-                det_model_count = len(args.include) if args.include else 3
-                cls_model_count = len(args.classification_models) if args.classification_models != ["all"] else 6
-
+                # FIX: Now we have 3 loss functions (Cross-Entropy, Focal Loss, Class-Balanced)
                 readme_content = f"""# Consolidated Multi-Dataset Analysis
 
 ## Experiment Overview
 - **Parent Experiment**: {parent_exp_name}
 - **Datasets Analyzed**: {', '.join(all_dataset_names)}
 - **Detection Models**: {det_model_count} models
-- **Classification Models**: {cls_model_count} models × 2 loss functions
+- **Classification Models**: {cls_model_count} models × 3 loss functions
 - **Generated**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 ## Cross-Dataset Results
@@ -1636,13 +1639,14 @@ Per-Class Performance:
         try:
             import pandas as pd
 
-            # Collect metrics separated by loss function
+            # Collect metrics separated by loss function (CE, Focal, Class-Balanced)
             ce_metrics = {}
             focal_metrics = {}
+            cb_metrics = {}  # NEW: Class-Balanced Loss metrics
 
             for cls_model_name in classification_models_trained:
                 cls_config = classification_configs[cls_model_name]
-                # FIX: Use full model name to avoid collisions (efficientnet, resnet, densenet variants)
+                # FIX: Use full model name to avoid collisions (efficientnet, resnet, densenet, swin variants)
                 model_name = cls_config['model']
                 if model_name.startswith('efficientnet_b'):
                     # Keep full efficientnet_b1 or efficientnet_b2
@@ -1653,10 +1657,22 @@ Per-Class Performance:
                 elif model_name.startswith('densenet'):
                     # Keep densenet121, densenet161, etc distinct
                     model_short = model_name  # Keep full name
+                elif model_name.startswith('swin'):
+                    # Keep swin_t, swin_s, swin_b distinct
+                    model_short = model_name  # Keep full name
                 else:
                     model_short = model_name[:6] if len(model_name) > 6 else model_name
 
-                loss_short = 'ce' if cls_config['loss'] == 'cross_entropy' else 'focal'
+                # Get loss short name
+                if cls_config['loss'] == 'cross_entropy':
+                    loss_short = 'ce'
+                elif cls_config['loss'] == 'focal':
+                    loss_short = 'focal'
+                elif cls_config['loss'] == 'class_balanced':
+                    loss_short = 'cb'
+                else:
+                    loss_short = cls_config['loss'][:5]  # fallback
+
                 cls_exp_name = f"cls_{model_short}_{loss_short}"
 
                 centralized_classification_path = results_manager.get_classification_path(cls_exp_name)
@@ -1667,10 +1683,13 @@ Per-Class Performance:
                     with open(table9_metrics_file, 'r') as f:
                         metrics = json.load(f)
 
+                    # Store in appropriate dict based on loss function
                     if loss_short == 'ce':
                         ce_metrics[model_short] = metrics
-                    else:
+                    elif loss_short == 'focal':
                         focal_metrics[model_short] = metrics
+                    elif loss_short == 'cb':
+                        cb_metrics[model_short] = metrics
 
             def create_pivot_table(metrics_dict, loss_name):
                 if not metrics_dict:
@@ -1720,9 +1739,10 @@ Per-Class Performance:
 
                 return df
 
-            # Create pivot tables
+            # Create pivot tables for all 3 loss functions
             ce_pivot = create_pivot_table(ce_metrics, 'Cross Entropy')
             focal_pivot = create_pivot_table(focal_metrics, 'Focal Loss')
+            cb_pivot = create_pivot_table(cb_metrics, 'Class-Balanced')  # NEW
 
             # FIX: Save to correct experiment directory
             # For multi-dataset experiments, base_dir already points to experiment folder
@@ -1752,6 +1772,14 @@ Per-Class Performance:
                     # Also save as CSV
                     focal_csv = centralized_dir / 'table9_focal_loss.csv'
                     focal_pivot.to_csv(focal_csv)
+
+                if cb_pivot is not None:
+                    cb_pivot.to_excel(writer, sheet_name='Class_Balanced')
+                    print(f"   [SUCCESS] Class-Balanced pivot: {cb_pivot.shape[0]} rows x {cb_pivot.shape[1]} cols")
+
+                    # Also save as CSV
+                    cb_csv = centralized_dir / 'table9_class_balanced.csv'
+                    cb_pivot.to_csv(cb_csv)
 
             print(f"   [EXCEL] ✅ Table 9 pivot saved: {output_file}")
 

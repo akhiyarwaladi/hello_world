@@ -34,9 +34,10 @@ def load_detection_performance(experiment_path):
     return None
 
 def load_table9_data(experiment_path):
-    """Load Table 9 classification pivot data"""
+    """Load Table 9 classification pivot data (CE, Focal, Class-Balanced)"""
     table9_ce = experiment_path / "table9_cross_entropy.csv"
     table9_focal = experiment_path / "table9_focal_loss.csv"
+    table9_cb = experiment_path / "table9_class_balanced.csv"  # NEW
 
     data = {}
     if table9_ce.exists():
@@ -46,6 +47,10 @@ def load_table9_data(experiment_path):
     if table9_focal.exists():
         df_focal = pd.read_csv(table9_focal)
         data['focal_loss'] = df_focal.to_dict('records')
+
+    if table9_cb.exists():
+        df_cb = pd.read_csv(table9_cb)
+        data['class_balanced'] = df_cb.to_dict('records')
 
     return data if data else None
 
@@ -178,9 +183,10 @@ def generate_comprehensive_consolidated_analysis(results_dir: str):
     # 3. SAVE CLASSIFICATION PERFORMANCE (TABLE 9)
     # ========================================
     if all_classification_performance:
-        # Cross-Entropy Comparison
+        # Cross-Entropy, Focal Loss, and Class-Balanced Comparison
         ce_comparison = []
         focal_comparison = []
+        cb_comparison = []  # NEW
 
         for dataset, table9_data in all_classification_performance.items():
             if 'cross_entropy' in table9_data:
@@ -194,6 +200,12 @@ def generate_comprehensive_consolidated_analysis(results_dir: str):
                     row_copy = row.copy()
                     row_copy['Dataset'] = dataset
                     focal_comparison.append(row_copy)
+
+            if 'class_balanced' in table9_data:
+                for row in table9_data['class_balanced']:
+                    row_copy = row.copy()
+                    row_copy['Dataset'] = dataset
+                    cb_comparison.append(row_copy)
 
         # Save Cross-Entropy comparison
         if ce_comparison:
@@ -209,14 +221,23 @@ def generate_comprehensive_consolidated_analysis(results_dir: str):
             focal_df.to_csv(focal_csv, index=False)
             print(f"[SAVE] Classification (Focal): {focal_csv.name}")
 
-        # Save combined Excel
-        if ce_comparison or focal_comparison:
+        # Save Class-Balanced comparison
+        if cb_comparison:
+            cb_df = pd.DataFrame(cb_comparison)
+            cb_csv = consolidated_path / "classification_class_balanced_all_datasets.csv"
+            cb_df.to_csv(cb_csv, index=False)
+            print(f"[SAVE] Classification (Class-Balanced): {cb_csv.name}")
+
+        # Save combined Excel (3 sheets now)
+        if ce_comparison or focal_comparison or cb_comparison:
             classification_xlsx = consolidated_path / "classification_performance_all_datasets.xlsx"
             with pd.ExcelWriter(classification_xlsx) as writer:
                 if ce_comparison:
                     ce_df.to_excel(writer, sheet_name="Cross-Entropy", index=False)
                 if focal_comparison:
                     focal_df.to_excel(writer, sheet_name="Focal Loss", index=False)
+                if cb_comparison:
+                    cb_df.to_excel(writer, sheet_name="Class-Balanced", index=False)
             print(f"[SAVE] Classification Excel: {classification_xlsx.name}")
 
         # Add to consolidated data
@@ -289,6 +310,15 @@ def generate_comprehensive_consolidated_analysis(results_dir: str):
                         if key not in ['Class', 'Metric', 'Dataset']:
                             readme_content += f"- {key}: {val}\n"
 
+            if 'class_balanced' in table9_data:
+                overall_cb = [row for row in table9_data['class_balanced'] if row.get('Class') == 'Overall' and row.get('Metric') == 'accuracy']
+                if overall_cb:
+                    readme_content += "\n**Class-Balanced:**\n"
+                    row = overall_cb[0]
+                    for key, val in row.items():
+                        if key not in ['Class', 'Metric', 'Dataset']:
+                            readme_content += f"- {key}: {val}\n"
+
     readme_content += """
 ---
 
@@ -304,7 +334,8 @@ def generate_comprehensive_consolidated_analysis(results_dir: str):
 ### Classification Performance:
 - `classification_cross_entropy_all_datasets.csv` - Cross-Entropy results
 - `classification_focal_loss_all_datasets.csv` - Focal Loss results
-- `classification_performance_all_datasets.xlsx` - Combined Excel (2 sheets)
+- `classification_class_balanced_all_datasets.csv` - Class-Balanced results
+- `classification_performance_all_datasets.xlsx` - Combined Excel (3 sheets)
 
 ### Summary:
 - `comprehensive_summary.json` - Complete data in JSON format
@@ -316,7 +347,7 @@ def generate_comprehensive_consolidated_analysis(results_dir: str):
 
 1. **Dataset Comparison**: Check `dataset_statistics_all.csv` for augmentation effects
 2. **Detection Models**: Review `detection_performance_all_datasets.xlsx` for YOLO comparisons
-3. **Classification Models**: Open `classification_performance_all_datasets.xlsx` for detailed analysis
+3. **Classification Models**: Open `classification_performance_all_datasets.xlsx` for detailed analysis (3 loss functions)
 4. **Raw Data**: Use `comprehensive_summary.json` for programmatic access
 
 ---
@@ -340,10 +371,11 @@ def generate_comprehensive_consolidated_analysis(results_dir: str):
     print(f"   🎯 Detection Performance:")
     print(f"      - detection_performance_all_datasets.csv")
     print(f"      - detection_performance_all_datasets.xlsx")
-    print(f"   🧬 Classification Performance:")
+    print(f"   🧬 Classification Performance (3 Loss Functions):")
     print(f"      - classification_cross_entropy_all_datasets.csv")
     print(f"      - classification_focal_loss_all_datasets.csv")
-    print(f"      - classification_performance_all_datasets.xlsx")
+    print(f"      - classification_class_balanced_all_datasets.csv")
+    print(f"      - classification_performance_all_datasets.xlsx (3 sheets)")
     print(f"   📝 Summary:")
     print(f"      - comprehensive_summary.json")
     print(f"      - README.md")
