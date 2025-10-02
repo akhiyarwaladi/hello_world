@@ -146,6 +146,19 @@ def get_model(model_name, num_classes=4, pretrained=True):
         # Modify final layer
         model.heads.head = nn.Linear(model.heads.head.in_features, num_classes)
 
+    elif model_name.startswith('swin'):
+        if model_name == 'swin_t':
+            model = models.swin_t(weights='IMAGENET1K_V1' if pretrained else None)
+        elif model_name == 'swin_s':
+            model = models.swin_s(weights='IMAGENET1K_V1' if pretrained else None)
+        elif model_name == 'swin_b':
+            model = models.swin_b(weights='IMAGENET1K_V1' if pretrained else None)
+        else:
+            raise ValueError(f"Unknown Swin model: {model_name}")
+
+        # Modify final layer
+        model.head = nn.Linear(model.head.in_features, num_classes)
+
     else:
         raise ValueError(f"Unsupported model: {model_name}")
 
@@ -370,12 +383,14 @@ def main():
                        help="Batch size (default: 32 optimized for 224px images)")
     parser.add_argument("--lr", type=float, default=0.0005,  # OPTIMAL: Changed from 0.001 to 0.0005
                        help="Learning rate (default: 0.0005 optimized for focal loss)")
-    parser.add_argument("--loss", choices=['cross_entropy', 'focal'], default='focal',  # OPTIMAL: Changed to focal
-                       help="Loss function type (focal recommended for medical AI class imbalance)")
+    parser.add_argument("--loss", choices=['cross_entropy', 'focal', 'class_balanced'], default='focal',
+                       help="Loss function type (focal/class_balanced recommended for medical AI)")
     parser.add_argument("--focal_alpha", type=float, default=1.0,
                        help="Focal loss alpha parameter")
     parser.add_argument("--focal_gamma", type=float, default=2.0,
                        help="Focal loss gamma parameter")
+    parser.add_argument("--cb_beta", type=float, default=0.9999,
+                       help="Class-Balanced loss beta parameter (default: 0.9999)")
     parser.add_argument("--image_size", type=int, default=224,
                        help="Input image size")
     parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu",
@@ -559,6 +574,27 @@ def main():
         print(f"[FOCAL] Alpha: {args.focal_alpha}, Gamma: {args.focal_gamma}")
         criterion = FocalLoss(alpha=args.focal_alpha, gamma=args.focal_gamma)
         # Note: Focal loss has built-in handling for imbalance, so we don't use class weights
+    elif args.loss == 'class_balanced':
+        # Import Class-Balanced Loss from advanced_losses
+        import sys
+        from pathlib import Path
+        project_root = Path(__file__).parent.parent.parent
+        sys.path.insert(0, str(project_root))
+        from scripts.training.advanced_losses import ClassBalancedLoss
+
+        # Calculate samples per class from training dataset
+        from collections import Counter
+        all_labels = [label for _, label in train_dataset]
+        class_counts = Counter(all_labels)
+        samples_per_class = [class_counts[i] for i in range(num_classes)]
+
+        # Get beta parameter (default: 0.9999)
+        cb_beta = args.cb_beta if hasattr(args, 'cb_beta') else 0.9999
+        criterion = ClassBalancedLoss(samples_per_class, beta=cb_beta, loss_type='ce')
+
+        print(f"[CLASS_BALANCED] Beta: {cb_beta}")
+        print(f"[CLASS_BALANCED] Samples per class: {samples_per_class}")
+        print(f"[CLASS_BALANCED] Imbalance ratio: {max(samples_per_class)/min(samples_per_class):.2f}:1")
     else:
         criterion = nn.CrossEntropyLoss(weight=class_weights)  # Use class weights for balanced loss
     optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)  # AdamW for better performance
