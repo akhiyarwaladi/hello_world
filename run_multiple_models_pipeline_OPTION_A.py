@@ -645,13 +645,17 @@ Multi-Dataset Continue Examples:
                     json.dump(cross_dataset_summary, f, indent=2)
 
                 # Create consolidated README
+                # Calculate model counts
+                det_model_count = len(args.include) if args.include else 3
+                cls_model_count = len(args.classification_models) if args.classification_models != ["all"] else 6
+
                 readme_content = f"""# Consolidated Multi-Dataset Analysis
 
 ## Experiment Overview
 - **Parent Experiment**: {parent_exp_name}
 - **Datasets Analyzed**: {', '.join(all_dataset_names)}
-- **Detection Models**: {len(args.include if args.include else 3)} models
-- **Classification Models**: {len(args.classification_models) if args.classification_models != ["all"] else 6} models × 2 loss functions
+- **Detection Models**: {det_model_count} models
+- **Classification Models**: {cls_model_count} models × 2 loss functions
 - **Generated**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 ## Cross-Dataset Results
