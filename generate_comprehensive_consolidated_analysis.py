@@ -34,16 +34,11 @@ def load_detection_performance(experiment_path):
     return None
 
 def load_table9_data(experiment_path):
-    """Load Table 9 classification pivot data (CE, Focal, Class-Balanced)"""
-    table9_ce = experiment_path / "table9_cross_entropy.csv"
+    """Load Table 9 classification pivot data (Focal, Class-Balanced ONLY)"""
     table9_focal = experiment_path / "table9_focal_loss.csv"
-    table9_cb = experiment_path / "table9_class_balanced.csv"  # NEW
+    table9_cb = experiment_path / "table9_class_balanced.csv"
 
     data = {}
-    if table9_ce.exists():
-        df_ce = pd.read_csv(table9_ce)
-        data['cross_entropy'] = df_ce.to_dict('records')
-
     if table9_focal.exists():
         df_focal = pd.read_csv(table9_focal)
         data['focal_loss'] = df_focal.to_dict('records')
@@ -183,18 +178,11 @@ def generate_comprehensive_consolidated_analysis(results_dir: str):
     # 3. SAVE CLASSIFICATION PERFORMANCE (TABLE 9)
     # ========================================
     if all_classification_performance:
-        # Cross-Entropy, Focal Loss, and Class-Balanced Comparison
-        ce_comparison = []
+        # Focal Loss and Class-Balanced Comparison (NO Cross-Entropy)
         focal_comparison = []
-        cb_comparison = []  # NEW
+        cb_comparison = []
 
         for dataset, table9_data in all_classification_performance.items():
-            if 'cross_entropy' in table9_data:
-                for row in table9_data['cross_entropy']:
-                    row_copy = row.copy()
-                    row_copy['Dataset'] = dataset
-                    ce_comparison.append(row_copy)
-
             if 'focal_loss' in table9_data:
                 for row in table9_data['focal_loss']:
                     row_copy = row.copy()
@@ -206,13 +194,6 @@ def generate_comprehensive_consolidated_analysis(results_dir: str):
                     row_copy = row.copy()
                     row_copy['Dataset'] = dataset
                     cb_comparison.append(row_copy)
-
-        # Save Cross-Entropy comparison
-        if ce_comparison:
-            ce_df = pd.DataFrame(ce_comparison)
-            ce_csv = consolidated_path / "classification_cross_entropy_all_datasets.csv"
-            ce_df.to_csv(ce_csv, index=False)
-            print(f"[SAVE] Classification (CE): {ce_csv.name}")
 
         # Save Focal Loss comparison
         if focal_comparison:
@@ -228,12 +209,10 @@ def generate_comprehensive_consolidated_analysis(results_dir: str):
             cb_df.to_csv(cb_csv, index=False)
             print(f"[SAVE] Classification (Class-Balanced): {cb_csv.name}")
 
-        # Save combined Excel (3 sheets now)
-        if ce_comparison or focal_comparison or cb_comparison:
+        # Save combined Excel (2 sheets: Focal and Class-Balanced)
+        if focal_comparison or cb_comparison:
             classification_xlsx = consolidated_path / "classification_performance_all_datasets.xlsx"
             with pd.ExcelWriter(classification_xlsx) as writer:
-                if ce_comparison:
-                    ce_df.to_excel(writer, sheet_name="Cross-Entropy", index=False)
                 if focal_comparison:
                     focal_df.to_excel(writer, sheet_name="Focal Loss", index=False)
                 if cb_comparison:
@@ -292,19 +271,10 @@ def generate_comprehensive_consolidated_analysis(results_dir: str):
         for dataset, table9_data in all_classification_performance.items():
             readme_content += f"\n### {dataset.upper()}\n\n"
 
-            if 'cross_entropy' in table9_data:
-                overall_ce = [row for row in table9_data['cross_entropy'] if row.get('Class') == 'Overall' and row.get('Metric') == 'accuracy']
-                if overall_ce:
-                    readme_content += "**Cross-Entropy:**\n"
-                    row = overall_ce[0]
-                    for key, val in row.items():
-                        if key not in ['Class', 'Metric', 'Dataset']:
-                            readme_content += f"- {key}: {val}\n"
-
             if 'focal_loss' in table9_data:
                 overall_focal = [row for row in table9_data['focal_loss'] if row.get('Class') == 'Overall' and row.get('Metric') == 'accuracy']
                 if overall_focal:
-                    readme_content += "\n**Focal Loss:**\n"
+                    readme_content += "**Focal Loss:**\n"
                     row = overall_focal[0]
                     for key, val in row.items():
                         if key not in ['Class', 'Metric', 'Dataset']:
@@ -332,10 +302,9 @@ def generate_comprehensive_consolidated_analysis(results_dir: str):
 - `detection_performance_all_datasets.xlsx` - Detection comparison (Excel)
 
 ### Classification Performance:
-- `classification_cross_entropy_all_datasets.csv` - Cross-Entropy results
 - `classification_focal_loss_all_datasets.csv` - Focal Loss results
 - `classification_class_balanced_all_datasets.csv` - Class-Balanced results
-- `classification_performance_all_datasets.xlsx` - Combined Excel (3 sheets)
+- `classification_performance_all_datasets.xlsx` - Combined Excel (2 sheets)
 
 ### Summary:
 - `comprehensive_summary.json` - Complete data in JSON format
@@ -347,7 +316,7 @@ def generate_comprehensive_consolidated_analysis(results_dir: str):
 
 1. **Dataset Comparison**: Check `dataset_statistics_all.csv` for augmentation effects
 2. **Detection Models**: Review `detection_performance_all_datasets.xlsx` for YOLO comparisons
-3. **Classification Models**: Open `classification_performance_all_datasets.xlsx` for detailed analysis (3 loss functions)
+3. **Classification Models**: Open `classification_performance_all_datasets.xlsx` for detailed analysis (2 loss functions)
 4. **Raw Data**: Use `comprehensive_summary.json` for programmatic access
 
 ---
@@ -371,11 +340,10 @@ def generate_comprehensive_consolidated_analysis(results_dir: str):
     print(f"   [TARGET] Detection Performance:")
     print(f"      - detection_performance_all_datasets.csv")
     print(f"      - detection_performance_all_datasets.xlsx")
-    print(f"   [CLASS] Classification Performance (3 Loss Functions):")
-    print(f"      - classification_cross_entropy_all_datasets.csv")
+    print(f"   [CLASS] Classification Performance (2 Loss Functions):")
     print(f"      - classification_focal_loss_all_datasets.csv")
     print(f"      - classification_class_balanced_all_datasets.csv")
-    print(f"      - classification_performance_all_datasets.xlsx (3 sheets)")
+    print(f"      - classification_performance_all_datasets.xlsx (2 sheets)")
     print(f"   [NOTE] Summary:")
     print(f"      - comprehensive_summary.json")
     print(f"      - README.md")
