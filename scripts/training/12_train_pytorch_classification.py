@@ -375,7 +375,8 @@ def main():
                                'mobilenet_v2', 'mobilenet_v3_small', 'mobilenet_v3_large',
                                'densenet121', 'densenet161', 'densenet169',
                                'vgg16', 'vgg19',  # VGG models for strong feature extraction
-                               'vit_b_16', 'vit_b_32'],  # Keep ViT but optimize CPU usage
+                               'vit_b_16', 'vit_b_32',  # Keep ViT but optimize CPU usage
+                               'swin_t', 'swin_s', 'swin_b'],  # Swin Transformer models
                        help="Model architecture (EfficientNet-B0 recommended for medical AI)")
     parser.add_argument("--epochs", type=int, default=25,  # Increased from 10
                        help="Number of epochs (default: 25 for better convergence)")
@@ -576,10 +577,7 @@ def main():
         # Note: Focal loss has built-in handling for imbalance, so we don't use class weights
     elif args.loss == 'class_balanced':
         # Import Class-Balanced Loss from advanced_losses
-        import sys
-        from pathlib import Path
-        project_root = Path(__file__).parent.parent.parent
-        sys.path.insert(0, str(project_root))
+        # Note: pathlib.Path and project_root already imported at top of file
         from scripts.training.advanced_losses import ClassBalancedLoss
 
         # Calculate samples per class from training dataset
