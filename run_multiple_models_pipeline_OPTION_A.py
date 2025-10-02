@@ -810,9 +810,10 @@ def run_pipeline_for_dataset(args):
         print("[ERROR] No detection models to run after exclusions!")
         return
 
-    # Define classification models - ALL 6 Optimized Models × 2 Loss Functions = 12 Experiments
-    # Full comparison of best performing architectures with both Cross-Entropy and Focal Loss
-    base_models = ["densenet121", "efficientnet_b1", "vgg16", "resnet50", "efficientnet_b2", "resnet101"]
+    # Define classification models - 6 Optimized Models × 3 Loss Functions = 18 Experiments
+    # VGG16 replaced with Swin Transformer (state-of-the-art for medical imaging)
+    # Added Class-Balanced Loss (auto-handles extreme imbalance)
+    base_models = ["densenet121", "efficientnet_b1", "swin_t", "resnet50", "efficientnet_b2", "resnet101"]
 
     classification_configs = {}
 
@@ -847,6 +848,19 @@ def run_pipeline_for_dataset(args):
             "batch": 32,         # Optimized for 224px images
             "lr": 0.0005,        # Lower LR for focal loss stability
             "display_name": f"{model.upper()} (Focal Loss)"
+        }
+
+        # Configuration 3: Class-Balanced Loss (NEW - Auto-handles extreme imbalance)
+        classification_configs[f"{model}_cb"] = {
+            "type": "pytorch",
+            "script": "scripts/training/12_train_pytorch_classification.py",
+            "model": model,
+            "loss": "class_balanced",
+            "cb_beta": 0.9999,   # Hyperparameter for effective number calculation
+            "epochs": 25,        # Standardized epochs
+            "batch": 32,         # Optimized for 224px images
+            "lr": 0.0005,        # Optimal LR
+            "display_name": f"{model.upper()} (Class-Balanced)"
         }
 
     # Determine which classification models to run
@@ -1346,7 +1360,7 @@ def run_pipeline_for_dataset(args):
                 continue
 
             cls_config = classification_configs[cls_model_name]
-            # FIX: Use full model name to avoid collision between efficientnet_b1 and efficientnet_b2
+            # FIX: Use full model name to avoid collisions (efficientnet, resnet, densenet, swin variants)
             model_name = cls_config['model']
             if model_name.startswith('efficientnet_b'):
                 # Keep full efficientnet_b1 or efficientnet_b2
@@ -1357,10 +1371,22 @@ def run_pipeline_for_dataset(args):
             elif model_name.startswith('densenet'):
                 # Keep densenet121, densenet161, etc distinct
                 model_short = model_name  # Keep full name
+            elif model_name.startswith('swin'):
+                # Keep swin_t, swin_s, swin_b distinct
+                model_short = model_name  # Keep full name
             else:
                 model_short = model_name[:6] if len(model_name) > 6 else model_name
 
-            loss_short = 'ce' if cls_config['loss'] == 'cross_entropy' else 'focal'
+            # Get loss short name
+            if cls_config['loss'] == 'cross_entropy':
+                loss_short = 'ce'
+            elif cls_config['loss'] == 'focal':
+                loss_short = 'focal'
+            elif cls_config['loss'] == 'class_balanced':
+                loss_short = 'cb'
+            else:
+                loss_short = cls_config['loss'][:5]  # fallback
+
             cls_exp_name = f"cls_{model_short}_{loss_short}"
 
             print(f"   [START] Training {cls_config.get('display_name', cls_model_name.upper())} (SHARED)")
@@ -1491,7 +1517,7 @@ def run_pipeline_for_dataset(args):
             # Use same simplified naming as training stage
             cls_config = classification_configs[cls_model_name]
 
-            # FIX: Use full model name to avoid collision between efficientnet_b1 and efficientnet_b2
+            # FIX: Use full model name to avoid collisions (efficientnet, resnet, densenet, swin variants)
             model_name = cls_config['model']
             if model_name.startswith('efficientnet_b'):
                 # Keep full efficientnet_b1 or efficientnet_b2
@@ -1502,10 +1528,22 @@ def run_pipeline_for_dataset(args):
             elif model_name.startswith('densenet'):
                 # Keep densenet121, densenet161, etc distinct
                 model_short = model_name  # Keep full name
+            elif model_name.startswith('swin'):
+                # Keep swin_t, swin_s, swin_b distinct
+                model_short = model_name  # Keep full name
             else:
                 model_short = model_name[:6] if len(model_name) > 6 else model_name
 
-            loss_short = 'ce' if cls_config['loss'] == 'cross_entropy' else 'focal'
+            # Get loss short name
+            if cls_config['loss'] == 'cross_entropy':
+                loss_short = 'ce'
+            elif cls_config['loss'] == 'focal':
+                loss_short = 'focal'
+            elif cls_config['loss'] == 'class_balanced':
+                loss_short = 'cb'
+            else:
+                loss_short = cls_config['loss'][:5]  # fallback
+
             cls_exp_name = f"cls_{model_short}_{loss_short}"
 
             # Use centralized analysis path for classification
