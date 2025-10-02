@@ -1351,6 +1351,12 @@ def run_pipeline_for_dataset(args):
             if model_name.startswith('efficientnet_b'):
                 # Keep full efficientnet_b1 or efficientnet_b2
                 model_short = model_name[:15] if len(model_name) >= 15 else model_name
+            elif model_name.startswith('resnet'):
+                # Keep resnet50, resnet101 distinct
+                model_short = model_name  # Keep full name
+            elif model_name.startswith('densenet'):
+                # Keep densenet121, densenet161, etc distinct
+                model_short = model_name  # Keep full name
             else:
                 model_short = model_name[:6] if len(model_name) > 6 else model_name
 
@@ -1490,6 +1496,12 @@ def run_pipeline_for_dataset(args):
             if model_name.startswith('efficientnet_b'):
                 # Keep full efficientnet_b1 or efficientnet_b2
                 model_short = model_name[:15] if len(model_name) >= 15 else model_name
+            elif model_name.startswith('resnet'):
+                # Keep resnet50, resnet101 distinct
+                model_short = model_name  # Keep full name
+            elif model_name.startswith('densenet'):
+                # Keep densenet121, densenet161, etc distinct
+                model_short = model_name  # Keep full name
             else:
                 model_short = model_name[:6] if len(model_name) > 6 else model_name
 
@@ -1592,11 +1604,17 @@ Per-Class Performance:
 
             for cls_model_name in classification_models_trained:
                 cls_config = classification_configs[cls_model_name]
-                # FIX: Use full model name to avoid collision between efficientnet_b1 and efficientnet_b2
+                # FIX: Use full model name to avoid collisions (efficientnet, resnet, densenet variants)
                 model_name = cls_config['model']
                 if model_name.startswith('efficientnet_b'):
                     # Keep full efficientnet_b1 or efficientnet_b2
                     model_short = model_name[:15] if len(model_name) >= 15 else model_name
+                elif model_name.startswith('resnet'):
+                    # Keep resnet50, resnet101 distinct
+                    model_short = model_name  # Keep full name
+                elif model_name.startswith('densenet'):
+                    # Keep densenet121, densenet161, etc distinct
+                    model_short = model_name  # Keep full name
                 else:
                     model_short = model_name[:6] if len(model_name) > 6 else model_name
 
