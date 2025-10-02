@@ -385,12 +385,12 @@ def create_master_summary_excel(centralized_dir, master_summary):
         try:
             with pd.ExcelWriter(excel_path, engine='openpyxl') as writer:
                 pd.DataFrame(summary_data).to_excel(writer, sheet_name='Master_Summary', index=False)
-            print(f"[EXCEL] ✅ Master summary saved: {excel_path}")
+            print(f"[EXCEL] [OK] Master summary saved: {excel_path}")
         except ImportError:
             # Fallback to xlsxwriter if openpyxl not available
             with pd.ExcelWriter(excel_path, engine='xlsxwriter') as writer:
                 pd.DataFrame(summary_data).to_excel(writer, sheet_name='Master_Summary', index=False)
-            print(f"[EXCEL] ✅ Master summary saved (xlsxwriter): {excel_path}")
+            print(f"[EXCEL] [OK] Master summary saved (xlsxwriter): {excel_path}")
 
     except Exception as e:
         print(f"[WARNING] Could not create Excel master summary: {e}")
@@ -449,12 +449,12 @@ def create_experiment_summary_excel(exp_dir, summary_data):
         try:
             with pd.ExcelWriter(excel_path, engine='openpyxl') as writer:
                 pd.DataFrame(excel_data).to_excel(writer, sheet_name='Experiment_Summary', index=False)
-            print(f"[EXCEL] ✅ Experiment summary saved: {excel_path}")
+            print(f"[EXCEL] [OK] Experiment summary saved: {excel_path}")
         except ImportError:
             # Fallback to xlsxwriter if openpyxl not available
             with pd.ExcelWriter(excel_path, engine='xlsxwriter') as writer:
                 pd.DataFrame(excel_data).to_excel(writer, sheet_name='Experiment_Summary', index=False)
-            print(f"[EXCEL] ✅ Experiment summary saved (xlsxwriter): {excel_path}")
+            print(f"[EXCEL] [OK] Experiment summary saved (xlsxwriter): {excel_path}")
 
     except Exception as e:
         print(f"[WARNING] Could not create Excel experiment summary: {e}")
@@ -873,12 +873,12 @@ def run_pipeline_for_dataset(args):
     if "all" in args.classification_models:
         selected_classification = all_classification_models
     else:
-        # Expand base model names to their variants (model_ce and model_focal)
+        # FIX: Expand base model names to ALL 3 variants (ce, focal, cb)
         selected_classification = []
         for model in args.classification_models:
             if model in base_models:
-                # Expand base model to both variants
-                selected_classification.extend([f"{model}_ce", f"{model}_focal"])
+                # Expand base model to ALL 3 variants
+                selected_classification.extend([f"{model}_ce", f"{model}_focal", f"{model}_cb"])
             elif model in all_classification_models:
                 # Already a full config name
                 selected_classification.append(model)
@@ -1781,7 +1781,7 @@ Per-Class Performance:
                     cb_csv = centralized_dir / 'table9_class_balanced.csv'
                     cb_pivot.to_csv(cb_csv)
 
-            print(f"   [EXCEL] ✅ Table 9 pivot saved: {output_file}")
+            print(f"   [EXCEL] [OK] Table 9 pivot saved: {output_file}")
 
         except Exception as e:
             print(f"   [ERROR] Failed to create Table 9 pivot: {e}")

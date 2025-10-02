@@ -604,12 +604,12 @@ Based on the preliminary results:
         try:
             with pd.ExcelWriter(self.output_dir / "detailed_results.xlsx", engine='openpyxl') as writer:
                 df.to_excel(writer, sheet_name='All_Experiments', index=False)
-            print(f"[EXCEL] ✅ Detailed results saved: {self.output_dir / 'detailed_results.xlsx'}")
+            print(f"[EXCEL] [OK] Detailed results saved: {self.output_dir / 'detailed_results.xlsx'}")
         except ImportError:
             # Fallback to xlsxwriter if openpyxl not available
             with pd.ExcelWriter(self.output_dir / "detailed_results.xlsx", engine='xlsxwriter') as writer:
                 df.to_excel(writer, sheet_name='All_Experiments', index=False)
-            print(f"[EXCEL] ✅ Detailed results saved (xlsxwriter): {self.output_dir / 'detailed_results.xlsx'}")
+            print(f"[EXCEL] [OK] Detailed results saved (xlsxwriter): {self.output_dir / 'detailed_results.xlsx'}")
 
         print(f"Creating performance comparison for {len(df)} experiments")
 
@@ -708,12 +708,12 @@ Based on the preliminary results:
         try:
             with pd.ExcelWriter(self.output_dir / "summary_statistics.xlsx", engine='openpyxl') as writer:
                 pd.DataFrame(summary_data).to_excel(writer, sheet_name='Summary_Statistics', index=False)
-            print(f"[EXCEL] ✅ Summary statistics saved: {self.output_dir / 'summary_statistics.xlsx'}")
+            print(f"[EXCEL] [OK] Summary statistics saved: {self.output_dir / 'summary_statistics.xlsx'}")
         except ImportError:
             # Fallback to xlsxwriter if openpyxl not available
             with pd.ExcelWriter(self.output_dir / "summary_statistics.xlsx", engine='xlsxwriter') as writer:
                 pd.DataFrame(summary_data).to_excel(writer, sheet_name='Summary_Statistics', index=False)
-            print(f"[EXCEL] ✅ Summary statistics saved (xlsxwriter): {self.output_dir / 'summary_statistics.xlsx'}")
+            print(f"[EXCEL] [OK] Summary statistics saved (xlsxwriter): {self.output_dir / 'summary_statistics.xlsx'}")
 
         # Also save as JSON for compatibility (but Excel is primary)
         with open(self.output_dir / "summary_statistics.json", 'w') as f:
@@ -871,12 +871,12 @@ Based on the preliminary results:
         try:
             with pd.ExcelWriter(self.output_dir / "combination_matrix.xlsx", engine='openpyxl') as writer:
                 combination_matrix.to_excel(writer, sheet_name='Combination_Matrix')
-            print(f"[EXCEL] ✅ Combination matrix saved: {self.output_dir / 'combination_matrix.xlsx'}")
+            print(f"[EXCEL] [OK] Combination matrix saved: {self.output_dir / 'combination_matrix.xlsx'}")
         except ImportError:
             # Fallback to xlsxwriter if openpyxl not available
             with pd.ExcelWriter(self.output_dir / "combination_matrix.xlsx", engine='xlsxwriter') as writer:
                 combination_matrix.to_excel(writer, sheet_name='Combination_Matrix')
-            print(f"[EXCEL] ✅ Combination matrix saved (xlsxwriter): {self.output_dir / 'combination_matrix.xlsx'}")
+            print(f"[EXCEL] [OK] Combination matrix saved (xlsxwriter): {self.output_dir / 'combination_matrix.xlsx'}")
 
     def _create_time_analysis(self, df):
         """Create training time analysis"""
@@ -931,7 +931,7 @@ Based on the preliminary results:
         """
         print("[TABLE9] Creating Table 9 style performance comparison...")
         print("[FORMAT] Classes in ROWS, separate tables per dataset")
-        print("[OUTPUT] Excel (.xlsx) format - easy copy-paste! 📊")
+        print("[OUTPUT] Excel (.xlsx) format - easy copy-paste! [DATA]")
 
         # Check if openpyxl is available for Excel output
         try:
@@ -1130,10 +1130,10 @@ No datasets with sufficient metrics were found for analysis.
 ### Format Notes
 
 **Correct Table 9 Format:**
-- ✅ **Classes in ROWS** (not columns)
-- ✅ **Separate tables per dataset**
-- ✅ **Metrics as columns**: Accuracy, Precision, Recall, Specificity, F1-Score
-- ✅ **Multiple models compared**: Each model gets multiple rows (one per class)
+- [OK] **Classes in ROWS** (not columns)
+- [OK] **Separate tables per dataset**
+- [OK] **Metrics as columns**: Accuracy, Precision, Recall, Specificity, F1-Score
+- [OK] **Multiple models compared**: Each model gets multiple rows (one per class)
 
 ### Dataset Structure
 1. **IML Lifecycle**: Ring, Gametocyte, Trophozoite, Schizont
@@ -1320,10 +1320,10 @@ No datasets with sufficient metrics were found for analysis.
             combined_df = pd.DataFrame(all_rows)
 
         print(f"[SUCCESS] Table 9 style comparison saved!")
-        print(f"[XLSX] ✅ Main Excel file: {xlsx_path}")
-        print(f"[FORMAT] ✅ Classes in ROWS, separate sheets per dataset")
+        print(f"[XLSX] [OK] Main Excel file: {xlsx_path}")
+        print(f"[FORMAT] [OK] Classes in ROWS, separate sheets per dataset")
         print(f"[DATASETS] Generated {len(all_tables_data)} dataset tables")
-        print(f"[COPY-PASTE] Excel format - easy to copy-paste! 📊")
+        print(f"[COPY-PASTE] Excel format - easy to copy-paste! [DATA]")
 
         if excel_files:
             print(f"[EXCEL] Saved {len(excel_files)} Excel files:")
@@ -1469,7 +1469,7 @@ No datasets with sufficient metrics were found for analysis.
 
                             # Handle NEW structured table9_metrics.json format
                             if results_file.name == 'table9_metrics.json':
-                                print(f"[TABLE9] ✅ Found structured metrics: {results_file}")
+                                print(f"[TABLE9] [OK] Found structured metrics: {results_file}")
 
                                 # Extract overall accuracy
                                 metrics['overall_accuracy'] = data.get('test_accuracy', data.get('overall_accuracy', 'N/A'))
@@ -1484,7 +1484,7 @@ No datasets with sufficient metrics were found for analysis.
                                     metrics[f'class{class_idx}_accuracy'] = class_data.get('precision', 'N/A')  # Use precision as class accuracy
                                     metrics[f'class{class_idx}_specificity'] = 'N/A'  # Not available from sklearn report
 
-                                print(f"[TABLE9] ✅ Extracted {len(per_class)} classes from structured metrics")
+                                print(f"[TABLE9] [OK] Extracted {len(per_class)} classes from structured metrics")
                                 break  # Use this data and don't try other files
 
                             # Extract class-wise metrics if available (old format)
@@ -1660,7 +1660,7 @@ This analysis provides insights into the performance of different detection-clas
     def _validate_excel_outputs(self):
         """Validate and list all Excel output files generated"""
         print(f"\n{'='*80}")
-        print(f"📊 EXCEL OUTPUTS VALIDATION - ALL ANALYSIS TABLES")
+        print(f"[DATA] EXCEL OUTPUTS VALIDATION - ALL ANALYSIS TABLES")
         print(f"{'='*80}")
 
         expected_excel_files = [
@@ -1676,10 +1676,10 @@ This analysis provides insights into the performance of different detection-clas
             pipeline_files = list(Path('.').glob(f"results/*/{excel_pattern}"))
             for pipeline_file in pipeline_files:
                 file_size = pipeline_file.stat().st_size
-                pipeline_excel_files.append(f"✅ {pipeline_file} ({file_size:,} bytes)")
+                pipeline_excel_files.append(f"[OK] {pipeline_file} ({file_size:,} bytes)")
 
         if pipeline_excel_files:
-            print(f"\n📊 PIPELINE EXCEL FILES ({len(pipeline_excel_files)} files):")
+            print(f"\n[DATA] PIPELINE EXCEL FILES ({len(pipeline_excel_files)} files):")
             for pipeline_file in pipeline_excel_files:
                 print(f"  {pipeline_file}")
 
@@ -1690,23 +1690,23 @@ This analysis provides insights into the performance of different detection-clas
             file_path = self.output_dir / excel_file
             if file_path.exists():
                 file_size = file_path.stat().st_size
-                excel_files_found.append(f"✅ {excel_file} ({file_size:,} bytes)")
+                excel_files_found.append(f"[OK] {excel_file} ({file_size:,} bytes)")
             else:
-                missing_files.append(f"❌ {excel_file} (not found)")
+                missing_files.append(f"[FAILED] {excel_file} (not found)")
 
         # Check for additional Table 9 individual dataset files
         table9_individual = list(self.output_dir.glob("table9_*.xlsx"))
         for individual_file in table9_individual:
             if individual_file.name != 'table9_style_comparison.xlsx':
                 file_size = individual_file.stat().st_size
-                excel_files_found.append(f"✅ {individual_file.name} ({file_size:,} bytes)")
+                excel_files_found.append(f"[OK] {individual_file.name} ({file_size:,} bytes)")
 
-        print(f"📊 EXCEL FILES GENERATED ({len(excel_files_found)} files):")
+        print(f"[DATA] EXCEL FILES GENERATED ({len(excel_files_found)} files):")
         for excel_file in excel_files_found:
             print(f"  {excel_file}")
 
         if missing_files:
-            print(f"\n⚠️  MISSING FILES ({len(missing_files)} files):")
+            print(f"\n[WARNING]  MISSING FILES ({len(missing_files)} files):")
             for missing_file in missing_files:
                 print(f"  {missing_file}")
         else:
@@ -1715,14 +1715,14 @@ This analysis provides insights into the performance of different detection-clas
         # Check for any leftover CSV files (should not exist)
         csv_files = list(self.output_dir.glob("*.csv"))
         if csv_files:
-            print(f"\n⚠️  WARNING: Found CSV files (should be Excel):")
+            print(f"\n[WARNING]  WARNING: Found CSV files (should be Excel):")
             for csv_file in csv_files:
                 print(f"  📄 {csv_file.name}")
         else:
-            print(f"\n✅ NO CSV FILES FOUND - All outputs are Excel format!")
+            print(f"\n[OK] NO CSV FILES FOUND - All outputs are Excel format!")
 
-        print(f"\n📁 Output Directory: {self.output_dir}")
-        print(f"🎯 VALIDATION COMPLETE: ALL ANALYSIS TABLES ARE IN EXCEL FORMAT")
+        print(f"\n[FILES] Output Directory: {self.output_dir}")
+        print(f"[TARGET] VALIDATION COMPLETE: ALL ANALYSIS TABLES ARE IN EXCEL FORMAT")
         print(f"{'='*80}\n")
 
     def run_iou_analysis_from_results(self, results_csv_path, output_dir, experiment_name="Unknown"):
@@ -1848,12 +1848,12 @@ This analysis provides insights into the performance of different detection-clas
             try:
                 with pd.ExcelWriter(Path(output_dir) / "iou_comparison_table.xlsx", engine='openpyxl') as writer:
                     pd.DataFrame(comparison_data).to_excel(writer, sheet_name='IoU_Comparison', index=False)
-                print(f"[EXCEL] ✅ IoU comparison table saved: {Path(output_dir) / 'iou_comparison_table.xlsx'}")
+                print(f"[EXCEL] [OK] IoU comparison table saved: {Path(output_dir) / 'iou_comparison_table.xlsx'}")
             except ImportError:
                 # Fallback to xlsxwriter if openpyxl not available
                 with pd.ExcelWriter(Path(output_dir) / "iou_comparison_table.xlsx", engine='xlsxwriter') as writer:
                     pd.DataFrame(comparison_data).to_excel(writer, sheet_name='IoU_Comparison', index=False)
-                print(f"[EXCEL] ✅ IoU comparison table saved (xlsxwriter): {Path(output_dir) / 'iou_comparison_table.xlsx'}")
+                print(f"[EXCEL] [OK] IoU comparison table saved (xlsxwriter): {Path(output_dir) / 'iou_comparison_table.xlsx'}")
 
             # Create markdown report using training results
             md_content = f"""# IoU Variation Analysis - NO RE-TESTING
@@ -1888,10 +1888,10 @@ This analysis provides insights into the performance of different detection-clas
 - **Source**: Training validation results (no additional testing)
 
 ## Advantages of Pre-computed Analysis
-- ✅ **No Model Loading**: Skips expensive model initialization
-- ✅ **No Re-prediction**: Uses existing validation results
-- ✅ **Instant Results**: Analysis completes in seconds
-- ✅ **Consistent Data**: Same validation set used during training
+- [OK] **No Model Loading**: Skips expensive model initialization
+- [OK] **No Re-prediction**: Uses existing validation results
+- [OK] **Instant Results**: Analysis completes in seconds
+- [OK] **Consistent Data**: Same validation set used during training
 
 ## Files Generated
 - `iou_variation_results.json`: Raw metrics data
