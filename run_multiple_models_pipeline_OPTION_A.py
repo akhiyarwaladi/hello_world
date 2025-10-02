@@ -651,14 +651,14 @@ Multi-Dataset Continue Examples:
                     json.dump(cross_dataset_summary, f, indent=2)
 
                 # Create consolidated README
-                # FIX: Now we have 3 loss functions (Cross-Entropy, Focal Loss, Class-Balanced)
+                # FIX: Now we have 2 loss functions (Focal Loss, Class-Balanced)
                 readme_content = f"""# Consolidated Multi-Dataset Analysis
 
 ## Experiment Overview
 - **Parent Experiment**: {parent_exp_name}
 - **Datasets Analyzed**: {', '.join(all_dataset_names)}
 - **Detection Models**: {det_model_count} models
-- **Classification Models**: {cls_model_count} models × 3 loss functions
+- **Classification Models**: {cls_model_count} models × 2 loss functions (Focal, Class-Balanced)
 - **Generated**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 ## Cross-Dataset Results
@@ -813,33 +813,16 @@ def run_pipeline_for_dataset(args):
         print("[ERROR] No detection models to run after exclusions!")
         return
 
-    # Define classification models - 6 Optimized Models × 3 Loss Functions = 18 Experiments
+    # Define classification models - 6 Optimized Models × 2 Loss Functions = 12 Experiments
     # VGG16 replaced with Swin Transformer (state-of-the-art for medical imaging)
-    # Added Class-Balanced Loss (auto-handles extreme imbalance)
+    # Using ONLY Focal Loss and Class-Balanced (removing Cross-Entropy baseline)
     base_models = ["densenet121", "efficientnet_b1", "swin_t", "resnet50", "efficientnet_b2", "resnet101"]
 
     classification_configs = {}
 
-    # OPTION: Set use_focal_only=True to run only Focal Loss (6 experiments instead of 12)
-    # Based on analysis: Focal Loss is more robust and prevents catastrophic failures
-    use_focal_only = False  # Set to True to use only Focal Loss
-
-    # Generate configurations for each model with both loss functions
+    # Generate configurations for each model with Focal Loss and Class-Balanced ONLY
     for model in base_models:
-        if not use_focal_only:
-            # Configuration 1: Cross-Entropy (Baseline)
-            classification_configs[f"{model}_ce"] = {
-                "type": "pytorch",
-                "script": "scripts/training/12_train_pytorch_classification.py",
-                "model": model,
-                "loss": "cross_entropy",
-                "epochs": 25,        # Standardized epochs
-                "batch": 32,         # Optimized for 224px images
-                "lr": 0.0005,        # FIXED: Optimal LR (was 0.001)
-                "display_name": f"{model.upper()} (Cross-Entropy)"
-            }
-
-        # Configuration 2: Focal Loss (Novel Contribution - Recommended)
+        # Configuration 1: Focal Loss (Handles class imbalance)
         classification_configs[f"{model}_focal"] = {
             "type": "pytorch",
             "script": "scripts/training/12_train_pytorch_classification.py",
@@ -853,7 +836,7 @@ def run_pipeline_for_dataset(args):
             "display_name": f"{model.upper()} (Focal Loss)"
         }
 
-        # Configuration 3: Class-Balanced Loss (NEW - Auto-handles extreme imbalance)
+        # Configuration 2: Class-Balanced Loss (Auto-handles extreme imbalance)
         classification_configs[f"{model}_cb"] = {
             "type": "pytorch",
             "script": "scripts/training/12_train_pytorch_classification.py",
@@ -873,12 +856,12 @@ def run_pipeline_for_dataset(args):
     if "all" in args.classification_models:
         selected_classification = all_classification_models
     else:
-        # FIX: Expand base model names to ALL 3 variants (ce, focal, cb)
+        # FIX: Expand base model names to 2 variants (focal, cb) - NO Cross-Entropy
         selected_classification = []
         for model in args.classification_models:
             if model in base_models:
-                # Expand base model to ALL 3 variants
-                selected_classification.extend([f"{model}_ce", f"{model}_focal", f"{model}_cb"])
+                # Expand base model to 2 variants: focal and cb
+                selected_classification.extend([f"{model}_focal", f"{model}_cb"])
             elif model in all_classification_models:
                 # Already a full config name
                 selected_classification.append(model)
@@ -1639,10 +1622,9 @@ Per-Class Performance:
         try:
             import pandas as pd
 
-            # Collect metrics separated by loss function (CE, Focal, Class-Balanced)
-            ce_metrics = {}
+            # Collect metrics separated by loss function (Focal, Class-Balanced ONLY)
             focal_metrics = {}
-            cb_metrics = {}  # NEW: Class-Balanced Loss metrics
+            cb_metrics = {}  # Class-Balanced Loss metrics
 
             for cls_model_name in classification_models_trained:
                 cls_config = classification_configs[cls_model_name]
@@ -1663,10 +1645,8 @@ Per-Class Performance:
                 else:
                     model_short = model_name[:6] if len(model_name) > 6 else model_name
 
-                # Get loss short name
-                if cls_config['loss'] == 'cross_entropy':
-                    loss_short = 'ce'
-                elif cls_config['loss'] == 'focal':
+                # Get loss short name (focal or cb only)
+                if cls_config['loss'] == 'focal':
                     loss_short = 'focal'
                 elif cls_config['loss'] == 'class_balanced':
                     loss_short = 'cb'
@@ -1684,9 +1664,7 @@ Per-Class Performance:
                         metrics = json.load(f)
 
                     # Store in appropriate dict based on loss function
-                    if loss_short == 'ce':
-                        ce_metrics[model_short] = metrics
-                    elif loss_short == 'focal':
+                    if loss_short == 'focal':
                         focal_metrics[model_short] = metrics
                     elif loss_short == 'cb':
                         cb_metrics[model_short] = metrics
@@ -1739,10 +1717,9 @@ Per-Class Performance:
 
                 return df
 
-            # Create pivot tables for all 3 loss functions
-            ce_pivot = create_pivot_table(ce_metrics, 'Cross Entropy')
+            # Create pivot tables for 2 loss functions (Focal, Class-Balanced)
             focal_pivot = create_pivot_table(focal_metrics, 'Focal Loss')
-            cb_pivot = create_pivot_table(cb_metrics, 'Class-Balanced')  # NEW
+            cb_pivot = create_pivot_table(cb_metrics, 'Class-Balanced')
 
             # FIX: Save to correct experiment directory
             # For multi-dataset experiments, base_dir already points to experiment folder
@@ -1757,14 +1734,6 @@ Per-Class Performance:
             output_file = centralized_dir / 'table9_classification_pivot.xlsx'
 
             with pd.ExcelWriter(output_file) as writer:
-                if ce_pivot is not None:
-                    ce_pivot.to_excel(writer, sheet_name='Cross_Entropy')
-                    print(f"   [SUCCESS] Cross Entropy pivot: {ce_pivot.shape[0]} rows x {ce_pivot.shape[1]} cols")
-
-                    # Also save as CSV
-                    ce_csv = centralized_dir / 'table9_cross_entropy.csv'
-                    ce_pivot.to_csv(ce_csv)
-
                 if focal_pivot is not None:
                     focal_pivot.to_excel(writer, sheet_name='Focal_Loss')
                     print(f"   [SUCCESS] Focal Loss pivot: {focal_pivot.shape[0]} rows x {focal_pivot.shape[1]} cols")
