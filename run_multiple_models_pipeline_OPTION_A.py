@@ -828,7 +828,7 @@ def run_pipeline_for_dataset(args):
             "script": "scripts/training/12_train_pytorch_classification.py",
             "model": model,
             "loss": "focal",
-            "focal_alpha": 1.0,  # FIXED: Optimal alpha (was 2.0)
+            "focal_alpha": 2.0,  # Restored: 2.0 proven optimal (90% acc), 1.0 caused 61% acc
             "focal_gamma": 2.0,
             "epochs": 25,        # Standardized epochs
             "batch": 32,         # Optimized for 224px images
@@ -1414,6 +1414,11 @@ def run_pipeline_for_dataset(args):
                         "--focal_alpha", str(cls_config["focal_alpha"]),
                         "--focal_gamma", str(cls_config["focal_gamma"])
                     ])
+                # Add class-balanced loss parameters if needed
+                elif cls_config["loss"] == "class_balanced":
+                    cmd3.extend([
+                        "--cb_beta", str(cls_config["cb_beta"])
+                    ])
 
             if run_command(cmd3, f"Training {cls_model_name.upper()} (SHARED)"):
                 print(f"[SUCCESS] Classification model saved directly to: {centralized_cls_path}")
@@ -1537,16 +1542,21 @@ def run_pipeline_for_dataset(args):
             analysis_dir = str(cls_analysis_path)
 
             # Find classification model in CENTRALIZED location (Option A structure)
-            # FIX: Use direct path instead of find_experiment_path (which doesn't exist in ResultsManager)
-            cls_folder_name = f"{cls_exp_name}_classification"  # e.g., cls_densen_ce_classification
-            classification_model = results_manager.base_dir / base_exp_name / cls_folder_name / "best.pt"
+            # FIX: Build path with correct suffix based on manager type
+            if hasattr(results_manager, '__class__') and results_manager.__class__.__name__ == 'ParentStructureManager':
+                # Multi-dataset mode: no suffix
+                cls_folder_name = cls_exp_name
+            else:
+                # Single-dataset mode: with _classification suffix
+                cls_folder_name = f"{cls_exp_name}_classification"
+
+            classification_model = results_manager.pipeline_dir / cls_folder_name / "best.pt"
 
             # Use centralized test data path (shared)
             test_data = crop_data_path / "test"
 
-            # FIX: Use direct path for classification folder (works for both ParentStructureManager and ResultsManager)
-            cls_folder_name = f"{cls_exp_name}_classification"
-            centralized_classification_path = results_manager.base_dir / base_exp_name / cls_folder_name
+            # Use same cls_folder_name as above
+            centralized_classification_path = results_manager.pipeline_dir / cls_folder_name
 
             # Create analysis from existing table9_metrics.json (Option A compatible)
             table9_metrics_file = centralized_classification_path / "table9_metrics.json"
@@ -1655,7 +1665,16 @@ Per-Class Performance:
 
                 cls_exp_name = f"cls_{model_short}_{loss_short}"
 
-                centralized_classification_path = results_manager.get_classification_path(cls_exp_name)
+                # FIX: Build path with correct suffix based on manager type
+                # ParentStructureManager: cls_NAME (no suffix)
+                # ResultsManager: cls_NAME_classification (with suffix)
+                if hasattr(results_manager, '__class__') and results_manager.__class__.__name__ == 'ParentStructureManager':
+                    # Multi-dataset mode: no suffix
+                    centralized_classification_path = results_manager.pipeline_dir / cls_exp_name
+                else:
+                    # Single-dataset mode: with _classification suffix
+                    centralized_classification_path = results_manager.pipeline_dir / f"{cls_exp_name}_classification"
+
                 table9_metrics_file = centralized_classification_path / "table9_metrics.json"
 
                 if table9_metrics_file.exists():
@@ -1722,14 +1741,8 @@ Per-Class Performance:
             cb_pivot = create_pivot_table(cb_metrics, 'Class-Balanced')
 
             # FIX: Save to correct experiment directory
-            # For multi-dataset experiments, base_dir already points to experiment folder
-            # For single dataset, base_dir/base_exp_name is correct
-            if hasattr(args, '_parent_manager') and args._parent_manager:
-                # Multi-dataset: save to dataset experiment folder
-                centralized_dir = results_manager.base_dir
-            else:
-                # Single dataset: save to experiment root
-                centralized_dir = results_manager.base_dir / base_exp_name
+            # Use pipeline_dir which points to results/exp_NAME/
+            centralized_dir = results_manager.pipeline_dir
 
             output_file = centralized_dir / 'table9_classification_pivot.xlsx'
 
