@@ -98,15 +98,18 @@ class ClassBalancedLoss(nn.Module):
             pred: Predictions (logits) [batch_size, num_classes]
             target: Ground truth labels [batch_size]
         """
+        # FIXED: Ensure weights on same device as predictions (CPU vs CUDA)
+        weights = self.weights.to(pred.device)
+
         if self.loss_type == 'focal':
             # Focal loss with class balancing
-            ce_loss = F.cross_entropy(pred, target, weight=self.weights, reduction='none')
+            ce_loss = F.cross_entropy(pred, target, weight=weights, reduction='none')
             pt = torch.exp(-ce_loss)
             focal_loss = (1 - pt) ** self.gamma * ce_loss
             return focal_loss.mean()
         else:
             # Standard cross-entropy with class balancing
-            return F.cross_entropy(pred, target, weight=self.weights)
+            return F.cross_entropy(pred, target, weight=weights)
 
 
 class WeightedFocalLoss(nn.Module):

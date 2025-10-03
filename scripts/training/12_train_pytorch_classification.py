@@ -581,8 +581,18 @@ def main():
         from scripts.training.advanced_losses import ClassBalancedLoss
 
         # Calculate samples per class from training dataset
+        # Use .samples (guaranteed to exist) instead of iterating through __getitem__
         from collections import Counter
-        all_labels = [label for _, label in train_dataset]
+        if hasattr(train_dataset, 'targets'):
+            # Fast path: use .targets if available (ImageFolder usually has this)
+            all_labels = train_dataset.targets
+        elif hasattr(train_dataset, 'samples'):
+            # Safe fallback: use .samples (path, label) tuples
+            all_labels = [label for _, label in train_dataset.samples]
+        else:
+            # Last resort: iterate dataset (slow but works for any dataset)
+            all_labels = [label for _, label in train_dataset]
+
         class_counts = Counter(all_labels)
         samples_per_class = [class_counts[i] for i in range(num_classes)]
 
