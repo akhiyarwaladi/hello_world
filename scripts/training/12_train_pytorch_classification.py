@@ -158,18 +158,8 @@ def get_model(model_name, num_classes=4, pretrained=True):
         # Modify final layer
         model.heads.head = nn.Linear(model.heads.head.in_features, num_classes)
 
-    elif model_name.startswith('swin'):
-        if model_name == 'swin_t':
-            model = models.swin_t(weights='IMAGENET1K_V1' if pretrained else None)
-        elif model_name == 'swin_s':
-            model = models.swin_s(weights='IMAGENET1K_V1' if pretrained else None)
-        elif model_name == 'swin_b':
-            model = models.swin_b(weights='IMAGENET1K_V1' if pretrained else None)
-        else:
-            raise ValueError(f"Unknown Swin model: {model_name}")
-
-        # Modify final layer
-        model.head = nn.Linear(model.head.in_features, num_classes)
+    # Swin Transformer removed - poor performance on small medical datasets
+    # Replaced with additional EfficientNet variant for better efficiency
 
     else:
         raise ValueError(f"Unsupported model: {model_name}")
@@ -389,15 +379,14 @@ def main():
     parser = argparse.ArgumentParser(description="Train PyTorch Classification Models")
     parser.add_argument("--data", default="data/classification_multispecies",
                        help="Classification dataset root")
-    parser.add_argument("--model", default="efficientnet_b0",  # OPTIMAL: Changed from resnet18 to efficientnet_b0
+    parser.add_argument("--model", default="efficientnet_b0",  # OPTIMAL: EfficientNet-B0 for medical AI
                        choices=['resnet18', 'resnet34', 'resnet50', 'resnet101',
                                'efficientnet_b0', 'efficientnet_b1', 'efficientnet_b2', 'efficientnet_b3',
                                'mobilenet_v2', 'mobilenet_v3_small', 'mobilenet_v3_large',
                                'densenet121', 'densenet161', 'densenet169',
                                'vgg16', 'vgg19',  # VGG models for strong feature extraction
-                               'vit_b_16', 'vit_b_32',  # Keep ViT but optimize CPU usage
-                               'swin_t', 'swin_s', 'swin_b'],  # Swin Transformer models
-                       help="Model architecture (EfficientNet-B0 recommended for medical AI)")
+                               'vit_b_16', 'vit_b_32'],  # Vision Transformers (requires large datasets)
+                       help="Model architecture (EfficientNet-B0/B1 recommended for medical AI)")
     parser.add_argument("--epochs", type=int, default=25,  # Increased from 10
                        help="Number of epochs (default: 25 for better convergence)")
     parser.add_argument("--batch", type=int, default=32,  # Optimized for 224px images

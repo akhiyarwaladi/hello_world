@@ -192,8 +192,14 @@ def create_centralized_zip(base_exp_name, results_manager):
     """Create ZIP archive from centralized results folder"""
     print(f"\n[ARCHIVE] CREATING ZIP ARCHIVE FROM CENTRALIZED RESULTS")
 
-    # The centralized folder is already created by results_manager
-    centralized_dir = results_manager.pipeline_dir
+    # Determine which folder to archive
+    # If using parent structure (single or multi-dataset), archive the parent folder
+    if hasattr(results_manager, 'parent_manager'):
+        centralized_dir = results_manager.parent_manager.parent_folder
+        print(f"[ARCHIVE] Using parent folder structure: {centralized_dir}")
+    else:
+        # Legacy flat structure
+        centralized_dir = results_manager.pipeline_dir
 
     if not centralized_dir.exists():
         print(f"[ERROR] Centralized folder not found: {centralized_dir}")
@@ -814,9 +820,9 @@ def run_pipeline_for_dataset(args):
         return
 
     # Define classification models - 6 Optimized Models × 2 Loss Functions = 12 Experiments
-    # VGG16 replaced with Swin Transformer (state-of-the-art for medical imaging)
+    # Swin-T replaced with EfficientNet-B0 (transformers fail on small datasets)
     # Using ONLY Focal Loss and Class-Balanced (removing Cross-Entropy baseline)
-    base_models = ["densenet121", "efficientnet_b1", "swin_t", "resnet50", "efficientnet_b2", "resnet101"]
+    base_models = ["densenet121", "efficientnet_b1", "efficientnet_b0", "resnet50", "efficientnet_b2", "resnet101"]
 
     classification_configs = {}
 
@@ -944,21 +950,65 @@ def run_pipeline_for_dataset(args):
             results_manager = ParentStructureManager(dataset_exp_path)
             print(f"[INFO] UNIFIED RESULTS: {dataset_exp_path}/")
         else:
-            # Single dataset execution - use original naming
+            # Single dataset execution - use parent structure for consistency
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            base_exp_name = f"{args.experiment_name}_{timestamp}"
+            parent_exp_name = f"{args.experiment_name}_{timestamp}"
 
-            # Add dataset type to experiment name
-            if args.dataset == "iml_lifecycle":
-                base_exp_name += "_iml_lifecycle"
-            elif args.dataset == "mp_idb_stages":
-                base_exp_name += "_mp_idb_stages"
-            elif args.dataset == "mp_idb_species":
-                base_exp_name += "_mp_idb_species"
+            # Create parent manager with consolidated structure (same as multi-dataset)
+            from utils.results_manager import create_option_a_manager
+            parent_manager = create_option_a_manager(parent_exp_name)
 
-            # Initialize SIMPLIFIED results manager - minimal folder creation
-            results_manager = get_results_manager(pipeline_name=base_exp_name)
-            print(f"[INFO] SIMPLIFIED RESULTS: results/exp_{base_exp_name}/")
+            # Create experiment within parent structure
+            dataset_exp_path = parent_manager.add_experiment(
+                experiment_name="experiment",
+                dataset=args.dataset,
+                models=models_to_run
+            )
+
+            # Use dataset_exp_path directly as our experiment directory
+            base_exp_name = f"{parent_exp_name}_{args.dataset}"
+
+            # Create ParentStructureManager (same as multi-dataset)
+            class ParentStructureManager:
+                def __init__(self, dataset_path):
+                    self.pipeline_dir = dataset_exp_path
+                    self.base_dir = dataset_exp_path
+                    self.parent_manager = parent_manager  # Store parent reference
+
+                def get_experiment_path(self, exp_type, model_name, exp_name):
+                    return self.pipeline_dir / exp_name
+
+                def create_experiment_path(self, exp_type, model_name, exp_name):
+                    path = self.get_experiment_path(exp_type, model_name, exp_name)
+                    path.mkdir(parents=True, exist_ok=True)
+                    return path
+
+                def get_crops_path(self, detection_model, experiment_name):
+                    return self.pipeline_dir / f"crops_{experiment_name}"
+
+                def create_crops_path(self, detection_model, experiment_name):
+                    path = self.get_crops_path(detection_model, experiment_name)
+                    path.mkdir(parents=True, exist_ok=True)
+                    return path
+
+                def get_analysis_path(self, analysis_type):
+                    return self.pipeline_dir / f"analysis_{analysis_type}"
+
+                def create_analysis_path(self, analysis_type):
+                    path = self.get_analysis_path(analysis_type)
+                    path.mkdir(parents=True, exist_ok=True)
+                    return path
+
+                def get_classification_path(self, cls_exp_name):
+                    """Get classification model path by experiment name"""
+                    return self.pipeline_dir / cls_exp_name
+
+                def find_experiment_path(self, exp_type, model_name, exp_name):
+                    """Find existing experiment path"""
+                    return self.pipeline_dir / exp_name
+
+            results_manager = ParentStructureManager(dataset_exp_path)
+            print(f"[INFO] UNIFIED RESULTS: {parent_manager.parent_folder}/")
 
     print(f"\n{'='*80}")
     print(f"OPTION A: SHARED CLASSIFICATION ARCHITECTURE")
@@ -1349,19 +1399,16 @@ def run_pipeline_for_dataset(args):
                 continue
 
             cls_config = classification_configs[cls_model_name]
-            # FIX: Use full model name to avoid collisions (efficientnet, resnet, densenet, swin variants)
+            # FIX: Use full model name to avoid collisions (efficientnet, resnet, densenet variants)
             model_name = cls_config['model']
             if model_name.startswith('efficientnet_b'):
-                # Keep full efficientnet_b1 or efficientnet_b2
+                # Keep full efficientnet_b0, efficientnet_b1, efficientnet_b2
                 model_short = model_name[:15] if len(model_name) >= 15 else model_name
             elif model_name.startswith('resnet'):
                 # Keep resnet50, resnet101 distinct
                 model_short = model_name  # Keep full name
             elif model_name.startswith('densenet'):
                 # Keep densenet121, densenet161, etc distinct
-                model_short = model_name  # Keep full name
-            elif model_name.startswith('swin'):
-                # Keep swin_t, swin_s, swin_b distinct
                 model_short = model_name  # Keep full name
             else:
                 model_short = model_name[:6] if len(model_name) > 6 else model_name
@@ -1511,19 +1558,16 @@ def run_pipeline_for_dataset(args):
             # Use same simplified naming as training stage
             cls_config = classification_configs[cls_model_name]
 
-            # FIX: Use full model name to avoid collisions (efficientnet, resnet, densenet, swin variants)
+            # FIX: Use full model name to avoid collisions (efficientnet, resnet, densenet variants)
             model_name = cls_config['model']
             if model_name.startswith('efficientnet_b'):
-                # Keep full efficientnet_b1 or efficientnet_b2
+                # Keep full efficientnet_b0, efficientnet_b1, efficientnet_b2
                 model_short = model_name[:15] if len(model_name) >= 15 else model_name
             elif model_name.startswith('resnet'):
                 # Keep resnet50, resnet101 distinct
                 model_short = model_name  # Keep full name
             elif model_name.startswith('densenet'):
                 # Keep densenet121, densenet161, etc distinct
-                model_short = model_name  # Keep full name
-            elif model_name.startswith('swin'):
-                # Keep swin_t, swin_s, swin_b distinct
                 model_short = model_name  # Keep full name
             else:
                 model_short = model_name[:6] if len(model_name) > 6 else model_name
@@ -1641,19 +1685,16 @@ Per-Class Performance:
 
             for cls_model_name in classification_models_trained:
                 cls_config = classification_configs[cls_model_name]
-                # FIX: Use full model name to avoid collisions (efficientnet, resnet, densenet, swin variants)
+                # FIX: Use full model name to avoid collisions (efficientnet, resnet, densenet variants)
                 model_name = cls_config['model']
                 if model_name.startswith('efficientnet_b'):
-                    # Keep full efficientnet_b1 or efficientnet_b2
+                    # Keep full efficientnet_b0, efficientnet_b1, efficientnet_b2
                     model_short = model_name[:15] if len(model_name) >= 15 else model_name
                 elif model_name.startswith('resnet'):
                     # Keep resnet50, resnet101 distinct
                     model_short = model_name  # Keep full name
                 elif model_name.startswith('densenet'):
                     # Keep densenet121, densenet161, etc distinct
-                    model_short = model_name  # Keep full name
-                elif model_name.startswith('swin'):
-                    # Keep swin_t, swin_s, swin_b distinct
                     model_short = model_name  # Keep full name
                 else:
                     model_short = model_name[:6] if len(model_name) > 6 else model_name
@@ -1875,7 +1916,11 @@ Per-Class Performance:
         print(f"\n[WARNING] No successful experiments to zip")
     else:
         print(f"\n[INFO] Results saved in Option A structure:")
-        print(f"[SUCCESS] All results: {results_manager.pipeline_dir}/")
+        # Show parent folder if using parent structure, otherwise show pipeline dir
+        if hasattr(results_manager, 'parent_manager'):
+            print(f"[SUCCESS] All results: {results_manager.parent_manager.parent_folder}/")
+        else:
+            print(f"[SUCCESS] All results: {results_manager.pipeline_dir}/")
 
     # FIX: Return True to indicate successful completion
     return True

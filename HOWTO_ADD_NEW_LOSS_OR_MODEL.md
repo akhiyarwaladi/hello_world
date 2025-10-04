@@ -195,29 +195,23 @@ base_models = [
 
 ---
 
-### **Option 3: Add Swin Transformer (State-of-the-art!)**
+### **Option 3: Add MobileNetV3 (Efficient Mobile Architecture!)**
 
-**Step 1:** Install if needed:
-
-```bash
-pip install timm
-```
+**Step 1:** Already in torchvision (no install needed)
 
 **Step 2:** Add to `get_model()`:
 
 ```python
-elif model_name.startswith('swin'):
-    if model_name == 'swin_t':
-        model = models.swin_t(weights='IMAGENET1K_V1' if pretrained else None)
-    elif model_name == 'swin_s':
-        model = models.swin_s(weights='IMAGENET1K_V1' if pretrained else None)
-    elif model_name == 'swin_b':
-        model = models.swin_b(weights='IMAGENET1K_V1' if pretrained else None)
+elif model_name.startswith('mobilenet_v3'):
+    if model_name == 'mobilenet_v3_small':
+        model = models.mobilenet_v3_small(weights='IMAGENET1K_V1' if pretrained else None)
+    elif model_name == 'mobilenet_v3_large':
+        model = models.mobilenet_v3_large(weights='IMAGENET1K_V1' if pretrained else None)
     else:
-        raise ValueError(f"Unknown Swin model: {model_name}")
+        raise ValueError(f"Unknown MobileNetV3 model: {model_name}")
 
     # Modify final layer
-    model.head = nn.Linear(model.head.in_features, num_classes)
+    model.classifier[-1] = nn.Linear(model.classifier[-1].in_features, num_classes)
 ```
 
 **Step 3:** Add to base_models and run!
@@ -266,9 +260,9 @@ python run_multiple_models_pipeline_OPTION_A.py \
    - Handles imbalance automatically
    - Efficient architecture
 
-3. **Weighted Focal + Swin-T**
-   - State-of-the-art transformer
-   - Strong feature extraction
+3. **Weighted Focal + EfficientNet-B0**
+   - Efficient compound scaling
+   - Good balance of speed and accuracy
 
 ### **For Speed:**
 
@@ -306,15 +300,15 @@ python run_multiple_models_pipeline_OPTION_A.py \
 
 ## 📊 Example: Full New Configuration
 
-Here's a complete example adding **Label Smoothing + Swin-T**:
+Here's a complete example adding **Label Smoothing + EfficientNet-B0**:
 
 ### **1. Modify `12_train_pytorch_classification.py`:**
 
 ```python
-# Add Swin model support
-elif model_name.startswith('swin'):
-    model = models.swin_t(weights='IMAGENET1K_V1' if pretrained else None)
-    model.head = nn.Linear(model.head.in_features, num_classes)
+# Add EfficientNet-B0 model support (already in torchvision)
+elif model_name == 'efficientnet_b0':
+    model = models.efficientnet_b0(weights='IMAGENET1K_V1' if pretrained else None)
+    model.classifier[-1] = nn.Linear(model.classifier[-1].in_features, num_classes)
 
 # Add Label Smoothing support
 elif args.loss == 'label_smoothing':
@@ -326,12 +320,12 @@ elif args.loss == 'label_smoothing':
 
 ```python
 # Add to base_models
-base_models = [..., "swin_t"]
+base_models = [..., "efficientnet_b0"]
 
 # Add to classification_configs
-classification_configs["swin_t_ls"] = {
+classification_configs["efficientnet_b0_ls"] = {
     "type": "pytorch",
-    "model": "swin_t",
+    "model": "efficientnet_b0",
     "loss": "label_smoothing",
     "smoothing": 0.1,
     ...
@@ -343,7 +337,7 @@ classification_configs["swin_t_ls"] = {
 ```bash
 python run_multiple_models_pipeline_OPTION_A.py \
   --dataset iml_lifecycle \
-  --classification-models swin_t_ls
+  --classification-models efficientnet_b0_ls
 ```
 
 ---
@@ -356,7 +350,7 @@ python run_multiple_models_pipeline_OPTION_A.py \
 
 **Can Easily Add:**
 - 5+ loss functions (Label Smoothing, Class-Balanced, etc.)
-- 10+ models (ViT, Swin, ConvNeXt, MobileNet, etc.)
+- 10+ models (ViT, ConvNeXt, MobileNet, RegNet, etc.)
 
 **Files to Modify:**
 1. `scripts/training/12_train_pytorch_classification.py` - Add model/loss support
