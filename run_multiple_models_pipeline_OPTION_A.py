@@ -206,15 +206,37 @@ def create_centralized_zip(base_exp_name, results_manager):
         return None, None
 
     # Create master summary in centralized folder
+    # Count components based on structure type
+    det_count = 0
+    cls_count = 0
+    crop_count = 0
+    analysis_count = 0
+
+    # Check if using new parent/experiments structure
+    experiments_dir = centralized_dir / "experiments"
+    if experiments_dir.exists():
+        # New structure: count from all experiment subfolders
+        for exp_folder in experiments_dir.glob("experiment_*"):
+            det_count += len(list(exp_folder.glob("det_*")))
+            cls_count += len(list(exp_folder.glob("cls_*")))
+            crop_count += len(list(exp_folder.glob("crops_*")))
+            analysis_count += len(list(exp_folder.glob("analysis_*")))
+    else:
+        # Legacy flat structure: count from main folder
+        det_count = len(list((centralized_dir / "detection").glob("*"))) if (centralized_dir / "detection").exists() else 0
+        cls_count = len(list((centralized_dir / "classification").glob("*"))) if (centralized_dir / "classification").exists() else 0
+        crop_count = len(list((centralized_dir / "crop_data").glob("*"))) if (centralized_dir / "crop_data").exists() else 0
+        analysis_count = len(list((centralized_dir / "analysis").glob("*"))) if (centralized_dir / "analysis").exists() else 0
+
     master_summary = {
         "experiment_name": base_exp_name,
         "timestamp": datetime.now().isoformat(),
         "pipeline_type": "option_a_shared_classification",
         "folder_structure": {
-            "detection": len(list((centralized_dir / "detection").glob("*"))) if (centralized_dir / "detection").exists() else 0,
-            "classification": len(list((centralized_dir / "classification").glob("*"))) if (centralized_dir / "classification").exists() else 0,
-            "crop_data": len(list((centralized_dir / "crop_data").glob("*"))) if (centralized_dir / "crop_data").exists() else 0,
-            "analysis": len(list((centralized_dir / "analysis").glob("*"))) if (centralized_dir / "analysis").exists() else 0
+            "detection": det_count,
+            "classification": cls_count,
+            "crop_data": crop_count,
+            "analysis": analysis_count
         }
     }
 
@@ -224,15 +246,56 @@ def create_centralized_zip(base_exp_name, results_manager):
     # Create Excel version of master summary (EASIER TO READ)
     create_master_summary_excel(centralized_dir, master_summary)
 
-    # Create README
-    readme_content = f"""# Option A Pipeline Results: {base_exp_name}
+    # Create README with correct structure description
+    if experiments_dir.exists():
+        # New parent/experiments structure
+        readme_content = f"""# Option A Pipeline Results: {base_exp_name}
+
+## Summary
+- **Generated**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+- **Pipeline Type**: Option A - Shared Classification Architecture
+- **Total Components**: {sum(master_summary['folder_structure'].values())} ({det_count} detection, {cls_count} classification, {crop_count} crops, {analysis_count} analysis)
+
+## Folder Structure (Unified Parent/Experiments)
+```
+{centralized_dir.name}/
+├── experiments/                  # All dataset experiments
+│   └── experiment_[dataset]/     # Per-dataset results
+│       ├── det_*                 # Detection models ({det_count} total)
+│       ├── cls_*                 # Classification models ({cls_count} total)
+│       ├── crops_*               # Ground truth crops ({crop_count} total)
+│       ├── analysis_*            # Analysis results ({analysis_count} total)
+│       └── table9_*.csv/xlsx     # Classification pivot tables
+├── consolidated_analysis/        # Cross-dataset comparison (if multi-dataset)
+├── master_summary.json           # Detailed summary
+└── README.md                     # This file
+```
+
+## Key Efficiency Improvements
+- **~70% Storage Reduction**: Classification models trained once, not per detection model
+- **~60% Training Time Reduction**: Ground truth crops generated once
+- **No Duplication**: Clean separation between detection and classification stages
+- **Shared Architecture**: All detection models use same ground truth crops and classification models
+
+## Architecture Benefits
+This archive uses Option A architecture where:
+1. Detection models are trained independently
+2. Ground truth crops are generated ONCE and shared
+3. Classification models are trained ONCE and shared (12 models: 6 architectures × 2 loss functions)
+4. Analysis is done separately for detection vs classification
+
+This eliminates the storage and training time waste of the original architecture.
+"""
+    else:
+        # Legacy flat structure
+        readme_content = f"""# Option A Pipeline Results: {base_exp_name}
 
 ## Summary
 - **Generated**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 - **Pipeline Type**: Option A - Shared Classification Architecture
 - **Total Components**: {sum(master_summary['folder_structure'].values())}
 
-## Folder Structure
+## Folder Structure (Legacy)
 - `detection/` - Detection model results and weights (independent)
 - `classification/` - Classification model results and weights (SHARED)
 - `crop_data/` - Generated crop datasets (SHARED, single instance)
@@ -255,7 +318,7 @@ This archive uses Option A architecture where:
 This eliminates the storage and training time waste of the original architecture.
 """
 
-    with open(centralized_dir / "README.md", "w") as f:
+    with open(centralized_dir / "README.md", "w", encoding='utf-8') as f:
         f.write(readme_content)
 
     # Create ZIP archive in results directory (not root folder)
