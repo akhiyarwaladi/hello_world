@@ -45,12 +45,16 @@ python run_multiple_models_pipeline_OPTION_A.py --epochs-det 100 --epochs-cls 50
 **Default:** All 3 YOLO models (YOLO10, YOLO11, YOLO12)
 
 ### Classification Models (6 Architectures × 2 Loss Functions = 12 Models)
-- **DenseNet121** (`densenet121`): Dense connections - CE + Focal Loss
-- **EfficientNet-B1** (`efficientnet_b1`): Efficient architecture - CE + Focal Loss
-- **VGG16** (`vgg16`): Classic deep CNN with strong feature extraction - CE + Focal Loss
-- **ResNet50** (`resnet50`): Medium-deep residual network - CE + Focal Loss
-- **EfficientNet-B2** (`efficientnet_b2`): Larger EfficientNet - CE + Focal Loss
-- **ResNet101** (`resnet101`): Deep residual network - CE + Focal Loss
+- **DenseNet121** (`densenet121`): Dense connections - Focal + Class-Balanced
+- **EfficientNet-B1** (`efficientnet_b1`): Efficient architecture - Focal + Class-Balanced
+- **EfficientNet-B0** (`efficientnet_b0`): Smaller EfficientNet (5.3M params) - Focal + Class-Balanced
+- **ResNet50** (`resnet50`): Medium-deep residual network - Focal + Class-Balanced
+- **EfficientNet-B2** (`efficientnet_b2`): Larger EfficientNet - Focal + Class-Balanced
+- **ResNet101** (`resnet101`): Deep residual network - Focal + Class-Balanced
+
+**Loss Functions:**
+- **Focal Loss**: Handles class imbalance (alpha=0.5, gamma=2.0)
+- **Class-Balanced Loss**: Auto-handles extreme imbalance (beta=0.9999)
 
 **Default:** All 12 models (6 architectures × 2 loss functions)
 
@@ -96,13 +100,13 @@ hello_world/
 **Classification Models:**
 - Enhanced augmentation for minority classes
 - Weighted sampling and loss functions
-- Cross-entropy vs Focal Loss comparison
+- Focal Loss vs Class-Balanced Loss comparison
 - Medical-safe transform strategies
 
 ### Comprehensive Analysis Suite
 
 #### Per-Dataset Analysis (Both Single & Multi-Dataset):
-- ✅ **Table 9 Classification Pivot**: Cross-Entropy vs Focal Loss comparison per dataset
+- ✅ **Table 9 Classification Pivot**: Focal Loss vs Class-Balanced Loss comparison per dataset
 - ✅ **Detection IoU Analysis**: Per-model mAP@0.5, mAP@0.75, mAP@0.5:0.95
 - ✅ **Classification Metrics**: Accuracy, balanced accuracy, precision, recall, F1-score per class
 - ✅ **Model Performance Reports**: Individual analysis for each trained model
@@ -111,9 +115,9 @@ hello_world/
 **Automatically Generated (9 files):**
 1. ✅ `dataset_statistics_all.csv` - Augmentation effects across all datasets
 2. ✅ `detection_performance_all_datasets.csv/xlsx` - YOLO comparison (CSV + Excel)
-3. ✅ `classification_cross_entropy_all_datasets.csv` - CE results across datasets
-4. ✅ `classification_focal_loss_all_datasets.csv` - Focal Loss results across datasets
-5. ✅ `classification_performance_all_datasets.xlsx` - Combined Excel (2 sheets: CE + Focal)
+3. ✅ `classification_focal_loss_all_datasets.csv` - Focal Loss results across datasets
+4. ✅ `classification_class_balanced_all_datasets.csv` - Class-Balanced results across datasets
+5. ✅ `classification_performance_all_datasets.xlsx` - Combined Excel (2 sheets: Focal + CB)
 6. ✅ `comprehensive_summary.json` - Complete data in JSON format (34 KB)
 7. ✅ `README.md` - Overview with detailed tables
 
@@ -137,15 +141,17 @@ hello_world/
 **Classification Performance Example (Table 9 Summary):**
 ```
 ### IML_LIFECYCLE
-Cross-Entropy:
-- densenet121: 0.8333
-- efficientnet_b1: 0.7963
-- efficientnet_b2: 0.8333
-
 Focal Loss:
-- densenet121: 0.7778
-- efficientnet_b1: 0.8333
-- efficientnet_b2: 0.8333
+- densenet121: 0.6629
+- efficientnet_b0: 0.7191
+- efficientnet_b1: 0.8090
+- efficientnet_b2: 0.6854
+
+Class-Balanced Loss:
+- densenet121: 0.3820
+- efficientnet_b0: 0.6517
+- efficientnet_b1: 0.8202
+- efficientnet_b2: 0.7191
 ```
 
 ## 🚀 PERFORMANCE OPTIMIZATIONS
@@ -160,7 +166,7 @@ Focal Loss:
 - Stratified sampling for class balance
 - Weighted loss functions
 - Mixed precision training (RTX 3060 optimized)
-- Focal Loss vs Cross-Entropy comparison
+- Focal Loss vs Class-Balanced Loss comparison
 
 ### Data Quality
 - Ground truth crops eliminate detection noise
@@ -238,8 +244,8 @@ results/optA_20251001_183508/                   ← Parent folder
 │   │   ├── crops_gt_crops/                     ← Ground truth crops (shared)
 │   │   ├── analysis_detection_yolo10/          ← Analysis folders
 │   │   ├── analysis_classification_*/
-│   │   ├── table9_cross_entropy.csv            ← Table 9 pivots
-│   │   ├── table9_focal_loss.csv
+│   │   ├── table9_focal_loss.csv               ← Table 9 pivots
+│   │   ├── table9_class_balanced.csv
 │   │   └── table9_classification_pivot.xlsx
 │   ├── experiment_mp_idb_species/              ← Same structure
 │   └── experiment_mp_idb_stages/               ← Same structure
@@ -247,9 +253,9 @@ results/optA_20251001_183508/                   ← Parent folder
 │   └── cross_dataset_comparison/
 │       ├── dataset_statistics_all.csv          ← Augmentation effects
 │       ├── detection_performance_all_datasets.csv/xlsx  ← YOLO comparison
-│       ├── classification_cross_entropy_all_datasets.csv
 │       ├── classification_focal_loss_all_datasets.csv
-│       ├── classification_performance_all_datasets.xlsx  ← 2 sheets
+│       ├── classification_class_balanced_all_datasets.csv
+│       ├── classification_performance_all_datasets.xlsx  ← 2 sheets (Focal + CB)
 │       ├── comprehensive_summary.json          ← Complete data (34 KB)
 │       └── README.md                           ← Overview with tables
 ├── README.md
@@ -264,33 +270,42 @@ results/optA_20251001_183508/                   ← Parent folder
 ---
 
 ### 🔸 Single Dataset Mode (`--dataset iml_lifecycle`)
-**Folder Pattern**: `exp_optA_[timestamp]_[dataset]/`
-**Manager**: `ResultsManager` (flat, no `experiments/` subfolder)
+**Folder Pattern**: `optA_[timestamp]/`
+**Manager**: `ParentStructureManager` (unified structure, same as multi-dataset)
 
 ```
-results/exp_optA_20251001_183405_iml_lifecycle/ ← Flat structure
-├── det_yolo10/                                  ← Detection models (direct)
-├── det_yolo11/
-├── det_yolo12/
-├── cls_densen_ce_classification/               ← Classification models (12 total)
-├── cls_densen_focal_classification/
-├── cls_efficientnet_b1_ce_classification/
-├── cls_efficientnet_b1_focal_classification/
-├── ... (8 more classification models)
-├── crops_gt_crops/                             ← Ground truth crops
-├── analysis_detection_yolo10/                  ← Analysis folders
-├── analysis_classification_*/
-├── table9_cross_entropy.csv                    ← Table 9 pivots
-├── table9_focal_loss.csv
-├── table9_classification_pivot.xlsx
-└── exp_optA_20251001_183405_iml_lifecycle.zip  ← Auto-generated archive
+results/optA_20251004_114731/                    ← Parent folder
+├── experiments/                                 ← Container for experiments
+│   └── experiment_iml_lifecycle/               ← Dataset folder
+│       ├── det_yolo11/                         ← Detection models
+│       ├── cls_densenet121_focal/              ← Classification models (12 total)
+│       ├── cls_densenet121_cb/
+│       ├── cls_efficientnet_b0_focal/
+│       ├── cls_efficientnet_b0_cb/
+│       ├── cls_efficientnet_b1_focal/
+│       ├── cls_efficientnet_b1_cb/
+│       ├── ... (6 more classification models)
+│       ├── crops_gt_crops/                     ← Ground truth crops
+│       ├── analysis_detection_yolo11/          ← Analysis folders
+│       ├── analysis_classification_*/
+│       ├── analysis_dataset_statistics/
+│       ├── analysis_option_a_summary/
+│       ├── table9_focal_loss.csv               ← Table 9 pivots
+│       ├── table9_class_balanced.csv
+│       └── table9_classification_pivot.xlsx
+├── consolidated_analysis/                      ← Empty (for consistency)
+├── master_summary.json                         ← Experiment summary
+├── master_summary.xlsx                         ← Excel summary
+├── README.md                                   ← Overview
+└── optA_20251004_114731.zip                    ← Auto-generated archive
 ```
 
-**Why Flat Structure?**
-- Simpler for single dataset experiments
-- No need for nested organization
-- Faster navigation to results
-- **No consolidated analysis** (only one dataset)
+**Why Unified Structure?**
+- ✅ Consistent organization (same as multi-dataset)
+- ✅ Ready for future cross-dataset comparison
+- ✅ Cleaner navigation with parent/experiments hierarchy
+- ✅ Includes consolidated_analysis/ folder (empty but prepared)
+- ✅ Master summary with accurate component counts
 
 ---
 
@@ -298,12 +313,13 @@ results/exp_optA_20251001_183405_iml_lifecycle/ ← Flat structure
 
 | Aspect | Multi-Dataset | Single Dataset |
 |--------|--------------|----------------|
-| **Pattern** | `optA_[timestamp]/` | `exp_optA_[timestamp]_[dataset]/` |
-| **Structure** | Nested (`experiments/`) | Flat (direct) |
-| **Manager** | `ParentStructureManager` | `ResultsManager` |
-| **Consolidated Analysis** | ✅ Yes (cross-dataset) | ❌ No |
+| **Pattern** | `optA_[timestamp]/` | `optA_[timestamp]/` |
+| **Structure** | Nested (`experiments/`) | Nested (`experiments/`) ✅ UNIFIED |
+| **Manager** | `ParentStructureManager` | `ParentStructureManager` |
+| **Consolidated Analysis** | ✅ Yes (cross-dataset) | ⚪ Empty (ready for future) |
 | **Use Case** | Compare performance across datasets | Focused single dataset study |
 | **Command** | `--dataset all` (default) | `--dataset iml_lifecycle` |
+| **Master Summary** | ✅ Accurate counts | ✅ Accurate counts |
 
 ## 📝 COMMAND REFERENCE
 
