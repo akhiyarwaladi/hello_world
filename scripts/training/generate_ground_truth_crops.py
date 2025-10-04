@@ -16,10 +16,18 @@ import shutil
 class GroundTruthCropGenerator:
     """Generate crops from ground truth annotations"""
 
-    def __init__(self, dataset_path, output_path, crop_size=224):
+    def __init__(self, dataset_path, output_path, crop_size=224, train_ratio=0.66, val_ratio=0.17, test_ratio=0.17):
         self.dataset_path = Path(dataset_path)
         self.output_path = Path(output_path)
         self.crop_size = crop_size
+        self.train_ratio = train_ratio
+        self.val_ratio = val_ratio
+        self.test_ratio = test_ratio
+
+        # Validate ratios
+        total_ratio = train_ratio + val_ratio + test_ratio
+        if abs(total_ratio - 1.0) > 0.001:
+            raise ValueError(f"Split ratios must sum to 1.0, got {total_ratio:.4f}")
 
         # Remove existing output directory to prevent duplicates
         if self.output_path.exists():
@@ -270,21 +278,28 @@ class GroundTruthCropGenerator:
         class_dist = Counter(stratify_labels)
         print(f"[STRATIFY] Overall class distribution: {dict(class_dist)}")
 
-        # Stratified split: 70% train, 20% val, 10% test
+        # Stratified split using configured ratios (default: 66% train, 17% val, 17% test)
+        temp_size = self.val_ratio + self.test_ratio
+        test_relative_size = self.test_ratio / temp_size if temp_size > 0 else 0.5
+
+        print(f"[SPLIT RATIOS] Train={self.train_ratio:.0%}, Val={self.val_ratio:.0%}, Test={self.test_ratio:.0%}")
+
         try:
             train_files, temp_files, train_labels, temp_labels = train_test_split(
                 image_files, stratify_labels,
-                test_size=0.3, random_state=42, stratify=stratify_labels
+                test_size=temp_size, random_state=42, stratify=stratify_labels
             )
             val_files, test_files, val_labels, test_labels = train_test_split(
                 temp_files, temp_labels,
-                test_size=0.33, random_state=42, stratify=temp_labels
+                test_size=test_relative_size, random_state=42, stratify=temp_labels
             )
-            print(f"[STRATIFY] Split: {len(train_files)} train, {len(val_files)} val, {len(test_files)} test")
+            print(f"[STRATIFY] Split: {len(train_files)} train ({len(train_files)/len(image_files):.1%}), "
+                  f"{len(val_files)} val ({len(val_files)/len(image_files):.1%}), "
+                  f"{len(test_files)} test ({len(test_files)/len(image_files):.1%})")
         except ValueError as e:
             print(f"[WARNING] Stratified split failed ({e}), using random split")
-            train_files, temp_files = train_test_split(image_files, test_size=0.3, random_state=42)
-            val_files, test_files = train_test_split(temp_files, test_size=0.33, random_state=42)
+            train_files, temp_files = train_test_split(image_files, test_size=temp_size, random_state=42)
+            val_files, test_files = train_test_split(temp_files, test_size=test_relative_size, random_state=42)
 
         # Create assignment dictionary
         assignment = {}
@@ -617,11 +632,31 @@ def main():
     parser.add_argument('--crop_size', type=int, default=224, help='Size of generated crops (default: 224 for paper compatibility)')
     parser.add_argument('--type', choices=['iml_lifecycle', 'mp_idb_species', 'mp_idb_stages'],
                        help='Force dataset type (overrides auto-detection)')
+    parser.add_argument('--train-ratio', type=float, default=0.66,
+                       help='Training set ratio (default: 0.66 = 66%%)')
+    parser.add_argument('--val-ratio', type=float, default=0.17,
+                       help='Validation set ratio (default: 0.17 = 17%%)')
+    parser.add_argument('--test-ratio', type=float, default=0.17,
+                       help='Test set ratio (default: 0.17 = 17%%)')
 
     args = parser.parse_args()
 
-    # Initialize generator
-    generator = GroundTruthCropGenerator(args.dataset, args.output, args.crop_size)
+    # Validate split ratios
+    total_ratio = args.train_ratio + args.val_ratio + args.test_ratio
+    if abs(total_ratio - 1.0) > 0.001:
+        print(f"[ERROR] Train/val/test ratios must sum to 1.0, got {total_ratio:.4f}")
+        print(f"  --train-ratio: {args.train_ratio}")
+        print(f"  --val-ratio: {args.val_ratio}")
+        print(f"  --test-ratio: {args.test_ratio}")
+        return
+
+    # Initialize generator with split ratios
+    generator = GroundTruthCropGenerator(
+        args.dataset, args.output, args.crop_size,
+        train_ratio=args.train_ratio,
+        val_ratio=args.val_ratio,
+        test_ratio=args.test_ratio
+    )
 
     # Detect or use specified dataset type
     if args.type:

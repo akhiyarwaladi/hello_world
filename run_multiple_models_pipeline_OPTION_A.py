@@ -1270,7 +1270,10 @@ def run_pipeline_for_dataset(args):
             "--dataset", raw_dataset_path,
             "--output", output_path,
             "--type", dataset_type,
-            "--crop_size", "224"  # FIXED: Use 224px to match pre-processed ground truth
+            "--crop_size", "224",  # FIXED: Use 224px to match pre-processed ground truth
+            "--train-ratio", str(args.train_ratio),
+            "--val-ratio", str(args.val_ratio),
+            "--test-ratio", str(args.test_ratio)
         ]
 
         if not run_command(cmd2, f"Generating shared ground truth crops"):
