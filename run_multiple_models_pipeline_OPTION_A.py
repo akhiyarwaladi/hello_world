@@ -830,7 +830,7 @@ def run_pipeline_for_dataset(args):
             "loss": "focal",
             "focal_alpha": 0.5,  # Standard for medical imaging (paper default: 0.25)
             "focal_gamma": 2.0,  # Standard focusing parameter
-            "epochs": 25,        # Standardized epochs
+            "epochs": args.epochs_cls,  # Use command-line parameter (default: 30)
             "batch": 32,         # Optimized for 224px images
             "lr": 0.0005,        # Lower LR for focal loss stability
             "display_name": f"{model.upper()} (Focal Loss)"
@@ -843,7 +843,7 @@ def run_pipeline_for_dataset(args):
             "model": model,
             "loss": "class_balanced",
             "cb_beta": 0.9999,   # Hyperparameter for effective number calculation
-            "epochs": 25,        # Standardized epochs
+            "epochs": args.epochs_cls,  # Use command-line parameter (default: 30)
             "batch": 32,         # Optimized for 224px images
             "lr": 0.0005,        # Optimal LR
             "display_name": f"{model.upper()} (Class-Balanced)"
@@ -968,8 +968,8 @@ def run_pipeline_for_dataset(args):
     print(f"[COMPREHENSIVE] Full multi-model multi-dataset experiments")
     print(f"Detection models: {', '.join(models_to_run)}")
     print(f"Classification: {len(base_models)} best models × 2 loss functions = {len(classification_configs)} experiments")
-    print(f"Loss Functions: Cross-Entropy (baseline) vs Focal Loss (novel contribution)")
-    print(f"Epochs: {args.epochs_det} det, 25 cls (standardized)")
+    print(f"Loss Functions: Focal Loss vs Class-Balanced Loss")
+    print(f"Epochs: {args.epochs_det} det, {args.epochs_cls} cls")
     print(f"Confidence: {confidence_threshold}")
 
     # Auto-setup and auto-detect best dataset
