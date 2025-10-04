@@ -10,6 +10,7 @@ import sys
 import time
 import json
 import argparse
+import random
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -24,6 +25,17 @@ from collections import Counter
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+
+# Set random seeds for reproducibility
+def set_seed(seed=42):
+    """Set random seeds for reproducibility across runs"""
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)  # For multi-GPU
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 # Add project root to path for imports
 project_root = Path(__file__).parent.parent.parent
@@ -290,6 +302,9 @@ def train_epoch(model, dataloader, criterion, optimizer, device, scaler=None, sc
                 loss = criterion(outputs, labels)
 
             scaler.scale(loss).backward()
+            # Gradient clipping to prevent explosion (especially for Focal Loss)
+            scaler.unscale_(optimizer)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             scaler.step(optimizer)
             scaler.update()
         else:
@@ -297,6 +312,8 @@ def train_epoch(model, dataloader, criterion, optimizer, device, scaler=None, sc
             outputs = model(inputs)
             loss = criterion(outputs, labels)
             loss.backward()
+            # Gradient clipping to prevent explosion (especially for Focal Loss)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             optimizer.step()
 
         # Step OneCycleLR scheduler per batch for maximum optimization
@@ -363,6 +380,9 @@ def save_confusion_matrix(y_true, y_pred, class_names, save_path):
     plt.close()
 
 def main():
+    # Set random seed for reproducibility
+    set_seed(42)
+
     # Simple GPU setup
     torch.set_num_threads(4)
 
@@ -572,7 +592,9 @@ def main():
     # Setup loss function based on --loss parameter
     print(f"\n[LOSS] Using {args.loss} loss function")
     if args.loss == 'focal':
-        print(f"[FOCAL] Alpha: {args.focal_alpha}, Gamma: {args.focal_gamma}")
+        print(f"[FOCAL] Alpha: {args.focal_alpha} (standard: 0.25-0.5), Gamma: {args.focal_gamma}")
+        print(f"[STABILITY] Gradient clipping enabled (max_norm=1.0)")
+        print(f"[REPRODUCIBILITY] Random seed: 42")
         criterion = FocalLoss(alpha=args.focal_alpha, gamma=args.focal_gamma)
         # Note: Focal loss has built-in handling for imbalance, so we don't use class weights
     elif args.loss == 'class_balanced':
@@ -631,7 +653,7 @@ def main():
 
     # Early stopping parameters
     best_val_acc = 0.0
-    patience = 10  # Stop if no improvement for 10 epochs
+    patience = 15  # Stop if no improvement for 15 epochs
     patience_counter = 0
     print(f"[EARLY STOPPING] Patience: {patience} epochs")
 
@@ -711,7 +733,7 @@ def main():
     # Test evaluation (only if test data exists)
     if test_loader is not None and len(test_dataset) > 0:
         # Load best model for testing
-        checkpoint = torch.load(experiment_path / 'best.pt', map_location=device)
+        checkpoint = torch.load(experiment_path / 'best.pt', map_location=device, weights_only=False)
         model.load_state_dict(checkpoint['model_state_dict'])
 
         test_loss, test_acc, test_preds, test_labels = validate_epoch(model, test_loader, criterion, device)

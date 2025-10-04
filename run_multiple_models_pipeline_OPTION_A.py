@@ -828,8 +828,8 @@ def run_pipeline_for_dataset(args):
             "script": "scripts/training/12_train_pytorch_classification.py",
             "model": model,
             "loss": "focal",
-            "focal_alpha": 2.0,  # Restored: 2.0 proven optimal (90% acc), 1.0 caused 61% acc
-            "focal_gamma": 2.0,
+            "focal_alpha": 0.5,  # Standard for medical imaging (paper default: 0.25)
+            "focal_gamma": 2.0,  # Standard focusing parameter
             "epochs": 25,        # Standardized epochs
             "batch": 32,         # Optimized for 224px images
             "lr": 0.0005,        # Lower LR for focal loss stability
