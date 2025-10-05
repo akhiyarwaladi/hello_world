@@ -560,10 +560,10 @@ Multi-Dataset Continue Examples:
                        choices=["yolo10", "yolo11", "yolo12"],
                        default=[],
                        help="Detection models to exclude")
-    parser.add_argument("--epochs-det", type=int, default=50,
-                       help="Epochs for detection training")
-    parser.add_argument("--epochs-cls", type=int, default=50,
-                       help="Epochs for classification training (increased from 30 to allow warmup + convergence)")
+    parser.add_argument("--epochs-det", type=int, default=100,
+                       help="PHASE 1: Epochs for detection training (increased from 50 for better convergence)")
+    parser.add_argument("--epochs-cls", type=int, default=75,
+                       help="PHASE 1: Epochs for classification training (increased from 50 for minority class convergence)")
     parser.add_argument("--experiment-name", default="optA",
                        help="Base name for experiments")
     parser.add_argument("--dataset", choices=["mp_idb_species", "mp_idb_stages", "iml_lifecycle", "all"], default="all",
@@ -889,33 +889,21 @@ def run_pipeline_for_dataset(args):
 
     classification_configs = {}
 
-    # Generate configurations for each model with Focal Loss and Class-Balanced ONLY
+    # PHASE 1 OPTIMIZATION: Use ONLY Focal Loss (Class-Balanced causes -8% to -26% degradation)
+    # Evidence: MP-IDB Stages with CB loss drops from 96% to 67.6-88.3%
     for model in base_models:
-        # Configuration 1: Focal Loss (Handles class imbalance)
+        # Configuration: Optimized Focal Loss (Standard medical imaging parameters)
         classification_configs[f"{model}_focal"] = {
             "type": "pytorch",
             "script": "scripts/training/12_train_pytorch_classification.py",
             "model": model,
             "loss": "focal",
-            "focal_alpha": 0.5,  # Standard for medical imaging (paper default: 0.25)
-            "focal_gamma": 1.5,  # Reduced from 2.0 for stability (prevents loss explosion)
-            "epochs": args.epochs_cls,  # Use command-line parameter (default: 30)
+            "focal_alpha": 0.25,  # OPTIMIZED: Standard medical imaging (was 0.5)
+            "focal_gamma": 2.0,   # OPTIMIZED: Standard focusing parameter (was 1.5)
+            "epochs": args.epochs_cls,  # Use command-line parameter (default: 75)
             "batch": 32,         # Optimized for 224px images
             "lr": 0.0005,        # Lower LR for focal loss stability
             "display_name": f"{model.upper()} (Focal Loss)"
-        }
-
-        # Configuration 2: Class-Balanced Loss (Auto-handles extreme imbalance)
-        classification_configs[f"{model}_cb"] = {
-            "type": "pytorch",
-            "script": "scripts/training/12_train_pytorch_classification.py",
-            "model": model,
-            "loss": "class_balanced",
-            "cb_beta": 0.9999,   # Hyperparameter for effective number calculation
-            "epochs": args.epochs_cls,  # Use command-line parameter (default: 30)
-            "batch": 32,         # Optimized for 224px images
-            "lr": 0.0005,        # Optimal LR
-            "display_name": f"{model.upper()} (Class-Balanced)"
         }
 
     # Determine which classification models to run
