@@ -87,7 +87,7 @@ def run_optimized_training(model_name, data_yaml, epochs, exp_name, centralized_
             batch=batch_size,    # Dataset-optimized batch size
             patience=patience_val,
             save=True,
-            save_period=10,
+            save_period=-1,      # Disable epoch checkpoints (save storage, only keep best.pt & last.pt)
             device='cuda' if torch.cuda.is_available() else 'cpu',  # Auto-detect GPU
             workers=4,           # GPU optimized workers
             exist_ok=True,
@@ -562,8 +562,8 @@ Multi-Dataset Continue Examples:
                        help="Detection models to exclude")
     parser.add_argument("--epochs-det", type=int, default=50,
                        help="Epochs for detection training")
-    parser.add_argument("--epochs-cls", type=int, default=30,
-                       help="Epochs for classification training")
+    parser.add_argument("--epochs-cls", type=int, default=50,
+                       help="Epochs for classification training (increased from 30 to allow warmup + convergence)")
     parser.add_argument("--experiment-name", default="optA",
                        help="Base name for experiments")
     parser.add_argument("--dataset", choices=["mp_idb_species", "mp_idb_stages", "iml_lifecycle", "all"], default="all",
@@ -898,7 +898,7 @@ def run_pipeline_for_dataset(args):
             "model": model,
             "loss": "focal",
             "focal_alpha": 0.5,  # Standard for medical imaging (paper default: 0.25)
-            "focal_gamma": 2.0,  # Standard focusing parameter
+            "focal_gamma": 1.5,  # Reduced from 2.0 for stability (prevents loss explosion)
             "epochs": args.epochs_cls,  # Use command-line parameter (default: 30)
             "batch": 32,         # Optimized for 224px images
             "lr": 0.0005,        # Lower LR for focal loss stability
@@ -1943,6 +1943,37 @@ Per-Class Performance:
         summary_path = results_manager.create_analysis_path("option_a_summary")
         det_model_names = [info['model_key'] for info in detection_models_trained]
         create_experiment_summary(str(summary_path), det_model_names, classification_models_trained, base_exp_name, args.dataset)
+
+        # 4G: Create experiment-level master_summary.json with correct counts
+        print(f"\n[SUMMARY] Creating experiment-level master_summary.json")
+        exp_dir = Path(results_manager.pipeline_dir)
+
+        # Count actual components in experiment folder
+        det_count = len(list(exp_dir.glob("det_*")))
+        cls_count = len(list(exp_dir.glob("cls_*")))
+        crop_count = len(list(exp_dir.glob("crops_*")))
+        analysis_count = len(list(exp_dir.glob("analysis_*")))
+
+        exp_master_summary = {
+            "experiment_name": f"{base_exp_name}_{args.dataset}",
+            "timestamp": datetime.now().isoformat(),
+            "pipeline_type": "option_a_shared_classification",
+            "folder_structure": {
+                "detection": det_count,
+                "classification": cls_count,
+                "crop_data": crop_count,
+                "analysis": analysis_count
+            }
+        }
+
+        # Save to experiment root folder
+        with open(exp_dir / "master_summary.json", "w") as f:
+            json.dump(exp_master_summary, f, indent=2)
+
+        print(f"   [SAVED] master_summary.json: {det_count} det, {cls_count} cls, {crop_count} crops, {analysis_count} analysis")
+
+        # Also create Excel version for easier reading
+        create_master_summary_excel(exp_dir, exp_master_summary)
 
     successful_models.append(f"Option A Pipeline: {len(detection_models_trained)} detection × {len(classification_models_trained)} classification models")
 

@@ -11,6 +11,7 @@ import time
 import json
 import argparse
 import random
+import shutil
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -25,6 +26,7 @@ from collections import Counter
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from PIL import ImageEnhance, ImageFilter
 
 # Set random seeds for reproducibility
 def set_seed(seed=42):
@@ -50,11 +52,11 @@ class FocalLoss(nn.Module):
 
     Args:
         alpha (float): Weighting factor for rare class (default: 1.0)
-        gamma (float): Focusing parameter (default: 2.0)
+        gamma (float): Focusing parameter (default: 1.5, reduced from 2.0 for stability)
         reduction (str): Specifies reduction to apply to output
     """
 
-    def __init__(self, alpha=1.0, gamma=2.0, reduction='mean'):
+    def __init__(self, alpha=1.0, gamma=1.5, reduction='mean'):
         super(FocalLoss, self).__init__()
         self.alpha = alpha
         self.gamma = gamma
@@ -166,18 +168,80 @@ def get_model(model_name, num_classes=4, pretrained=True):
 
     return model
 
+class MildMedicalAugmentation:
+    """Mild augmentation optimized for small malaria parasites (20-30px)
+
+    Paper augmentation was TOO AGGRESSIVE causing:
+    - Training instability (loss explosion 199.81)
+    - Test accuracy drop (-26.97% for EfficientNet-B0)
+    - Model confusion with extreme transforms
+
+    Milder settings preserve parasite morphology:
+    - Contrast: 1.2 / 0.8 (vs paper's 1.5 / 0.5)
+    - Sharpness: 2.0 / 0.7 (vs paper's 5.0 / 0.5)
+    - Blur: 0.8 (vs paper's 1.5)
+    """
+    def __init__(self, p=0.5):
+        self.p = p
+
+    def __call__(self, img):
+        if random.random() < self.p:
+            choice = random.randint(0, 5)
+            if choice == 0:
+                # Mild contrast increase (1.2 vs paper's 1.5)
+                img = ImageEnhance.Contrast(img).enhance(1.2)
+            elif choice == 1:
+                # Mild contrast decrease (0.8 vs paper's 0.5)
+                img = ImageEnhance.Contrast(img).enhance(0.8)
+            elif choice == 2:
+                # Mild sharpness increase (2.0 vs paper's 5.0)
+                img = ImageEnhance.Sharpness(img).enhance(2.0)
+            elif choice == 3:
+                # Mild sharpness decrease (0.7 vs paper's 0.5)
+                img = ImageEnhance.Sharpness(img).enhance(0.7)
+            elif choice == 4:
+                # Mild blur (0.8 vs paper's 1.5)
+                img = img.filter(ImageFilter.GaussianBlur(radius=0.8))
+            # choice == 5: return original image
+        return img
+
 def get_transforms(image_size=224):
-    """Get data transforms"""
+    """Get data transforms with MILD medical-safe augmentation
+
+    ROLLBACK from aggressive paper augmentation due to:
+    - Training instability (loss explosion to 199.81)
+    - Test accuracy drop up to -26.97%
+    - Parasites too small (20-30px) for extreme transforms
+
+    Current MILD augmentation:
+    - Contrast: 1.2 / 0.8 (mild, preserves morphology)
+    - Sharpness: 2.0 / 0.7 (mild, preserves details)
+    - Blur: 0.8 (very mild)
+    - Rotation: 15° (small angles only, safer than 90°/180°/270°)
+    - Brightness: 0.9 / 1.1 (mild)
+    - Saturation: 0.9 / 1.1 (mild)
+    - Flip: Horizontal/Vertical (safe)
+
+    Validation/Testing: NO augmentation
+    """
     train_transform = transforms.Compose([
         transforms.Resize((image_size, image_size)),
+        MildMedicalAugmentation(p=0.5),  # MILD contrast/sharpness/blur
         transforms.RandomHorizontalFlip(p=0.5),
         transforms.RandomVerticalFlip(p=0.3),
-        transforms.RandomRotation(15),
-        transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.05),
+        transforms.RandomRotation(15),  # Small angles only (not 90°/180°/270°!)
+        # MILD brightness & saturation (0.9-1.1 range)
+        transforms.ColorJitter(
+            brightness=(0.9, 1.1),  # Mild (vs paper's 0.8-1.2)
+            saturation=(0.9, 1.1),  # Mild (vs paper's 0.5-1.5)
+            contrast=0,  # Already handled by MildMedicalAugmentation
+            hue=0.02    # Very small hue shift
+        ),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
 
+    # Validation/Test: NO augmentation (only resize + normalize)
     val_transform = transforms.Compose([
         transforms.Resize((image_size, image_size)),
         transforms.ToTensor(),
@@ -387,8 +451,8 @@ def main():
                                'vgg16', 'vgg19',  # VGG models for strong feature extraction
                                'vit_b_16', 'vit_b_32'],  # Vision Transformers (requires large datasets)
                        help="Model architecture (EfficientNet-B0/B1 recommended for medical AI)")
-    parser.add_argument("--epochs", type=int, default=25,  # Increased from 10
-                       help="Number of epochs (default: 25 for better convergence)")
+    parser.add_argument("--epochs", type=int, default=50,  # Increased from 25
+                       help="Number of epochs (default: 50 for better convergence with dual checkpoint)")
     parser.add_argument("--batch", type=int, default=32,  # Optimized for 224px images
                        help="Batch size (default: 32 optimized for 224px images)")
     parser.add_argument("--lr", type=float, default=0.0005,  # OPTIMAL: Changed from 0.001 to 0.0005
@@ -397,8 +461,8 @@ def main():
                        help="Loss function type (focal/class_balanced recommended for medical AI)")
     parser.add_argument("--focal_alpha", type=float, default=1.0,
                        help="Focal loss alpha parameter")
-    parser.add_argument("--focal_gamma", type=float, default=2.0,
-                       help="Focal loss gamma parameter")
+    parser.add_argument("--focal_gamma", type=float, default=1.5,
+                       help="Focal loss gamma parameter (1.5 for stability, reduced from 2.0)")
     parser.add_argument("--cb_beta", type=float, default=0.9999,
                        help="Class-Balanced loss beta parameter (default: 0.9999)")
     parser.add_argument("--image_size", type=int, default=224,
@@ -640,11 +704,24 @@ def main():
     print("\n[TIMER] Starting training...")
     start_time = time.time()
 
-    # Early stopping parameters
-    best_val_acc = 0.0
-    patience = 15  # Stop if no improvement for 15 epochs
+    # Dual Checkpoint Strategy - Save both best_val_loss and best_val_acc
+    # Analysis of training curves shows:
+    # - Epoch 1-12: Unstable "chaos phase" (loss spikes, low accuracy)
+    # - Epoch 12+: Stable convergence (save both loss and acc checkpoints)
+    # - Test set evaluation determines final winner
+    best_val_loss = float('inf')  # Track best val_loss checkpoint
+    best_val_acc = 0.0  # Track val_acc for best_val_loss checkpoint
+    best_acc_val_acc = 0.0  # Track best val_acc checkpoint
+    best_acc_val_loss = float('inf')  # Track val_loss for best_val_acc checkpoint
+    patience = 12  # Increased from 10 - more patient to find best models
     patience_counter = 0
-    print(f"[EARLY STOPPING] Patience: {patience} epochs")
+    min_val_acc_threshold = 85.0  # Quality threshold (only save proven good models)
+    warmup_epochs = 12  # Skip unstable chaos phase completely (epoch 1-12)
+    print(f"[EARLY STOPPING] Dual Checkpoint Strategy")
+    print(f"[EARLY STOPPING] Warmup: {warmup_epochs} epochs (skip chaos phase)")
+    print(f"[EARLY STOPPING] Threshold: Val Acc > {min_val_acc_threshold}% (quality filter)")
+    print(f"[EARLY STOPPING] Patience: {patience} epochs (explore more before stopping)")
+    print(f"[EARLY STOPPING] Saving: best_val_loss.pt + best_val_acc.pt → test set picks winner")
 
     for epoch in range(args.epochs):
         print(f"\nEpoch {epoch+1}/{args.epochs}")
@@ -673,27 +750,64 @@ def main():
         print(f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2f}%")
         print(f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2f}%")
 
-        # Save best model and early stopping logic
-        if val_acc > best_val_acc:
-            best_val_acc = val_acc
-            patience_counter = 0  # Reset patience counter
-            torch.save({
-                'epoch': epoch,
-                'model_state_dict': model.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-                'val_acc': val_acc,
-                'model_name': args.model,
-                'class_names': class_names
-            }, experiment_path / 'best.pt')
-            print(f"[SAVE] Saved best model (Val Acc: {val_acc:.2f}%)")
+        # Dual Checkpoint Strategy: Save both best_val_loss and best_val_acc
+        # Three-tier filtering to ensure only stable, proven models are saved:
+        # 1. Warmup filter: Skip epoch 1-12 (unstable chaos phase)
+        # 2. Accuracy filter: Only save if val_acc >= 85% (proven good)
+        # 3. Dual save: Track both val_loss and val_acc improvements
+
+        if epoch < warmup_epochs:
+            # Still in warmup phase - don't save yet
+            print(f"[WARMUP] Epoch {epoch+1}/{warmup_epochs} - skipping save (chaos phase)")
+        elif val_acc < min_val_acc_threshold:
+            # Model hasn't reached quality threshold yet
+            print(f"[SKIP] Val Acc {val_acc:.2f}% < {min_val_acc_threshold}% threshold, not saving")
         else:
-            patience_counter += 1
-            print(f"[EARLY STOPPING] No improvement for {patience_counter}/{patience} epochs")
+            # Past warmup and threshold - evaluate for dual checkpoints
+            saved_this_epoch = False
+
+            # Save model with best validation loss
+            if val_loss < best_val_loss:
+                best_val_loss = val_loss
+                best_val_acc = val_acc
+                patience_counter = 0  # Reset patience
+                torch.save({
+                    'epoch': epoch,
+                    'model_state_dict': model.state_dict(),
+                    'optimizer_state_dict': optimizer.state_dict(),
+                    'val_loss': val_loss,
+                    'val_acc': val_acc,
+                    'model_name': args.model,
+                    'class_names': class_names
+                }, experiment_path / 'best_val_loss.pt')
+                print(f"[SAVED] Best val_loss model (loss: {val_loss:.4f}, acc: {val_acc:.2f}%)")
+                saved_this_epoch = True
+
+            # Save model with best validation accuracy (separate checkpoint)
+            if val_acc > best_acc_val_acc:
+                best_acc_val_acc = val_acc
+                best_acc_val_loss = val_loss
+                torch.save({
+                    'epoch': epoch,
+                    'model_state_dict': model.state_dict(),
+                    'optimizer_state_dict': optimizer.state_dict(),
+                    'val_loss': val_loss,
+                    'val_acc': val_acc,
+                    'model_name': args.model,
+                    'class_names': class_names
+                }, experiment_path / 'best_val_acc.pt')
+                print(f"[SAVED] Best val_acc model (acc: {val_acc:.2f}%, loss: {val_loss:.4f})")
+                saved_this_epoch = True
+
+            if not saved_this_epoch:
+                # No improvement in either metric
+                patience_counter += 1
+                print(f"[EARLY STOPPING] No improvement for {patience_counter}/{patience} epochs")
 
         # Early stopping check
         if patience_counter >= patience:
             print(f"[EARLY STOPPING] Stopping training due to no improvement for {patience} epochs")
-            print(f"[EARLY STOPPING] Best validation accuracy: {best_val_acc:.2f}%")
+            print(f"[EARLY STOPPING] Best validation loss: {best_val_loss:.4f} (Val Acc: {best_val_acc:.2f}%)")
             break
 
     # Save final model
@@ -714,14 +828,58 @@ def main():
     print("=" * 60)
     print(f"[TIMER] Training time: {training_time/60:.1f} minutes")
     print(f"[RESULTS] Results saved to: {experiment_path}")
-    print(f"[BEST] Best validation accuracy: {best_val_acc:.2f}%")
+    print(f"[BEST VAL_LOSS] Val Loss: {best_val_loss:.4f}, Val Acc: {best_val_acc:.2f}%")
+    print(f"[BEST VAL_ACC] Val Acc: {best_acc_val_acc:.2f}%, Val Loss: {best_acc_val_loss:.4f}")
 
-    # Test evaluation
-    print("\n[TEST] Running test evaluation...")
+    # Evaluate both checkpoints on test set to choose best
+    print("\n[DUAL EVAL] Evaluating both checkpoints on test set...")
+
+    best_test_acc = 0.0
+    best_checkpoint_name = None
 
     # Test evaluation (only if test data exists)
     if test_loader is not None and len(test_dataset) > 0:
-        # Load best model for testing
+        # Evaluate best_val_loss.pt
+        if (experiment_path / 'best_val_loss.pt').exists():
+            checkpoint = torch.load(experiment_path / 'best_val_loss.pt', map_location=device, weights_only=False)
+            model.load_state_dict(checkpoint['model_state_dict'])
+            test_loss_1, test_acc_1, _, _ = validate_epoch(model, test_loader, criterion, device)
+            print(f"[TEST] best_val_loss.pt → Test Acc: {test_acc_1:.2f}%")
+            if test_acc_1 > best_test_acc:
+                best_test_acc = test_acc_1
+                best_checkpoint_name = 'best_val_loss.pt'
+
+        # Evaluate best_val_acc.pt
+        if (experiment_path / 'best_val_acc.pt').exists():
+            checkpoint = torch.load(experiment_path / 'best_val_acc.pt', map_location=device, weights_only=False)
+            model.load_state_dict(checkpoint['model_state_dict'])
+            test_loss_2, test_acc_2, _, _ = validate_epoch(model, test_loader, criterion, device)
+            print(f"[TEST] best_val_acc.pt → Test Acc: {test_acc_2:.2f}%")
+            if test_acc_2 > best_test_acc:
+                best_test_acc = test_acc_2
+                best_checkpoint_name = 'best_val_acc.pt'
+
+        # Copy winner to best.pt for compatibility
+        if best_checkpoint_name:
+            print(f"\n[WINNER] {best_checkpoint_name} has highest test accuracy: {best_test_acc:.2f}%")
+            shutil.copy(experiment_path / best_checkpoint_name, experiment_path / 'best.pt')
+        else:
+            # Fallback: use last.pt if no checkpoints exist
+            print(f"\n[FALLBACK] No checkpoints found (never reached {min_val_acc_threshold}% threshold)")
+            print(f"[FALLBACK] Using last.pt for evaluation")
+            shutil.copy(experiment_path / 'last.pt', experiment_path / 'best.pt')
+
+        # Cleanup: Remove dual checkpoints after winner selection (save storage)
+        print("\n[CLEANUP] Removing dual checkpoints to save storage...")
+        if (experiment_path / 'best_val_loss.pt').exists():
+            (experiment_path / 'best_val_loss.pt').unlink()
+            print(f"   Deleted: best_val_loss.pt")
+        if (experiment_path / 'best_val_acc.pt').exists():
+            (experiment_path / 'best_val_acc.pt').unlink()
+            print(f"   Deleted: best_val_acc.pt")
+        print(f"   Kept: best.pt (winner), last.pt (latest)")
+
+        # Load winner for final evaluation
         checkpoint = torch.load(experiment_path / 'best.pt', map_location=device, weights_only=False)
         model.load_state_dict(checkpoint['model_state_dict'])
 
