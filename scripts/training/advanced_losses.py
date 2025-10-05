@@ -79,7 +79,7 @@ class ClassBalancedLoss(nn.Module):
         https://arxiv.org/abs/1901.05555
     """
 
-    def __init__(self, samples_per_class, beta=0.9999, loss_type='ce', gamma=2.0):
+    def __init__(self, samples_per_class, beta=0.9999, loss_type='ce', gamma=1.5):
         super().__init__()
         self.loss_type = loss_type
         self.gamma = gamma
@@ -121,7 +121,7 @@ class WeightedFocalLoss(nn.Module):
 
     Args:
         alpha (list/tensor): Per-class weights [num_classes]
-        gamma (float): Focusing parameter (default: 2.0)
+        gamma (float): Focusing parameter (default: 1.5, reduced from 2.0 for stability)
         reduction (str): 'mean', 'sum', or 'none'
 
     Reference:
@@ -129,7 +129,7 @@ class WeightedFocalLoss(nn.Module):
         https://arxiv.org/abs/1708.02002
     """
 
-    def __init__(self, alpha=None, gamma=2.0, reduction='mean'):
+    def __init__(self, alpha=None, gamma=1.5, reduction='mean'):
         super().__init__()
         if alpha is not None:
             if isinstance(alpha, (list, np.ndarray)):
@@ -257,11 +257,11 @@ def get_loss_function(loss_name, **kwargs):
             raise ValueError("samples_per_class required for ClassBalancedLoss")
         beta = kwargs.get('beta', 0.9999)
         loss_type = kwargs.get('loss_type', 'ce')
-        gamma = kwargs.get('gamma', 2.0)
+        gamma = kwargs.get('gamma', 1.5)
         return ClassBalancedLoss(samples_per_class, beta, loss_type, gamma)
 
     elif loss_name == 'focal':
-        gamma = kwargs.get('gamma', 2.0)
+        gamma = kwargs.get('gamma', 1.5)
         alpha = kwargs.get('alpha', 1.0)
         # Import from parent module if needed
         from scripts.training.train_pytorch_classification import FocalLoss
@@ -269,7 +269,7 @@ def get_loss_function(loss_name, **kwargs):
 
     elif loss_name == 'weighted_focal' or loss_name == 'wf':
         alpha = kwargs.get('alpha')
-        gamma = kwargs.get('gamma', 2.0)
+        gamma = kwargs.get('gamma', 1.5)
         return WeightedFocalLoss(alpha=alpha, gamma=gamma)
 
     elif loss_name == 'dice':
@@ -302,7 +302,7 @@ if __name__ == "__main__":
 
     print("\n3. Weighted Focal Loss:")
     alpha = [1.0, 2.0, 3.0, 4.0]  # Higher weight for rare classes
-    wf_loss = WeightedFocalLoss(alpha=alpha, gamma=2.0)
+    wf_loss = WeightedFocalLoss(alpha=alpha, gamma=1.5)
     print(f"   Loss: {wf_loss(pred, target).item():.4f}")
 
     print("\n4. Dice Loss:")
@@ -311,7 +311,7 @@ if __name__ == "__main__":
 
     print("\n5. Combined Loss (CE + Focal):")
     ce_loss = nn.CrossEntropyLoss()
-    focal_loss = WeightedFocalLoss(gamma=2.0)
+    focal_loss = WeightedFocalLoss(gamma=1.5)
     combined = CombinedLoss([(ce_loss, 0.5), (focal_loss, 0.5)])
     print(f"   Loss: {combined(pred, target).item():.4f}")
 
