@@ -1,7 +1,0 @@
-﻿Model,Accuracy (%),Balanced Accuracy (%)
-Densenet121,98.8,87.73
-EFFICIENTNET-B0,98.4,88.18
-EFFICIENTNET-B1,98.8,93.18
-EFFICIENTNET-B2,98.4,82.73
-Resnet50,98.0,75.0
-Resnet101,98.4,82.73
