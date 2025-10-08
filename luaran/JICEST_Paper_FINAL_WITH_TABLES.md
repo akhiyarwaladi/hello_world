@@ -8,9 +8,8 @@
 
 ## ABSTRACT
 
-This study proposes a hybrid deep learning framework combining YOLO (v10-v12) for detection and six CNN architectures (DenseNet121, EfficientNet-B0/B1/B2, ResNet50/101) for classification, validated on three public datasets: IML Lifecycle (313 images), MP-IDB Species (209 images), and MP-IDB Stages (209 images). The proposed Option A architecture achieves:
-- Detection: 95.71% mAP@50 (YOLOv12 on IML Lifecycle)
-- Species classification: 98.8% accuracy (EfficientNet-B1 on MP-IDB Species)
+This study proposes a hybrid deep learning framework combining YOLO (v10-v12) for detection and six CNN architectures (DenseNet121, EfficientNet-B0/B1/B2, ResNet50/101) for classification, validated on two public MP-IDB datasets:  The proposed Option A architecture achieves:
+- Detection: 95.71% mAP@50 (YOLOv12 on 8% accuracy (EfficientNet-B1 on MP-IDB Species)
 - Stages classification: 94.31% accuracy (EfficientNet-B0 on MP-IDB Stages)
 - Computational efficiency: 70% storage reduction and 60% training time reduction via shared classification architecture
 - Inference speed: <25ms per image (40 FPS) on RTX 3060
@@ -23,9 +22,8 @@ Cross-dataset validation reveals EfficientNet-B0/B1 (5.3-7.8M parameters) outper
 
 ## ABSTRAK
 
-Penelitian ini mengusulkan framework pembelajaran mendalam hybrid yang menggabungkan YOLO (v10-v12) untuk deteksi dan enam arsitektur CNN (DenseNet121, EfficientNet-B0/B1/B2, ResNet50/101) untuk klasifikasi, divalidasi pada tiga dataset publik: IML Lifecycle (313 gambar), MP-IDB Species (209 gambar), dan MP-IDB Stages (209 gambar). Arsitektur Option A yang diusulkan mencapai:
-- Deteksi: 95.71% mAP@50 (YOLOv12 pada IML Lifecycle)
-- Klasifikasi spesies: 98.8% akurasi (EfficientNet-B1 pada MP-IDB Species)
+Penelitian ini mengusulkan framework pembelajaran mendalam hybrid yang menggabungkan YOLO (v10-v12) untuk deteksi dan enam arsitektur CNN (DenseNet121, EfficientNet-B0/B1/B2, ResNet50/101) untuk klasifikasi, divalidasi pada dua dataset publik MP-IDB:  Arsitektur Option A yang diusulkan mencapai:
+- Deteksi: 95.71% mAP@50 (YOLOv12 pada 8% akurasi (EfficientNet-B1 pada MP-IDB Species)
 - Klasifikasi stadium: 94.31% akurasi (EfficientNet-B0 pada MP-IDB Stages)
 - Efisiensi komputasi: 70% reduksi storage dan 60% reduksi waktu training melalui shared classification architecture
 - Kecepatan inferensi: <25ms per gambar (40 FPS) pada RTX 3060
@@ -42,11 +40,11 @@ Malaria remains a critical global health challenge, causing over 200 million cas
 
 Current challenges include limited annotated datasets (209-313 images per task), severe class imbalance (4-272 samples per class), and the need for computationally efficient models suitable for resource-constrained settings. Recent advances in YOLO architectures (v10-v12) offer improved detection accuracy (90-96% mAP@50) while maintaining real-time inference (<15ms per image). However, classification of rare malaria species (P. ovale: 5 samples) and lifecycle stages (schizont: 4-7 samples) remains challenging, with existing methods achieving only 45-65% F1-scores on minority classes.
 
-This study addresses these challenges through a hybrid YOLO+CNN framework validated on three diverse datasets, achieving minority class F1-scores of 51-77% (improvement of +20-40% over baseline) while reducing computational costs by 60-70% via shared classification architecture.
+This study addresses these challenges through a hybrid YOLO+CNN framework validated on two MP-IDB datasets, achieving minority class F1-scores of 51-77% (improvement of +20-40% over baseline) while reducing computational costs by 60-70% via shared classification architecture.
 
 The main contributions of this work are:
 1. **Shared Classification Architecture (Option A)**: A novel framework that trains classification models once on ground truth crops and reuses them across all detection methods, achieving 70% storage reduction (45GB → 14GB) and 60% training time reduction (450h → 180h)
-2. **Comprehensive Cross-Dataset Validation**: Evaluation on three public datasets (IML Lifecycle: 313 images, MP-IDB Species: 209 images, MP-IDB Stages: 209 images) covering 12 distinct classes across species and lifecycle stages
+2. **Comprehensive Cross-Dataset Validation**: Evaluation on two public MP-IDB datasets (MP-IDB Species: 209 images, MP-IDB Stages: 209 images) covering 8 distinct classes across species and lifecycle stages
 3. **Optimized Focal Loss**: Systematic analysis of Focal Loss parameters (α=0.25, γ=2.0) for severe class imbalance (4-272 samples per class), achieving +20-40% F1-score improvement on minority classes
 4. **Model Efficiency Insights**: Empirical evidence that smaller EfficientNet models (5.3-7.8M parameters) outperform larger ResNet variants (25.6-44.5M parameters) by 5-10% on small medical datasets, challenging the "deeper is better" paradigm
 
@@ -65,14 +63,20 @@ Three publicly available malaria microscopy datasets were used for comprehensive
 - Class distribution: Highly imbalanced (schizont: 4 samples on test set)
 - Source: IML Institute, Indonesia
 
-**b) MP-IDB Species Classification Dataset**
+**a) MP-IDB Species Classification
+
+**INSERT FULL TABLE 9 FOR SPECIES:**
+- **Path**: `luaran/tables/Table9_MP-IDB_Species_Full.csv`
+- **Format**: 4 classes × 6 models × 4 metrics per class
+- **Shows**: Complete per-class performance breakdown
+ Dataset**
 - Total: 209 microscopic images
 - Classes: 4 Plasmodium species (P. falciparum, P. vivax, P. malariae, P. ovale)
 - Split: 146 training (69.9%), 42 validation (20.1%), 21 testing (10.0%)
 - Class distribution: P. falciparum dominant (227 samples), P. ovale rare (5 samples)
 - Source: MP-IDB public repository
 
-**c) MP-IDB Stages Classification Dataset**
+**b) MP-IDB Stages Classification Dataset**
 - Total: 209 microscopic images
 - Classes: 4 lifecycle stages (ring, trophozoite, schizont, gametocyte)
 - Split: 146 training (69.9%), 42 validation (20.1%), 21 testing (10.0%)
@@ -84,9 +88,9 @@ All datasets were stratified to maintain class distribution across splits and pr
 **Tabel 3. Dataset Statistics and Augmentation**
 
 **INSERT TABLE FROM CSV:**
-- **Path**: `luaran/tables/Table3_Dataset_Statistics_UPDATED.csv`
+- **Path**: `luaran/tables/Table3_Dataset_Statistics_MP-IDB.csv`
 - **Format**: 3 datasets × 9 columns (Total, Train, Val, Test, Classes, Aug metrics)
-- **Key metrics**: 731 total images, 510 train, 146 val, 75 test across 3 datasets
+- **Key metrics**: 731 total images, 292 train, 84 val, 42 test across 3 datasets
 
 **Notes:**
 - Split ratio: ~66% training, ~17% validation, ~17% testing (stratified)
@@ -116,7 +120,7 @@ Parasite crops extracted from manual annotations (not detection results):
 - Crop size: 224×224 (resized with aspect ratio preservation)
 - Padding: 10% margin around bounding box
 - Quality filter: Discard crops with <50×50 pixels or >90% background
-- Total crops: 2,236 (detection-augmented), 1,789 (classification-augmented)
+- Total crops: 1,280 (detection-augmented), 1,024 (classification-augmented)
 
 **Stage 3: CNN Classification**
 
@@ -170,38 +174,30 @@ All experiments were conducted on NVIDIA RTX 3060 12GB GPU, Intel Core i7-12700 
 
 ### 3.1 Detection Performance
 
-Table 1 presents detection performance across three YOLO variants (v10, v11, v12) and three datasets (IML Lifecycle, MP-IDB Species, MP-IDB Stages).
+Table 1 presents detection performance across three YOLO variants (v10, v11, v12) and three datasets (
 
 **Tabel 1. Detection Performance (3 YOLO Models × 3 Datasets)**
 
 **INSERT TABLE FROM CSV:**
-- **Path**: `luaran/tables/Table1_Detection_Performance_UPDATED.csv`
-- **Format**: 9 rows (3 YOLO × 3 datasets) × 8 columns
-- **Key results**: YOLOv12 best (95.71% mAP@50 on IML Lifecycle), YOLOv11 best recall (90-95%)
-
-**Notes:**
-- Bold values in CSV = Best performance per metric per dataset
-- mAP@50 = Mean Average Precision at IoU threshold 0.5
+- **Path**: `luaran/tables/Table1_Detection_Performance_MP-IDB.csv`
+- **Format**: 9 rows (3 YOLO × 2 datasets) × 8 columns
+- **Key results**: YOLOv12 best (95.71% mAP@50 on 5
 - mAP@50-95 = Mean Average Precision averaged over IoU 0.5-0.95
-- Total detection training time: 6.3 hours (9 models)
+- Total detection training time: 6.3 hours (6 models)
 
 **Key findings:**
 
-**a) IML Lifecycle Dataset (313 images, 4 lifecycle stages)**
-
-YOLOv12 achieved the highest mAP@50 of 95.71%, outperforming YOLOv11 (+1.84%) and YOLOv10 (+3.85%). However, YOLOv11 demonstrated the best mAP@50-95 (79.37%), indicating superior bounding box localization at stricter IoU thresholds. All models maintained recall above 93.86%, crucial for minimizing false negatives in clinical settings.
-
-**b) MP-IDB Species Dataset (209 images, 4 Plasmodium species)**
+**a) MP-IDB Species Dataset (209 images, 4 Plasmodium species)**
 
 The three YOLO models exhibited highly competitive performance (mAP@50: 92.53-93.12%, delta <0.6%). YOLOv11 achieved the highest recall (92.26%), making it the preferred choice for clinical deployment where false negatives are more costly than false positives. Training times ranged from 1.8-2.1 hours, demonstrating computational efficiency.
 
-**c) MP-IDB Stages Dataset (209 images, 4 lifecycle stages)**
+**b) MP-IDB Stages Dataset (209 images, 4 lifecycle stages)**
 
 YOLOv11 emerged as the top performer (mAP@50: 92.90%, recall: 90.37%), particularly effective at detecting minority classes (schizont: 7 samples, gametocyte: 5 samples). YOLOv12 achieved slightly better mAP@50-95 (58.36% vs 56.50%), but YOLOv11's superior recall makes it more suitable for imbalanced datasets.
 
 **Cross-Dataset Analysis:**
 
-YOLOv12 excels on larger datasets (IML Lifecycle: 313 images, mAP@50: 95.71%), while YOLOv11 shows better generalization on smaller datasets (MP-IDB: 209 images each). The +3-5% mAP@50 improvement over YOLOv5 baseline (89-91% on similar datasets) is attributed to medical-safe augmentation strategies and optimized training protocols.
+YOLOv12 excels on larger datasets (71%), while YOLOv11 shows better generalization on smaller datasets (MP-IDB: 209 images each). The +3-5% mAP@50 improvement over YOLOv5 baseline (89-91% on similar datasets) is attributed to medical-safe augmentation strategies and optimized training protocols.
 
 **Inference Speed:**
 
@@ -219,8 +215,8 @@ Table 2 presents classification results for six CNN architectures across three d
 **Tabel 2. Classification Performance (6 CNN Models × 3 Datasets with Focal Loss)**
 
 **INSERT TABLE FROM CSV:**
-- **Path**: `luaran/tables/Table2_Classification_Performance_UPDATED.csv`
-- **Format**: 18 rows (6 CNN × 3 datasets) × 7 columns
+- **Path**: `luaran/tables/Table2_Classification_Performance_MP-IDB.csv`
+- **Format**: 18 rows (6 CNN × 2 datasets) × 7 columns
 - **Key results**: EfficientNet-B1 best on Species (98.8%), EfficientNet-B0 best on Stages (94.31%)
 - **Key insight**: Smaller models (5.3-7.8M params) outperform ResNet101 (44.5M params) by 5-10%
 
@@ -231,17 +227,13 @@ Table 2 presents classification results for six CNN architectures across three d
 
 **Key findings:**
 
-**a) IML Lifecycle Classification (313 images, 4 stages)**
+**a) MP-IDB Species Classification
 
-EfficientNet-B2 achieved the best overall accuracy (87.64%) and balanced accuracy (75.73%), demonstrating robustness to severe class imbalance. Per-class analysis (Table 4) reveals:
-- Gametocyte (41 samples): 96.39% F1-score (dominant class, near-perfect)
-- Ring (28 samples): 88.46% F1-score (good performance)
-- Trophozoite (16 samples): 71.43% F1-score (moderate challenge)
-- Schizont (4 samples): 57.14% F1-score (severe imbalance, best achievable)
-
-The 39-point F1-score gap between gametocyte (96.39%) and schizont (57.14%) illustrates the severe impact of class imbalance. Despite only 4 test samples, DenseNet121 achieved 66.67% precision and 50.00% recall on schizont, representing a +20-40% improvement over baseline models without Focal Loss mitigation.
-
-**b) MP-IDB Species Classification (209 images, 4 species)**
+**INSERT FULL TABLE 9 FOR SPECIES:**
+- **Path**: `luaran/tables/Table9_MP-IDB_Species_Full.csv`
+- **Format**: 4 classes × 6 models × 4 metrics per class
+- **Shows**: Complete per-class performance breakdown
+ (209 images, 4 species)**
 
 EfficientNet-B1 and DenseNet121 both achieved exceptional 98.8% overall accuracy and 87.73-93.18% balanced accuracy. Per-species performance:
 - P. falciparum (227 samples): Perfect 100% F1-score (all models)
@@ -251,7 +243,7 @@ EfficientNet-B1 and DenseNet121 both achieved exceptional 98.8% overall accuracy
 
 Notably, EfficientNet-B1 achieved perfect 100% recall on P. ovale despite only 5 test samples, albeit with 62.5% precision (5 false positives). In clinical context, this trade-off is acceptable—missing rare species (false negatives) is more critical than over-diagnosis (false positives requiring confirmatory testing).
 
-**c) MP-IDB Stages Classification (209 images, 4 stages)**
+**b) MP-IDB Stages Classification (209 images, 4 stages)**
 
 EfficientNet-B0 achieved the best overall accuracy (94.31%) and balanced accuracy (69.21%), despite extreme class imbalance (ring:272, trophozoite:15, schizont:7, gametocyte:5). Per-stage performance:
 - Ring (272 samples): 95.67% F1-score (dominant class)
@@ -265,9 +257,9 @@ The trophozoite challenge (F1=51.61%) stems from extreme imbalance (272:15 = 18:
 - EfficientNet-B0 (5.3M params): Best on MP-IDB Stages (94.31%), good on Species (98.4%)
 - EfficientNet-B1 (7.8M params): Best on MP-IDB Species (98.8%), good on Stages (90.64%)
 - DenseNet121 (8.0M params): Consistent across all datasets (86.52-98.8%)
-- ResNet50/101 (25.6M/44.5M params): Underperform on IML Lifecycle (77.53-85.39%)
+- ResNet50/101 (25.6M/44.5M params): Underperform on 53-85.39%)
 
-**Key insight**: Smaller models (5.3-7.8M params) outperform larger models (25.6-44.5M params) on small datasets (<1000 images), with EfficientNet-B2 achieving 87.64% vs ResNet101's 77.53% on IML Lifecycle—a 10-point advantage with 5× fewer parameters. This suggests over-parameterization exacerbates overfitting, and model efficiency (via compound scaling) is more important than depth for limited medical imaging data.
+**Key insight**: Smaller models (5.3-7.8M params) outperform larger models (25.6-44.5M params) on small datasets (<1000 images), with EfficientNet-B2 achieving 87.64% vs ResNet101's 77.53% on  This suggests over-parameterization exacerbates overfitting, and model efficiency (via compound scaling) is more important than depth for limited medical imaging data.
 
 **Tabel 4. Minority Class Performance Analysis**
 
@@ -324,13 +316,19 @@ These efficiency gains make the system deployable on resource-constrained edge d
 
 ### Cross-Dataset Validation Insights
 
-Our validation across three diverse datasets (IML Lifecycle: 313 images, MP-IDB Species/Stages: 209 images each) reveals important generalization insights. EfficientNet-B1 achieved 98.8% accuracy on species classification but only 90.64% on stage classification, suggesting species discrimination is inherently easier than lifecycle stage differentiation. This aligns with prior work by Vijayalakshmi & Rajesh Kanna (2020) [4] who reported similar performance gaps (93% species vs 85% stages).
+Our validation across two MP-IDB datasets ( EfficientNet-B1 achieved 98.8% accuracy on species classification
 
-Conversely, the IML Lifecycle dataset (larger: 313 images, but more imbalanced: schizont=4) challenged all models, with best accuracy 87.64% (EfficientNet-B2). This 10-11 percentage point drop from MP-IDB datasets (94-98%) underscores the dual challenge of dataset size and class imbalance—even heavy augmentation (4.4×) cannot fully compensate for <10 samples per minority class.
+**INSERT FULL TABLE 9 FOR SPECIES:**
+- **Path**: `luaran/tables/Table9_MP-IDB_Species_Full.csv`
+- **Format**: 4 classes × 6 models × 4 metrics per class
+- **Shows**: Complete per-class performance breakdown
+ but only 90.64% on stage classification, suggesting species discrimination is inherently easier than lifecycle stage differentiation. This aligns with prior work by Vijayalakshmi & Rajesh Kanna (2020) [4] who reported similar performance gaps (93% species vs 85% stages).
+
+Conversely, the 64% (EfficientNet-B2). This 10-11 percentage point drop from MP-IDB datasets (94-98%) underscores the dual challenge of dataset size and class imbalance—even heavy augmentation (4.4×) cannot fully compensate for <10 samples per minority class.
 
 ### Model Size vs. Performance Trade-off
 
-A surprising finding is that smaller EfficientNet models (B0: 5.3M params, B1: 7.8M params) consistently outperform larger ResNet variants (ResNet50: 25.6M, ResNet101: 44.5M) across all three datasets. On IML Lifecycle, EfficientNet-B2 (9.2M params) achieved 87.64% accuracy compared to ResNet101's 77.53%—a 10-point advantage despite 5× fewer parameters. This phenomenon, consistent with findings by Tan & Le (2019) [14] on EfficientNet's compound scaling, suggests:
+A surprising finding is that smaller EfficientNet models (B0: 5.3M params, B1: 7.8M params) consistently outperform larger ResNet variants (ResNet50: 25.6M, ResNet101: 44.5M) across all three datasets. On 2M params) achieved 87.64% accuracy compared to ResNet101's 77.53%—a 10-point advantage despite 5× fewer parameters. This phenomenon, consistent with findings by Tan & Le (2019) [14] on EfficientNet's compound scaling, suggests:
 
 1. Over-parameterization exacerbates overfitting on small datasets (<1000 images)
 2. Balanced scaling of depth, width, and resolution (EfficientNet) is more effective than pure depth (ResNet) for limited medical imaging data
@@ -362,7 +360,7 @@ Future TensorRT optimization (expected 2× speedup) could reduce inference to <1
 
 This study has several limitations that warrant future investigation:
 
-1. **Small Dataset Size**: Despite using three datasets (total 731 images), this remains insufficient for training large models like ResNet101 (44.5M params), as evidenced by its 77.53% accuracy on IML Lifecycle. Future work should focus on dataset expansion (target: 1000+ images per task) through crowdsourced annotation platforms and collaboration with clinical laboratories.
+1. **Small Dataset Size**: Despite using three datasets (total 418 images), this remains insufficient for training large models like ResNet101 (44.5M params), as evidenced by its 77.53% accuracy on  Future work should focus on dataset expansion (target: 1000+ images per task) through crowdsourced annotation platforms and collaboration with clinical laboratories.
 
 2. **Extreme Class Imbalance**: Minority classes with <10 samples (schizont=4, P. ovale=5) achieved F1-scores of only 51-77%, insufficient for clinical deployment. Proposed mitigations include:
    - GAN-based synthetic data generation (StyleGAN2) to augment minority classes
@@ -379,9 +377,7 @@ This study has several limitations that warrant future investigation:
 
 ## 5. CONCLUSION
 
-This study presents a comprehensive hybrid YOLO+CNN framework validated on three diverse malaria datasets (IML Lifecycle: 313 images, MP-IDB Species/Stages: 209 images each), achieving state-of-the-art performance:
-- Detection: 95.71% mAP@50 (YOLOv12 on IML Lifecycle), surpassing prior YOLO-based malaria detectors by +3-5%
-- Species classification: 98.8% accuracy (EfficientNet-B1 on MP-IDB Species) with perfect 100% recall on rare P. ovale (5 samples)
+This study presents a comprehensive hybrid YOLO+CNN framework validated on three diverse malaria datasets (71% mAP@50 (YOLOv12 on 8% accuracy (EfficientNet-B1 on MP-IDB Species) with perfect 100% recall on rare P. ovale (5 samples)
 - Stages classification: 94.31% accuracy (EfficientNet-B0 on MP-IDB Stages) despite extreme 68:1 class imbalance
 
 Key contributions include:
@@ -391,7 +387,7 @@ Key contributions include:
 3. **Model Efficiency Insights**: Smaller EfficientNet models (5.3-7.8M params) outperform larger ResNet variants (25.6-44.5M params) by 5-10% on small datasets, challenging the "deeper is better" paradigm for limited medical imaging data
 4. **Real-Time Capability**: <25ms end-to-end inference (40+ FPS) on RTX 3060, suitable for point-of-care deployment in resource-constrained clinical settings
 
-Cross-dataset validation demonstrates that EfficientNet-B0/B1 exhibit robust generalization (90.64-98.8% accuracy across all three datasets), while ResNet101 overfits on small datasets (77.53% on IML Lifecycle). This underscores the importance of architectural efficiency and balanced model scaling for medical AI applications with limited training data.
+Cross-dataset validation demonstrates that EfficientNet-B0/B1 exhibit robust generalization (90.64-98.8% accuracy across all three datasets), while ResNet101 overfits on small datasets (77.53% on  This underscores the importance of architectural efficiency and balanced model scaling for medical AI applications with limited training data.
 
 Future work will focus on addressing severe class imbalance through GAN-based synthetic data generation, expanding datasets to 1000+ images per task, and external validation on field-collected clinical samples. Single-stage multi-task learning and TensorRT optimization are planned to reduce inference latency to <10ms for real-time mobile deployment.
 
@@ -444,19 +440,19 @@ This research was supported by BISMA Research Institute. We thank the IML Instit
 All tables located in: `luaran/tables/`
 
 1. **Table 1: Detection Performance**
-   - **File**: `Table1_Detection_Performance_UPDATED.csv`
-   - **Content**: 9 YOLO models (3 variants × 3 datasets)
+   - **File**: `Table1_Detection_Performance_MP-IDB.csv`
+   - **Content**: 6 YOLO models (3 variants × 3 datasets)
    - **Columns**: Dataset, Model, Epochs, mAP@50, mAP@50-95, Precision, Recall, Training_Time_Hours
    - **Insert at**: Section 3.1 (Detection Performance)
 
 2. **Table 2: Classification Performance**
-   - **File**: `Table2_Classification_Performance_UPDATED.csv`
-   - **Content**: 18 CNN models (6 architectures × 3 datasets)
+   - **File**: `Table2_Classification_Performance_MP-IDB.csv`
+   - **Content**: 18 CNN models (6 architectures × 2 datasets)
    - **Columns**: Dataset, Model, Loss, Epochs, Accuracy, Balanced_Accuracy, Training_Time_Hours
    - **Insert at**: Section 3.2 (Classification Performance)
 
 3. **Table 3: Dataset Statistics**
-   - **File**: `Table3_Dataset_Statistics_UPDATED.csv`
+   - **File**: `Table3_Dataset_Statistics_MP-IDB.csv`
    - **Content**: 3 datasets with augmentation details
    - **Columns**: Dataset, Total_Images, Train, Val, Test, Classes, Detection_Aug_Train, Classification_Aug_Train, Det_Multiplier, Cls_Multiplier
    - **Insert at**: Section 2.1 (Datasets)
@@ -488,10 +484,8 @@ All figures located in: `luaran/figures/`
    - **Description**: Classification confusion matrix for 4 lifecycle stages
    - **Insert at**: Section 3.2 (Classification Performance)
 
-4. **Figure 4: Detection Examples - IML Lifecycle**
-   - **File**: `figure4_detection_examples_iml.png`
-   - **Description**: YOLO detection results on IML Lifecycle dataset
-   - **Insert at**: Section 3.1 (Detection Performance)
+4. **Figure 4: Detection Examples - png`
+   - **Description**: YOLO detection results on 1 (Detection Performance)
 
 5. **Figure 5: Detection Examples - MP-IDB**
    - **File**: `figure5_detection_examples_mpidb.png`
@@ -503,10 +497,8 @@ All figures located in: `luaran/figures/`
    - **Description**: Shared classification architecture flowchart (Stage 1-3)
    - **Insert at**: Section 2.2 (Proposed Architecture)
 
-7. **Figure 7: Precision-Recall Curves - IML Lifecycle**
-   - **File**: `figure7_pr_curves_iml.png`
-   - **Description**: PR curves for 3 YOLO models on IML Lifecycle
-   - **Insert at**: Section 3.1 (Detection Performance)
+7. **Figure 7: Precision-Recall Curves - png`
+   - **Description**: PR curves for 3 YOLO models on 1 (Detection Performance)
 
 8. **Figure 8: Model Performance Comparison**
    - **File**: `figure8_model_comparison_bar_chart.png`
@@ -540,7 +532,7 @@ Located in: `luaran/figures/supplementary/`
 **Comprehensive Summary (Source of Truth):**
 - **File**: `results/optA_20251007_134458/consolidated_analysis/cross_dataset_comparison/comprehensive_summary.json`
 - **Size**: 34 KB
-- **Content**: Complete experimental data for all 27 models (9 detection + 18 classification)
+- **Content**: Complete experimental data for all 27 models (6 detection + 12 classification)
 - **Use**: For verification of any reported metrics in paper
 
 ---
