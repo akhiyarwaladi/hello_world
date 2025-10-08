@@ -30,14 +30,14 @@ Pada dataset ini, *P. falciparum* mendominasi dengan 227 sampel pada test set, s
 #### b) MP-IDB Stages Classification Dataset
 Dataset ketiga adalah MP-IDB Stages yang juga berisi **209 citra** dengan split yang sama seperti dataset species (146/42/21 untuk train/val/test). Dataset ini fokus pada klasifikasi tahapan siklus hidup dengan 4 kelas: *ring*, *trophozoite*, *schizont*, dan *gametocyte*.
 
-Dataset ini menunjukkan ketidakseimbangan kelas yang paling ekstrem di antara ketiga dataset, dimana kelas *ring* mendominasi dengan 272 sampel pada test set, sementara kelas minoritas sangat terbatas: *trophozoite* (15 sampel), *schizont* (7 sampel), dan *gametocyte* (hanya 5 sampel). Rasio ekstrem ini (272:5 = 54.4:1) merupakan tantangan terbesar untuk sistem klasifikasi. Augmentasi yang sama diterapkan: 4.4× untuk deteksi dan 3.5× untuk klasifikasi.
+Dataset ini menunjukkan ketidakseimbangan kelas yang paling ekstrem di antara kedua dataset MP-IDB, dimana kelas *ring* mendominasi dengan 272 sampel pada test set, sementara kelas minoritas sangat terbatas: *trophozoite* (15 sampel), *schizont* (7 sampel), dan *gametocyte* (hanya 5 sampel). Rasio ekstrem ini (272:5 = 54.4:1) merupakan tantangan terbesar untuk sistem klasifikasi. Augmentasi yang sama diterapkan: 4.4× untuk deteksi dan 3.5× untuk klasifikasi.
 
 #### Ringkasan Dataset Gabungan
-Secara keseluruhan, penelitian ini menggunakan **418 citra** dari tiga dataset (292 training, 84 validation, 42 testing) yang mencakup **8 kelas berbeda** (4 spesies + 4 tahapan hidup). Statistik lengkap dataset disajikan pada **Tabel 1** berikut:
+Secara keseluruhan, penelitian ini menggunakan **418 citra** dari dua dataset MP-IDB (292 training, 84 validation, 42 testing) yang mencakup **8 kelas berbeda** (4 spesies + 4 tahapan hidup). Statistik lengkap dataset disajikan pada **Tabel 1** berikut:
 
 **Tabel 1. Statistik Dataset dan Augmentasi**
 
-| Dataset | Total Images | Train | Val | Test | Classes | Detection Aug Train | Classification Aug Train | Det Multiplier | Cls Multiplier | ---------|--------------|-------|-----|------|---------|---------------------|--------------------------|----------------|----------------| **MP-IDB Species** | 209 | 146 | 42 | 21 | 4 species | 640 | 512 | 4.4× | 3.5× | **MP-IDB Stages** | 209 | 146 | 42 | 21 | 4 stages | 640 | 512 | 4.4× | 3.5× | **TOTAL** | **731** | **510** | **146** | **75** | **8 classes** | **1,280** | **1,024** | - | - |
+| Dataset | Total Images | Train | Val | Test | Classes | Detection Aug Train | Classification Aug Train | Det Multiplier | Cls Multiplier | ---------|--------------|-------|-----|------|---------|---------------------|--------------------------|----------------|----------------| **MP-IDB Species** | 209 | 146 | 42 | 21 | 4 species | 640 | 512 | 4.4× | 3.5× | **MP-IDB Stages** | 209 | 146 | 42 | 21 | 4 stages | 640 | 512 | 4.4× | 3.5× | **TOTAL** | **418** | **292** | **84** | **42** | **8 classes** | **1,280** | **1,024** | - | - |
 
 #### Teknik Augmentasi Medical-Safe
 Untuk mengatasi keterbatasan jumlah data sekaligus mempertahankan integritas informasi diagnostik, diterapkan teknik augmentasi yang aman untuk citra medis (*medical-safe augmentation*):
@@ -81,7 +81,7 @@ Tahap pertama menggunakan tiga varian model YOLO (You Only Look Once) untuk mend
 - Loss function: IoU loss + classification loss + objectness loss (YOLO default)
 - Total training time: **6.3 hours** untuk 6 models (3 YOLO × 2 datasets)
 
-Ketiga model YOLO dilatih secara independen pada masing-masing dari tiga dataset, menghasilkan **6 model deteksi** dengan karakteristik performa yang berbeda-beda.
+Ketiga model YOLO dilatih secara independen pada masing-masing dari dua dataset MP-IDB, menghasilkan **6 model deteksi** dengan karakteristik performa yang berbeda-beda.
 
 #### Tahap 2: Ground Truth Crop Generation
 Tahap kedua yang unik dari Option A adalah menghasilkan *cropped images* parasit langsung dari **annotations manual** (ground truth), bukan dari hasil deteksi model. Pendekatan ini memastikan kualitas data untuk tahap klasifikasi tidak terpengaruh oleh error deteksi.
@@ -164,7 +164,7 @@ Visualisasi arsitektur lengkap pipeline Option A dapat dilihat pada **Gambar 6**
 
 ### 3. Hasil Deteksi Parasit Malaria
 
-Performa deteksi diukur menggunakan metrik standar object detection: mean Average Precision (mAP) pada IoU threshold 0.5 (mAP@50) dan IoU 0.5-0.95 (mAP@50-95), serta precision dan recall. Hasil lengkap untuk ketiga dataset disajikan pada **Tabel 2** berikut:
+Performa deteksi diukur menggunakan metrik standar object detection: mean Average Precision (mAP) pada IoU threshold 0.5 (mAP@50) dan IoU 0.5-0.95 (mAP@50-95), serta precision dan recall. Hasil lengkap untuk kedua dataset MP-IDB disajikan pada **Tabel 2** berikut:
 
 **Tabel 2. Performa Deteksi YOLO pada Tiga Dataset**
 
@@ -233,7 +233,7 @@ Challenge terbesar adalah **trophozoite (F1=51.61%)** akibat extreme imbalance (
 
 ### 5. Analisis Cross-Dataset Validation
 
-Validasi pada tiga dataset berbeda memberikan insights tentang generalisasi model:
+Validasi pada dua dataset MP-IDB berbeda memberikan insights tentang generalisasi model:
 
 **Model Generalization Performance:**
 - **EfficientNet-B1**: Excellent pada species (98.8%), moderate pada stages (90.64%), good pada lifecycle (85.39%)
@@ -271,8 +271,8 @@ Keterbatasan jumlah sampel pada kelas minoritas (<20 samples) merupakan challeng
 | Dataset | Class | Support | Best Model | Precision | Recall | F1-Score | Challenge Level | ---------|-------|---------|------------|-----------|--------|----------|-----------------| MP-IDB Species | **P_ovale** | **5** | EfficientNet-B1 | 62.50% | **100%** | **76.92%** | ⚠️ Moderate | MP-IDB Species | P_vivax | 11 | DenseNet121 | 83.33% | 90.91% | 86.96% | ✅ Low | MP-IDB Stages | **gametocyte** | **5** | DenseNet121 | **100%** | 60.00% | 75.00% | ⚠️ Moderate | MP-IDB Stages | **trophozoite** | **15** | EfficientNet-B0 | 50.00% | 53.33% | **51.61%** | ⚠️ **Severe** | MP-IDB Stages | schizont | 7 | EfficientNet-B0 | **100%** | 85.71% | 92.31% | ✅ Low |
 
 **Challenge Level Criteria:**
-- ⚠️ **Severe**: F1-score <60% (IML schizont=4, MP-IDB stages trophozoite=15)
-- ⚠️ **Moderate**: F1-score 60-80% (IML trophozoite=16, P_ovale=5, gametocyte=5)
+- ⚠️ **Severe**: F1-score <60% (MP-IDB stages trophozoite=15)
+- ⚠️ **Moderate**: F1-score 60-80% (P_ovale=5, gametocyte=5)
 - ✅ **Low**: F1-score >80% (adequate samples atau easy discrimination)
 
 **Key Insights dari Minority Class Analysis:**
@@ -283,7 +283,7 @@ Keterbatasan jumlah sampel pada kelas minoritas (<20 samples) merupakan challeng
 4. **Improvement over Baseline**: +20-40% F1-score improvement dengan Focal Loss vs baseline tanpa mitigation
 
 **Root Cause Analysis:**
-- **IML Schizont** (4 samples): Insufficient data + morphological similarity dengan late trophozoite
+
 - **MP-IDB Stages Trophozoite** (15 samples): Extreme imbalance (18:1 vs ring) + overlap dengan early ring stage
 - **P. ovale** (5 samples): Rare species, namun distinct morphology memungkinkan perfect recall
 
@@ -295,9 +295,7 @@ Salah satu kontribusi utama penelitian ini adalah quantification dari efisiensi 
 
 | Metric | Traditional Approach | Option A (This Study) | Improvement | --------|---------------------|----------------------|-------------| **Storage Required** | 45 GB | **14 GB** | **70% reduction** (-31 GB) | **Training Time** | 450 hours | **180 hours** | **60% reduction** (-270 hours) | Detection Training | 6.3 hours | 6.3 hours | Same (3 YOLO models) | Classification Training | 360 hours (re-train 3×) | **51.6 hours** (train once, reuse) | **86% reduction** | Crop Generation | - | 2.1 hours | Once (ground truth crops) | **Inference Speed** | 25-30 ms/image | **<25 ms/image** | 40+ FPS capable | **Memory Footprint** | 10-12 GB VRAM | **8.2 GB VRAM** | Fits RTX 3060 12GB |
 
-**Breakdown Efisiensi:**
-
-**Traditional Approach:**
+**Breakdown Efisiensi:Traditional Approach:**
 ```
 Train YOLO10 → Train Classification A (120h)
 Train YOLO11 → Re-train Classification B from scratch (120h)
@@ -318,9 +316,7 @@ Storage: 14GB (shared)
 
 **Penghematan:**
 - Training time: 366.3h → 60h = **306.3 hours saved (83.6% reduction)**
-- Storage: 45GB → 14GB = **31GB saved (68.9% reduction)**
-
-**Inference Performance (RTX 3060 12GB):**
+- Storage: 45GB → 14GB = **31GB saved (68.9% reduction)Inference Performance (RTX 3060 12GB):**
 - Detection: 12.3-15.2 ms/image (YOLO variants)
 - Classification: 8.2-10.7 ms/image (CNN variants)
 - **End-to-end: <25 ms/image** (40+ FPS throughput)
@@ -346,7 +342,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 - **Transfer learning** dari related medical imaging datasets (blood cell detection, histopathology)
 
 #### b) Small Dataset Size
-**Problem**: 209-313 images per dataset tidak cukup untuk large models (ResNet101: 44.5M params)
+**Problem**: 209-209 images per dataset tidak cukup untuk large models (ResNet101: 44.5M params)
 
 **Evidence**: ResNet101 achieves only 77.53% accuracy pada 64% (-10.11% penalty untuk 5× more parameters)
 
@@ -376,9 +372,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 ### 1. Luaran Wajib
 
 #### a) Publikasi Jurnal Nasional Terakreditasi (SINTA 3)
-**Status**: ✅ **Draft lengkap siap submit**
-
-**Target Journal**: JICEST (Journal of Informatics and Computer Science) atau JISEBI
+**Status**: ✅ **Draft lengkap siap submitTarget Journal**: JICEST (Journal of Informatics and Computer Science) atau JISEBI
 
 **Konten Lengkap**:
 - Bilingual abstracts (English + Indonesian) sesuai requirement SINTA 3
@@ -391,9 +385,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 **Readiness**: **95%** (remaining 5% = final proofreading dan formatting adjustment untuk journal template)
 
 #### b) Kode Program Open Source
-**Status**: ✅ **Complete dengan dokumentasi lengkap**
-
-**Repository**: GitHub (hello_world/malaria_detection)
+**Status**: ✅ **Complete dengan dokumentasi lengkapRepository**: GitHub (hello_world/malaria_detection)
 
 **Komponen Lengkap**:
 - **Pipeline scripts**:
@@ -417,10 +409,8 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 **Accessibility**: Public repository dengan MIT license (planned)
 
 #### c) Dataset Preparation Scripts
-**Status**: ✅ **Auto-download dan preprocessing lengkap**
-
-**Features**:
-- Automatic dataset download dari public repositories (IML, MP-IDB)
+**Status**: ✅ **Auto-download dan preprocessing lengkapFeatures**:
+- Automatic dataset download dari public repositories (MP-IDB)
 - YOLO format conversion (COCO/VOC → YOLO txt)
 - Stratified train/val/test split dengan class balance preservation
 - Medical-safe augmentation pipeline (flipud=0.0 untuk preserve orientation)
@@ -431,9 +421,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 ### 2. Luaran Tambahan
 
 #### a) Visualisasi Publication-Quality
-**Status**: ✅ **25/25 complete (300 DPI)**
-
-**Main Figures (10)**:
+**Status**: ✅ **25/25 complete (300 DPI)Main Figures (10)**:
 1. Detection Performance Comparison (3 YOLO × 3 datasets bar chart)
 2. Classification Accuracy Heatmap (6 models × 3 datasets)
 3. Species F1-Score Comparison (per-class bar chart)
@@ -473,9 +461,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 **Accessibility**: All tables available dalam CSV format dan formatted markdown untuk easy copy-paste ke Word/LaTeX
 
 #### c) Technical Documentation
-**Status**: ✅ **Comprehensive dan up-to-date**
-
-**Files**:
+**Status**: ✅ **Comprehensive dan up-to-dateFiles**:
 - **CLAUDE.md** (67 KB): Complete project overview, pipeline documentation, command reference
 - **IMPROVEMENTS_SUMMARY.md**: All enhancements applied, template compliance
 - **README.md**: Quick start guide, usage examples, troubleshooting
@@ -497,9 +483,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
   - 4× multiplier (HSV, rotation, scaling, mosaic, flipud=0.0)
   - Classification: 3.5× multiplier (rotation, affine, color jitter, Gaussian noise)
 
-**Deliverable**: Processed datasets dengan **1,280 detection crops** dan **1,024 classification crops**
-
-**Timeline**: On schedule (completed January-February 2025)
+**Deliverable**: Processed datasets dengan **1,280 detection crops** dan **1,024 classification cropsTimeline**: On schedule (completed January-February 2025)
 
 #### Month 3-4: YOLO Detection Training ✅
 **Target**: Train 3 YOLO variants pada 3 datasets
@@ -539,9 +523,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
   - Grad-CAM visualizations
   - Cross-dataset validation
 
-**Deliverable**: 18 trained CNN models dengan **accuracy range 77.53-98.8%**
-
-**Timeline**: On schedule (completed May-June 2025)
+**Deliverable**: 18 trained CNN models dengan **accuracy range 77.53-98.8%Timeline**: On schedule (completed May-June 2025)
 
 **Progress Milestone**: **60% complete** (Phase 1 fully achieved on schedule)
 
@@ -555,8 +537,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 
 ### Phase 2: Enhancement and Dissemination (Months 7-12) 🔄 **ONGOING**
 
-#### Month 7-8: Model Improvement and Optimization 🔄 **IN PROGRESS**
-**Target**: Optimize models untuk better performance dan faster inference
+#### Month 7-8: Model Improvement and Optimization 🔄 **IN PROGRESSTarget**: Optimize models untuk better performance dan faster inference
 
 **Planned Activities**:
 - **Hyperparameter tuning** dengan Optuna framework:
@@ -592,7 +573,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 - **Re-train models** pada expanded dataset:
   - Same YOLO variants (v10/v11/v12)
   - Same CNN architectures (6 models)
-  - Compare performance: 313 images vs 1000+ images
+  - Compare performance: 209 images vs 1000+ images
 - **GAN-based synthetic data** exploration:
   - StyleGAN2 trained on minority classes (schizont, trophozoite)
   - Generate 500+ synthetic images
@@ -606,8 +587,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 
 **Timeline**: November-December 2025
 
-#### Month 11-12: Cross-Dataset Validation and Publication 📅 **PLANNED**
-**Target**: Validate on external datasets dan submit journal publication
+#### Month 11-12: Cross-Dataset Validation and Publication 📅 **PLANNEDTarget**: Validate on external datasets dan submit journal publication
 
 **Planned Activities**:
 - **External validation** pada new hospital datasets:
@@ -642,10 +622,8 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 **Computational Resource Budget (Phase 2 Estimated)**:
 - Hyperparameter tuning: 40 hours (Optuna 50-100 trials)
 - Ensemble training: 10 hours
-- Expanded dataset training: 70 hours (1000 images vs 313)
-- **Total**: **120 hours (~5 days on RTX 3060)**
-
-**Overall Project Budget**:
+- Expanded dataset training: 70 hours (1000 images vs 209)
+- **Total**: **120 hours (~5 days on RTX 3060)Overall Project Budget**:
 - Phase 1: 60 hours ✅ **Completed**
 - Phase 2: 120 hours (estimated)
 - **Total**: **180 hours (~7.5 days)** ✅ **Within allocated computational budget**
@@ -708,7 +686,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 **Status**: ⚠️ **Partially mitigated, ongoing Phase 2 improvement**
 
 #### b) Small Dataset Size
-**Deskripsi**: Datasets dengan 209-313 images per task tidak cukup untuk train large deep learning models effectively, menyebabkan overfitting.
+**Deskripsi**: Datasets dengan 209-209 images per task tidak cukup untuk train large deep learning models effectively, menyebabkan overfitting.
 
 **Bukti Kuantitatif**:
 - ResNet101 (44.5M parameters): **77.53% accuracy** pada 2M parameters): **87.64% accuracy** pada dataset yang sama
@@ -997,9 +975,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
      - Upload manuscript (Word atau LaTeX format)
      - Upload cover letter (highlight novelty: Option A architecture, 3-dataset validation)
      - Upload supplementary materials (figures, tables, code)
-     - Target submission date: **December 31, 2025**
-
-**Target Deliverables**:
+     - Target submission date: **December 31, 2025Target Deliverables**:
 - Finalized JICEST paper (manuscript + supplementary materials)
 - Submission confirmation email (proof of submission)
 - Pre-print upload (optional: arXiv or ResearchGate untuk early visibility)
@@ -1083,9 +1059,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 **Expected Impact**:
 - GAN synthetic data: Minority class F1 +5-10% (via data augmentation)
 - Active learning: **50% annotation effort reduction** dengan same or better performance
-- Combined approach: Minority class F1 70% → **>75%**
-
-**Deliverables**:
+- Combined approach: Minority class F1 70% → **>75%Deliverables**:
 - Trained StyleGAN2 models (Schizont-GAN, Trophozoite-GAN)
 - Synthetic dataset (1000 generated images)
 - Active learning framework code (uncertainty sampling, iterative training)
@@ -1109,7 +1083,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
    - **Generalization Testing**:
      - Test all 18 classification models pada external data (zero-shot, no fine-tuning)
      - Evaluate domain shift impact:
-       - Training: Public datasets (MP-IDB, IML) → Testing: Hospital datasets
+       - Training: Public datasets (MP-IDB) → Testing: Hospital datasets
        - Expected accuracy drop: 5-15% (due to domain shift)
      - Target: Generalization accuracy **>85%** (vs 98.8% on MP-IDB)
 
@@ -1518,7 +1492,6 @@ hello_world/
 ---
 
 **Last Updated**: 2025-10-08
-**Document Status**: ✅ **READY FOR BISMA SUBMISSION**
-**Experiment Source**: optA_20251007_134458
+**Document Status**: ✅ **READY FOR BISMA SUBMISSIONExperiment Source**: optA_20251007_134458
 **Progress**: **60% Complete** (Phase 1 finished, Phase 2 months 7-12 ongoing)
 **Next Milestone**: Journal submission December 2025
