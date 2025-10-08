@@ -1,0 +1,10 @@
+Model,Type,Input_Size,Batch_Size,Learning_Rate,Optimizer,Epochs,Loss_Function,Focal_Alpha,Focal_Gamma
+YOLO10,Detection,640×640,Auto,0.0005,Adam,100,YOLO Loss,-,-
+YOLO11,Detection,640×640,Auto,0.0005,Adam,100,YOLO Loss,-,-
+YOLO12,Detection,640×640,Auto,0.0005,Adam,100,YOLO Loss,-,-
+DenseNet121,Classification,224×224,32,0.001,Adam,75,Focal Loss,0.25,2.0
+EfficientNet-B0,Classification,224×224,32,0.001,Adam,75,Focal Loss,0.25,2.0
+EfficientNet-B1,Classification,224×224,32,0.001,Adam,75,Focal Loss,0.25,2.0
+EfficientNet-B2,Classification,224×224,32,0.001,Adam,75,Focal Loss,0.25,2.0
+ResNet50,Classification,224×224,32,0.001,Adam,75,Focal Loss,0.25,2.0
+ResNet101,Classification,224×224,32,0.001,Adam,75,Focal Loss,0.25,2.0

@@ -1,0 +1,9 @@
+Dataset,Class,Best_Model,Precision,Recall,F1_Score,Support
+Species,P. falciparum,EfficientNet-B1,1.0000,1.0000,1.0000,227
+Species,P. malariae,EfficientNet-B1,1.0000,1.0000,1.0000,7
+Species,P. ovale,EfficientNet-B1,0.6250,1.0000,0.7692,5
+Species,P. vivax,EfficientNet-B1,1.0000,0.7273,0.8421,11
+Stages,Ring,EfficientNet-B0,0.9673,0.9779,0.9726,272
+Stages,Trophozoite,EfficientNet-B0,0.5000,0.5333,0.5161,15
+Stages,Schizont,EfficientNet-B0,1.0000,0.8571,0.9231,7
+Stages,Gametocyte,EfficientNet-B0,1.0000,0.4000,0.5714,5

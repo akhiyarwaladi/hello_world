@@ -1,0 +1,5 @@
+﻿Class,DenseNet121,EfficientNet-B0,EfficientNet-B1,EfficientNet-B2,ResNet50,ResNet101
+P Falciparum,100.0,100.0,100.0,100.0,100.0,100.0
+P Vivax,86.96,80.0,84.21,83.33,81.48,83.33
+P Malariae,100.0,100.0,100.0,100.0,100.0,100.0
+P Ovale,66.67,66.67,76.92,50.0,0.0,50.0
