@@ -1,0 +1,13 @@
+Dataset,Model,Loss,Epochs,Accuracy,Balanced_Accuracy,Training_Time_Hours
+MP-IDB_Species,DenseNet121,Focal,75,98.80%,87.73%,2.9
+MP-IDB_Species,EfficientNet-B1,Focal,75,98.80%,93.18%,2.5
+MP-IDB_Species,EfficientNet-B0,Focal,75,98.40%,88.18%,2.3
+MP-IDB_Species,EfficientNet-B2,Focal,75,98.40%,82.73%,2.7
+MP-IDB_Species,ResNet101,Focal,75,98.40%,82.73%,3.4
+MP-IDB_Species,ResNet50,Focal,75,98.00%,75.00%,2.8
+MP-IDB_Stages,EfficientNet-B0,Focal,75,94.31%,69.21%,2.3
+MP-IDB_Stages,DenseNet121,Focal,75,93.65%,67.31%,2.9
+MP-IDB_Stages,ResNet50,Focal,75,93.31%,65.79%,2.8
+MP-IDB_Stages,ResNet101,Focal,75,92.98%,65.69%,3.4
+MP-IDB_Stages,EfficientNet-B1,Focal,75,90.64%,69.77%,2.5
+MP-IDB_Stages,EfficientNet-B2,Focal,75,80.60%,60.72%,2.7
