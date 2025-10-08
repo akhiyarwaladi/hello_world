@@ -205,12 +205,11 @@ def main():
             'output': luaran_dir / "Laporan_Kemajuan_Malaria_Detection_UPDATED.docx",
             'title': "LAPORAN KEMAJUAN PENELITIAN\nSISTEM DETEKSI DAN KLASIFIKASI MALARIA"
         },
-        # Future: Add JICEST paper when ready
-        # {
-        #     'markdown': luaran_dir / "JICEST_Paper_FINAL_WITH_TABLES.md",
-        #     'output': luaran_dir / "JICEST_Paper_UPDATED.docx",
-        #     'title': "Hybrid YOLO-CNN Architecture for Malaria Detection and Classification"
-        # }
+        {
+            'markdown': luaran_dir / "JICEST_Paper_FINAL_WITH_TABLES.md",
+            'output': luaran_dir / "JICEST_Paper_UPDATED.docx",
+            'title': "Hybrid YOLO-CNN Architecture for Malaria Detection and Classification"
+        }
     ]
 
     # Generate documents
