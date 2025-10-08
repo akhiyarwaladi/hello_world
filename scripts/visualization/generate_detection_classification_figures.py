@@ -122,9 +122,10 @@ def load_gt_class_mapping(crops_dir, image_name):
     return mapping
 
 
-def draw_boxes(image, boxes, labels=None, colors=None, thickness=4, font_scale=1.5):
+def draw_boxes(image, boxes, labels=None, colors=None, thickness=4, font_scale=0.9):
     """Draw bounding boxes with optional labels"""
     img_copy = image.copy()
+    img_height, img_width = image.shape[:2]
 
     if colors is None:
         colors = [(255, 0, 0)] * len(boxes)  # Default blue
@@ -141,28 +142,46 @@ def draw_boxes(image, boxes, labels=None, colors=None, thickness=4, font_scale=1
         # Draw label if provided
         if label and label.strip():  # Check if label is not empty
             (text_width, text_height), baseline = cv2.getTextSize(
-                label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, 3
+                label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, 2
             )
 
             # Background for text (larger padding)
-            padding = 10
+            padding = 8
+
+            # Calculate text position (above box if space available, otherwise below)
+            text_y_top = y1 - text_height - baseline - padding
+            text_y_bottom = y1
+
+            # If text would go above image, place it below the box top instead
+            if text_y_top < 0:
+                text_y_top = y1
+                text_y_bottom = y1 + text_height + baseline + padding
+                text_pos_y = y1 + text_height + baseline
+            else:
+                text_pos_y = y1 - baseline - 5
+
+            # Ensure text doesn't go beyond right edge
+            text_x_right = min(x1 + text_width + padding, img_width)
+            text_x_left = max(x1 - padding, 0)
+
+            # Draw background rectangle
             cv2.rectangle(
                 img_copy,
-                (x1 - padding, y1 - text_height - baseline - padding),
-                (x1 + text_width + padding, y1),
+                (text_x_left, text_y_top),
+                (text_x_right, text_y_bottom),
                 color,
                 -1  # Filled
             )
 
-            # Text (white, bold)
+            # Text (white, medium thickness)
             cv2.putText(
                 img_copy,
                 label,
-                (x1, y1 - baseline - 5),
+                (max(x1, 0), text_pos_y),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 font_scale,
                 (255, 255, 255),  # White
-                3  # Thickness
+                2  # Reduced thickness
             )
 
     return img_copy
@@ -232,7 +251,7 @@ def generate_pred_detection(image_path, detection_model, output_dir, conf_thresh
             box_coords = box.xyxy[0].cpu().numpy()
             confidence = box.conf[0].cpu().numpy()
             pred_boxes.append([int(c) for c in box_coords])
-            pred_labels.append(f"parasite {confidence:.2f}")
+            pred_labels.append("parasite")
 
     # Draw green boxes with confidence labels
     colors = [(0, 255, 0)] * len(pred_boxes)  # Green
@@ -327,10 +346,10 @@ def generate_pred_classification(
         # Color code: Green if correct, Red if wrong
         if pred_class == gt_class:
             color = (0, 255, 0)  # Green - correct
-            label = f"{pred_class} {cls_conf:.2f} ✓"
+            label = pred_class
         else:
             color = (0, 0, 255)  # Red - wrong
-            label = f"{pred_class} {cls_conf:.2f} (GT:{gt_class})"
+            label = pred_class
 
         pred_labels.append(label)
         pred_colors.append(color)

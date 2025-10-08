@@ -263,7 +263,7 @@ International dissemination efforts akan expand beyond initial journal publicati
 
 ### LAMPIRAN A: Placement Guide untuk Gambar dan Tabel
 
-#### Gambar (10 total untuk Laporan Kemajuan)
+#### Gambar (9 total untuk Laporan Kemajuan)
 
 1. **Gambar 1** (Section C.2, setelah deskripsi arsitektur): `figures/pipeline_architecture.png` - Diagram arsitektur pipeline Option A
 
@@ -283,8 +283,6 @@ International dissemination efforts akan expand beyond initial journal publicati
 
 9. **Gambar 9** (Section C.5, pembahasan model efficiency): `figures/model_efficiency_analysis.png` - Scatter plot parameters vs accuracy menunjukkan smaller models outperform larger ones
 
-10. **Gambar 10** (Lampiran B, supplementary): `figures/precision_recall_tradeoff.png` - Precision-recall scatter plots untuk best models
-
 #### Tabel (3 total)
 
 1. **Tabel 1** (Section C.1, setelah deskripsi datasets): `tables/Table3_Dataset_Statistics_MP-IDB.csv` - Statistik dataset dengan 418 total images, splits, augmentation multipliers
@@ -298,7 +296,7 @@ International dissemination efforts akan expand beyond initial journal publicati
 **Catatan Dokumen:**
 - Jumlah kata: ~12.000 kata (lebih detail dari JICEST)
 - Estimasi halaman: 25-30 halaman (format laporan)
-- Gambar: 10 (semua dengan placeholders dan file paths)
+- Gambar: 9 (semua dengan placeholders dan file paths)
 - Tabel: 3 (semua dengan placeholders dan file paths)
 - Format: Narasi paragraf profesional (minimal bullet points)
 
