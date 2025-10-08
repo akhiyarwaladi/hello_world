@@ -65,7 +65,7 @@ The proposed framework employs a three-stage pipeline designed to maximize compu
 
 **Stage 1: YOLO Detection.** Three YOLO variants (YOLOv10, YOLOv11, YOLOv12) were trained independently to localize parasites in blood smear images. All models used the medium-size variants (YOLOv10m, YOLOv11m, YOLOv12m) as these provide an optimal balance between accuracy and inference speed for medical imaging applications [20]. Input images were resized to 640×640 pixels while preserving aspect ratio through letterboxing. Training employed the AdamW optimizer with an initial learning rate of 0.0005, batch sizes dynamically adjusted based on GPU memory (16-32 images), and cosine annealing learning rate schedule over 100 epochs. Early stopping with patience of 20 epochs prevented overfitting while allowing sufficient training convergence.
 
-Data augmentation for detection followed medical imaging best practices to preserve diagnostic features. Applied transformations included HSV color space adjustments (hue: ±10°, saturation: ±20%, value: ±20%) to simulate staining variability, random scaling (0.5-1.5×) to account for different cell sizes, rotation (±15°) for orientation robustness, and mosaic augmentation (probability 1.0) to improve small object detection. Critically, vertical flipping was disabled (flipud=0.0) to preserve parasite orientation, as certain lifecycle stages exhibit orientation-specific morphology relevant for clinical diagnosis [28].
+Data augmentation for detection followed medical imaging best practices to preserve diagnostic features. Applied transformations included HSV color space adjustments (hue: ±10°, saturation: ±20%, value: ±20%) to simulate staining variability, random scaling (0.5-1.5×) to account for different cell sizes, rotation (±15°) for orientation robustness, and mosaic augmentation (probability 1.0) to improve small object detection. Critically, vertical flipping was disabled (flipud=0.0) to preserve parasite orientation, as certain lifecycle stages exhibit orientation-specific morphology relevant for clinical diagnosis [26].
 
 **Stage 2: Ground Truth Crop Generation.** Rather than using YOLO detection outputs for classification training (which would propagate detection errors), we extracted parasite crops directly from expert-annotated ground truth bounding boxes. This approach ensures classification models train on clean, accurately localized samples. Each crop was extracted at 224×224 pixels (the standard input size for ImageNet-pretrained CNNs) with 10% padding around the bounding box to include contextual information from surrounding red blood cells. Quality filtering discarded crops smaller than 50×50 pixels (typically partial cells at image borders) or containing more than 90% background pixels. Crops were saved with species/stage labels inherited from ground truth annotations, creating a clean classification dataset independent of detection performance.
 
@@ -121,7 +121,7 @@ Classification results demonstrated substantial performance differences across a
 
 The MP-IDB Stages dataset presented a more challenging classification task due to extreme class imbalance (272 ring vs 5 gametocyte samples, 54:1 ratio). Here, the performance gap between model families widened further. EfficientNet-B0 achieved the highest accuracy (94.31%) with 69.21% balanced accuracy, followed by DenseNet121 (93.65% accuracy, 67.31% balanced accuracy) and ResNet50 (93.31% accuracy, 65.79% balanced accuracy). However, EfficientNet-B2 showed unexpected degradation to 80.60% accuracy (60.72% balanced accuracy), likely due to overfitting given its larger capacity (9.2M parameters) relative to the limited training data (512 augmented images). Most notably, EfficientNet-B1—the top performer on Species—achieved only 90.64% accuracy on Stages (69.77% balanced accuracy), while ResNet101 reached 92.98% accuracy (65.69% balanced accuracy). This cross-dataset performance variability suggests that species discrimination (based on size and shape) is inherently more amenable to deep learning than lifecycle stage classification (requiring chromatin pattern recognition).
 
-Per-class analysis via confusion matrices (Figure 5) revealed systematic misclassification patterns. For species classification using EfficientNet-B1, P. falciparum (227 test samples) achieved perfect 100% accuracy with no misclassifications, as did P. malariae (7 samples) and P. vivax (8 samples correctly classified). However, P. ovale (5 samples) suffered 40% error rate, with 2 samples misclassified as P. vivax and 1 as P. falciparum, yielding only 60% recall. This pattern reflects the morphological similarity between P. ovale and P. vivax (both produce oval-shaped infected erythrocytes) [33].
+Per-class analysis via confusion matrices (Figure 5) revealed systematic misclassification patterns. For species classification using EfficientNet-B1, P. falciparum (227 test samples) achieved perfect 100% accuracy with no misclassifications, as did P. malariae (7 samples) and P. vivax (8 samples correctly classified). However, P. ovale (5 samples) suffered 40% error rate, with 2 samples misclassified as P. vivax and 1 as P. falciparum, yielding only 60% recall. This pattern reflects the well-documented morphological similarity between P. ovale and P. vivax (both produce oval-shaped infected erythrocytes with similar chromatin patterns), making discrimination challenging even for expert microscopists [26].
 
 **[INSERT FIGURE 5 HERE: Confusion Matrices for Best Models]**
 **Figure 5** should be placed here, showing two side-by-side confusion matrices: (left) Species classification using EfficientNet-B1, and (right) Stages classification using EfficientNet-B0. Matrices should display actual count numbers with color coding to highlight diagonal (correct) vs off-diagonal (errors). This visualization makes misclassification patterns immediately clear.
@@ -279,7 +279,7 @@ This research was supported by BISMA Research Institute. We thank the IML Instit
 
 [27] CDC, "Malaria's Impact Worldwide," 2024.
 
-[28] T. A. Shapiro et al., "Antimalarial activity of DFMO," *Antimicrob. Agents Chemother.*, vol. 38, pp. 1552-1556, 1994.
+[28] **[CITATION REMOVED - Previously incorrectly cited for parasite morphology. Replaced with [26] WHO manual in text.]**
 
 [29] G. Huang et al., "Densely connected convolutional networks," in *Proc. IEEE CVPR*, 2017, pp. 4700-4708.
 
@@ -289,7 +289,7 @@ This research was supported by BISMA Research Institute. We thank the IML Instit
 
 [32] T.-Y. Lin et al., "Focal loss for dense object detection," *IEEE Trans. Pattern Anal. Mach. Intell.*, vol. 42, no. 2, pp. 318-327, 2020.
 
-[33] J. C. Nussenzweig and R. S. Nussenzweig, "Circumsporozoite proteins of malaria parasites," *Cell*, vol. 42, pp. 401-403, 1985.
+[33] **[CITATION REMOVED - Previously incorrectly cited for blood smear morphology. CSP is sporozoite-stage protein, not relevant to erythrocytic morphology. Replaced with [26] WHO manual in text.]**
 
 [34] M. Aikawa, "Parasitological review: Plasmodium," *Exp. Parasitol.*, vol. 30, no. 2, pp. 284-320, 1971.
 
@@ -368,7 +368,7 @@ This research was supported by BISMA Research Institute. We thank the IML Instit
 - Estimated pages: 15-18 pages (IEEE two-column format)
 - Figures: 8 (all with placeholders and file paths)
 - Tables: 3 (all with placeholders and file paths)
-- References: 53
+- References: 51 active (2 removed: [28] and [33] - incorrect citations fixed)
 
 **Formatting Notes:**
 - All text in narrative paragraph format (no bullet points except contributions list)
