@@ -1,0 +1,7 @@
+Dataset,Model,Epochs,mAP@50,mAP@50-95,Precision,Recall,Training_Time_Hours
+MP-IDB_Species,YOLO12,100,93.12%,58.72%,87.51%,91.18%,2.1
+MP-IDB_Species,YOLO11,100,93.09%,59.60%,86.47%,92.26%,1.9
+MP-IDB_Species,YOLO10,100,92.53%,57.20%,89.74%,89.57%,1.8
+MP-IDB_Stages,YOLO11,100,92.90%,56.50%,89.92%,90.37%,1.9
+MP-IDB_Stages,YOLO12,100,92.39%,58.36%,90.34%,87.56%,2.1
+MP-IDB_Stages,YOLO10,100,90.91%,55.26%,88.73%,85.56%,1.8

@@ -1,0 +1,4 @@
+Dataset,Total_Images,Train,Val,Test,Classes,Detection_Aug_Train,Classification_Aug_Train,Det_Multiplier,Cls_Multiplier
+MP-IDB_Species,209,146,42,21,4 species,640,512,4.4x,3.5x
+MP-IDB_Stages,209,146,42,21,4 stages,640,512,4.4x,3.5x
+TOTAL,418,292,84,42,8 classes,1280,1024,-,-
