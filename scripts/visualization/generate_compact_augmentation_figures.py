@@ -78,9 +78,11 @@ def get_compact_augmentations(image_path, output_size=512):
     - Flip (horizontal)
     - Sharpness
     """
-    # Load and resize image to high quality
+    # Load image (should already be 512x512 if using upscaled crops)
     img = Image.open(image_path).convert('RGB')
-    img = img.resize((output_size, output_size), Image.BICUBIC)
+    # Only resize if image is not already the target size
+    if img.size != (output_size, output_size):
+        img = img.resize((output_size, output_size), Image.BICUBIC)
 
     # Select 7 most representative augmentations for journal
     augmentations = {
