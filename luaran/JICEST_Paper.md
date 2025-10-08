@@ -163,9 +163,6 @@ The cross-dataset performance of individual architectures also varied substantia
 
 A striking and unexpected finding of this study is that smaller EfficientNet models (5.3-7.8M parameters) consistently outperform substantially larger ResNet variants (25.6-44.5M parameters) across both datasets, challenging the widely-held assumption that deeper networks universally achieve better performance. On MP-IDB Species, EfficientNet-B1 (7.8M parameters) matched or exceeded ResNet101 (44.5M parameters) in overall accuracy (98.80% vs 98.40%) while demonstrating 10.5 percentage points higher balanced accuracy (93.18% vs 82.73%), despite having 5.7× fewer parameters. This advantage widened on the more challenging Stages dataset, where EfficientNet-B0 (5.3M parameters) achieved 94.31% accuracy compared to ResNet101's 92.98%, representing a 1.3 percentage point improvement from a model 8.4× smaller.
 
-**[INSERT FIGURE 9 HERE: Model Parameters vs. Accuracy Scatter Plot]**
-**Figure 9** should be placed here, showing two scatter plots (Species left, Stages right) with X-axis as model parameters (5-45M) and Y-axis as accuracy (%). Each model should be plotted as a labeled point. A red dashed "efficiency frontier" line should connect top-performing models (EfficientNet-B0/B1, DenseNet121), visually demonstrating that larger ResNet models fall below this frontier despite higher parameter counts. This figure provides visual proof of the "smaller is better" finding for small datasets.
-**File**: `figures/model_efficiency_analysis.png`
 
 This phenomenon can be attributed to three factors. First, over-parameterization exacerbates overfitting on small datasets (<1000 images). Despite aggressive regularization (dropout=0.3, weight decay=1e-4), ResNet101's 44.5M parameters struggle to generalize from only 512 augmented training images per dataset, as evidenced by larger train-validation accuracy gaps (ResNet101: 8.2% gap, EfficientNet-B1: 3.1% gap on Species). Second, EfficientNet's compound scaling approach jointly optimizes network depth, width, and resolution rather than solely increasing depth [30], yielding more balanced architectures that utilize parameters efficiently. Third, the medical imaging domain may benefit less from extreme depth than natural images, as malaria parasites exhibit fewer hierarchical abstraction levels compared to complex scenes in ImageNet [36].
 
@@ -175,9 +172,6 @@ These results have important implications for medical AI deployment in resource-
 
 The severe class imbalance encountered in this study (ratios up to 54:1 for Ring vs Gametocyte) presented substantial challenges for classification accuracy, particularly on minority classes with fewer than 10 test samples. Our systematic analysis of Focal Loss parameters revealed that optimized settings (α=0.25, γ=2.0) achieved significantly better minority class performance compared to standard cross-entropy loss. For P. ovale (5 samples), EfficientNet-B1 with Focal Loss achieved 76.92% F1-score (100% recall, 62.5% precision), representing a +31 percentage point improvement over cross-entropy baseline (45.8% F1). Similarly, for Trophozoite (15 samples), EfficientNet-B0 with Focal Loss reached 51.61% F1 compared to 37.2% baseline (+14.4 pp), and for Gametocyte (5 samples), 75.00% F1 versus 56.7% baseline (+18.3 pp).
 
-**[INSERT FIGURE 8 HERE: Class Distribution Pie Charts]**
-**Figure 8** should be placed here, displaying two side-by-side pie charts showing test set class distributions: (left) Species with P. falciparum dominating 90.8% and P. ovale barely visible at 2.0%, and (right) Stages with Ring at 91.0% and Gametocyte at 1.7%. Sample counts (n=227, n=5, etc.) should be labeled on each slice. This visualization makes the extreme imbalance problem immediately apparent to readers.
-**File**: `figures/class_imbalance_distribution.png`
 
 The Focal Loss modulating factor (1-p_t)^γ down-weights easy examples (high p_t) while focusing gradient updates on hard examples (low p_t), making it particularly effective for imbalanced datasets [32]. Our grid search over α ∈ {0.1, 0.25, 0.5, 0.75} and γ ∈ {0.5, 1.0, 1.5, 2.0, 2.5} revealed that α=0.25 (balancing positive vs negative examples) and γ=2.0 (aggressive hard example focusing) provided optimal performance across both datasets. Lower γ values (0.5-1.0) failed to sufficiently suppress easy examples, while higher values (2.5) over-focused on hard examples at the expense of majority class accuracy.
 
@@ -335,7 +329,7 @@ This research was supported by BISMA Research Institute. We thank the IML Instit
 
 ## APPENDIX: FIGURE AND TABLE PLACEMENT GUIDE
 
-### Figures (8 total - in order of appearance)
+### Figures (6 total - in order of appearance)
 
 1. **Figure 1** (after Section 2.2, paragraph 2): `figures/pipeline_architecture.png` - Pipeline architecture diagram showing three-stage Option A framework
 
@@ -349,9 +343,7 @@ This research was supported by BISMA Research Institute. We thank the IML Instit
 
 6. **Figure 7** (after Figure 6 in Section 3.2): `figures/stages_f1_comparison.png` - Grouped bar chart showing F1-scores for 4 lifecycle stages × 6 models
 
-7. **Figure 8** (in Section 4.3, paragraph 2): `figures/class_imbalance_distribution.png` - Pie charts showing extreme class imbalance (54:1 ratio)
-
-8. **Figure 9** (in Section 4.2, paragraph 2): `figures/model_efficiency_analysis.png` - Scatter plot showing parameters vs. accuracy, demonstrating smaller models outperform larger ones
+**Note:** Figure 8 (class imbalance pie charts) and Figure 9 (model efficiency scatter plot) removed - narrative text provides clearer explanation than visualizations for these concepts.
 
 ### Tables (3 total - in order of appearance)
 
@@ -366,7 +358,7 @@ This research was supported by BISMA Research Institute. We thank the IML Instit
 **Document Statistics:**
 - Word count: ~7,500 words
 - Estimated pages: 15-18 pages (IEEE two-column format)
-- Figures: 8 (all with placeholders and file paths)
+- Figures: 6 (all with placeholders and file paths; Fig 8 & 9 removed - narrative sufficient)
 - Tables: 3 (all with placeholders and file paths)
 - References: 51 active (2 removed: [28] and [33] - incorrect citations fixed)
 
