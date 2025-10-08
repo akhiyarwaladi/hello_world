@@ -1,5 +1,0 @@
-﻿Class,DenseNet121,EfficientNet-B0,EfficientNet-B1,EfficientNet-B2,ResNet50,ResNet101
-Ring,97.26,97.26,95.67,89.94,97.25,97.06
-Trophozoite,38.71,51.61,40.0,15.38,40.0,37.5
-Schizont,83.33,92.31,80.0,63.16,75.0,80.0
-Gametocyte,75.0,57.14,57.14,57.14,57.14,57.14
