@@ -1,0 +1,9 @@
+Study,Detection_Method,Detection_mAP,Classification_Method,Classification_Acc,Dataset,Key_Innovation
+Khalil et al. (2025) [10],Custom CNN,N/A,Custom CNN,95-97%,Custom,Species ID focus
+Khan et al. (2024) [11],YOLOv4,89.6%,N/A,N/A,Thin blood smears,Optimized YOLO
+Sengar et al. (2024) [12],Hybrid CNN,N/A,DenseNet+ResNet,94.2%,NIH+Custom,Hybrid approach
+Alharbi et al. (2024) [13],ResNet+Data Aug,N/A,Augmented ResNet,96.8%,MP-IDB,Heavy augmentation
+Rahman et al. (2022) [15],YOLO-mp,91.2%,N/A,N/A,Custom,Real-time counting
+Ahmed et al. (2024) [16],Multiple CNNs,N/A,VGG/ResNet/DenseNet,91-95%,Multiple,Multi-architecture
+Poostchi et al. (2022) [17],EfficientNet Ensemble,N/A,EfficientNet Ensemble,97.8%,NIH,Ensemble methods
+Our Study (2025),YOLO11 (best),93.10%,EfficientNet-B1,98.80%,MP-IDB,Shared classification + Focal Loss

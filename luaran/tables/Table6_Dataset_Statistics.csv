@@ -1,0 +1,3 @@
+﻿Dataset,Train,Val,Test,Total,Det Aug Train,Cls Aug Train,Det Multiplier,Cls Multiplier
+MP-IDB Species,146,42,21,209,640,512,4.4x,3.5x
+MP-IDB Stages,146,42,21,209,640,512,4.4x,3.5x
