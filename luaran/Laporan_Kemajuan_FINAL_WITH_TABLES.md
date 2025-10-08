@@ -14,34 +14,30 @@
 
 ### 1. Dataset dan Preprocessing
 
-Penelitian ini menggunakan **tiga dataset publik** untuk validasi komprehensif sistem deteksi dan klasifikasi malaria:
+Penelitian ini menggunakan **dua dataset publik MP-IDB** untuk validasi komprehensif sistem deteksi dan klasifikasi malaria:
 
-#### a) IML Malaria Lifecycle Dataset
-Dataset pertama merupakan IML (Indonesian Malaria Laboratory) Lifecycle Dataset yang berisi citra mikroskop darah tipis dengan fokus pada tahapan siklus hidup parasit malaria. Dataset ini terdiri dari **313 citra** yang dibagi menjadi 218 citra training (69.6%), 62 citra validation (19.8%), dan 33 citra testing (10.5%). Dataset mencakup 4 kelas tahapan hidup parasit: *ring*, *trophozoite*, *schizont*, dan *gametocyte*.
+#### a) MP-IDB Species Classification
 
-Karakteristik utama dataset ini adalah distribusi kelas yang sangat tidak seimbang (*class imbalance*), dimana pada test set terdapat hanya 4 sampel untuk kelas *schizont*, 16 sampel untuk *trophozoite*, 28 sampel untuk *ring*, dan 41 sampel untuk *gametocyte*. Ketidakseimbangan ekstrem ini (rasio 41:4 = 10.25:1) menjadi tantangan utama untuk performa klasifikasi. Untuk mengatasi keterbatasan jumlah data, dilakukan augmentasi dengan multiplier 4.4× untuk tahap deteksi (218 → 956 images) dan 3.5× untuk tahap klasifikasi (218 → 765 images).
-
-#### b) MP-IDB Species Classification Dataset
+**INSERT FULL TABLE 9 FOR SPECIES:**
+- **Path**: `luaran/tables/Table9_MP-IDB_Species_Full.csv`
+- **Format**: 4 classes × 6 models × 4 metrics per class
+- **Shows**: Complete per-class performance breakdown
+ Dataset
 Dataset kedua adalah MP-IDB (Malaria Parasite - Image Database) Species yang berisi **209 citra** mikroskop untuk klasifikasi spesies Plasmodium. Dataset dibagi menjadi 146 citra training (69.9%), 42 citra validation (20.1%), dan 21 citra testing (10.0%). Dataset mencakup 4 spesies parasit malaria: *P. falciparum*, *P. vivax*, *P. malariae*, dan *P. ovale*.
 
 Pada dataset ini, *P. falciparum* mendominasi dengan 227 sampel pada test set, sementara kelas minoritas adalah *P. ovale* dengan hanya 5 sampel dan *P. malariae* dengan 7 sampel. Distribusi ini mencerminkan prevalensi spesies di dunia nyata dimana *P. falciparum* merupakan spesies paling umum (75-80% kasus global). Augmentasi dilakukan dengan multiplier 4.4× untuk deteksi (146 → 640 images) dan 3.5× untuk klasifikasi (146 → 512 images).
 
-#### c) MP-IDB Stages Classification Dataset
+#### b) MP-IDB Stages Classification Dataset
 Dataset ketiga adalah MP-IDB Stages yang juga berisi **209 citra** dengan split yang sama seperti dataset species (146/42/21 untuk train/val/test). Dataset ini fokus pada klasifikasi tahapan siklus hidup dengan 4 kelas: *ring*, *trophozoite*, *schizont*, dan *gametocyte*.
 
 Dataset ini menunjukkan ketidakseimbangan kelas yang paling ekstrem di antara ketiga dataset, dimana kelas *ring* mendominasi dengan 272 sampel pada test set, sementara kelas minoritas sangat terbatas: *trophozoite* (15 sampel), *schizont* (7 sampel), dan *gametocyte* (hanya 5 sampel). Rasio ekstrem ini (272:5 = 54.4:1) merupakan tantangan terbesar untuk sistem klasifikasi. Augmentasi yang sama diterapkan: 4.4× untuk deteksi dan 3.5× untuk klasifikasi.
 
 #### Ringkasan Dataset Gabungan
-Secara keseluruhan, penelitian ini menggunakan **731 citra** dari tiga dataset (510 training, 146 validation, 75 testing) yang mencakup **12 kelas berbeda** (4 tahapan hidup lifecycle, 4 spesies, 4 tahapan hidup stages). Statistik lengkap dataset disajikan pada **Tabel 1** berikut:
+Secara keseluruhan, penelitian ini menggunakan **418 citra** dari tiga dataset (292 training, 84 validation, 42 testing) yang mencakup **8 kelas berbeda** (4 spesies + 4 tahapan hidup). Statistik lengkap dataset disajikan pada **Tabel 1** berikut:
 
 **Tabel 1. Statistik Dataset dan Augmentasi**
 
-| Dataset | Total Images | Train | Val | Test | Classes | Detection Aug Train | Classification Aug Train | Det Multiplier | Cls Multiplier |
-|---------|--------------|-------|-----|------|---------|---------------------|--------------------------|----------------|----------------|
-| **IML Lifecycle** | 313 | 218 | 62 | 33 | 4 stages | 956 | 765 | 4.4× | 3.5× |
-| **MP-IDB Species** | 209 | 146 | 42 | 21 | 4 species | 640 | 512 | 4.4× | 3.5× |
-| **MP-IDB Stages** | 209 | 146 | 42 | 21 | 4 stages | 640 | 512 | 4.4× | 3.5× |
-| **TOTAL** | **731** | **510** | **146** | **75** | **12 classes** | **2,236** | **1,789** | - | - |
+| Dataset | Total Images | Train | Val | Test | Classes | Detection Aug Train | Classification Aug Train | Det Multiplier | Cls Multiplier | ---------|--------------|-------|-----|------|---------|---------------------|--------------------------|----------------|----------------| **MP-IDB Species** | 209 | 146 | 42 | 21 | 4 species | 640 | 512 | 4.4× | 3.5× | **MP-IDB Stages** | 209 | 146 | 42 | 21 | 4 stages | 640 | 512 | 4.4× | 3.5× | **TOTAL** | **731** | **510** | **146** | **75** | **8 classes** | **1,280** | **1,024** | - | - |
 
 #### Teknik Augmentasi Medical-Safe
 Untuk mengatasi keterbatasan jumlah data sekaligus mempertahankan integritas informasi diagnostik, diterapkan teknik augmentasi yang aman untuk citra medis (*medical-safe augmentation*):
@@ -83,9 +79,9 @@ Tahap pertama menggunakan tiga varian model YOLO (You Only Look Once) untuk mend
 - Optimizer: AdamW (learning rate=0.0005, weight decay=0.0001)
 - Scheduler: Linear warmup (3 epochs) + cosine decay
 - Loss function: IoU loss + classification loss + objectness loss (YOLO default)
-- Total training time: **6.3 hours** untuk 9 models (3 YOLO × 3 datasets)
+- Total training time: **6.3 hours** untuk 6 models (3 YOLO × 2 datasets)
 
-Ketiga model YOLO dilatih secara independen pada masing-masing dari tiga dataset, menghasilkan **9 model deteksi** dengan karakteristik performa yang berbeda-beda.
+Ketiga model YOLO dilatih secara independen pada masing-masing dari tiga dataset, menghasilkan **6 model deteksi** dengan karakteristik performa yang berbeda-beda.
 
 #### Tahap 2: Ground Truth Crop Generation
 Tahap kedua yang unik dari Option A adalah menghasilkan *cropped images* parasit langsung dari **annotations manual** (ground truth), bukan dari hasil deteksi model. Pendekatan ini memastikan kualitas data untuk tahap klasifikasi tidak terpengaruh oleh error deteksi.
@@ -94,7 +90,7 @@ Tahap kedua yang unik dari Option A adalah menghasilkan *cropped images* parasit
 - Ukuran crop: 224×224 pixels (resized dengan mempertahankan aspect ratio)
 - Padding: 10% margin di sekitar bounding box untuk menangkap konteks morfologi
 - Quality filter: Membuang crops dengan ukuran <50×50 pixels atau >90% background
-- Total crops dihasilkan: **2,236** (detection-augmented) dan **1,789** (classification-augmented)
+- Total crops dihasilkan: **1,280** (detection-augmented) dan **1,024** (classification-augmented)
 - Waktu processing: 2.1 jam untuk semua dataset
 
 #### Tahap 3: Klasifikasi dengan CNN
@@ -144,7 +140,7 @@ Tahap ketiga melatih enam arsitektur CNN state-of-the-art untuk mengklasifikasik
 - Dropout: 0.3 sebelum final classification layer
 - Mixed precision: FP16 enabled untuk 2× speedup
 - Early stopping: Patience 10 epochs (monitor validation balanced accuracy)
-- Total training time: **51.6 hours** untuk 18 models (6 CNN × 3 datasets)
+- Total training time: **51.6 hours** untuk 18 models (6 CNN × 2 datasets)
 
 Keenam model CNN dilatih pada ground truth crops, dan **models yang sama digunakan kembali** untuk semua metode deteksi (shared classification). Ini adalah keunggulan utama Option A.
 
@@ -172,35 +168,19 @@ Performa deteksi diukur menggunakan metrik standar object detection: mean Averag
 
 **Tabel 2. Performa Deteksi YOLO pada Tiga Dataset**
 
-| Dataset | Model | Epochs | mAP@50 | mAP@50-95 | Precision | Recall | Training Time (hours) |
-|---------|-------|--------|--------|-----------|-----------|--------|-----------------------|
-| **IML Lifecycle** | YOLO12 | 100 | **95.71%** | 78.62% | 90.56% | 95.10% | 2.8 |
-| IML Lifecycle | YOLO11 | 100 | 93.87% | **79.37%** | 89.80% | **94.98%** | 2.5 |
-| IML Lifecycle | YOLO10 | 100 | 91.86% | 74.90% | **90.54%** | 93.86% | 2.3 |
-| **MP-IDB Species** | YOLO12 | 100 | **93.12%** | 58.72% | 87.51% | 91.18% | 2.1 |
-| MP-IDB Species | YOLO11 | 100 | 93.09% | **59.60%** | 86.47% | **92.26%** | 1.9 |
-| MP-IDB Species | YOLO10 | 100 | 92.53% | 57.20% | **89.74%** | 89.57% | 1.8 |
-| **MP-IDB Stages** | YOLO11 | 100 | **92.90%** | 56.50% | 89.92% | **90.37%** | 1.9 |
-| MP-IDB Stages | YOLO12 | 100 | 92.39% | **58.36%** | **90.34%** | 87.56% | 2.1 |
-| MP-IDB Stages | YOLO10 | 100 | 90.91% | 55.26% | 88.73% | 85.56% | 1.8 |
+| Dataset | Model | Epochs | mAP@50 | mAP@50-95 | Precision | Recall | Training Time (hours) | ---------|-------|--------|--------|-----------|-----------|--------|-----------------------| **MP-IDB Species** | YOLO12 | 100 | **93.12%** | 58.72% | 87.51% | 91.18% | 2.1 | MP-IDB Species | YOLO11 | 100 | 93.09% | **59.60%** | 86.47% | **92.26%** | 1.9 | MP-IDB Species | YOLO10 | 100 | 92.53% | 57.20% | **89.74%** | 89.57% | 1.8 | **MP-IDB Stages** | YOLO11 | 100 | **92.90%** | 56.50% | 89.92% | **90.37%** | 1.9 | MP-IDB Stages | YOLO12 | 100 | 92.39% | **58.36%** | **90.34%** | 87.56% | 2.1 | MP-IDB Stages | YOLO10 | 100 | 90.91% | 55.26% | 88.73% | 85.56% | 1.8 |
 
 **Catatan**: Bold values menunjukkan performa terbaik per metrik per dataset.
 
 #### Analisis Hasil Deteksi per Dataset
 
-**a) IML Lifecycle Dataset (313 images, 4 lifecycle stages)**
-
-YOLOv12 mencapai **mAP@50 tertinggi sebesar 95.71%**, mengungguli YOLOv11 dengan margin +1.84% dan YOLOv10 dengan margin +3.85%. Namun, YOLOv11 menunjukkan **mAP@50-95 terbaik (79.37%)**, yang mengindikasikan lokalisasi bounding box yang lebih presisi pada berbagai threshold IoU yang lebih ketat. Semua model mempertahankan recall di atas 93.86%, yang sangat penting dalam konteks medis untuk meminimalkan false negatives (parasit yang terlewat).
-
-Visualisasi bounding box ground truth dapat dilihat pada **Gambar S5-S6**, menunjukkan lokalisasi akurat parasit bahkan pada fields yang padat. Precision-Recall curves (**Gambar S7**) menunjukkan performa konsisten across confidence thresholds 0.3-0.8, mengindikasikan model robust terhadap variasi threshold deteksi.
-
-**b) MP-IDB Species Dataset (209 images, 4 Plasmodium species)**
+**a) MP-IDB Species Dataset (209 images, 4 Plasmodium species)**
 
 Ketiga model YOLO menunjukkan performa yang sangat kompetitif dengan **delta mAP@50 <0.6%** (92.53-93.12%), mengindikasikan konvergensi performa pada dataset species. YOLOv12 sedikit unggul pada mAP@50 (93.12%), namun YOLOv11 mencapai **recall tertinggi (92.26%)**, menjadikannya pilihan terbaik untuk deployment klinik dimana false negatives lebih kritis daripada false positives.
 
 Training time berkisar 1.8-2.1 jam per model, menunjukkan efisiensi komputasi tinggi. YOLOv10 tercepat (1.8h) dengan trade-off akurasi yang minimal (-0.56% dari YOLOv12).
 
-**c) MP-IDB Stages Dataset (209 images, 4 lifecycle stages)**
+**b) MP-IDB Stages Dataset (209 images, 4 lifecycle stages)**
 
 YOLOv11 menjadi top performer dengan **mAP@50 92.90%** dan **recall 90.37%**, particularly effective untuk mendeteksi kelas minoritas (*schizont*: 7 samples, *gametocyte*: 5 samples). YOLOv12 mencapai mAP@50-95 sedikit lebih tinggi (58.36% vs 56.50%), namun recall YOLOv11 yang superior (90.37% vs 87.56%) lebih penting untuk imbalanced datasets.
 
@@ -223,71 +203,31 @@ Performa klasifikasi diukur menggunakan accuracy (overall dan balanced) serta pe
 
 **Tabel 3. Performa Klasifikasi CNN dengan Focal Loss**
 
-| Dataset | Model | Parameters | Epochs | Accuracy | Balanced Accuracy | Training Time (hours) |
-|---------|-------|------------|--------|----------|-------------------|-----------------------|
-| **IML Lifecycle** | EfficientNet-B2 | 9.2M | 75 | **87.64%** | **75.73%** | 3.2 |
-| IML Lifecycle | DenseNet121 | 8.0M | 75 | 86.52% | **76.46%** | 3.5 |
-| IML Lifecycle | EfficientNet-B0 | 5.3M | 75 | 85.39% | 74.90% | 2.8 |
-| IML Lifecycle | EfficientNet-B1 | 7.8M | 75 | 85.39% | 74.90% | 3.0 |
-| IML Lifecycle | ResNet50 | 25.6M | 75 | 85.39% | 75.57% | 3.3 |
-| IML Lifecycle | ResNet101 | 44.5M | 75 | 77.53% | 67.02% | 4.1 |
-| **MP-IDB Species** | DenseNet121 | 8.0M | 75 | **98.8%** | 87.73% | 2.9 |
-| MP-IDB Species | EfficientNet-B1 | 7.8M | 75 | **98.8%** | **93.18%** | 2.5 |
-| MP-IDB Species | EfficientNet-B0 | 5.3M | 75 | 98.4% | 88.18% | 2.3 |
-| MP-IDB Species | EfficientNet-B2 | 9.2M | 75 | 98.4% | 82.73% | 2.7 |
-| MP-IDB Species | ResNet101 | 44.5M | 75 | 98.4% | 82.73% | 3.4 |
-| MP-IDB Species | ResNet50 | 25.6M | 75 | 98.0% | 75.00% | 2.8 |
-| **MP-IDB Stages** | EfficientNet-B0 | 5.3M | 75 | **94.31%** | **69.21%** | 2.3 |
-| MP-IDB Stages | DenseNet121 | 8.0M | 75 | 93.65% | 67.31% | 2.9 |
-| MP-IDB Stages | ResNet50 | 25.6M | 75 | 93.31% | 65.79% | 2.8 |
-| MP-IDB Stages | ResNet101 | 44.5M | 75 | 92.98% | 65.69% | 3.4 |
-| MP-IDB Stages | EfficientNet-B1 | 7.8M | 75 | 90.64% | 69.77% | 2.5 |
-| MP-IDB Stages | EfficientNet-B2 | 9.2M | 75 | 80.60% | 60.72% | 2.7 |
+| Dataset | Model | Parameters | Epochs | Accuracy | Balanced Accuracy | Training Time (hours) | ---------|-------|------------|--------|----------|-------------------|-----------------------| **MP-IDB Species** | DenseNet121 | 8.0M | 75 | **98.8%** | 87.73% | 2.9 | MP-IDB Species | EfficientNet-B1 | 7.8M | 75 | **98.8%** | **93.18%** | 2.5 | MP-IDB Species | EfficientNet-B0 | 5.3M | 75 | 98.4% | 88.18% | 2.3 | MP-IDB Species | EfficientNet-B2 | 9.2M | 75 | 98.4% | 82.73% | 2.7 | MP-IDB Species | ResNet101 | 44.5M | 75 | 98.4% | 82.73% | 3.4 | MP-IDB Species | ResNet50 | 25.6M | 75 | 98.0% | 75.00% | 2.8 | **MP-IDB Stages** | EfficientNet-B0 | 5.3M | 75 | **94.31%** | **69.21%** | 2.3 | MP-IDB Stages | DenseNet121 | 8.0M | 75 | 93.65% | 67.31% | 2.9 | MP-IDB Stages | ResNet50 | 25.6M | 75 | 93.31% | 65.79% | 2.8 | MP-IDB Stages | ResNet101 | 44.5M | 75 | 92.98% | 65.69% | 3.4 | MP-IDB Stages | EfficientNet-B1 | 7.8M | 75 | 90.64% | 69.77% | 2.5 | MP-IDB Stages | EfficientNet-B2 | 9.2M | 75 | 80.60% | 60.72% | 2.7 |
 
 #### Analisis Hasil Klasifikasi per Dataset
 
-**a) IML Lifecycle Classification (313 images, 4 stages)**
+**a) MP-IDB Species Classification
 
-EfficientNet-B2 mencapai **overall accuracy terbaik 87.64%** dan balanced accuracy 75.73%, menunjukkan robustness terhadap severe class imbalance. Analisis per-class detail pada **Tabel 4** mengungkap challenges signifikan:
-
-**Tabel 4. Performa Per-Class IML Lifecycle (Best Models)**
-
-| Class | Support | Best Model | Precision | Recall | F1-Score | Challenge Level |
-|-------|---------|------------|-----------|--------|----------|-----------------|
-| gametocyte | 41 | EfficientNet-B2 | 95.24% | **97.56%** | **96.39%** | ✅ Low |
-| ring | 28 | ResNet50 | **95.83%** | 82.14% | 88.46% | ✅ Low |
-| trophozoite | 16 | EfficientNet-B2 | 83.33% | 62.50% | 71.43% | ⚠️ Moderate |
-| **schizont** | **4** | DenseNet121 | 66.67% | 50.00% | **57.14%** | ⚠️ **Severe** |
-
-Gap F1-score sebesar **39.25 poin** antara *gametocyte* (96.39%) dan *schizont* (57.14%) mengilustrasikan dampak ekstrem class imbalance. Meskipun hanya 4 test samples, DenseNet121 mencapai 66.67% precision dan 50.00% recall pada *schizont*, merepresentasikan **peningkatan +20-40%** dibanding baseline models tanpa Focal Loss mitigation.
-
-Visualisasi Grad-CAM (**Gambar S11-S12**) mengkonfirmasi bahwa model memfokuskan attention pada fitur morfologi (tekstur sitoplasma, ukuran nucleus) bukan background artifacts, memvalidasi learned representations.
-
-**b) MP-IDB Species Classification (209 images, 4 species)**
+**INSERT FULL TABLE 9 FOR SPECIES:**
+- **Path**: `luaran/tables/Table9_MP-IDB_Species_Full.csv`
+- **Format**: 4 classes × 6 models × 4 metrics per class
+- **Shows**: Complete per-class performance breakdown
+ (209 images, 4 species)**
 
 EfficientNet-B1 dan DenseNet121 sama-sama mencapai **exceptional accuracy 98.8%**, dengan balanced accuracy masing-masing 93.18% dan 87.73%. Performa per-species:
 
-| Species | Support | Best Model | Precision | Recall | F1-Score |
-|---------|---------|------------|-----------|--------|----------|
-| P_falciparum | 227 | All models | **100%** | **100%** | **100%** |
-| P_malariae | 7 | All models | **100%** | **100%** | **100%** |
-| P_vivax | 11 | DenseNet121 | 83.33% | 90.91% | 86.96% |
-| **P_ovale** | **5** | EfficientNet-B1 | 62.50% | **100%** | **76.92%** |
+| Species | Support | Best Model | Precision | Recall | F1-Score | ---------|---------|------------|-----------|--------|----------| P_falciparum | 227 | All models | **100%** | **100%** | **100%** | P_malariae | 7 | All models | **100%** | **100%** | **100%** | P_vivax | 11 | DenseNet121 | 83.33% | 90.91% | 86.96% | **P_ovale** | **5** | EfficientNet-B1 | 62.50% | **100%** | **76.92%** |
 
 Notably, EfficientNet-B1 mencapai **perfect recall 100%** pada *P. ovale* meskipun hanya 5 test samples, meskipun dengan trade-off precision 62.5% (5 false positives). Dalam konteks klinik, trade-off ini acceptable—missing rare species (false negatives) lebih kritis daripada over-diagnosis yang memerlukan confirmatory testing.
 
 Confusion matrix analysis (**Gambar S2**) menunjukkan misclassifications *P. ovale* primarily terjadi dengan *P. vivax* (morphologically similar), konsisten dengan observasi expert pathologists.
 
-**c) MP-IDB Stages Classification (209 images, 4 stages)**
+**b) MP-IDB Stages Classification (209 images, 4 stages)**
 
 EfficientNet-B0 mencapai **best overall accuracy 94.31%** dan balanced accuracy 69.21%, meskipun menghadapi extreme class imbalance (ring:272, trophozoite:15, schizont:7, gametocyte:5 = rasio 54.4:1). Performa per-stage:
 
-| Stage | Support | Best Model | Precision | Recall | F1-Score |
-|-------|---------|------------|-----------|--------|----------|
-| ring | 272 | EfficientNet-B1 | 98.07% | 93.38% | **95.67%** |
-| schizont | 7 | EfficientNet-B0 | **100%** | 85.71% | **92.31%** |
-| gametocyte | 5 | DenseNet121 | **100%** | 60.00% | 75.00% |
-| **trophozoite** | **15** | EfficientNet-B0 | 50.00% | 53.33% | **51.61%** |
+| Stage | Support | Best Model | Precision | Recall | F1-Score | -------|---------|------------|-----------|--------|----------| ring | 272 | EfficientNet-B1 | 98.07% | 93.38% | **95.67%** | schizont | 7 | EfficientNet-B0 | **100%** | 85.71% | **92.31%** | gametocyte | 5 | DenseNet121 | **100%** | 60.00% | 75.00% | **trophozoite** | **15** | EfficientNet-B0 | 50.00% | 53.33% | **51.61%** |
 
 Challenge terbesar adalah **trophozoite (F1=51.61%)** akibat extreme imbalance (rasio 272:15 = 18.1:1 terhadap ring) dan morphological overlap dengan ring stage. EfficientNet-B0's **perfect precision 100%** pada *schizont* dan *gametocyte* mengindikasikan conservative predictions—no false positives, meskipun beberapa false negatives (recall 60-85.71%).
 
@@ -299,13 +239,12 @@ Validasi pada tiga dataset berbeda memberikan insights tentang generalisasi mode
 - **EfficientNet-B1**: Excellent pada species (98.8%), moderate pada stages (90.64%), good pada lifecycle (85.39%)
 - **EfficientNet-B0**: Best pada stages (94.31%), excellent pada species (98.4%), good pada lifecycle (85.39%)
 - **DenseNet121**: Consistent performance across all datasets (86.52-98.8%), low variance
-- **ResNet101**: Underperforms pada IML Lifecycle (77.53%), good pada MP-IDB (92.98-98.4%)
+- **ResNet101**: Underperforms pada 53%), good pada MP-IDB (92.98-98.4%)
 
 **Key Finding: Model Size vs Performance Paradox**
 
 Temuan mengejutkan adalah bahwa **smaller models outperform larger models** secara signifikan:
-- EfficientNet-B2 (9.2M params): **87.64%** accuracy pada IML Lifecycle
-- ResNet101 (44.5M params): 77.53% accuracy pada dataset yang sama
+- EfficientNet-B2 (9.2M params): **87.64%** accuracy pada 5M params): 77.53% accuracy pada dataset yang sama
 - **Performance gap: +10.11%** dengan 5× fewer parameters!
 
 Fenomena ini konsisten dengan findings Tan & Le (2019) tentang EfficientNet's compound scaling, dan menunjukkan:
@@ -315,14 +254,7 @@ Fenomena ini konsisten dengan findings Tan & Le (2019) tentang EfficientNet's co
 
 **Tabel 5. Cross-Dataset Model Rankings**
 
-| Rank | Model | Avg Accuracy | Best Dataset | Worst Dataset | Std Dev | Parameters |
-|------|-------|--------------|--------------|---------------|---------|------------|
-| 1 | DenseNet121 | **92.99%** | MP-IDB Species (98.8%) | IML Lifecycle (86.52%) | 6.71% | 8.0M |
-| 2 | EfficientNet-B1 | **91.61%** | MP-IDB Species (98.8%) | MP-IDB Stages (90.64%) | 4.48% | 7.8M |
-| 3 | EfficientNet-B0 | **92.70%** | MP-IDB Species (98.4%) | IML Lifecycle (85.39%) | 6.94% | 5.3M |
-| 4 | ResNet50 | 89.03% | MP-IDB Species (98.0%) | IML Lifecycle (85.39%) | 6.72% | 25.6M |
-| 5 | EfficientNet-B2 | 88.88% | MP-IDB Species (98.4%) | MP-IDB Stages (80.60%) | 9.24% | 9.2M |
-| 6 | ResNet101 | 89.64% | MP-IDB Species (98.4%) | IML Lifecycle (77.53%) | 11.37% | 44.5M |
+| Rank | Model | Avg Accuracy | Best Dataset | Worst Dataset | Std Dev | Parameters | ------|-------|--------------|--------------|---------------|---------|------------| 2 | EfficientNet-B1 | **91.61%** | MP-IDB Species (98.8%) | MP-IDB Stages (90.64%) | 4.48% | 7.8M | 5 | EfficientNet-B2 | 88.88% | MP-IDB Species (98.4%) | MP-IDB Stages (80.60%) | 9.24% | 9.2M |
 
 **Observasi Kritis:**
 - **Consistency**: DenseNet121 highest average (92.99%) namun higher std dev (6.71%)
@@ -336,15 +268,7 @@ Keterbatasan jumlah sampel pada kelas minoritas (<20 samples) merupakan challeng
 
 **Tabel 6. Analisis Performa Kelas Minoritas**
 
-| Dataset | Class | Support | Best Model | Precision | Recall | F1-Score | Challenge Level |
-|---------|-------|---------|------------|-----------|--------|----------|-----------------|
-| IML Lifecycle | **schizont** | **4** | DenseNet121 | 66.67% | 50.00% | **57.14%** | ⚠️ **Severe** |
-| IML Lifecycle | trophozoite | 16 | EfficientNet-B2 | 83.33% | 62.50% | 71.43% | ⚠️ Moderate |
-| MP-IDB Species | **P_ovale** | **5** | EfficientNet-B1 | 62.50% | **100%** | **76.92%** | ⚠️ Moderate |
-| MP-IDB Species | P_vivax | 11 | DenseNet121 | 83.33% | 90.91% | 86.96% | ✅ Low |
-| MP-IDB Stages | **gametocyte** | **5** | DenseNet121 | **100%** | 60.00% | 75.00% | ⚠️ Moderate |
-| MP-IDB Stages | **trophozoite** | **15** | EfficientNet-B0 | 50.00% | 53.33% | **51.61%** | ⚠️ **Severe** |
-| MP-IDB Stages | schizont | 7 | EfficientNet-B0 | **100%** | 85.71% | 92.31% | ✅ Low |
+| Dataset | Class | Support | Best Model | Precision | Recall | F1-Score | Challenge Level | ---------|-------|---------|------------|-----------|--------|----------|-----------------| MP-IDB Species | **P_ovale** | **5** | EfficientNet-B1 | 62.50% | **100%** | **76.92%** | ⚠️ Moderate | MP-IDB Species | P_vivax | 11 | DenseNet121 | 83.33% | 90.91% | 86.96% | ✅ Low | MP-IDB Stages | **gametocyte** | **5** | DenseNet121 | **100%** | 60.00% | 75.00% | ⚠️ Moderate | MP-IDB Stages | **trophozoite** | **15** | EfficientNet-B0 | 50.00% | 53.33% | **51.61%** | ⚠️ **Severe** | MP-IDB Stages | schizont | 7 | EfficientNet-B0 | **100%** | 85.71% | 92.31% | ✅ Low |
 
 **Challenge Level Criteria:**
 - ⚠️ **Severe**: F1-score <60% (IML schizont=4, MP-IDB stages trophozoite=15)
@@ -369,15 +293,7 @@ Salah satu kontribusi utama penelitian ini adalah quantification dari efisiensi 
 
 **Tabel 7. Perbandingan Efisiensi Komputasi**
 
-| Metric | Traditional Approach | Option A (This Study) | Improvement |
-|--------|---------------------|----------------------|-------------|
-| **Storage Required** | 45 GB | **14 GB** | **70% reduction** (-31 GB) |
-| **Training Time** | 450 hours | **180 hours** | **60% reduction** (-270 hours) |
-| Detection Training | 6.3 hours | 6.3 hours | Same (3 YOLO models) |
-| Classification Training | 360 hours (re-train 3×) | **51.6 hours** (train once, reuse) | **86% reduction** |
-| Crop Generation | - | 2.1 hours | Once (ground truth crops) |
-| **Inference Speed** | 25-30 ms/image | **<25 ms/image** | 40+ FPS capable |
-| **Memory Footprint** | 10-12 GB VRAM | **8.2 GB VRAM** | Fits RTX 3060 12GB |
+| Metric | Traditional Approach | Option A (This Study) | Improvement | --------|---------------------|----------------------|-------------| **Storage Required** | 45 GB | **14 GB** | **70% reduction** (-31 GB) | **Training Time** | 450 hours | **180 hours** | **60% reduction** (-270 hours) | Detection Training | 6.3 hours | 6.3 hours | Same (3 YOLO models) | Classification Training | 360 hours (re-train 3×) | **51.6 hours** (train once, reuse) | **86% reduction** | Crop Generation | - | 2.1 hours | Once (ground truth crops) | **Inference Speed** | 25-30 ms/image | **<25 ms/image** | 40+ FPS capable | **Memory Footprint** | 10-12 GB VRAM | **8.2 GB VRAM** | Fits RTX 3060 12GB |
 
 **Breakdown Efisiensi:**
 
@@ -432,7 +348,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 #### b) Small Dataset Size
 **Problem**: 209-313 images per dataset tidak cukup untuk large models (ResNet101: 44.5M params)
 
-**Evidence**: ResNet101 achieves only 77.53% accuracy pada IML Lifecycle vs EfficientNet-B2's 87.64% (-10.11% penalty untuk 5× more parameters)
+**Evidence**: ResNet101 achieves only 77.53% accuracy pada 64% (-10.11% penalty untuk 5× more parameters)
 
 **Current Mitigation**:
 - Heavy augmentation (4.4× detection, 3.5× classification)
@@ -441,8 +357,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 - Prefer smaller models (EfficientNet-B0/B1: 5.3-7.8M params)
 
 **Proposed Future Work**:
-- **Dataset expansion**: IML Lifecycle 313 → 1000+ images (target Phase 2, months 9-10)
-- **Crowdsourced annotation** platform dengan quality control (Cohen's Kappa >0.8)
+- **Dataset expansion**: 8)
 - **Semi-supervised learning** dengan unlabeled data
 
 #### c) Model Overfitting Risk
@@ -549,10 +464,9 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 **Status**: ✅ **7/7 complete (CSV format)**
 
 1. **Table 1**: Dataset Statistics dan Augmentasi (3 datasets, multipliers)
-2. **Table 2**: Detection Performance YOLO (9 models, comprehensive metrics)
+2. **Table 2**: Detection Performance YOLO (6 models, comprehensive metrics)
 3. **Table 3**: Classification Performance CNN (18 models, Focal Loss)
-4. **Table 4**: Per-Class IML Lifecycle (4 classes, best model per class)
-5. **Table 5**: Cross-Dataset Model Rankings (6 models, avg/std dev)
+4. **Table 4**: Per-Class  **Table 5**: Cross-Dataset Model Rankings (6 models, avg/std dev)
 6. **Table 6**: Minority Class Performance Analysis (12 minority classes)
 7. **Table 7**: Computational Efficiency Comparison (Traditional vs Option A)
 
@@ -580,16 +494,10 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 
 **Achievements**:
 - ✅ Downloaded dan verified 3 public datasets:
-  - IML Lifecycle: 313 images, 4 lifecycle stages
-  - MP-IDB Species: 209 images, 4 Plasmodium species
-  - MP-IDB Stages: 209 images, 4 lifecycle stages
-- ✅ Implemented YOLO format conversion scripts (COCO/VOC → YOLO txt)
-- ✅ Stratified train/val/test split (66%/17%/17%) dengan class balance preservation
-- ✅ Medical-safe augmentation pipeline:
-  - Detection: 4.4× multiplier (HSV, rotation, scaling, mosaic, flipud=0.0)
+  - 4× multiplier (HSV, rotation, scaling, mosaic, flipud=0.0)
   - Classification: 3.5× multiplier (rotation, affine, color jitter, Gaussian noise)
 
-**Deliverable**: Processed datasets dengan **2,236 detection crops** dan **1,789 classification crops**
+**Deliverable**: Processed datasets dengan **1,280 detection crops** dan **1,024 classification crops**
 
 **Timeline**: On schedule (completed January-February 2025)
 
@@ -598,7 +506,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 
 **Achievements**:
 - ✅ Trained **9 detection models** (YOLOv10, YOLOv11, YOLOv12 × 3 datasets):
-  - IML Lifecycle: YOLOv12 best (95.71% mAP@50)
+  - 71% mAP@50)
   - MP-IDB Species: YOLOv12 best (93.12% mAP@50)
   - MP-IDB Stages: YOLOv11 best (92.90% mAP@50)
 - ✅ Training configuration optimized:
@@ -616,12 +524,12 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 **Target**: Train 6 CNN architectures dengan Focal Loss
 
 **Achievements**:
-- ✅ Trained **18 classification models** (6 CNN × 3 datasets):
+- ✅ Trained **18 classification models** (6 CNN × 2 datasets):
   - DenseNet121, EfficientNet-B0/B1/B2, ResNet50/ResNet101
   - All dengan Focal Loss (α=0.25, γ=2.0)
   - Class-Balanced Loss removed (caused -8% to -26% degradation)
 - ✅ Best performance per dataset:
-  - IML Lifecycle: EfficientNet-B2 (87.64% accuracy, 75.73% balanced)
+  - 64% accuracy, 75.73% balanced)
   - MP-IDB Species: EfficientNet-B1 & DenseNet121 (98.8% accuracy)
   - MP-IDB Stages: EfficientNet-B0 (94.31% accuracy, 69.21% balanced)
 - ✅ Total training time: **51.6 hours** (RTX 3060 12GB)
@@ -679,18 +587,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 
 **Timeline**: September-October 2025
 
-#### Month 9-10: Dataset Expansion (IML Lifecycle) 📅 **PLANNED**
-**Target**: Expand IML Lifecycle dari 313 → 1000+ images untuk address class imbalance
-
-**Planned Activities**:
-- **Data collection** additional **687 images**:
-  - Collaborate dengan 2-3 laboratorium klinik lokal
-  - Standardized imaging protocol (Olympus CX23 microscope, Giemsa staining)
-  - Target distribution: Schizont 50+, Trophozoite 100+, Gametocyte 150+, Ring 200+
-- **Crowdsourced annotation** platform:
-  - Platform: Labelbox atau Amazon Mechanical Turk
-  - Annotation guidelines document dengan morphology examples
-  - Quality control: Inter-annotator agreement Cohen's Kappa >0.8
+#### Month 9-10: Dataset Expansion (8
   - Expert pathologist review untuk final validation
 - **Re-train models** pada expanded dataset:
   - Same YOLO variants (v10/v11/v12)
@@ -763,7 +660,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 **Deskripsi**: Beberapa kelas memiliki jumlah sampel sangat sedikit (<10 samples pada test set), menyebabkan performa klasifikasi tidak optimal pada kelas tersebut.
 
 **Bukti Kuantitatif**:
-- IML Lifecycle **Schizont** (4 samples): F1-score=57.14% vs Gametocyte (41 samples): F1-score=96.39%
+- 14% vs Gametocyte (41 samples): F1-score=96.39%
   - **Performance degradation: -39.25%** attributable to severe imbalance (10.25:1 ratio)
 - MP-IDB Stages **Trophozoite** (15 samples): F1-score=51.61% vs Ring (272 samples): F1-score=95.67%
   - **Performance degradation: -44.06%** due to extreme imbalance (18.1:1 ratio)
@@ -814,8 +711,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 **Deskripsi**: Datasets dengan 209-313 images per task tidak cukup untuk train large deep learning models effectively, menyebabkan overfitting.
 
 **Bukti Kuantitatif**:
-- ResNet101 (44.5M parameters): **77.53% accuracy** pada IML Lifecycle
-- EfficientNet-B2 (9.2M parameters): **87.64% accuracy** pada dataset yang sama
+- ResNet101 (44.5M parameters): **77.53% accuracy** pada 2M parameters): **87.64% accuracy** pada dataset yang sama
 - **Performance penalty: -10.11%** dengan 5× more parameters (over-parameterization)
 - ResNet101 standard deviation across datasets: **11.37%** (highest variance, indication of overfitting)
 - EfficientNet-B1 standard deviation: **4.48%** (lowest variance, best generalization)
@@ -847,9 +743,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 
 **Rencana Lanjutan (Phase 2)**:
 - **Dataset Expansion**:
-  - IML Lifecycle: 313 → **1000+ images** (target: +687 images)
-  - Collaborate dengan local hospital laboratories
-  - Crowdsourced annotation dengan quality control (Cohen's Kappa >0.8)
+  - 8)
   - Expected impact: Enable training of larger models tanpa overfitting
 - **Semi-Supervised Learning**:
   - Leverage unlabeled malaria microscopy images (abundant online)
@@ -884,7 +778,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
    - Trade-off: Slight increase in training time (~10%)
 
 **Hasil Mitigation**:
-- Successfully trained all 27 models (9 detection + 18 classification) within 60 hours
+- Successfully trained all 27 models (6 detection + 12 classification) within 60 hours
 - Peak memory usage: 8.2GB (well within 12GB limit, 30% headroom for safety)
 - Mixed precision training: **40% time reduction** vs FP32 baseline
 
@@ -916,7 +810,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 
 **Solusi yang Telah Diterapkan**:
 1. **Manual Review dan Correction**:
-   - Reviewed all 731 images' annotations
+   - Reviewed all 418 images' annotations
    - Corrected ~50+ problematic bounding boxes
    - Validation: Bounding box size variance, center alignment check
 2. **Bbox Size Validation**:
@@ -940,11 +834,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 - Most malaria deep learning papers focus on:
   - Single-stage classification (CNN only, no detection)
   - Older detection methods (Faster R-CNN, SSD, not recent YOLO variants)
-  - Different datasets (not MP-IDB or IML Lifecycle)
-- Recent YOLO papers (2024-2025) mostly apply to general object detection, not malaria-specific
-
-**Solusi yang Telah Diterapkan**:
-1. **Expand Search to Related Domains**:
+  - Different datasets (not MP-IDB or  **Expand Search to Related Domains**:
    - Blood cell detection (leukocytes, erythrocytes)
    - Medical object detection (tumor detection, lesion localization)
    - General YOLO architecture papers (YOLOv8-v12 technical reports)
@@ -1120,11 +1010,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 
 ### 2. Medium-term (Next 6 Months: January-June 2026)
 
-#### Month 1-2 (January-February 2026): Dataset Expansion (IML Lifecycle)
-**Objective**: Expand IML Lifecycle dari 313 → 1000+ images untuk mitigate class imbalance
-
-**Activities**:
-1. **Data Collection (+687 Images)**:
+#### Month 1-2 (January-February 2026): Dataset Expansion ( **Data Collection (+687 Images)**:
    - **Collaboration dengan Local Hospitals**:
      - Hospital A (Jakarta): Target 300 images
      - Hospital B (Bandung): Target 200 images
@@ -1155,7 +1041,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 3. **Re-train Models pada Expanded Dataset**:
    - Same architectures: 3 YOLO variants, 6 CNN models
    - Compare performance:
-     - Baseline (313 images): Schizont F1=57.14%, Trophozoite F1=71.43%
+     - Baseline : Schizont F1=57.14%, Trophozoite F1=71.43%
      - Expanded (1000 images): Expected Schizont F1>**70%**, Trophozoite F1>**80%**
    - Training time estimate: 70 hours (larger dataset)
 
@@ -1165,17 +1051,7 @@ Efisiensi ini memungkinkan deployment pada resource-constrained edge devices (Je
 - Balanced accuracy: 75.73% → **>80%** (+4.27% improvement)
 
 **Deliverables**:
-- Expanded IML Lifecycle dataset (1000+ images, balanced distribution)
-- Annotation quality report (Cohen's Kappa, expert validation results)
-- Re-trained models performance comparison tables
-
----
-
-#### Month 3-4 (March-April 2026): Advanced Techniques Implementation
-**Objective**: Explore GAN-based synthetic data dan active learning untuk further improvement
-
-**Activities**:
-1. **GAN-based Synthetic Data Generation**:
+- Expanded  **GAN-based Synthetic Data Generation**:
    - **Train StyleGAN2** on minority classes:
      - Separate GAN per class: Schizont-GAN, Trophozoite-GAN
      - Training data: All available samples (original + expanded)
@@ -1594,8 +1470,8 @@ hello_world/
 │   │       └── gradcam_composite_stages.png
 │   │
 │   ├── tables/                                # 7 comprehensive tables (CSV)
-│   │   ├── Table1_Detection_Performance_UPDATED.csv
-│   │   ├── Table2_Classification_Performance_UPDATED.csv
+│   │   ├── Table1_Detection_Performance_MP-IDB.csv
+│   │   ├── Table2_Classification_Performance_MP-IDB.csv
 │   │   └── ...
 │   │
 │   ├── Laporan_Kemajuan_Malaria_Detection.docx  # Progress report
@@ -1620,11 +1496,7 @@ hello_world/
 
 **Tabel 8. Best Models per Dataset (Summary)**
 
-| Task | Dataset | Detection Best | Detection mAP@50 | Classification Best | Classification Accuracy | Balanced Accuracy |
-|------|---------|----------------|------------------|---------------------|-------------------------|-------------------|
-| **Lifecycle Stages** | IML Lifecycle | YOLOv12 | **95.71%** | EfficientNet-B2 | **87.64%** | **75.73%** |
-| **Species Classification** | MP-IDB Species | YOLOv12 | 93.12% | DenseNet121 / EfficientNet-B1 | **98.8%** | **93.18%** |
-| **Stages Classification** | MP-IDB Stages | YOLOv11 | **92.90%** | EfficientNet-B0 | **94.31%** | **69.21%** |
+| Task | Dataset | Detection Best | Detection mAP@50 | Classification Best | Classification Accuracy | Balanced Accuracy | ------|---------|----------------|------------------|---------------------|-------------------------|-------------------| **Species Classification** | MP-IDB Species | YOLOv12 | 93.12% | DenseNet121 / EfficientNet-B1 | **98.8%** | **93.18%** | **Stages Classification** | MP-IDB Stages | YOLOv11 | **92.90%** | EfficientNet-B0 | **94.31%** | **69.21%** |
 
 **Overall Best Models (Cross-Dataset Performance):**
 - **Detection**: YOLOv11 (best balanced recall 90.37-94.98%, lowest variance)
@@ -1635,18 +1507,7 @@ hello_world/
 
 **Tabel 9. Inference Performance (RTX 3060 12GB)**
 
-| Model Type | Model | Parameters | Inference Time (ms/image) | FPS | Memory (VRAM) |
-|------------|-------|------------|---------------------------|-----|---------------|
-| **Detection** | YOLOv10 | 11.2M | **12.3 ms** | **81 FPS** | 2.1 GB |
-| Detection | YOLOv11 | 12.8M | 13.7 ms | 73 FPS | 2.3 GB |
-| Detection | YOLOv12 | 14.1M | 15.2 ms | 66 FPS | 2.5 GB |
-| **Classification** | EfficientNet-B0 | 5.3M | **8.2 ms** | **122 FPS** | 1.2 GB |
-| Classification | EfficientNet-B1 | 7.8M | 9.5 ms | 105 FPS | 1.5 GB |
-| Classification | EfficientNet-B2 | 9.2M | 10.7 ms | 93 FPS | 1.7 GB |
-| Classification | DenseNet121 | 8.0M | 9.8 ms | 102 FPS | 1.6 GB |
-| Classification | ResNet50 | 25.6M | 14.3 ms | 70 FPS | 3.2 GB |
-| Classification | ResNet101 | 44.5M | 22.1 ms | 45 FPS | 5.1 GB |
-| **End-to-End** | YOLO11 + EfficientNet-B1 | 20.6M | **<25 ms** | **40+ FPS** | 3.8 GB |
+| Model Type | Model | Parameters | Inference Time (ms/image) | FPS | Memory (VRAM) | ------------|-------|------------|---------------------------|-----|---------------| **Detection** | YOLOv10 | 11.2M | **12.3 ms** | **81 FPS** | 2.1 GB | Detection | YOLOv11 | 12.8M | 13.7 ms | 73 FPS | 2.3 GB | Detection | YOLOv12 | 14.1M | 15.2 ms | 66 FPS | 2.5 GB | **Classification** | EfficientNet-B0 | 5.3M | **8.2 ms** | **122 FPS** | 1.2 GB | Classification | EfficientNet-B1 | 7.8M | 9.5 ms | 105 FPS | 1.5 GB | Classification | EfficientNet-B2 | 9.2M | 10.7 ms | 93 FPS | 1.7 GB | Classification | DenseNet121 | 8.0M | 9.8 ms | 102 FPS | 1.6 GB | Classification | ResNet50 | 25.6M | 14.3 ms | 70 FPS | 3.2 GB | Classification | ResNet101 | 44.5M | 22.1 ms | 45 FPS | 5.1 GB | **End-to-End** | YOLO11 + EfficientNet-B1 | 20.6M | **<25 ms** | **40+ FPS** | 3.8 GB |
 
 **Notes**:
 - Inference time measured on RTX 3060 12GB with batch size 1 (single image)
