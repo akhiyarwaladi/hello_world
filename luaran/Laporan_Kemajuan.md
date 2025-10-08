@@ -123,11 +123,15 @@ YOLO detection models mendemonstrasikan performa kompetitif across kedua MP-IDB 
 **Gambar 2** harus ditempatkan di sini, showing side-by-side bar chart comparison dari YOLOv10, v11, dan v12 across kedua datasets untuk four metrics: mAP@50, mAP@50-95, Precision, dan Recall. Visualisasi ini makes performance differences immediately apparent dan supports conclusion bahwa YOLOv11 offers best recall.
 **File**: `figures/detection_performance_comparison.png`
 
+**[INSERT GAMBAR 2A: Detection Visualization Examples]**
+Gambar 2A menampilkan contoh visualisasi hasil deteksi parasit malaria pada blood smear images, membandingkan ground truth annotations (blue bounding boxes) dengan predicted detections dari YOLOv11 model (green bounding boxes). Kedua visualisasi menunjukkan bounding boxes yang dilabel "parasite" untuk menandakan lokalisasi parasit Plasmodium dalam sel darah merah yang terinfeksi. Ground truth detection (panel kiri) merepresentasikan expert-annotated parasite locations yang diverifikasi oleh ahli patologi, sementara predicted detection (panel kanan) mendemonstrasikan kemampuan YOLO model untuk secara akurat melokalisasi parasit dengan IoU (Intersection over Union) tinggi dibandingkan ground truth. Visualisasi ini memvalidasi bahwa YOLOv11 mencapai localization precision yang robust, essential untuk ensuring classification stage receives accurately cropped parasite regions. Sebanyak 21 test images per dataset divisualisasikan untuk comprehensive qualitative assessment dari detection performance across diverse morphological variations dan imaging conditions.
+**File**: `results/optA_20251007_134458/experiments/experiment_mp_idb_species/detection_classification_figures/det_yolo11_cls_efficientnet_b1_focal/gt_detection/` dan `pred_detection/`
+
 Training times menunjukkan expected progression dengan increasing architectural complexity: YOLOv10 completed training dalam 1,8 jam (fastest), YOLOv11 required 1,9 jam, dan YOLOv12 needed 2,1 jam (slowest), reflecting incremental architectural innovations dalam successive YOLO versions. Meskipun training time differences relatif modest (delta 0,3 jam atau approximately 17 persen between fastest dan slowest), cumulative time savings dapat become significant dalam large-scale experiments atau continuous model updating scenarios. Inference speed measurements menunjukkan similar pattern: YOLOv10 achieved 12,3 milidetik per image (81 FPS), YOLOv11 required 13,7 milidetik (73 FPS), dan YOLOv12 needed 15,2 milidetik (66 FPS), semua well within real-time requirements untuk clinical workflow integration dimana processing speeds above 30 FPS considered adequate untuk seamless user experience.
 
 Pada MP-IDB Stages dataset, yang presents more challenging detection task due to morphological subtlety dari lifecycle stage transitions, YOLOv11 emerged sebagai top performer dengan mAP@50 sebesar 92,90 persen dan recall 90,37 persen, demonstrating particular effectiveness dalam detecting minority lifecycle stages seperti schizont (7 samples) dan gametocyte (5 samples dalam test set). YOLOv12 achieved slightly higher mAP@50-95 (58,36 persen versus 56,50 persen), indicating better localization precision pada stricter IoU thresholds, namun advantage ini offset oleh lower recall (87,56 persen versus 90,37 persen) yang more critical untuk clinical applications. YOLOv10, sementara being fastest dalam training dan inference, showed lowest recall (85,56 persen) suggesting potential untuk missed detections terutama pada minority classes yang already underrepresented. Consistent high performance across kedua datasets (mAP@50 range: 90,91-93,12 persen, delta kurang dari 2,5 persen) suggests robust generalization dari YOLO architectures ke different malaria classification tasks.
 
-Precision-recall analysis mengungkapkan task-dependent trade-off pattern yang informative. Species detection achieved higher precision (86,47-89,74 persen) but slightly lower recall (89,57-92,26 persen), sementara stages detection showed inverse pattern (precision: 87,56-90,34 persen, recall: 85,56-90,37 persen). Difference ini likely reflects morphological characteristics dari classification tasks: Plasmodium species exhibit characteristic size dan shape differences yang facilitate accurate localization dengan minimal false positives (high precision), sedangkan lifecycle stages share similar overall sizes namun differ dalam internal chromatin patterns yang more prone to occlusion atau staining variability, potentially leading to more conservative detection thresholds yang favor precision over recall.
+Precision-recall analysis mengungkapkan task-dependent trade-off pattern yang informative. Species detection achieved higher precision (86,47-89,74 persen) but slightly lower recall (89,57-92,26 persen), sementara stages detection showed inverse pattern (precision: 88,73-90,34 persen, recall: 85,56-90,37 persen). Difference ini likely reflects morphological characteristics dari classification tasks: Plasmodium species exhibit characteristic size dan shape differences yang facilitate accurate localization dengan minimal false positives (high precision), sedangkan lifecycle stages share similar overall sizes namun differ dalam internal chromatin patterns yang more prone to occlusion atau staining variability, potentially leading to more conservative detection thresholds yang favor precision over recall.
 
 Berdasarkan comprehensive evaluation meliputi mAP@50, recall, training efficiency, dan inference speed, YOLOv11 selected sebagai primary detection backbone untuk subsequent classification experiments dan potential clinical deployment. Decision ini primarily driven oleh consistently high recall across kedua datasets (92,26 persen pada Species, 90,37 persen pada Stages), aligning dengan clinical priority untuk minimizing false negatives sambil maintaining acceptable false positive rate untuk confirmatory testing workflow. Additionally, YOLOv11 offers balanced trade-off between accuracy dan computational efficiency, dengan training time dan inference speed yang only marginally higher dibanding YOLOv10 namun offering 2-5 percentage point recall improvement yang clinically significant.
 
@@ -154,6 +158,10 @@ Per-class analysis via confusion matrices provides deeper insights into misclass
 **[INSERT GAMBAR 5 DI SINI: Confusion Matrices untuk Best Models]**
 **Gambar 5** harus ditempatkan di sini, showing two side-by-side confusion matrices: (left) Species classification menggunakan EfficientNet-B1, dan (right) Stages classification menggunakan EfficientNet-B0. Matrices harus display actual count numbers dengan color coding untuk highlight diagonal (correct) versus off-diagonal (errors). Visualisasi ini makes misclassification patterns immediately clear.
 **File**: `figures/confusion_matrices.png`
+
+**[INSERT GAMBAR 5A: Classification Visualization Examples]**
+Gambar 5A menyajikan visualisasi kualitatif hasil klasifikasi spesies Plasmodium pada test set images, membandingkan ground truth labels (blue bounding boxes) dengan predicted classifications dari EfficientNet-B1 model (color-coded bounding boxes). Ground truth classification visualization (panel kiri) menampilkan blue boxes dengan species labels (P_falciparum, P_malariae, P_ovale, P_vivax) berdasarkan expert annotations, sementara predicted classification visualization (panel kanan) menggunakan green boxes untuk correct predictions dan red boxes untuk misclassifications, dengan hanya class name ditampilkan tanpa probability scores untuk clarity. Color-coding scheme ini memungkinkan rapid visual assessment dari classification accuracy: predominant green boxes mengindikasikan high overall accuracy (98,80 persen untuk EfficientNet-B1 pada species dataset), sementara occasional red boxes mengidentifikasi challenging cases yang memerlukan further analysis. Sebanyak 21 test images per dataset divisualisasikan, mencakup semua 4 species classes untuk demonstrating model performance across full class spectrum termasuk rare species seperti P_ovale (5 samples) yang prone to misclassification sebagai P_vivax due to morphological similarity. Visualisasi serupa juga tersedia untuk lifecycle stages classification menggunakan EfficientNet-B0 model, menunjukkan performance patterns pada ring, trophozoite, schizont, dan gametocyte stages.
+**File**: `results/optA_20251007_134458/experiments/experiment_mp_idb_species/detection_classification_figures/det_yolo11_cls_efficientnet_b1_focal/gt_classification/` dan `pred_classification/`
 
 Untuk lifecycle stages menggunakan EfficientNet-B0, majority class Ring achieved 97,4 persen accuracy (265 dari 272 correct), dengan minor confusions dengan Trophozoite (3 samples), Schizont (2), dan Gametocyte (2). Minority classes suffered substantially more severe errors reflecting fundamental challenge dari extreme imbalance: Trophozoite (15 samples) achieved only 46,7 persen recall (7 dari 15 correct), dengan misclassifications distributed across Ring (3 errors), Schizont (3), dan Gametocyte (2). Schizont (7 samples) performed better pada 71,4 persen recall (5 dari 7 correct) dengan 1 misclassification to Ring dan 1 to Trophozoite. Gametocyte (5 samples) struggled dengan only 40 persen recall (2 dari 5 correct), dengan errors to Ring (1), Trophozoite (1), dan Schizont (1). These systematic errors primarily reflect morphological overlap during transition phases: early trophozoites resemble late rings dalam chromatin condensation patterns, late trophozoites resemble early schizonts dalam nuclear division onset, dan gametocytes can exhibit variable chromatin patterns tergantung maturation stage.
 
@@ -275,25 +283,35 @@ International dissemination efforts akan expand beyond initial journal publicati
 
 ### LAMPIRAN A: Placement Guide untuk Gambar dan Tabel
 
-#### Gambar (9 total untuk Laporan Kemajuan)
+#### Gambar (13 total untuk Laporan Kemajuan)
 
 1. **Gambar 1** (Section C.2, setelah deskripsi arsitektur): `figures/pipeline_architecture.png` - Diagram arsitektur pipeline Option A
 
 2. **Gambar 2** (Section C.3, setelah Tabel 2): `figures/detection_performance_comparison.png` - Bar charts perbandingan performa deteksi YOLO
 
-3. **Gambar 3** (Section C.4, setelah Tabel 3): `figures/classification_accuracy_heatmap.png` - Heatmap accuracy dan balanced accuracy untuk 6 CNNs × 2 datasets
+3. **Gambar 2A** (Section C.3, setelah Gambar 2): `results/optA_20251007_134458/experiments/experiment_mp_idb_species/detection_classification_figures/det_yolo11_cls_efficientnet_b1_focal/gt_detection/` dan `pred_detection/` - Visualisasi contoh deteksi (ground truth vs predicted, 21 images)
 
-4. **Gambar 4** (Section C.4, tengah pembahasan training): `figures/training_curves.png` - Kurva training loss dan accuracy untuk best models
+4. **Gambar 3** (Section C.4, setelah Tabel 3): `figures/classification_accuracy_heatmap.png` - Heatmap accuracy dan balanced accuracy untuk 6 CNNs × 2 datasets
 
 5. **Gambar 5** (Section C.4, setelah pembahasan confusion): `figures/confusion_matrices.png` - Confusion matrices untuk best models (Species: EfficientNet-B1, Stages: EfficientNet-B0)
 
-6. **Gambar 6** (Section C.4, pembahasan F1-scores): `figures/species_f1_comparison.png` - Grouped bar chart F1-scores untuk 4 species × 6 models
+6. **Gambar 5A** (Section C.4, setelah Gambar 5): `results/optA_20251007_134458/experiments/experiment_mp_idb_species/detection_classification_figures/det_yolo11_cls_efficientnet_b1_focal/gt_classification/` dan `pred_classification/` - Visualisasi contoh klasifikasi (ground truth vs predicted dengan color-coding, 21 images)
 
-7. **Gambar 7** (Section C.4, setelah Gambar 6): `figures/stages_f1_comparison.png` - Grouped bar chart F1-scores untuk 4 lifecycle stages × 6 models
+7. **Gambar 6** (Section C.4, pembahasan F1-scores): `figures/species_f1_comparison.png` - Grouped bar chart F1-scores untuk 4 species × 6 models
 
-8. **Gambar 8** (Section C.6, pembahasan class imbalance): `figures/class_imbalance_distribution.png` - Pie charts extreme class imbalance (54:1 ratio)
+8. **Gambar 7** (Section C.4, setelah Gambar 6): `figures/stages_f1_comparison.png` - Grouped bar chart F1-scores untuk 4 lifecycle stages × 6 models
 
 9. **Gambar 9** (Section C.5, pembahasan model efficiency): `figures/model_efficiency_analysis.png` - Scatter plot parameters vs accuracy menunjukkan smaller models outperform larger ones
+
+10. **Gambar 8** (Section C.6, pembahasan class imbalance): `figures/class_imbalance_distribution.png` - Pie charts extreme class imbalance (54:1 ratio)
+
+11. **Gambar A1** (Section C.1, Augmentasi IML Lifecycle): `luaran/figures/augmentation_iml_lifecycle_upscaled.png` - Data augmentation examples untuk 4 lifecycle stages (14 techniques, 512×512 px, 300 DPI)
+
+12. **Gambar A2** (Section C.1, Augmentasi MP-IDB Species): `luaran/figures/augmentation_mpidb_species_upscaled.png` - Data augmentation examples untuk 4 Plasmodium species (14 techniques, 512×512 px, 300 DPI)
+
+13. **Gambar A3** (Section C.1, Augmentasi MP-IDB Stages): `luaran/figures/augmentation_mpidb_stages_upscaled.png` - Data augmentation examples untuk lifecycle stages classification (14 techniques, 512×512 px, 300 DPI)
+
+**Note:** Gambar 4 (training_curves.png) tidak digunakan dalam dokumen ini karena tidak ada pembahasan detail tentang training loss curves dalam narasi. File exists in figures folder but not referenced in text.
 
 #### Tabel (3 total)
 
@@ -308,9 +326,11 @@ International dissemination efforts akan expand beyond initial journal publicati
 **Catatan Dokumen:**
 - Jumlah kata: ~12.000 kata (lebih detail dari JICEST)
 - Estimasi halaman: 25-30 halaman (format laporan)
-- Gambar: 9 (semua dengan placeholders dan file paths)
+- Gambar: 13 total (8 gambar analisis + 3 gambar augmentasi + 2 gambar visualisasi deteksi/klasifikasi)
 - Tabel: 3 (semua dengan placeholders dan file paths)
 - Format: Narasi paragraf profesional (minimal bullet points)
+- Visualisasi tambahan: Detection+classification examples dari eksperimen (21 images per dataset, 4 folders per combination)
+- Note: training_curves.png file exists tapi tidak di-reference di dokumen (tidak ada narasi pembahasan training loss curves)
 
 **Tanggal Penyusunan**: Oktober 2025
 **Status**: Laporan Kemajuan Lengkap - Tahun ke-1, Bulan ke-10
