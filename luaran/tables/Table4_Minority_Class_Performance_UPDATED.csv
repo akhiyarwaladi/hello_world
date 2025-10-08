@@ -1,0 +1,8 @@
+Dataset,Class,Support,Best_Model,Precision,Recall,F1_Score,Challenge_Level
+IML_Lifecycle,schizont,4,DenseNet121,0.6667,0.5000,0.5714,Severe
+IML_Lifecycle,trophozoite,16,EfficientNet-B2,0.8333,0.6250,0.7143,Moderate
+MP-IDB_Species,P_ovale,5,EfficientNet-B1,0.6250,1.0000,0.7692,Moderate
+MP-IDB_Species,P_vivax,11,DenseNet121,0.8333,0.9091,0.8696,Low
+MP-IDB_Stages,gametocyte,5,DenseNet121,1.0000,0.6000,0.7500,Moderate
+MP-IDB_Stages,trophozoite,15,EfficientNet-B0,0.5000,0.5333,0.5161,Severe
+MP-IDB_Stages,schizont,7,EfficientNet-B0,1.0000,0.8571,0.9231,Low
