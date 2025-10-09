@@ -283,13 +283,17 @@ International dissemination efforts akan expand beyond initial journal publicati
 
 2. **Gambar 2** (Section C.3, setelah Tabel 2): `luaran/figures/detection_performance_comparison.png` - Bar charts perbandingan performa deteksi YOLO
 
-3. **Gambar 2A** (Section C.3, setelah Gambar 2): `results/optA_20251007_134458/experiments/experiment_mp_idb_species/detection_classification_figures/det_yolo11_cls_efficientnet_b1_focal/gt_detection/` dan `pred_detection/` (folder containing 21 images) - Visualisasi contoh deteksi (ground truth vs predicted)
+3. **Gambar 2A** (Section C.3, setelah Gambar 2): Visualisasi contoh deteksi (ground truth vs predicted) untuk kedua dataset:
+   - **MP-IDB Species**: `results/optA_20251007_134458/experiments/experiment_mp_idb_species/detection_classification_figures/det_yolo11_cls_efficientnet_b1_focal/gt_detection/` dan `pred_detection/` (21 images)
+   - **MP-IDB Stages**: `results/optA_20251007_134458/experiments/experiment_mp_idb_stages/detection_classification_figures/det_yolo11_cls_efficientnet_b1_focal/gt_detection/` dan `pred_detection/` (21 images)
 
 4. **Gambar 3** (Section C.4, setelah Tabel 3): `luaran/figures/classification_accuracy_heatmap.png` - Heatmap accuracy dan balanced accuracy untuk 6 CNNs × 2 datasets
 
 5. **Gambar 5** (Section C.4, setelah pembahasan confusion): `luaran/figures/confusion_matrices.png` - Confusion matrices untuk best models (Species: EfficientNet-B1, Stages: EfficientNet-B0)
 
-6. **Gambar 5A** (Section C.4, setelah Gambar 5): `results/optA_20251007_134458/experiments/experiment_mp_idb_species/detection_classification_figures/det_yolo11_cls_efficientnet_b1_focal/gt_classification/` dan `pred_classification/` (folder containing 21 images) - Visualisasi contoh klasifikasi (ground truth vs predicted dengan color-coding)
+6. **Gambar 5A** (Section C.4, setelah Gambar 5): Visualisasi contoh klasifikasi (ground truth vs predicted dengan color-coding) untuk kedua dataset:
+   - **MP-IDB Species**: `results/optA_20251007_134458/experiments/experiment_mp_idb_species/detection_classification_figures/det_yolo11_cls_efficientnet_b1_focal/gt_classification/` dan `pred_classification/` (21 images)
+   - **MP-IDB Stages**: `results/optA_20251007_134458/experiments/experiment_mp_idb_stages/detection_classification_figures/det_yolo11_cls_efficientnet_b1_focal/gt_classification/` dan `pred_classification/` (21 images)
 
 7. **Gambar 6** (Section C.4, pembahasan F1-scores): `luaran/figures/species_f1_comparison.png` - Grouped bar chart F1-scores untuk 4 species × 6 models
 
@@ -316,7 +320,11 @@ International dissemination efforts akan expand beyond initial journal publicati
 **Catatan Dokumen:**
 - Jumlah kata: ~12.000 kata (lebih detail dari JICEST)
 - Estimasi halaman: 25-30 halaman (format laporan)
-- Gambar: 11 total (6 gambar analisis + 3 gambar augmentasi + 2 gambar visualisasi deteksi/klasifikasi)
+- Gambar: 11 total (6 gambar analisis + 3 gambar augmentasi + 2 set visualisasi folder)
+- Visualisasi Folder: 8 folder total (4 kategori × 2 dataset)
+  - **Detection GT/Pred**: 2 dataset × 2 folder (gt_detection, pred_detection) = 4 folder × 21 images each
+  - **Classification GT/Pred**: 2 dataset × 2 folder (gt_classification, pred_classification) = 4 folder × 21 images each
+  - **Total visualisasi images**: 8 folders × 21 images = 168 individual comparison images
 - Tabel: 3 (semua dengan placeholders dan file paths)
 - Format: Narasi paragraf profesional (minimal bullet points)
 - Visualisasi tambahan: Detection+classification examples dari eksperimen (21 images per dataset, 4 folders per combination)
