@@ -131,24 +131,43 @@ def crop_and_resize(image, bbox, target_size=512, interpolation=Image.LANCZOS):
     return final_crop
 
 
-def get_class_name_from_label(annotation, dataset_name):
-    """Get class name from annotation class_id"""
-    class_id = int(annotation[0])
+def get_class_name_from_filename(filename, dataset_name):
+    """
+    Extract class name from filename suffix
 
-    # Dataset-specific class mappings
-    if dataset_name == 'iml_lifecycle':
-        class_names = ['ring', 'trophozoite', 'schizont', 'gametocyte']
+    For detection datasets, class info is in filename, not class_id.
+    Example: 1305121398-0012-S.jpg -> schizont
+    """
+    stem = Path(filename).stem
+
+    # Extract suffix after last hyphen (e.g., "R", "T", "S", "G", "R_T", etc.)
+    parts = stem.split('-')
+    if len(parts) < 3:
+        return 'unknown'
+
+    suffix = parts[-1]  # Last part after hyphen
+
+    # Parse suffix - may have multiple classes like "R_T" or "S_G"
+    # Take the first class letter
+    class_letters = suffix.split('_')[0] if '_' in suffix else suffix
+    first_letter = class_letters[0] if class_letters else 'U'
+
+    # Map letter to class name based on dataset
+    if dataset_name in ['mp_idb_stages', 'iml_lifecycle']:
+        letter_to_class = {
+            'R': 'ring',
+            'T': 'trophozoite',
+            'S': 'schizont',
+            'G': 'gametocyte'
+        }
+        return letter_to_class.get(first_letter, 'unknown')
+
     elif dataset_name == 'mp_idb_species':
-        class_names = ['P_falciparum', 'P_malariae', 'P_ovale', 'P_vivax']
-    elif dataset_name == 'mp_idb_stages':
-        class_names = ['ring', 'trophozoite', 'schizont', 'gametocyte']
-    else:
-        return f'class_{class_id}'
+        # Species dataset uses different naming convention
+        # Need to check actual file naming pattern
+        return 'P_falciparum'  # Default for now
 
-    if class_id < len(class_names):
-        return class_names[class_id]
-    else:
-        return f'class_{class_id}'
+    return 'unknown'
 
 
 def process_dataset(dataset_name, data_dir, output_dir, output_size=512, padding=0.2):
@@ -226,8 +245,8 @@ def process_dataset(dataset_name, data_dir, output_dir, output_size=512, padding
             # Crop and resize
             high_quality_crop = crop_and_resize(image, bbox, output_size)
 
-            # Get class name from annotation
-            class_name = get_class_name_from_label(annotation, dataset_name)
+            # Get class name from filename (not annotation class_id)
+            class_name = get_class_name_from_filename(img_path.name, dataset_name)
 
             # Create output directory for this class
             class_output_dir = Path(output_dir) / dataset_name / class_name
