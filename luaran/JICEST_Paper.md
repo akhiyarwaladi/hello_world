@@ -67,8 +67,8 @@ All ground truth annotations were provided in YOLO format (normalized bounding b
 
 The proposed framework employs a three-stage pipeline designed to maximize computational efficiency while maintaining diagnostic accuracy. Unlike traditional approaches that train separate classification models for each detection backend, our Option A architecture trains classification models once on ground truth crops and reuses them across all YOLO detection methods. This decoupling of detection and classification enables significant resource savings without sacrificing performance.
 
-**[INSERT FIGURE 1 HERE: Pipeline Architecture Diagram]**
-**Figure 1** should be placed here, illustrating the complete Option A pipeline: blood smear images input to three parallel YOLO detectors (v10, v11, v12), followed by shared ground truth crop generation (224×224), and finally six CNN classifiers (DenseNet121, EfficientNet-B0/B1/B2, ResNet50/101) producing species/stage predictions.
+**[INSERT FIGURE 3 HERE: Pipeline Architecture Diagram]**
+**Figure 3** should be placed here, illustrating the complete Option A pipeline: blood smear images input to three parallel YOLO detectors (v10, v11, v12), followed by shared ground truth crop generation (224×224), and finally six CNN classifiers (DenseNet121, EfficientNet-B0/B1/B2, ResNet50/101) producing species/stage predictions.
 **File**: `figures/pipeline_architecture.png`
 
 **Stage 1: YOLO Detection.** Three YOLO variants (YOLOv10, YOLOv11, YOLOv12) were trained independently to localize parasites in blood smear images. All models used the medium-size variants (YOLOv10m, YOLOv11m, YOLOv12m) as these provide an optimal balance between accuracy and inference speed for medical imaging applications [20]. Input images were resized to 640×640 pixels while preserving aspect ratio through letterboxing. Training employed the AdamW optimizer with an initial learning rate of 0.0005, batch sizes dynamically adjusted based on GPU memory (16-32 images), and cosine annealing learning rate schedule over 100 epochs. Early stopping with patience of 20 epochs prevented overfitting while allowing sufficient training convergence.
@@ -107,8 +107,8 @@ YOLO detection models demonstrated competitive performance across both MP-IDB da
 **Table 2** should be placed here, presenting detection results for all three YOLO variants (v10, v11, v12) across both MP-IDB datasets (Species and Stages). The table should include columns for Dataset, Model, Epochs, mAP@50, mAP@50-95, Precision, Recall, and Training Time (hours). This table quantifies the competitive performance (mAP@50: 90.91-93.12%) and highlights YOLOv11's superior recall.
 **File**: `luaran/tables/Table1_Detection_Performance_MP-IDB.csv`
 
-**[INSERT FIGURE 2 HERE: Detection Performance Comparison Bar Charts]**
-**Figure 2** should be placed here, showing side-by-side bar chart comparison of YOLOv10, v11, and v12 across both datasets for four metrics: mAP@50, mAP@50-95, Precision, and Recall. This visualization makes performance differences immediately apparent and supports the conclusion that YOLOv11 offers the best recall.
+**[INSERT FIGURE 4 HERE: Detection Performance Comparison Bar Charts]**
+**Figure 4** should be placed here, showing side-by-side bar chart comparison of YOLOv10, v11, and v12 across both datasets for four metrics: mAP@50, mAP@50-95, Precision, and Recall. This visualization makes performance differences immediately apparent and supports the conclusion that YOLOv11 offers the best recall.
 **File**: `figures/detection_performance_comparison.png`
 
 On the MP-IDB Stages dataset, YOLOv11 emerged as the top performer with mAP@50 of 92.90% and recall of 90.37%, demonstrating particular effectiveness at detecting minority lifecycle stages (schizont: 7 samples, gametocyte: 5 samples in test set). YOLOv12 achieved slightly higher mAP@50-95 (58.36% vs 56.50%), indicating better localization precision at stricter IoU thresholds, but this advantage is offset by lower recall (87.56% vs 90.37%). The consistent high performance across both datasets (mAP@50 range: 90.91-93.12%, delta <2.5%) suggests robust generalization of YOLO architectures to different malaria classification tasks.
@@ -123,28 +123,28 @@ Classification results demonstrated substantial performance differences across a
 **Table 3** should be placed here, presenting classification results for all six CNN models across both MP-IDB datasets. The table should include columns for Dataset, Model, Loss Function (Focal Loss), Epochs (75), Accuracy, Balanced Accuracy, and Training Time (hours). This table quantifies the key finding that smaller EfficientNet models outperform larger ResNet models.
 **File**: `luaran/tables/Table2_Classification_Performance_MP-IDB.csv`
 
-**[INSERT FIGURE 3 HERE: Classification Accuracy Heatmap]**
-**Figure 3** should be placed here, displaying a 2×6 heatmap (2 datasets × 6 models) with two rows per dataset: standard accuracy (top) and balanced accuracy (bottom). Color coding (green=high, orange=medium, red=low) should make model performance patterns immediately visible, particularly the contrast between EfficientNet (green) and ResNet (orange/red) on balanced accuracy.
+**[INSERT FIGURE 5 HERE: Classification Accuracy Heatmap]**
+**Figure 5** should be placed here, displaying a 2×6 heatmap (2 datasets × 6 models) with two rows per dataset: standard accuracy (top) and balanced accuracy (bottom). Color coding (green=high, orange=medium, red=low) should make model performance patterns immediately visible, particularly the contrast between EfficientNet (green) and ResNet (orange/red) on balanced accuracy.
 **File**: `figures/classification_accuracy_heatmap.png`
 
 The MP-IDB Stages dataset presented a more challenging classification task due to extreme class imbalance (272 ring vs 5 gametocyte samples, 54:1 ratio). Here, the performance gap between model families widened further. EfficientNet-B0 achieved the highest accuracy (94.31%) with 69.21% balanced accuracy, followed by DenseNet121 (93.65% accuracy, 67.31% balanced accuracy) and ResNet50 (93.31% accuracy, 65.79% balanced accuracy). However, EfficientNet-B2 showed unexpected degradation to 80.60% accuracy (60.72% balanced accuracy), likely due to overfitting given its larger capacity (9.2M parameters) relative to the limited training data (512 augmented images). Most notably, EfficientNet-B1—the top performer on Species—achieved only 90.64% accuracy on Stages (69.77% balanced accuracy), while ResNet101 reached 92.98% accuracy (65.69% balanced accuracy). This cross-dataset performance variability suggests that species discrimination (based on size and shape) is inherently more amenable to deep learning than lifecycle stage classification (requiring chromatin pattern recognition).
 
-Per-class analysis via confusion matrices (Figure 5) revealed systematic misclassification patterns. For species classification using EfficientNet-B1, P. falciparum (227 test samples) achieved perfect 100% accuracy with no misclassifications, as did P. malariae (7 samples) and P. vivax (8 samples correctly classified). However, P. ovale (5 samples) suffered 40% error rate, with 2 samples misclassified as P. vivax and 1 as P. falciparum, yielding only 60% recall. This pattern reflects the well-documented morphological similarity between P. ovale and P. vivax (both produce oval-shaped infected erythrocytes with similar chromatin patterns), making discrimination challenging even for expert microscopists [26].
+Per-class analysis via confusion matrices (Figure 6) revealed systematic misclassification patterns. For species classification using EfficientNet-B1, P. falciparum (227 test samples) achieved perfect 100% accuracy with no misclassifications, as did P. malariae (7 samples) and P. vivax (8 samples correctly classified). However, P. ovale (5 samples) suffered 40% error rate, with 2 samples misclassified as P. vivax and 1 as P. falciparum, yielding only 60% recall. This pattern reflects the well-documented morphological similarity between P. ovale and P. vivax (both produce oval-shaped infected erythrocytes with similar chromatin patterns), making discrimination challenging even for expert microscopists [26].
 
-**[INSERT FIGURE 5 HERE: Confusion Matrices for Best Models]**
-**Figure 5** should be placed here, showing two side-by-side confusion matrices: (left) Species classification using EfficientNet-B1, and (right) Stages classification using EfficientNet-B0. Matrices should display actual count numbers with color coding to highlight diagonal (correct) vs off-diagonal (errors). This visualization makes misclassification patterns immediately clear.
+**[INSERT FIGURE 6 HERE: Confusion Matrices for Best Models]**
+**Figure 6** should be placed here, showing two side-by-side confusion matrices: (left) Species classification using EfficientNet-B1, and (right) Stages classification using EfficientNet-B0. Matrices should display actual count numbers with color coding to highlight diagonal (correct) vs off-diagonal (errors). This visualization makes misclassification patterns immediately clear.
 **File**: `figures/confusion_matrices.png`
 
 For lifecycle stages using EfficientNet-B0, the majority class Ring achieved 97.4% accuracy (265/272 correct), with minor confusion with Trophozoite (3 samples), Schizont (2), and Gametocyte (2). Minority classes suffered more severely: Trophozoite (15 samples) achieved only 46.7% recall (7/15 correct), with misclassifications distributed across Ring (3), Schizont (3), and Gametocyte (2). Schizont (7 samples) performed better at 71.4% recall (5/7 correct), while Gametocyte (5 samples) struggled at 40% recall (2/5 correct). These errors primarily reflect morphological overlap during transitions between stages—early trophozoites resemble late rings, and late trophozoites resemble early schizonts [34].
 
-Per-class F1-scores quantify this minority class challenge more precisely (Figures 6-7). For species classification, majority classes (P. falciparum: 227 samples, P. malariae: 7 samples) achieved perfect 1.00 F1-scores across all models. P. vivax (18 samples) maintained strong performance (0.80-0.87 F1), but P. ovale (5 samples) degraded substantially (0.50-0.77 F1), with only EfficientNet-B1 and DenseNet121 exceeding 0.70 (clinical acceptability threshold). For lifecycle stages, Ring (272 samples) achieved near-perfect F1 (0.97-1.00), but minority stages showed severe degradation: Trophozoite ranged 0.15-0.52 F1, Schizont 0.63-0.92 F1, and Gametocyte 0.56-0.75 F1. The 54:1 imbalance ratio between Ring and Gametocyte represents a worst-case scenario where even optimized Focal Loss struggles to achieve clinical reliability on extreme minorities.
+Per-class F1-scores quantify this minority class challenge more precisely (Figures 7-8). For species classification, majority classes (P. falciparum: 227 samples, P. malariae: 7 samples) achieved perfect 1.00 F1-scores across all models. P. vivax (18 samples) maintained strong performance (0.80-0.87 F1), but P. ovale (5 samples) degraded substantially (0.50-0.77 F1), with only EfficientNet-B1 and DenseNet121 exceeding 0.70 (clinical acceptability threshold). For lifecycle stages, Ring (272 samples) achieved near-perfect F1 (0.97-1.00), but minority stages showed severe degradation: Trophozoite ranged 0.15-0.52 F1, Schizont 0.63-0.92 F1, and Gametocyte 0.56-0.75 F1. The 54:1 imbalance ratio between Ring and Gametocyte represents a worst-case scenario where even optimized Focal Loss struggles to achieve clinical reliability on extreme minorities.
 
-**[INSERT FIGURE 6 HERE: Species Per-Class F1-Score Comparison]**
-**Figure 6** should be placed here, displaying grouped bar chart with 4 species groups (P. falciparum, P. malariae, P. ovale, P. vivax) × 6 models. Bars should show F1-scores with a red dashed line at 0.90 (clinical threshold). This visualization highlights the dramatic performance drop on P. ovale (5 samples) compared to majority species.
+**[INSERT FIGURE 7 HERE: Species Per-Class F1-Score Comparison]**
+**Figure 7** should be placed here, displaying grouped bar chart with 4 species groups (P. falciparum, P. malariae, P. ovale, P. vivax) × 6 models. Bars should show F1-scores with a red dashed line at 0.90 (clinical threshold). This visualization highlights the dramatic performance drop on P. ovale (5 samples) compared to majority species.
 **File**: `figures/species_f1_comparison.png`
 
-**[INSERT FIGURE 7 HERE: Stages Per-Class F1-Score Comparison]**
-**Figure 7** should be placed here, displaying grouped bar chart with 4 lifecycle stage groups (Ring, Trophozoite, Schizont, Gametocyte) × 6 models. Bars should show F1-scores with an orange dashed line at ~0.70 (modified threshold for extreme imbalance). This visualization makes the severe Trophozoite challenge (15-52% F1) immediately apparent.
+**[INSERT FIGURE 8 HERE: Stages Per-Class F1-Score Comparison]**
+**Figure 8** should be placed here, displaying grouped bar chart with 4 lifecycle stage groups (Ring, Trophozoite, Schizont, Gametocyte) × 6 models. Bars should show F1-scores with an orange dashed line at ~0.70 (modified threshold for extreme imbalance). This visualization makes the severe Trophozoite challenge (15-52% F1) immediately apparent.
 **File**: `figures/stages_f1_comparison.png`
 
 Training time analysis revealed substantial efficiency differences across architectures. EfficientNet-B0 trained fastest at 2.3 hours per dataset, followed by EfficientNet-B1 (2.5h) and EfficientNet-B2 (2.7h), reflecting their optimized compound scaling approach [30]. DenseNet121 required 2.9 hours due to dense connections increasing memory bandwidth requirements. ResNet models were slowest: ResNet50 (2.8h) and ResNet101 (3.4h), with the latter's extended training time providing no accuracy benefit. Total classification training across all 12 models (6 architectures × 2 datasets) consumed 32.9 GPU-hours, representing efficient resource utilization given the comprehensive architectural comparison.
@@ -337,21 +337,25 @@ This research was supported by BISMA Research Institute. We thank the IML Instit
 
 ## APPENDIX: FIGURE AND TABLE PLACEMENT GUIDE
 
-### Figures (6 total - in order of appearance)
+### Figures (8 total - in order of appearance)
 
-1. **Figure 1** (after Section 2.2, paragraph 2): `figures/pipeline_architecture.png` - Pipeline architecture diagram showing three-stage Option A framework
+1. **Figure 1** (in Section 2.1, after Table 1): `luaran/figures/aug_stages_set1.png` - Data augmentation examples for MP-IDB Stages dataset (7 transformations × 4 lifecycle stages)
 
-2. **Figure 2** (after Table 2 in Section 3.1): `figures/detection_performance_comparison.png` - Bar charts comparing YOLO v10/v11/v12 detection performance
+2. **Figure 2** (in Section 2.1, after Figure 1): `luaran/figures/aug_species_set3.png` - Data augmentation examples for MP-IDB Species dataset (7 transformations × 4 Plasmodium species)
 
-3. **Figure 3** (after Table 3 in Section 3.2): `figures/classification_accuracy_heatmap.png` - Heatmap showing accuracy and balanced accuracy for 6 CNNs × 2 datasets
+3. **Figure 3** (after Section 2.2, paragraph 2): `figures/pipeline_architecture.png` - Pipeline architecture diagram showing three-stage Option A framework
 
-4. **Figure 5** (after confusion matrix discussion in Section 3.2): `figures/confusion_matrices.png` - Side-by-side confusion matrices for best models (Species: EfficientNet-B1, Stages: EfficientNet-B0)
+4. **Figure 4** (after Table 2 in Section 3.1): `figures/detection_performance_comparison.png` - Bar charts comparing YOLO v10/v11/v12 detection performance
 
-5. **Figure 6** (after per-class F1 discussion in Section 3.2): `figures/species_f1_comparison.png` - Grouped bar chart showing F1-scores for 4 species × 6 models
+5. **Figure 5** (after Table 3 in Section 3.2): `figures/classification_accuracy_heatmap.png` - Heatmap showing accuracy and balanced accuracy for 6 CNNs × 2 datasets
 
-6. **Figure 7** (after Figure 6 in Section 3.2): `figures/stages_f1_comparison.png` - Grouped bar chart showing F1-scores for 4 lifecycle stages × 6 models
+6. **Figure 6** (after confusion matrix discussion in Section 3.2): `figures/confusion_matrices.png` - Side-by-side confusion matrices for best models (Species: EfficientNet-B1, Stages: EfficientNet-B0)
 
-**Note:** Figure 8 (class imbalance pie charts) and Figure 9 (model efficiency scatter plot) removed - narrative text provides clearer explanation than visualizations for these concepts.
+7. **Figure 7** (after per-class F1 discussion in Section 3.2): `figures/species_f1_comparison.png` - Grouped bar chart showing F1-scores for 4 species × 6 models
+
+8. **Figure 8** (after Figure 7 in Section 3.2): `figures/stages_f1_comparison.png` - Grouped bar chart showing F1-scores for 4 lifecycle stages × 6 models
+
+**Note:** Augmentation figures (1-2) use high-resolution 512×512 pixel crops with LANCZOS4 interpolation and PNG lossless format for publication quality (300 DPI).
 
 ### Tables (3 total - in order of appearance)
 
