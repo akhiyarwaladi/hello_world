@@ -23,13 +23,13 @@ Malaria remains a critical global health challenge with over 200 million annual 
 
 ## 1. INTRODUCTION
 
-Malaria remains one of the most pressing global health challenges, with the World Health Organization reporting over 200 million cases and approximately 600,000 deaths annually, predominantly affecting populations in sub-Saharan Africa and Southeast Asia [1,2]. The disease is caused by Plasmodium parasites transmitted through Anopheles mosquitoes, with five species known to infect humans: P. falciparum, P. vivax, P. malariae, P. ovale, and P. knowlesi [3]. Accurate and timely diagnosis is critical for effective treatment, as different species and lifecycle stages require distinct therapeutic approaches and have varying levels of severity and drug resistance profiles [4,5].
+Malaria remains one of the most pressing global health challenges, with the World Health Organization reporting over 200 million cases and approximately 600,000 deaths annually, predominantly affecting populations in sub-Saharan Africa and Southeast Asia [1,2]. The disease is caused by Plasmodium parasites transmitted through Anopheles mosquitoes, with five species known to infect humans: P. falciparum, P. vivax, P. malariae, P. ovale, and P. knowlesi [3]. Accurate and timely diagnosis is critical for effective treatment, as different species and lifecycle stages require distinct therapeutic approaches and have varying levels of severity and drug resistance profiles [4].
 
-Traditional microscopic examination of Giemsa-stained blood smears remains the gold standard for malaria diagnosis due to its ability to identify parasite species and quantify parasitemia levels [6]. However, this method faces significant limitations in resource-constrained endemic regions. Expert microscopists require extensive training (typically 2-3 years) to achieve proficiency in distinguishing subtle morphological differences between species and lifecycle stages [7]. The examination process is time-consuming, typically requiring 20-30 minutes per slide for thorough analysis of 100-200 microscopic fields [8]. Furthermore, diagnostic accuracy is highly dependent on technician expertise and specimen quality, with inter-observer agreement rates ranging from 60-85% even among trained professionals [9,10].
+Traditional microscopic examination of Giemsa-stained blood smears remains the gold standard for malaria diagnosis due to its ability to identify parasite species and quantify parasitemia levels [4]. However, this method faces significant limitations in resource-constrained endemic regions. Expert microscopists require extensive training (typically 2-3 years) to achieve proficiency in distinguishing subtle morphological differences between species and lifecycle stages [5]. The examination process is time-consuming, typically requiring 20-30 minutes per slide for thorough analysis of 100-200 microscopic fields [6]. Furthermore, diagnostic accuracy is highly dependent on technician expertise and specimen quality, with inter-observer agreement rates ranging from 60-85% even among trained professionals [7,8].
 
-Recent advances in deep learning have demonstrated significant potential for automated medical image analysis, with convolutional neural networks (CNNs) achieving expert-level or superior performance in various diagnostic tasks including dermatology, radiology, and pathology [11-13]. In the specific domain of malaria detection, object detection models such as YOLO (You Only Look Once) and Faster R-CNN have demonstrated 85-95% accuracy in parasite localization [14-16], while classification networks have achieved 90-98% accuracy in species and stage identification [17-19]. The latest YOLO architectures (v10, v11, v12) offer particular advantages for medical imaging applications, combining real-time inference speed (<15ms per image) with competitive accuracy through architectural innovations such as efficient layer aggregation and improved anchor-free detection mechanisms [20,21].
+Recent advances in deep learning have demonstrated significant potential for automated medical image analysis, with convolutional neural networks (CNNs) achieving expert-level or superior performance in various diagnostic tasks including dermatology, radiology, and pathology [9-11]. In the specific domain of malaria detection, object detection models such as YOLO (You Only Look Once) and Faster R-CNN have demonstrated 85-95% accuracy in parasite localization [12]. The latest YOLO architectures (v10, v11, v12) offer particular advantages for medical imaging applications, combining real-time inference speed (<15ms per image) with competitive accuracy through architectural innovations such as efficient layer aggregation and improved anchor-free detection mechanisms [13,14].
 
-Despite these advances, several critical challenges remain in applying deep learning to malaria diagnosis. First, publicly available annotated datasets are severely limited in size, with most datasets containing only 200-500 images per task [22,23]. This scarcity is exacerbated by the need for expert pathologist validation, making large-scale data collection expensive and time-consuming. Second, malaria datasets exhibit extreme class imbalance, with some species (P. ovale, P. knowlesi) and lifecycle stages (schizont, gametocyte) accounting for less than 2% of samples in real-world clinical settings [24]. This imbalance leads to poor generalization on minority classes, which are often the most clinically significant. Third, existing approaches typically train separate classification models for each detection method, resulting in substantial computational overhead and storage requirements that limit deployment feasibility in resource-constrained settings [25].
+Despite these advances, several critical challenges remain in applying deep learning to malaria diagnosis. First, publicly available annotated datasets are severely limited in size, with most datasets containing only 200-500 images per task [15]. This scarcity is exacerbated by the need for expert pathologist validation, making large-scale data collection expensive and time-consuming. Second, malaria datasets exhibit extreme class imbalance, with some species (P. ovale, P. knowlesi) and lifecycle stages (schizont, gametocyte) accounting for less than 2% of samples in real-world clinical settings [16]. This imbalance leads to poor generalization on minority classes, which are often the most clinically significant. Third, existing approaches typically train separate classification models for each detection method, resulting in substantial computational overhead and storage requirements that limit deployment feasibility in resource-constrained settings [17].
 
 This study addresses these challenges through a novel multi-model hybrid framework with a shared classification architecture. Our approach trains classification models once on ground truth crops and reuses them across multiple YOLO detection methods, achieving 70% storage reduction (45GB → 14GB) and 60% training time reduction (450 hours → 180 hours) while maintaining or improving accuracy. We validate our system on two public MP-IDB (Malaria Parasite Image Database) datasets covering both species classification (4 Plasmodium species) and lifecycle stage classification (4 stages: ring, trophozoite, schizont, gametocyte), totaling 418 images with severe class imbalance (ratios up to 54:1).
 
@@ -43,9 +43,9 @@ The remainder of this paper is organized as follows. Section 2 describes the dat
 
 ### 2.1 Datasets
 
-This study utilized two publicly available malaria microscopy datasets from the MP-IDB (Malaria Parasite Image Database) repository, selected to evaluate performance on distinct classification tasks: Plasmodium species identification and lifecycle stage recognition. Both datasets consist of thin blood smear images captured using light microscopy at 1000× magnification with Giemsa staining, following standard WHO protocols for malaria diagnosis [26].
+This study utilized two publicly available malaria microscopy datasets from the MP-IDB (Malaria Parasite Image Database) repository, selected to evaluate performance on distinct classification tasks: Plasmodium species identification and lifecycle stage recognition. Both datasets consist of thin blood smear images captured using light microscopy at 1000× magnification with Giemsa staining, following standard WHO protocols for malaria diagnosis [18].
 
-The MP-IDB Species Classification Dataset contains 209 microscopic images with annotations for four Plasmodium species: P. falciparum (the most lethal and prevalent species), P. vivax (the most geographically widespread), P. malariae (known for chronic infections), and P. ovale (rare but clinically significant). The dataset exhibits substantial class imbalance, with P. falciparum accounting for 227 samples in the combined train/validation/test sets, while minority species such as P. ovale contain only 5 samples. This imbalance reflects real-world clinical distributions in endemic regions where P. falciparum dominates case loads [27]. Images were split into training (146 images, 69.9%), validation (42 images, 20.1%), and testing (21 images, 10.0%) sets using stratified sampling to maintain class distribution consistency across splits.
+The MP-IDB Species Classification Dataset contains 209 microscopic images with annotations for four Plasmodium species: P. falciparum (the most lethal and prevalent species), P. vivax (the most geographically widespread), P. malariae (known for chronic infections), and P. ovale (rare but clinically significant). The dataset exhibits substantial class imbalance, with P. falciparum accounting for 227 samples in the combined train/validation/test sets, while minority species such as P. ovale contain only 5 samples. This imbalance reflects real-world clinical distributions in endemic regions where P. falciparum dominates case loads. Images were split into training (146 images, 69.9%), validation (42 images, 20.1%), and testing (21 images, 10.0%) sets using stratified sampling to maintain class distribution consistency across splits.
 
 The MP-IDB Stages Classification Dataset comprises 209 microscopic images annotated for four lifecycle stages of Plasmodium parasites: ring (early trophozoite), trophozoite (mature feeding stage), schizont (meront stage with multiple nuclei), and gametocyte (sexual stage). This dataset presents an even more extreme class imbalance challenge, with ring-stage parasites accounting for 272 samples in the test set while gametocyte (5 samples), schizont (7 samples), and trophozoite (15 samples) represent severe minority classes. The 54:1 ratio between majority (ring) and minimum minority (gametocyte) classes represents a worst-case scenario for medical image classification. Data splitting followed the same 66/17/17% stratified approach as the species dataset.
 
@@ -71,17 +71,17 @@ The proposed framework employs a three-stage pipeline designed to maximize compu
 **Figure 3** should be placed here, illustrating the complete Option A pipeline: blood smear images input to three parallel YOLO detectors (v10, v11, v12), followed by shared ground truth crop generation (224×224), and finally six CNN classifiers (DenseNet121, EfficientNet-B0/B1/B2, ResNet50/101) producing species/stage predictions.
 **File**: `figures/pipeline_architecture.png`
 
-**Stage 1: YOLO Detection.** Three YOLO variants (YOLOv10, YOLOv11, YOLOv12) were trained independently to localize parasites in blood smear images. All models used the medium-size variants (YOLOv10m, YOLOv11m, YOLOv12m) as these provide an optimal balance between accuracy and inference speed for medical imaging applications [20]. Input images were resized to 640×640 pixels while preserving aspect ratio through letterboxing. Training employed the AdamW optimizer with an initial learning rate of 0.0005, batch sizes dynamically adjusted based on GPU memory (16-32 images), and cosine annealing learning rate schedule over 100 epochs. Early stopping with patience of 20 epochs prevented overfitting while allowing sufficient training convergence.
+**Stage 1: YOLO Detection.** Three YOLO variants (YOLOv10, YOLOv11, YOLOv12) were trained independently to localize parasites in blood smear images. All models used the medium-size variants (YOLOv10m, YOLOv11m, YOLOv12m) as these provide an optimal balance between accuracy and inference speed for medical imaging applications [13]. Input images were resized to 640×640 pixels while preserving aspect ratio through letterboxing. Training employed the AdamW optimizer with an initial learning rate of 0.0005, batch sizes dynamically adjusted based on GPU memory (16-32 images), and cosine annealing learning rate schedule over 100 epochs. Early stopping with patience of 20 epochs prevented overfitting while allowing sufficient training convergence.
 
-Data augmentation for detection followed medical imaging best practices to preserve diagnostic features. Applied transformations included HSV color space adjustments (hue: ±10°, saturation: ±20%, value: ±20%) to simulate staining variability, random scaling (0.5-1.5×) to account for different cell sizes, rotation (±15°) for orientation robustness, and mosaic augmentation (probability 1.0) to improve small object detection. Critically, vertical flipping was disabled (flipud=0.0) to preserve parasite orientation, as certain lifecycle stages exhibit orientation-specific morphology relevant for clinical diagnosis [26].
+Data augmentation for detection followed medical imaging best practices to preserve diagnostic features. Applied transformations included HSV color space adjustments (hue: ±10°, saturation: ±20%, value: ±20%) to simulate staining variability, random scaling (0.5-1.5×) to account for different cell sizes, rotation (±15°) for orientation robustness, and mosaic augmentation (probability 1.0) to improve small object detection. Critically, vertical flipping was disabled (flipud=0.0) to preserve parasite orientation, as certain lifecycle stages exhibit orientation-specific morphology relevant for clinical diagnosis [18].
 
 **Stage 2: Ground Truth Crop Generation.** Rather than using YOLO detection outputs for classification training (which would propagate detection errors), we extracted parasite crops directly from expert-annotated ground truth bounding boxes. This approach ensures classification models train on clean, accurately localized samples. Each crop was extracted at 224×224 pixels (the standard input size for ImageNet-pretrained CNNs) with 10% padding around the bounding box to include contextual information from surrounding red blood cells. Quality filtering discarded crops smaller than 50×50 pixels (typically partial cells at image borders) or containing more than 90% background pixels. Crops were saved with species/stage labels inherited from ground truth annotations, creating a clean classification dataset independent of detection performance.
 
 This ground truth crop approach offers three key advantages. First, it decouples detection and classification training, allowing independent optimization of each stage. Second, classification models train on perfectly localized parasites, learning robust features without contamination from detection errors. Third, crops are generated once and reused across all detection methods, eliminating redundant computation. The resulting crop datasets contained 512 training images and 227 validation/test images for Species classification, and identical numbers for Stages classification after 3.5× augmentation.
 
-**Stage 3: CNN Classification.** Six CNN architectures were evaluated for species and lifecycle stage classification: DenseNet121 (8.0M parameters) [29], EfficientNet-B0 (5.3M), EfficientNet-B1 (7.8M), EfficientNet-B2 (9.2M) [30], ResNet50 (25.6M), and ResNet101 (44.5M) [31]. All models were initialized with ImageNet-pretrained weights and fine-tuned for malaria classification. The classifier head was replaced with a fully connected layer matching the number of classes (4 for both species and stages datasets), and all layers were unfrozen for end-to-end training.
+**Stage 3: CNN Classification.** Six CNN architectures were evaluated for species and lifecycle stage classification: DenseNet121 (8.0M parameters) [19], EfficientNet-B0 (5.3M), EfficientNet-B1 (7.8M), EfficientNet-B2 (9.2M) [20], ResNet50 (25.6M), and ResNet101 (44.5M) [21]. All models were initialized with ImageNet-pretrained weights and fine-tuned for malaria classification. The classifier head was replaced with a fully connected layer matching the number of classes (4 for both species and stages datasets), and all layers were unfrozen for end-to-end training.
 
-Training employed the AdamW optimizer with initial learning rate 0.0001, batch size 32, and cosine annealing schedule over 75 epochs. To address severe class imbalance, we implemented Focal Loss [32] with parameters α=0.25 and γ=2.0, standard settings widely used in medical imaging for severe class imbalance. Additionally, weighted random sampling oversampled minority classes during batch construction with a 3:1 ratio, ensuring each batch contained representative samples from all classes. Mixed precision training (FP16) accelerated computation on NVIDIA RTX 3060 GPUs without accuracy degradation.
+Training employed the AdamW optimizer with initial learning rate 0.0001, batch size 32, and cosine annealing schedule over 75 epochs. To address severe class imbalance, we implemented Focal Loss [22] with parameters α=0.25 and γ=2.0, standard settings widely used in medical imaging for severe class imbalance. Additionally, weighted random sampling oversampled minority classes during batch construction with a 3:1 ratio, ensuring each batch contained representative samples from all classes. Mixed precision training (FP16) accelerated computation on NVIDIA RTX 3060 GPUs without accuracy degradation.
 
 Classification augmentation employed medical-safe transformations including random rotation (±20°), affine transformations (translation: ±10%, shear: ±5°), color jitter (brightness: ±15%, contrast: ±15%), and Gaussian noise (σ=0.01) to improve robustness. Unlike detection, we allowed horizontal and vertical flips for classification as crop-level orientation is less diagnostically significant than whole-cell orientation. Early stopping monitored validation balanced accuracy (to account for class imbalance) with patience of 15 epochs.
 
@@ -129,13 +129,13 @@ Classification results demonstrated substantial performance differences across a
 
 The MP-IDB Stages dataset presented a more challenging classification task due to extreme class imbalance (272 ring vs 5 gametocyte samples, 54:1 ratio). Here, the performance gap between model families widened further. EfficientNet-B0 achieved the highest accuracy (94.31%) with 69.21% balanced accuracy, followed by DenseNet121 (93.65% accuracy, 67.31% balanced accuracy) and ResNet50 (93.31% accuracy, 65.79% balanced accuracy). However, EfficientNet-B2 showed unexpected degradation to 80.60% accuracy (60.72% balanced accuracy), likely due to overfitting given its larger capacity (9.2M parameters) relative to the limited training data (512 augmented images). Most notably, EfficientNet-B1—the top performer on Species—achieved only 90.64% accuracy on Stages (69.77% balanced accuracy), while ResNet101 reached 92.98% accuracy (65.69% balanced accuracy). This cross-dataset performance variability suggests that species discrimination (based on size and shape) is inherently more amenable to deep learning than lifecycle stage classification (requiring chromatin pattern recognition).
 
-Per-class analysis via confusion matrices (Figure 6) revealed systematic misclassification patterns. For species classification using EfficientNet-B1, P. falciparum (227 test samples) achieved perfect 100% accuracy with no misclassifications, as did P. malariae (7 samples) and P. vivax (8 samples correctly classified). However, P. ovale (5 samples) suffered 40% error rate, with 2 samples misclassified as P. vivax and 1 as P. falciparum, yielding only 60% recall. This pattern reflects the well-documented morphological similarity between P. ovale and P. vivax (both produce oval-shaped infected erythrocytes with similar chromatin patterns), making discrimination challenging even for expert microscopists [26].
+Per-class analysis via confusion matrices (Figure 6) revealed systematic misclassification patterns. For species classification using EfficientNet-B1, P. falciparum (227 test samples) achieved perfect 100% accuracy with no misclassifications, as did P. malariae (7 samples) and P. vivax (8 samples correctly classified). However, P. ovale (5 samples) suffered 40% error rate, with 2 samples misclassified as P. vivax and 1 as P. falciparum, yielding only 60% recall. This pattern reflects the well-documented morphological similarity between P. ovale and P. vivax (both produce oval-shaped infected erythrocytes with similar chromatin patterns), making discrimination challenging even for expert microscopists [18].
 
 **[INSERT FIGURE 6 HERE: Confusion Matrices for Best Models]**
 **Figure 6** should be placed here, showing two side-by-side confusion matrices: (left) Species classification using EfficientNet-B1, and (right) Stages classification using EfficientNet-B0. Matrices should display actual count numbers with color coding to highlight diagonal (correct) vs off-diagonal (errors). This visualization makes misclassification patterns immediately clear.
 **File**: `figures/confusion_matrices.png`
 
-For lifecycle stages using EfficientNet-B0, the majority class Ring achieved 97.4% accuracy (265/272 correct), with minor confusion with Trophozoite (3 samples), Schizont (2), and Gametocyte (2). Minority classes suffered more severely: Trophozoite (15 samples) achieved only 46.7% recall (7/15 correct), with misclassifications distributed across Ring (3), Schizont (3), and Gametocyte (2). Schizont (7 samples) performed better at 71.4% recall (5/7 correct), while Gametocyte (5 samples) struggled at 40% recall (2/5 correct). These errors primarily reflect morphological overlap during transitions between stages—early trophozoites resemble late rings, and late trophozoites resemble early schizonts [34].
+For lifecycle stages using EfficientNet-B0, the majority class Ring achieved 97.4% accuracy (265/272 correct), with minor confusion with Trophozoite (3 samples), Schizont (2), and Gametocyte (2). Minority classes suffered more severely: Trophozoite (15 samples) achieved only 46.7% recall (7/15 correct), with misclassifications distributed across Ring (3), Schizont (3), and Gametocyte (2). Schizont (7 samples) performed better at 71.4% recall (5/7 correct), while Gametocyte (5 samples) struggled at 40% recall (2/5 correct). These errors primarily reflect morphological overlap during transitions between stages—early trophozoites resemble late rings, and late trophozoites resemble early schizonts [23].
 
 Per-class F1-scores quantify this minority class challenge more precisely (Figures 7-8). For species classification, majority classes (P. falciparum: 227 samples, P. malariae: 7 samples) achieved perfect 1.00 F1-scores across all models. P. vivax (11 samples) maintained strong performance (0.80-0.87 F1), but P. ovale (5 samples) degraded substantially (0.50-0.77 F1), with only EfficientNet-B1 and DenseNet121 exceeding 0.70 (clinical acceptability threshold). For lifecycle stages, Ring (272 samples) achieved strong F1 (0.90-0.97), but minority stages showed severe degradation: Trophozoite ranged 0.15-0.52 F1, Schizont 0.63-0.92 F1, and Gametocyte 0.56-0.75 F1. The 54:1 imbalance ratio between Ring and Gametocyte represents a worst-case scenario where even Focal Loss struggles to achieve clinical reliability on extreme minorities.
 
@@ -163,7 +163,7 @@ Inference latency measurements on NVIDIA RTX 3060 GPU demonstrated real-time cap
 
 ### 4.1 Cross-Dataset Validation Insights
 
-Validation across two distinct MP-IDB datasets (Species and Stages) revealed task-dependent performance patterns that provide insights into the relative difficulty of different malaria classification challenges. Species classification consistently achieved higher accuracy (98.0-98.8%) compared to lifecycle stages (80.6-94.3%), suggesting that morphological differences between Plasmodium species (size, shape, infected erythrocyte characteristics) provide more discriminative features than chromatin patterns distinguishing lifecycle stages. This finding aligns with prior work by Vijayalakshmi and Rajesh Kanna (2020) [35] who reported similar performance gaps (93% species vs 85% stages) and attributed the difference to the subtle morphological transitions during parasite maturation.
+Validation across two distinct MP-IDB datasets (Species and Stages) revealed task-dependent performance patterns that provide insights into the relative difficulty of different malaria classification challenges. Species classification consistently achieved higher accuracy (98.0-98.8%) compared to lifecycle stages (80.6-94.3%), suggesting that morphological differences between Plasmodium species (size, shape, infected erythrocyte characteristics) provide more discriminative features than chromatin patterns distinguishing lifecycle stages. This finding aligns with prior work by Vijayalakshmi and Rajesh Kanna (2020) [24] who reported similar performance gaps (93% species vs 85% stages) and attributed the difference to the subtle morphological transitions during parasite maturation.
 
 The cross-dataset performance of individual architectures also varied substantially. EfficientNet-B1 achieved top accuracy on Species (98.80%) but dropped to fourth place on Stages (90.64%), while EfficientNet-B0 showed the inverse pattern (98.40% Species, 94.31% Stages). This suggests that optimal architecture selection depends on task characteristics: larger models (B1) excel when classes have sufficient training samples and distinct features (species), while smaller models (B0) generalize better on limited data with subtle differences (stages). DenseNet121 demonstrated the most consistent cross-dataset performance (98.80% Species, 93.65% Stages), suggesting that dense connectivity provides robust feature learning across diverse classification challenges.
 
@@ -172,40 +172,40 @@ The cross-dataset performance of individual architectures also varied substantia
 A striking and unexpected finding of this study is that smaller EfficientNet models (5.3-7.8M parameters) consistently outperform substantially larger ResNet variants (25.6-44.5M parameters) across both datasets, challenging the widely-held assumption that deeper networks universally achieve better performance. On MP-IDB Species, EfficientNet-B1 (7.8M parameters) matched or exceeded ResNet101 (44.5M parameters) in overall accuracy (98.80% vs 98.40%) while demonstrating 10.5 percentage points higher balanced accuracy (93.18% vs 82.73%), despite having 5.7× fewer parameters. This advantage widened on the more challenging Stages dataset, where EfficientNet-B0 (5.3M parameters) achieved 94.31% accuracy compared to ResNet101's 92.98%, representing a 1.3 percentage point improvement from a model 8.4× smaller.
 
 
-This phenomenon can be attributed to three factors. First, over-parameterization exacerbates overfitting on small datasets (<1000 images). Despite aggressive regularization (dropout=0.3, weight decay=1e-4), ResNet101's 44.5M parameters struggle to generalize from only 512 augmented training images per dataset, as evidenced by larger train-validation accuracy gaps (ResNet101: 8.2% gap, EfficientNet-B1: 3.1% gap on Species). Second, EfficientNet's compound scaling approach jointly optimizes network depth, width, and resolution rather than solely increasing depth [30], yielding more balanced architectures that utilize parameters efficiently. Third, the medical imaging domain may benefit less from extreme depth than natural images, as malaria parasites exhibit fewer hierarchical abstraction levels compared to complex scenes in ImageNet [36].
+This phenomenon can be attributed to three factors. First, over-parameterization exacerbates overfitting on small datasets (<1000 images). Despite aggressive regularization (dropout=0.3, weight decay=1e-4), ResNet101's 44.5M parameters struggle to generalize from only 512 augmented training images per dataset, as evidenced by larger train-validation accuracy gaps (ResNet101: 8.2% gap, EfficientNet-B1: 3.1% gap on Species). Second, EfficientNet's compound scaling approach jointly optimizes network depth, width, and resolution rather than solely increasing depth [20], yielding more balanced architectures that utilize parameters efficiently. Third, the medical imaging domain may benefit less from extreme depth than natural images, as malaria parasites exhibit fewer hierarchical abstraction levels compared to complex scenes in ImageNet [25].
 
-These results have important implications for medical AI deployment in resource-constrained settings. Smaller models reduce memory footprints (EfficientNet-B1: 31MB vs ResNet101: 171MB model size), enable deployment on mobile devices with limited RAM, and accelerate inference (EfficientNet-B1: 8.3ms vs ResNet101: 14.7ms per image). The finding that "deeper is not better" for small medical datasets suggests that model selection should prioritize efficiency and balanced scaling over raw parameter count, contradicting the trend toward ever-larger models in computer vision [37].
+These results have important implications for medical AI deployment in resource-constrained settings. Smaller models reduce memory footprints (EfficientNet-B1: 31MB vs ResNet101: 171MB model size), enable deployment on mobile devices with limited RAM, and accelerate inference (EfficientNet-B1: 8.3ms vs ResNet101: 14.7ms per image). The finding that "deeper is not better" for small medical datasets suggests that model selection should prioritize efficiency and balanced scaling over raw parameter count, contradicting the trend toward ever-larger models in computer vision [26].
 
 ### 4.3 Minority Class Challenge and Focal Loss Optimization
 
 The severe class imbalance encountered in this study (ratios up to 54:1 for Ring vs Gametocyte) presented substantial challenges for classification accuracy, particularly on minority classes with fewer than 10 test samples. Focal Loss with parameters α=0.25 and γ=2.0 proved effective for handling this imbalance. For P. ovale (5 test samples), EfficientNet-B1 achieved 76.92% F1-score (100% recall, 62.5% precision), demonstrating perfect sensitivity for this rare but clinically critical species. For Trophozoite stages (15 test samples), EfficientNet-B0 reached 51.61% F1-score, while Gametocyte stages (5 test samples) achieved 57.14% F1-score across multiple models. These results demonstrate that Focal Loss enables reasonable performance even on severely underrepresented classes, though further improvement is needed for clinical deployment.
 
 
-The Focal Loss modulating factor (1-p_t)^γ down-weights easy examples (high p_t) while focusing gradient updates on hard examples (low p_t), making it particularly effective for imbalanced datasets [32]. We employed α=0.25 and γ=2.0, standard parameter settings widely used in medical imaging literature for severe class imbalance scenarios. The α parameter balances positive versus negative examples, while γ=2.0 provides aggressive focusing on hard examples without sacrificing majority class accuracy.
+The Focal Loss modulating factor (1-p_t)^γ down-weights easy examples (high p_t) while focusing gradient updates on hard examples (low p_t), making it particularly effective for imbalanced datasets [22]. We employed α=0.25 and γ=2.0, standard parameter settings widely used in medical imaging literature for severe class imbalance scenarios. The α parameter balances positive versus negative examples, while γ=2.0 provides aggressive focusing on hard examples without sacrificing majority class accuracy.
 
-However, despite Focal Loss optimization and 3:1 minority oversampling, F1-scores below 70% on classes with fewer than 10 samples remain clinically insufficient for autonomous deployment. The fundamental challenge is insufficient training data—even with 3.5× augmentation, a class with 5 original samples generates only 17-18 training images, inadequate for learning robust deep features. Future work should explore synthetic data generation via Generative Adversarial Networks (GANs) [38] or diffusion models [39] to augment minority classes, active learning strategies to prioritize informative sample acquisition [40], and few-shot learning approaches that leverage knowledge transfer from majority classes [41].
+However, despite Focal Loss optimization and 3:1 minority oversampling, F1-scores below 70% on classes with fewer than 10 samples remain clinically insufficient for autonomous deployment. The fundamental challenge is insufficient training data—even with 3.5× augmentation, a class with 5 original samples generates only 17-18 training images, inadequate for learning robust deep features. Future work should explore synthetic data generation via Generative Adversarial Networks (GANs) [27] or diffusion models [28] to augment minority classes, active learning strategies to prioritize informative sample acquisition [29], and few-shot learning approaches that leverage knowledge transfer from majority classes [30].
 
-Importantly, our system achieved 100% recall on P. ovale despite low precision (62.5%), meaning all 5 test samples were correctly detected albeit with 3 false positives from other species. In clinical settings, this trade-off is desirable: false negatives (missed rare species) can lead to inappropriate treatment and patient mortality, while false positives are corrected through confirmatory testing [42]. The ability to maintain perfect recall on rare but clinically critical species demonstrates the practical value of Focal Loss optimization for real-world deployment.
+Importantly, our system achieved 100% recall on P. ovale despite low precision (62.5%), meaning all 5 test samples were correctly detected albeit with 3 false positives from other species. In clinical settings, this trade-off is desirable: false negatives (missed rare species) can lead to inappropriate treatment and patient mortality, while false positives are corrected through confirmatory testing [31]. The ability to maintain perfect recall on rare but clinically critical species demonstrates the practical value of Focal Loss optimization for real-world deployment.
 
 ### 4.4 Computational Feasibility for Point-of-Care Deployment
 
-End-to-end inference latency under 25ms per image (40+ FPS) on consumer-grade NVIDIA RTX 3060 GPUs demonstrates practical feasibility for real-time malaria screening in clinical workflows. For comparison, traditional microscopic examination requires 20-30 minutes per slide [8], representing a >1000× speedup. Even on CPU-only systems (AMD Ryzen 7 5800X), inference completes within 180-250ms per image, enabling batch processing of entire slides (100-200 fields) in 18-50 seconds—still dramatically faster than manual examination.
+End-to-end inference latency under 25ms per image (40+ FPS) on consumer-grade NVIDIA RTX 3060 GPUs demonstrates practical feasibility for real-time malaria screening in clinical workflows. For comparison, traditional microscopic examination requires 20-30 minutes per slide [6], representing a >1000× speedup. Even on CPU-only systems (AMD Ryzen 7 5800X), inference completes within 180-250ms per image, enabling batch processing of entire slides (100-200 fields) in 18-50 seconds—still dramatically faster than manual examination.
 
-The modest hardware requirements (12GB GPU or modern multi-core CPU, 32GB RAM) position this system as deployable in resource-constrained healthcare settings common in malaria-endemic regions. Cloud-based deployment could further reduce on-site hardware needs, with edge devices capturing microscopic images and transmitting them to centralized GPU servers for inference. Estimated cloud inference costs using AWS g4dn.xlarge instances ($0.526/hour with NVIDIA T4 GPU) would be approximately $0.0004 per patient exam (assuming 5 images per exam, 3500 exams/hour), making large-scale deployment economically viable even in low-income settings [43].
+The modest hardware requirements (12GB GPU or modern multi-core CPU, 32GB RAM) position this system as deployable in resource-constrained healthcare settings common in malaria-endemic regions. Cloud-based deployment could further reduce on-site hardware needs, with edge devices capturing microscopic images and transmitting them to centralized GPU servers for inference, making large-scale deployment economically viable even in low-income settings.
 
-Battery-powered mobile microscopes with integrated AI inference represent an emerging deployment scenario [44]. Our system's ability to run on consumer GPUs (RTX 3060 draws 170W under load) suggests feasibility for solar-powered or portable generator setups, critical for remote field clinics without reliable electricity. Future optimization through model quantization (INT8 inference) [45] and pruning [46] could reduce compute requirements by 2-4×, enabling deployment on edge devices such as NVIDIA Jetson (15-30W power consumption) or even high-end smartphones, truly democratizing AI-assisted malaria diagnosis.
+Battery-powered mobile microscopes with integrated AI inference represent an emerging deployment scenario [32]. Our system's ability to run on consumer GPUs (RTX 3060 draws 170W under load) suggests feasibility for solar-powered or portable generator setups, critical for remote field clinics without reliable electricity. Future optimization through model quantization (INT8 inference) [33] and pruning [34] could reduce compute requirements by 2-4×, enabling deployment on edge devices such as NVIDIA Jetson (15-30W power consumption) or even high-end smartphones, truly democratizing AI-assisted malaria diagnosis.
 
 ### 4.5 Limitations and Future Directions
 
-This study has several limitations that warrant future investigation. First, despite utilizing two MP-IDB datasets totaling 418 images, this remains insufficient for training deep networks, as evidenced by ResNet101's poor performance (overfitting on small data). Expansion to 1000+ images per task through crowdsourced annotation platforms [47], collaboration with clinical laboratories, and synthetic data generation [38,39] is critical for improving minority class performance and enabling larger model architectures to realize their potential.
+This study has several limitations that warrant future investigation. First, despite utilizing two MP-IDB datasets totaling 418 images, this remains insufficient for training deep networks, as evidenced by ResNet101's poor performance (overfitting on small data). Expansion to 1000+ images per task through collaboration with clinical laboratories and synthetic data generation [27,28] is critical for improving minority class performance and enabling larger model architectures to realize their potential.
 
-Second, the extreme class imbalance (54:1 ratio) with some classes containing only 5 samples limits clinical deployment readiness. While Focal Loss optimization improved minority F1-scores to 51-77%, this remains below the 80-90% threshold typically required for autonomous diagnostic systems [48]. Future work should explore GAN-based synthetic minority oversampling [49], meta-learning approaches for few-shot classification [50], and ensemble methods combining multiple detection and classification models to improve reliability on rare classes.
+Second, the extreme class imbalance (54:1 ratio) with some classes containing only 5 samples limits clinical deployment readiness. While Focal Loss optimization improved minority F1-scores to 51-77%, this remains below the 80-90% threshold typically required for autonomous diagnostic systems [35]. Future work should explore GAN-based synthetic minority oversampling [36], meta-learning approaches for few-shot classification [37], and ensemble methods combining multiple detection and classification models to improve reliability on rare classes.
 
-Third, both MP-IDB datasets originated from controlled laboratory settings with standardized Giemsa staining protocols and consistent imaging conditions (1000× magnification, specific microscope models). External validation on field-collected samples with varying staining quality, diverse microscope types (brightfield vs phase-contrast), and heterogeneous image acquisition settings is essential to assess real-world generalization. Planned collaboration with hospitals in endemic regions will provide 500+ diverse clinical samples for Phase 2 validation, testing robustness to domain shift [51].
+Third, both MP-IDB datasets originated from controlled laboratory settings with standardized Giemsa staining protocols and consistent imaging conditions (1000× magnification, specific microscope models). External validation on field-collected samples with varying staining quality, diverse microscope types (brightfield vs phase-contrast), and heterogeneous image acquisition settings is essential to assess real-world generalization. Planned collaboration with hospitals in endemic regions will provide 500+ diverse clinical samples for Phase 2 validation, testing robustness to domain shift [38].
 
-Fourth, the current two-stage pipeline (detection → classification) introduces 25ms total latency. Single-stage multi-task learning approaches that jointly perform detection and classification within a unified YOLO-based architecture [52] could reduce latency to 10-15ms while potentially improving accuracy through joint feature learning. We are currently developing YOLOv11-based multi-task variants with auxiliary classification heads and plan to report results in follow-up work.
+Fourth, the current two-stage pipeline (detection → classification) introduces 25ms total latency. Single-stage multi-task learning approaches that jointly perform detection and classification within a unified YOLO-based architecture [39] could reduce latency to 10-15ms while potentially improving accuracy through joint feature learning. We are currently developing YOLOv11-based multi-task variants with auxiliary classification heads and plan to report results in follow-up work.
 
-Fifth, while Grad-CAM visualizations [53] provide qualitative insights into model attention patterns, quantitative validation of attention maps against expert annotations is needed to verify that models learn clinically relevant features (chromatin patterns, hemozoin pigment, cytoplasm texture) rather than spurious correlations (e.g., image artifacts, background patterns). Future work will conduct systematic attention map evaluation using expert-annotated regions of interest.
+Fifth, while Grad-CAM visualizations [40] provide qualitative insights into model attention patterns, quantitative validation of attention maps against expert annotations is needed to verify that models learn clinically relevant features (chromatin patterns, hemozoin pigment, cytoplasm texture) rather than spurious correlations (e.g., image artifacts, background patterns). Future work will conduct systematic attention map evaluation using expert-annotated regions of interest.
 
 ---
 
@@ -233,105 +233,79 @@ This research was supported by BISMA Research Institute. We thank the IML Instit
 
 [3] Centers for Disease Control and Prevention, "Malaria Biology," 2024. [Online]. Available: https://www.cdc.gov/malaria/about/biology/
 
-[4] M. T. Makler et al., "Parasite lactate dehydrogenase as an assay for Plasmodium falciparum drug sensitivity," *Am. J. Trop. Med. Hyg.*, vol. 48, no. 6, pp. 739-741, 1993.
+[4] A. Moody, "Rapid diagnostic tests for malaria parasites," *Clin. Microbiol. Rev.*, vol. 15, no. 1, pp. 66-78, 2002.
 
-[5] N. J. White, "Assessment of the pharmacodynamic properties of antimalarial drugs in vivo," *Antimicrob. Agents Chemother.*, vol. 41, no. 7, pp. 1413-1422, 1997.
+[5] WHO, "Malaria Microscopy Quality Assurance Manual," ver. 2.0, Geneva, 2016.
 
-[6] A. Moody, "Rapid diagnostic tests for malaria parasites," *Clin. Microbiol. Rev.*, vol. 15, no. 1, pp. 66-78, 2002.
+[6] P. L. Chiodini et al., "Manson's Tropical Diseases," 23rd ed. London: Elsevier, 2014, ch. 52.
 
-[7] WHO, "Malaria Microscopy Quality Assurance Manual," ver. 2.0, Geneva, 2016.
+[7] J. O'Meara et al., "Sources of variability in determining malaria parasite density by microscopy," *Am. J. Trop. Med. Hyg.*, vol. 73, no. 3, pp. 593-598, 2005.
 
-[8] P. L. Chiodini et al., "Manson's Tropical Diseases," 23rd ed. London: Elsevier, 2014, ch. 52.
+[8] K. Mitsakakis et al., "Challenges in malaria diagnosis," *Expert Rev. Mol. Diagn.*, vol. 18, no. 10, pp. 867-875, 2018.
 
-[9] J. O'Meara et al., "Sources of variability in determining malaria parasite density by microscopy," *Am. J. Trop. Med. Hyg.*, vol. 73, no. 3, pp. 593-598, 2005.
+[9] A. Esteva et al., "Dermatologist-level classification of skin cancer with deep neural networks," *Nature*, vol. 542, pp. 115-118, 2017.
 
-[10] K. Mitsakakis et al., "Challenges in malaria diagnosis," *Expert Rev. Mol. Diagn.*, vol. 18, no. 10, pp. 867-875, 2018.
+[10] P. Rajpurkar et al., "CheXNet: Radiologist-level pneumonia detection on chest X-rays with deep learning," arXiv:1711.05225, 2017.
 
-[11] A. Esteva et al., "Dermatologist-level classification of skin cancer with deep neural networks," *Nature*, vol. 542, pp. 115-118, 2017.
+[11] N. Coudray et al., "Classification and mutation prediction from non-small cell lung cancer histopathology images using deep learning," *Nat. Med.*, vol. 24, pp. 1559-1567, 2018.
 
-[12] P. Rajpurkar et al., "CheXNet: Radiologist-level pneumonia detection on chest X-rays with deep learning," arXiv:1711.05225, 2017.
+[12] S. Rajaraman et al., "Pre-trained convolutional neural networks as feature extractors for diagnosis of malaria from blood smears," *Diagnostics*, vol. 8, no. 4, p. 74, 2018.
 
-[13] N. Coudray et al., "Classification and mutation prediction from non-small cell lung cancer histopathology images using deep learning," *Nat. Med.*, vol. 24, pp. 1559-1567, 2018.
+[13] A. Wang et al., "YOLOv10: Real-time end-to-end object detection," arXiv:2405.14458, 2024.
 
-[14] S. Rajaraman et al., "Pre-trained convolutional neural networks as feature extractors for diagnosis of malaria from blood smears," *Diagnostics*, vol. 8, no. 4, p. 74, 2018.
+[14] G. Jocher et al., "YOLOv11: Ultralytics YOLO11," 2024. [Online]. Available: https://github.com/ultralytics/ultralytics
 
-[15] D. K. Das et al., "Machine learning approach for automated screening of malaria parasite using light microscopic images," *Micron*, vol. 45, pp. 97-106, 2013.
+[15] F. Poostchi et al., "Image analysis and machine learning for detecting malaria," *Transl. Res.*, vol. 194, pp. 36-55, 2018.
 
-[16] F. B. Tek et al., "Computer vision for microscopy diagnosis of malaria," *Malar. J.*, vol. 8, p. 153, 2009.
+[16] P. Rosenthal, "How do we diagnose and treat Plasmodium ovale and Plasmodium malariae?" *Curr. Infect. Dis. Rep.*, vol. 10, pp. 58-61, 2008.
 
-[17] Z. Liang et al., "CNN-based image analysis for malaria diagnosis," in *Proc. IEEE BIBM*, 2016, pp. 493-496.
+[17] S. Ren et al., "Faster R-CNN: Towards real-time object detection with region proposal networks," *IEEE Trans. Pattern Anal. Mach. Intell.*, vol. 39, no. 6, pp. 1137-1149, 2017.
 
-[18] S. S. Devi et al., "Malaria infected erythrocyte classification based on a hybrid classifier using microscopic images of thin blood smear," *Multim. Tools Appl.*, vol. 77, pp. 631-660, 2018.
+[18] WHO, "Basic Malaria Microscopy: Part I. Learner's guide," 2nd ed., Geneva, 2010.
 
-[19] Y. Dong et al., "Evaluations of deep convolutional neural networks for automatic identification of malaria infected cells," in *Proc. IEEE EMBS*, 2017, pp. 101-104.
+[19] G. Huang et al., "Densely connected convolutional networks," in *Proc. IEEE CVPR*, 2017, pp. 4700-4708.
 
-[20] A. Wang et al., "YOLOv10: Real-time end-to-end object detection," arXiv:2405.14458, 2024.
+[20] M. Tan and Q. V. Le, "EfficientNet: Rethinking model scaling for convolutional neural networks," in *Proc. ICML*, 2019, pp. 6105-6114.
 
-[21] G. Jocher et al., "YOLOv11: Ultralytics YOLO11," 2024. [Online]. Available: https://github.com/ultralytics/ultralytics
+[21] K. He et al., "Deep residual learning for image recognition," in *Proc. IEEE CVPR*, 2016, pp. 770-778.
 
-[22] National Library of Medicine, "Malaria Datasets," NIH, 2024.
+[22] T.-Y. Lin et al., "Focal loss for dense object detection," *IEEE Trans. Pattern Anal. Mach. Intell.*, vol. 42, no. 2, pp. 318-327, 2020.
 
-[23] F. Poostchi et al., "Image analysis and machine learning for detecting malaria," *Transl. Res.*, vol. 194, pp. 36-55, 2018.
+[23] M. Aikawa, "Parasitological review: Plasmodium," *Exp. Parasitol.*, vol. 30, no. 2, pp. 284-320, 1971.
 
-[24] P. Rosenthal, "How do we diagnose and treat Plasmodium ovale and Plasmodium malariae?" *Curr. Infect. Dis. Rep.*, vol. 10, pp. 58-61, 2008.
+[24] A. Vijayalakshmi and B. Rajesh Kanna, "Deep learning approach to detect malaria from microscopic images," *Multim. Tools Appl.*, vol. 79, pp. 15297-15317, 2020.
 
-[25] S. Ren et al., "Faster R-CNN: Towards real-time object detection with region proposal networks," *IEEE Trans. Pattern Anal. Mach. Intell.*, vol. 39, no. 6, pp. 1137-1149, 2017.
+[25] J. Deng et al., "ImageNet: A large-scale hierarchical image database," in *Proc. IEEE CVPR*, 2009, pp. 248-255.
 
-[26] WHO, "Basic Malaria Microscopy: Part I. Learner's guide," 2nd ed., Geneva, 2010.
+[26] A. Dosovitskiy et al., "An image is worth 16×16 words: Transformers for image recognition at scale," in *Proc. ICLR*, 2021.
 
-[27] CDC, "Malaria's Impact Worldwide," 2024.
+[27] I. Goodfellow et al., "Generative adversarial nets," in *Proc. NeurIPS*, 2014, pp. 2672-2680.
 
-[28] **[CITATION REMOVED - Previously incorrectly cited for parasite morphology. Replaced with [26] WHO manual in text.]**
+[28] J. Ho et al., "Denoising diffusion probabilistic models," in *Proc. NeurIPS*, 2020.
 
-[29] G. Huang et al., "Densely connected convolutional networks," in *Proc. IEEE CVPR*, 2017, pp. 4700-4708.
+[29] B. Settles, "Active learning literature survey," Univ. Wisconsin-Madison, Tech. Rep. 1648, 2009.
 
-[30] M. Tan and Q. V. Le, "EfficientNet: Rethinking model scaling for convolutional neural networks," in *Proc. ICML*, 2019, pp. 6105-6114.
+[30] C. Finn et al., "Model-agnostic meta-learning for fast adaptation of deep networks," in *Proc. ICML*, 2017, pp. 1126-1135.
 
-[31] K. He et al., "Deep residual learning for image recognition," in *Proc. IEEE CVPR*, 2016, pp. 770-778.
+[31] WHO, "Guidelines for the Treatment of Malaria," 3rd ed., Geneva, 2015.
 
-[32] T.-Y. Lin et al., "Focal loss for dense object detection," *IEEE Trans. Pattern Anal. Mach. Intell.*, vol. 42, no. 2, pp. 318-327, 2020.
+[32] C. J. Long et al., "A smartphone-based portable biosensor for diagnosis in resource-limited settings," *Nature Biotechnol.*, vol. 32, pp. 373-379, 2014.
 
-[33] **[CITATION REMOVED - Previously incorrectly cited for blood smear morphology. CSP is sporozoite-stage protein, not relevant to erythrocytic morphology. Replaced with [26] WHO manual in text.]**
+[33] R. Krishnamoorthi, "Quantizing deep convolutional networks for efficient inference," arXiv:1806.08342, 2018.
 
-[34] M. Aikawa, "Parasitological review: Plasmodium," *Exp. Parasitol.*, vol. 30, no. 2, pp. 284-320, 1971.
+[34] S. Han et al., "Learning both weights and connections for efficient neural network," in *Proc. NeurIPS*, 2015, pp. 1135-1143.
 
-[35] A. Vijayalakshmi and B. Rajesh Kanna, "Deep learning approach to detect malaria from microscopic images," *Multim. Tools Appl.*, vol. 79, pp. 15297-15317, 2020.
+[35] FDA, "Clinical decision support software: Guidance for industry and FDA staff," 2022.
 
-[36] J. Deng et al., "ImageNet: A large-scale hierarchical image database," in *Proc. IEEE CVPR*, 2009, pp. 248-255.
+[36] H. Zhang et al., "mixup: Beyond empirical risk minimization," in *Proc. ICLR*, 2018.
 
-[37] A. Dosovitskiy et al., "An image is worth 16×16 words: Transformers for image recognition at scale," in *Proc. ICLR*, 2021.
+[37] O. Vinyals et al., "Matching networks for one shot learning," in *Proc. NeurIPS*, 2016, pp. 3630-3638.
 
-[38] I. Goodfellow et al., "Generative adversarial nets," in *Proc. NeurIPS*, 2014, pp. 2672-2680.
+[38] Y. Ganin et al., "Domain-adversarial training of neural networks," *J. Mach. Learn. Res.*, vol. 17, no. 1, pp. 2096-2030, 2016.
 
-[39] J. Ho et al., "Denoising diffusion probabilistic models," in *Proc. NeurIPS*, 2020.
+[39] A. Kirillov et al., "Segment anything," in *Proc. IEEE ICCV*, 2023, pp. 4015-4026.
 
-[40] B. Settles, "Active learning literature survey," Univ. Wisconsin-Madison, Tech. Rep. 1648, 2009.
-
-[41] C. Finn et al., "Model-agnostic meta-learning for fast adaptation of deep networks," in *Proc. ICML*, 2017, pp. 1126-1135.
-
-[42] WHO, "Guidelines for the Treatment of Malaria," 3rd ed., Geneva, 2015.
-
-[43] AWS, "Amazon EC2 G4 Instances," 2024.
-
-[44] C. J. Long et al., "A smartphone-based portable biosensor for diagnosis in resource-limited settings," *Nature Biotechnol.*, vol. 32, pp. 373-379, 2014.
-
-[45] R. Krishnamoorthi, "Quantizing deep convolutional networks for efficient inference," arXiv:1806.08342, 2018.
-
-[46] S. Han et al., "Learning both weights and connections for efficient neural network," in *Proc. NeurIPS*, 2015, pp. 1135-1143.
-
-[47] T.-Y. Lin et al., "Microsoft COCO: Common objects in context," in *Proc. ECCV*, 2014, pp. 740-755.
-
-[48] FDA, "Clinical decision support software: Guidance for industry and FDA staff," 2022.
-
-[49] H. Zhang et al., "mixup: Beyond empirical risk minimization," in *Proc. ICLR*, 2018.
-
-[50] O. Vinyals et al., "Matching networks for one shot learning," in *Proc. NeurIPS*, 2016, pp. 3630-3638.
-
-[51] Y. Ganin et al., "Domain-adversarial training of neural networks," *J. Mach. Learn. Res.*, vol. 17, no. 1, pp. 2096-2030, 2016.
-
-[52] A. Kirillov et al., "Segment anything," in *Proc. IEEE ICCV*, 2023, pp. 4015-4026.
-
-[53] R. R. Selvaraju et al., "Grad-CAM: Visual explanations from deep networks via gradient-based localization," *Int. J. Comput. Vis.*, vol. 128, pp. 336-359, 2020.
+[40] R. R. Selvaraju et al., "Grad-CAM: Visual explanations from deep networks via gradient-based localization," *Int. J. Comput. Vis.*, vol. 128, pp. 336-359, 2020.
 
 ---
 
@@ -372,7 +346,7 @@ This research was supported by BISMA Research Institute. We thank the IML Instit
 - Estimated pages: 15-18 pages (IEEE two-column format)
 - Figures: 6 (all with placeholders and file paths; Fig 8 & 9 removed - narrative sufficient)
 - Tables: 3 (all with placeholders and file paths)
-- References: 51 active (2 removed: [28] and [33] - incorrect citations fixed)
+- References: 40 (reduced from 51 - removed 11 tangential/redundant papers)
 
 **Formatting Notes:**
 - All text in narrative paragraph format (no bullet points except contributions list)
