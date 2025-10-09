@@ -98,6 +98,7 @@ exports/experiment_archives/*.zip
 *.tiff
 !docs/images/*
 !examples/*
+!luaran/**
 
 # Processed data - exclude image files but keep configs
 data/processed/*/train/images/
