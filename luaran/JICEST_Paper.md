@@ -33,7 +33,7 @@ Despite these advances, several critical challenges remain in applying deep lear
 
 This study addresses these challenges through a novel multi-model hybrid framework with a shared classification architecture. Our approach trains classification models once on ground truth crops and reuses them across multiple YOLO detection methods, achieving 70% storage reduction (45GB → 14GB) and 60% training time reduction (450 hours → 180 hours) while maintaining or improving accuracy. We validate our system on two public MP-IDB (Malaria Parasite Image Database) datasets covering both species classification (4 Plasmodium species) and lifecycle stage classification (4 stages: ring, trophozoite, schizont, gametocyte), totaling 418 images with severe class imbalance (ratios up to 54:1).
 
-The main contributions of this work are fourfold. First, we propose a shared classification architecture (Option A) that decouples detection and classification training, enabling efficient model reuse across multiple detection backends. Second, we conduct comprehensive cross-dataset validation on two MP-IDB datasets with distinct classification tasks, demonstrating robust generalization across species and lifecycle stage identification. Third, we provide empirical evidence that smaller EfficientNet models (5.3-7.8M parameters) outperform larger ResNet variants (25.6-44.5M parameters) by 5-10% on small medical imaging datasets, challenging the conventional wisdom that deeper networks universally perform better. Fourth, we systematically analyze Focal Loss parameters for severe class imbalance, demonstrating that optimized settings (α=0.25, γ=2.0) achieve 20-40% F1-score improvement on minority classes compared to standard cross-entropy loss.
+The main contributions of this work are fourfold. First, we propose a shared classification architecture (Option A) that decouples detection and classification training, enabling efficient model reuse across multiple detection backends. Second, we conduct comprehensive cross-dataset validation on two MP-IDB datasets with distinct classification tasks, demonstrating robust generalization across species and lifecycle stage identification. Third, we provide empirical evidence that smaller EfficientNet models (5.3-7.8M parameters) outperform larger ResNet variants (25.6-44.5M parameters) by 5-10% on small medical imaging datasets, challenging the conventional wisdom that deeper networks universally perform better. Fourth, we demonstrate effective handling of severe class imbalance using Focal Loss (α=0.25, γ=2.0), achieving 51-77% F1-score on minority classes with fewer than 10 test samples.
 
 The remainder of this paper is organized as follows. Section 2 describes the datasets, proposed architecture, and training methodology. Section 3 presents detection and classification results with detailed performance analysis. Section 4 discusses key findings including model efficiency insights, minority class challenges, and computational feasibility for deployment. Section 5 concludes with limitations and future research directions.
 
@@ -178,10 +178,10 @@ These results have important implications for medical AI deployment in resource-
 
 ### 4.3 Minority Class Challenge and Focal Loss Optimization
 
-The severe class imbalance encountered in this study (ratios up to 54:1 for Ring vs Gametocyte) presented substantial challenges for classification accuracy, particularly on minority classes with fewer than 10 test samples. Our systematic analysis of Focal Loss parameters revealed that optimized settings (α=0.25, γ=2.0) achieved significantly better minority class performance compared to standard cross-entropy loss. For P. ovale (5 samples), EfficientNet-B1 with Focal Loss achieved 76.92% F1-score (100% recall, 62.5% precision), representing a +31 percentage point improvement over cross-entropy baseline (45.8% F1). Similarly, for Trophozoite (15 samples), EfficientNet-B0 with Focal Loss reached 51.61% F1 compared to 37.2% baseline (+14.4 pp), and for Gametocyte (5 samples), 75.00% F1 versus 56.7% baseline (+18.3 pp).
+The severe class imbalance encountered in this study (ratios up to 54:1 for Ring vs Gametocyte) presented substantial challenges for classification accuracy, particularly on minority classes with fewer than 10 test samples. Focal Loss with parameters α=0.25 and γ=2.0 proved effective for handling this imbalance. For P. ovale (5 test samples), EfficientNet-B1 achieved 76.92% F1-score (100% recall, 62.5% precision), demonstrating perfect sensitivity for this rare but clinically critical species. For Trophozoite stages (15 test samples), EfficientNet-B0 reached 51.61% F1-score, while Gametocyte stages (5 test samples) achieved 57.14% F1-score across multiple models. These results demonstrate that Focal Loss enables reasonable performance even on severely underrepresented classes, though further improvement is needed for clinical deployment.
 
 
-The Focal Loss modulating factor (1-p_t)^γ down-weights easy examples (high p_t) while focusing gradient updates on hard examples (low p_t), making it particularly effective for imbalanced datasets [32]. Our grid search over α ∈ {0.1, 0.25, 0.5, 0.75} and γ ∈ {0.5, 1.0, 1.5, 2.0, 2.5} revealed that α=0.25 (balancing positive vs negative examples) and γ=2.0 (aggressive hard example focusing) provided optimal performance across both datasets. Lower γ values (0.5-1.0) failed to sufficiently suppress easy examples, while higher values (2.5) over-focused on hard examples at the expense of majority class accuracy.
+The Focal Loss modulating factor (1-p_t)^γ down-weights easy examples (high p_t) while focusing gradient updates on hard examples (low p_t), making it particularly effective for imbalanced datasets [32]. We employed α=0.25 and γ=2.0, standard parameter settings widely used in medical imaging literature for severe class imbalance scenarios. The α parameter balances positive versus negative examples, while γ=2.0 provides aggressive focusing on hard examples without sacrificing majority class accuracy.
 
 However, despite Focal Loss optimization and 3:1 minority oversampling, F1-scores below 70% on classes with fewer than 10 samples remain clinically insufficient for autonomous deployment. The fundamental challenge is insufficient training data—even with 3.5× augmentation, a class with 5 original samples generates only 17-18 training images, inadequate for learning robust deep features. Future work should explore synthetic data generation via Generative Adversarial Networks (GANs) [38] or diffusion models [39] to augment minority classes, active learning strategies to prioritize informative sample acquisition [40], and few-shot learning approaches that leverage knowledge transfer from majority classes [41].
 
@@ -213,7 +213,7 @@ Fifth, while Grad-CAM visualizations [53] provide qualitative insights into mode
 
 This study presents a multi-model hybrid framework for automated malaria detection and classification, validated on two public MP-IDB datasets (418 images, 8 classes across Plasmodium species and lifecycle stages). The proposed Option A architecture employs a shared classification approach that trains CNN models once on ground truth crops and reuses them across multiple YOLO detection methods, achieving 70% storage reduction (45GB → 14GB) and 60% training time reduction (450 GPU-hours → 180 GPU-hours) while maintaining competitive accuracy. YOLOv11 detection achieves 93.09% mAP@50 with 92.26% recall on species classification, while EfficientNet-B1 classification reaches 98.80% accuracy (93.18% balanced accuracy) despite severe class imbalance.
 
-A key finding is that smaller EfficientNet models (5.3-7.8M parameters) outperform substantially larger ResNet variants (25.6-44.5M parameters) by 5-10% on small medical imaging datasets, challenging the conventional "deeper is better" paradigm. This result has important implications for medical AI deployment in resource-constrained settings, where model efficiency and generalization from limited data are critical. Optimized Focal Loss (α=0.25, γ=2.0) achieves 20-40% F1-score improvement on minority classes compared to standard cross-entropy, reaching 51-77% F1 on highly imbalanced classes with fewer than 10 samples, though this remains below clinical deployment thresholds.
+A key finding is that smaller EfficientNet models (5.3-7.8M parameters) outperform substantially larger ResNet variants (25.6-44.5M parameters) by 5-10% on small medical imaging datasets, challenging the conventional "deeper is better" paradigm. This result has important implications for medical AI deployment in resource-constrained settings, where model efficiency and generalization from limited data are critical. Focal Loss (α=0.25, γ=2.0) achieves 51-77% F1-score on minority classes with fewer than 10 test samples, including 76.92% F1 on P. ovale (5 samples) with perfect recall, though these results remain below clinical deployment thresholds for autonomous diagnosis.
 
 With end-to-end inference latency under 25ms per image (40+ FPS) on consumer-grade GPUs, the system demonstrates practical feasibility for point-of-care deployment in endemic regions. Future work will focus on dataset expansion to 1000+ images through synthetic data generation and clinical collaborations, single-stage multi-task learning to reduce latency below 10ms, and external validation on field-collected samples to assess real-world generalization. The combination of high accuracy, computational efficiency, and real-time capability positions this framework as a promising tool for democratizing AI-assisted malaria diagnosis in resource-limited settings.
 
@@ -343,27 +343,27 @@ This research was supported by BISMA Research Institute. We thank the IML Instit
 
 2. **Figure 2** (in Section 2.1, after Figure 1): `luaran/figures/aug_species_set3.png` - Data augmentation examples for MP-IDB Species dataset (7 transformations × 4 Plasmodium species)
 
-3. **Figure 3** (after Section 2.2, paragraph 2): `figures/pipeline_architecture.png` - Pipeline architecture diagram showing three-stage Option A framework
+3. **Figure 3** (after Section 2.2, paragraph 2): `luaran/figures/pipeline_architecture.png` - Pipeline architecture diagram showing three-stage Option A framework
 
-4. **Figure 4** (after Table 2 in Section 3.1): `figures/detection_performance_comparison.png` - Bar charts comparing YOLO v10/v11/v12 detection performance
+4. **Figure 4** (after Table 2 in Section 3.1): `luaran/figures/detection_performance_comparison.png` - Bar charts comparing YOLO v10/v11/v12 detection performance
 
-5. **Figure 5** (after Table 3 in Section 3.2): `figures/classification_accuracy_heatmap.png` - Heatmap showing accuracy and balanced accuracy for 6 CNNs × 2 datasets
+5. **Figure 5** (after Table 3 in Section 3.2): `luaran/figures/classification_accuracy_heatmap.png` - Heatmap showing accuracy and balanced accuracy for 6 CNNs × 2 datasets
 
-6. **Figure 6** (after confusion matrix discussion in Section 3.2): `figures/confusion_matrices.png` - Side-by-side confusion matrices for best models (Species: EfficientNet-B1, Stages: EfficientNet-B0)
+6. **Figure 6** (after confusion matrix discussion in Section 3.2): `luaran/figures/confusion_matrices.png` - Side-by-side confusion matrices for best models (Species: EfficientNet-B1, Stages: EfficientNet-B0)
 
-7. **Figure 7** (after per-class F1 discussion in Section 3.2): `figures/species_f1_comparison.png` - Grouped bar chart showing F1-scores for 4 species × 6 models
+7. **Figure 7** (after per-class F1 discussion in Section 3.2): `luaran/figures/species_f1_comparison.png` - Grouped bar chart showing F1-scores for 4 species × 6 models
 
-8. **Figure 8** (after Figure 7 in Section 3.2): `figures/stages_f1_comparison.png` - Grouped bar chart showing F1-scores for 4 lifecycle stages × 6 models
+8. **Figure 8** (after Figure 7 in Section 3.2): `luaran/figures/stages_f1_comparison.png` - Grouped bar chart showing F1-scores for 4 lifecycle stages × 6 models
 
 **Note:** Augmentation figures (1-2) use high-resolution 512×512 pixel crops with LANCZOS4 interpolation and PNG lossless format for publication quality (300 DPI).
 
 ### Tables (3 total - in order of appearance)
 
-1. **Table 1** (in Section 2.1, after dataset descriptions): `tables/Table3_Dataset_Statistics_MP-IDB.csv` - Dataset statistics showing 418 total images, splits, augmentation multipliers
+1. **Table 1** (in Section 2.1, after dataset descriptions): `luaran/tables/Table3_Dataset_Statistics_MP-IDB.csv` - Dataset statistics showing 418 total images, splits, augmentation multipliers
 
-2. **Table 2** (in Section 3.1, paragraph 1): `tables/Table1_Detection_Performance_MP-IDB.csv` - Detection results for 3 YOLO models × 2 datasets (6 rows)
+2. **Table 2** (in Section 3.1, paragraph 1): `luaran/tables/Table1_Detection_Performance_MP-IDB.csv` - Detection results for 3 YOLO models × 2 datasets (6 rows)
 
-3. **Table 3** (in Section 3.2, paragraph 1): `tables/Table2_Classification_Performance_MP-IDB.csv` - Classification results for 6 CNN models × 2 datasets (12 rows)
+3. **Table 3** (in Section 3.2, paragraph 1): `luaran/tables/Table2_Classification_Performance_MP-IDB.csv` - Classification results for 6 CNN models × 2 datasets (12 rows)
 
 ---
 
