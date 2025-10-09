@@ -380,11 +380,11 @@ class GroundTruthCropGenerator:
             return None
 
         # Resize to target size using high-quality interpolation
-        # Use INTER_CUBIC for upscaling (better quality) or INTER_AREA for downscaling
+        # Use INTER_LANCZOS4 for upscaling (best quality) or INTER_AREA for downscaling
         current_size = max(crop.shape[:2])
         if current_size < target_size:
-            # Upscaling - use cubic interpolation for better quality
-            crop_resized = cv2.resize(crop, (target_size, target_size), interpolation=cv2.INTER_CUBIC)
+            # Upscaling - use Lanczos4 interpolation for sharpest quality (medical imaging)
+            crop_resized = cv2.resize(crop, (target_size, target_size), interpolation=cv2.INTER_LANCZOS4)
         else:
             # Downscaling - use area interpolation to preserve details
             crop_resized = cv2.resize(crop, (target_size, target_size), interpolation=cv2.INTER_AREA)
@@ -504,10 +504,10 @@ class GroundTruthCropGenerator:
                         class_id = ann['class_id']
                         class_name = class_names[class_id]
 
-                        # Save crop
-                        crop_filename = f"{image_path.stem}_crop_{i:03d}.jpg"
+                        # Save crop with maximum quality (PNG for lossless, medical-grade quality)
+                        crop_filename = f"{image_path.stem}_crop_{i:03d}.png"
                         crop_path = self.crops_dir / actual_split / class_name / crop_filename
-                        cv2.imwrite(str(crop_path), crop)
+                        cv2.imwrite(str(crop_path), crop, [cv2.IMWRITE_PNG_COMPRESSION, 3])
 
                         # Add to metadata
                         metadata.append({
@@ -579,10 +579,10 @@ class GroundTruthCropGenerator:
                         if crop is None:
                             continue
 
-                        # Save crop
-                        crop_filename = f"{image_path.stem}_crop_{i:03d}.jpg"
+                        # Save crop with maximum quality (PNG for lossless, medical-grade quality)
+                        crop_filename = f"{image_path.stem}_crop_{i:03d}.png"
                         crop_path = self.crops_dir / actual_split / class_name / crop_filename
-                        cv2.imwrite(str(crop_path), crop)
+                        cv2.imwrite(str(crop_path), crop, [cv2.IMWRITE_PNG_COMPRESSION, 3])
 
                         # Add to metadata
                         metadata.append({
