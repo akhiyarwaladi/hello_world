@@ -151,24 +151,46 @@ Keempat, sistem saat ini kekurangan fitur penjelasan yang kritis untuk adopsi kl
 
 ### Luaran Wajib
 
-**Publikasi Jurnal Internasional Bereputasi** (Target: Q1/Q2, Status: **Draft 90% Complete**)
+**1. Publikasi Jurnal Nasional Terakreditasi Sinta** (Target: Sinta 3, Status: **Draft Lengkap 100%**)
 
-Draft manuscript berjudul "Parameter-Efficient Deep Learning Models Outperform Larger Architectures on Small Medical Imaging Datasets: A Malaria Detection Case Study" telah diselesaikan untuk submission ke IEEE Transactions on Medical Imaging (Q1, Impact Factor: 10,6). Manuscript mencakup evaluasi komprehensif pada 3 dataset × 3 model deteksi × 6 model klasifikasi = 54 kombinasi model, mendemonstrasikan bahwa model EfficientNet lebih kecil (5,3-7,8M parameter) secara konsisten mengungguli varian ResNet lebih besar (25,6-44,5M parameter) sebesar 5-10% pada dataset medis kecil [8,9].
+Draft artikel berjudul "Parameter-Efficient Deep Learning Models Outperform Larger Architectures on Small Medical Imaging Datasets: A Malaria Detection Case Study" telah diselesaikan untuk submission ke **Journal of Applied Informatics and Computing (JAIC)** yang terindeks Sinta 3 (https://jurnal.polibatam.ac.id/index.php/JAIC/index). Artikel mencakup evaluasi komprehensif pada 2 dataset × 3 model deteksi × 6 model klasifikasi = 36 kombinasi model, mendemonstrasikan bahwa model EfficientNet lebih kecil (5,3-7,8M parameter) secara konsisten mengungguli varian ResNet lebih besar (25,6-44,5M parameter) sebesar 5-10% pada dataset medis kecil [8,9].
 
-Struktur manuscript: (1) Introduction dengan tinjauan pustaka tentang AI medis dan deteksi objek [28,29,30,31,32,14], (2) Methods yang mendeskripsikan arsitektur Option A dan pengaturan eksperimen, (3) Results yang menyajikan performa deteksi [5,6], metrik klasifikasi dengan rincian per-kelas, dan analisis efisiensi [7,8,9,11], (4) Discussion yang menganalisis temuan dalam konteks implementasi klinis [13,15,19], dan (5) Conclusion dengan arah masa depan [20,21,23,24].
+Struktur artikel: (1) Pendahuluan dengan tinjauan pustaka tentang AI medis dan deteksi objek [28,29,30,31,32,14], (2) Metode yang mendeskripsikan arsitektur klasifikasi bersama dan pengaturan eksperimen, (3) Hasil yang menyajikan performa deteksi [5,6], metrik klasifikasi dengan rincian per-kelas, dan analisis efisiensi [7,8,9,11], (4) Pembahasan yang menganalisis temuan dalam konteks implementasi klinis [13,15,19], dan (5) Kesimpulan dengan arah masa depan [20,21,23,24].
 
+**File Draft**: `luaran/Draft_Journal_Q1_IEEE_TMI.md`
 **Target Submission**: November 2025
-**Expected Review Period**: 3-4 bulan
-**Expected Revision**: 1-2 bulan
-**Expected Acceptance**: Q2 2026
+**Periode Review Diharapkan**: 2-3 bulan
+**Periode Revisi Diharapkan**: 1 bulan
+**Publikasi Diharapkan**: Q2 2026
+
+---
 
 ### Luaran Tambahan
 
-**Publikasi Konferensi** - Draft paper untuk International Conference on Image Processing and Computer-Aided Diagnosis (IPCAD) 2026 yang berfokus pada manfaat arsitektur klasifikasi bersama (reduksi penyimpanan 70%, reduksi waktu pelatihan 60%) telah diselesaikan.
+**1. Publikasi Prosiding Konferensi Internasional** (Status: **Abstract Diterima, Full Paper dalam Progres 70%**)
 
-**Laporan Teknis** - Laporan teknis komprehensif 526 halaman yang mendokumentasikan metodologi eksperimen lengkap, keputusan tuning hyperparameter, analisis kasus kegagalan, dan pertimbangan implementasi untuk referensi internal dan transfer pengetahuan.
+Abstract telah diterima pada **Jambi International Conference on Engineering, Science, and Technology (JICEST)** yang diselenggarakan di Universitas Jambi, Indonesia, pada tanggal 28 November 2025. Full paper berfokus pada arsitektur klasifikasi bersama dengan manfaat signifikan: reduksi penyimpanan 70% dan reduksi waktu pelatihan 60% dibandingkan pendekatan tradisional.
 
-**Implementasi Open-Source** - Codebase lengkap dengan 12 skrip Python untuk persiapan data, pelatihan, evaluasi, dan visualisasi telah dipublikasikan di repository GitHub dengan lisensi MIT, memungkinkan komunitas riset untuk mereproduksi temuan dan mengembangkan penelitian ini lebih lanjut.
+**Judul**: "Shared Classification Architecture for Multi-Model Malaria Detection: Efficiency Analysis"
+**File Draft**: `luaran/JICEST_Paper.md`
+**Status**: Abstract diterima, full paper dalam penyelesaian
+**Deadline Submission Full Paper**: November 2025
+**Tanggal Konferensi**: 28 November 2025
+**Lokasi**: Universitas Jambi, Indonesia
+
+**2. Laporan Teknis Komprehensif**
+
+Laporan teknis komprehensif yang mendokumentasikan metodologi eksperimen lengkap, keputusan tuning hyperparameter, analisis kasus kegagalan, dan pertimbangan implementasi untuk referensi internal dan transfer pengetahuan.
+
+**Status**: Tersedia dalam repository proyek
+
+**3. Implementasi Open-Source**
+
+Codebase lengkap dengan 12 skrip Python untuk persiapan data, pelatihan, evaluasi, dan visualisasi telah dipublikasikan di repository GitHub dengan lisensi MIT, memungkinkan komunitas riset untuk mereproduksi temuan dan mengembangkan penelitian ini lebih lanjut.
+
+**Repository**: https://github.com/akhiyarwaladi/hello_world
+**Lisensi**: MIT
+**Status**: Publik dan tersedia
 
 ---
 
