@@ -1,4 +1,4 @@
-# Efficient Convolutional Neural Networks for Malaria Parasite Classification: A Parameter-Optimization Study on Small-Scale Imbalanced Microscopy Datasets
+# Parameter-Efficient Models for Malaria Detection and Classification Using Small-Scale Imbalanced Blood Smear Images
 
 **Authors**: [Author Names]¹*, [Author Names]², [Author Names]³
 **Affiliations**:
@@ -163,7 +163,7 @@ The proposed framework employs a three-stage pipeline designed to maximize compu
 
 ### 3.4 Implementation Details
 
-Hardware: NVIDIA RTX 3060 GPU (12GB VRAM), AMD Ryzen 7 5800X CPU, 32GB RAM. Software: Ultralytics YOLO (PyTorch 2.0), timm library (EfficientNet), torchvision (DenseNet/ResNet), CUDA 11.8, cuDNN 8.9. Mixed precision (AMP) enabled for 30-40% speedup. Total training: ~180 GPU-hours across 3 detection models + 18 classification models (6 architectures × 3 datasets), representing 60% reduction versus traditional 450 GPU-hour approach training 54 separate classifiers.
+Hardware: NVIDIA RTX 3060 GPU (12GB VRAM), AMD Ryzen 7 5800X CPU, 32GB RAM. Software: Ultralytics YOLO (PyTorch 2.0), timm library (EfficientNet), torchvision (DenseNet/ResNet), CUDA 11.8, cuDNN 8.9. Mixed precision (AMP) enabled to accelerate training. The shared classification architecture substantially reduces computational requirements by training classification models once on ground truth crops and reusing them across all YOLO variants, rather than training separate classifiers for each detection method.
 
 ---
 
@@ -171,7 +171,7 @@ Hardware: NVIDIA RTX 3060 GPU (12GB VRAM), AMD Ryzen 7 5800X CPU, 32GB RAM. Soft
 
 ### 4.1 Detection Performance
 
-YOLO detection achieved competitive performance across all datasets (Table 1). **IML Lifecycle:** YOLOv12 led with mAP@50=95.71%, followed by YOLOv11 (93.87%) and YOLOv10 (91.86%). YOLOv11 demonstrated superior recall (94.98%) versus YOLOv12 (95.10%) with faster convergence. **MP-IDB Species:** YOLOv11 achieved mAP@50=93.10%, recall=92.26%—optimal for clinical deployment prioritizing sensitivity. **MP-IDB Stages:** YOLOv11 mAP@50=92.90%, recall=90.37%, outperforming others on minority lifecycle stages. Across datasets, mAP@50 consistently exceeded 90%, with YOLOv11 selected as primary detection backbone due to balanced recall (90-95%) and reasonable inference speed (13.7ms/image, 73 FPS on RTX 3060).
+YOLO detection achieved competitive performance across all datasets (Table 1). **IML Lifecycle:** YOLOv12 led with mAP@50=95.71%, followed by YOLOv11 (93.87%) and YOLOv10 (91.86%). YOLOv11 demonstrated superior recall (94.98%) versus YOLOv12 (95.10%) with faster convergence. **MP-IDB Species:** YOLOv11 achieved mAP@50=93.10%, recall=92.26%—optimal for clinical deployment prioritizing sensitivity. **MP-IDB Stages:** YOLOv11 mAP@50=92.90%, recall=90.37%, outperforming others on minority lifecycle stages. Across datasets, mAP@50 consistently exceeded 90%, with YOLOv11 selected as primary detection backbone due to balanced recall (90-95%) across all three datasets.
 
 **Comparison with Prior Work:** Our YOLOv11 mAP@50=93.10% (MP-IDB Species) surpasses Arshad et al. (2022) YOLOv5 at 94.1% mAP@50 [46], while Rahman et al. (2024) YOLOv8 achieved slightly higher 96.2% mAP@50 [47] but on different datasets precluding direct comparison. Critically, our recall=92.26% exceeds most prior work (typically 85-89% [44,45]), addressing the clinical priority of minimizing false negatives.
 
@@ -215,9 +215,9 @@ Systematic comparison across 731 images and 6 architectures revealed a striking 
 - EfficientNet-B0 (5.3M) vs ResNet101 (44.5M): +1.33% accuracy on MP-IDB Stages (94.31% vs 92.98%), despite 8.4× fewer parameters
 - EfficientNet-B2 (9.2M) vs ResNet101 (44.5M): +10.11% accuracy on IML Lifecycle (87.64% vs 77.53%), despite 4.8× fewer parameters
 
-**Mechanistic Explanation:** Three factors drive this: (1) **Over-parameterization overfitting:** ResNet101's 44.5M parameters memorize training artifacts on 512-765 augmented images, evidenced by larger train-validation gaps (ResNet101: 8.2%, EfficientNet-B1: 3.1% on Species). (2) **Compound scaling efficiency:** EfficientNet jointly optimizes depth/width/resolution [63] versus ResNet's depth-only scaling, yielding balanced architectures. (3) **Medical imaging characteristics:** Malaria parasites lack deep hierarchical abstraction levels present in ImageNet natural images [77], reducing depth advantage.
+**Mechanistic Explanation:** Three factors drive this: (1) **Over-parameterization overfitting:** ResNet101's 44.5M parameters are excessive for the limited training data (512-765 augmented images per dataset), increasing the risk of memorizing training artifacts rather than learning generalizable features. (2) **Compound scaling efficiency:** EfficientNet jointly optimizes depth/width/resolution [63] versus ResNet's depth-only scaling, yielding balanced architectures that better match the complexity of small medical datasets. (3) **Medical imaging characteristics:** Malaria parasites lack deep hierarchical abstraction levels present in ImageNet natural images [77], reducing the advantage of extreme depth.
 
-**Implications:** This finding challenges 60+ years of "deeper is better" doctrine from AlexNet→VGG→ResNet evolution [22,60,23], suggesting model selection for small medical datasets should prioritize **parameter efficiency and balanced scaling** over raw depth. Directly enables deployment on mobile/edge devices (EfficientNet-B1: 31MB model vs ResNet101: 171MB).
+**Implications:** This finding challenges the conventional "deeper is better" doctrine from AlexNet→VGG→ResNet evolution [22,60,23], suggesting model selection for small medical datasets should prioritize **parameter efficiency and balanced scaling** over raw depth. The substantial parameter reduction (5.7× fewer parameters for EfficientNet-B1 vs ResNet101) directly enables deployment on resource-constrained mobile and edge devices with limited memory capacity.
 
 ---
 
@@ -225,25 +225,25 @@ Systematic comparison across 731 images and 6 architectures revealed a striking 
 
 ### 5.1 Clinical Significance of Results
 
-The 98.80% species classification accuracy with 93.18% balanced accuracy (EfficientNet-B1) approaches expert microscopist performance (reported at 85-95% inter-observer agreement [78]) while offering 1000× speedup (25ms vs 20-30min manual examination). Critically, **100% recall on P. ovale** addresses a life-threatening diagnostic gap: this rare species requires primaquine for liver stage elimination [79], and misdiagnosis leads to relapsing infection. Traditional CNN approaches with cross-entropy loss achieve 0% recall on P. ovale due to 54:1 imbalance [76]; our Focal Loss optimization enables perfect sensitivity.
+The 98.80% species classification accuracy with 93.18% balanced accuracy (EfficientNet-B1) approaches expert microscopist performance (reported at 85-95% inter-observer agreement [78]) while enabling rapid automated screening compared to 20-30 minute manual examination. Critically, **100% recall on P. ovale** addresses a life-threatening diagnostic gap: this rare species requires primaquine for liver stage elimination [79], and misdiagnosis leads to relapsing infection. Traditional CNN approaches with cross-entropy loss achieve 0% recall on P. ovale due to 54:1 imbalance [76]; our Focal Loss optimization enables perfect sensitivity.
 
 The 94.31% accuracy on lifecycle stages (EfficientNet-B0) enables automated parasitemia quantification and gametocyte detection for transmission monitoring—critical for malaria elimination programs [80]. While 69.21% balanced accuracy remains below autonomous deployment threshold (≥80%), it demonstrates feasibility of handling 54:1 extreme imbalance through algorithmic optimization alone, without requiring massive dataset expansion.
 
 ### 5.2 Computational Efficiency for Resource-Constrained Deployment
 
-End-to-end latency under 25ms (YOLOv11 13.7ms + EfficientNet-B1 8.3ms = 22ms) enables 45 FPS real-time screening on consumer GPUs, meeting clinical workflow requirements. The shared classification framework (Option A) achieves 67% storage reduction (14GB vs 42GB traditional) and 60% training time reduction (180 vs 450 GPU-hours)—directly addressing resource constraints in malaria-endemic regions.
+The parameter-efficient models enable practical real-time inference on consumer-grade GPUs, meeting clinical workflow requirements for point-of-care deployment. The shared classification framework (Option A) achieves substantial computational savings by training classification models once on ground truth crops and reusing them across all YOLO variants, rather than training separate classifiers for each detection method—directly addressing resource constraints in malaria-endemic regions.
 
 **Deployment Scenarios:** (1) **Cloud-based:** Edge devices capture images, transmit to centralized GPU servers; enables large-scale screening with minimal on-site hardware. (2) **Portable microscopes:** Solar-powered setups with NVIDIA Jetson (15-30W) after INT8 quantization [81]. (3) **Mobile applications:** Model compression (pruning [82] + quantization) could enable smartphone deployment, democratizing AI-assisted diagnosis to remote field clinics.
 
 ### 5.3 Limitations and Future Directions
 
-**Dataset Size:** 731 total images remain insufficient for very deep networks, as evidenced by ResNet101 overfitting. Expansion to 2000+ images through clinical partnerships and GAN-based synthetic generation [51,83] is critical. **External Validation:** Current datasets from controlled laboratory settings require validation on field-collected samples with varying staining/imaging conditions for real-world generalization [84]. **Minority Classes:** F1=50-77% on <10-sample classes remains below clinical threshold; few-shot learning [85] and meta-learning [86] warrant exploration. **Single-Stage Architecture:** Current two-stage pipeline (detect→classify) incurs 22ms latency; unified YOLO-based multi-task learning could reduce to 10-15ms [87].
+**Dataset Size:** 731 total images remain insufficient for very deep networks, as evidenced by ResNet101 overfitting. Expansion to 2000+ images through clinical partnerships and GAN-based synthetic generation [51,83] is critical. **External Validation:** Current datasets from controlled laboratory settings require validation on field-collected samples with varying staining/imaging conditions for real-world generalization [84]. **Minority Classes:** F1=50-77% on <10-sample classes remains below clinical threshold; few-shot learning [85] and meta-learning [86] warrant exploration. **Single-Stage Architecture:** Current two-stage pipeline (detect→classify) could be further optimized through unified YOLO-based multi-task learning approaches for faster inference [87].
 
 ---
 
 ## 6. CONCLUSION
 
-This study presents a systematic evaluation of parameter-efficient CNN architectures for malaria parasite classification on small-scale imbalanced datasets (731 images, 54:1 class ratios). The proposed shared-feature framework (Option A) achieves 67% computational reduction while maintaining state-of-the-art performance: EfficientNet-B1 98.80% accuracy (93.18% balanced) on species, EfficientNet-B0 94.31% (69.21% balanced) on lifecycle stages—surpassing prior literature by 5.8-11.5%.
+This study presents a systematic evaluation of parameter-efficient CNN architectures for malaria parasite classification on small-scale imbalanced datasets (731 images, 54:1 class ratios). The proposed shared-feature framework (Option A) achieves substantial computational reduction while maintaining state-of-the-art performance: EfficientNet-B1 98.80% accuracy (93.18% balanced) on species, EfficientNet-B0 94.31% (69.21% balanced) on lifecycle stages—surpassing prior literature by 5.8-11.5%.
 
 **Key Finding:** Smaller EfficientNet models (5.3-9.2M parameters) systematically outperform larger ResNet variants (25.6-44.5M) by 1-10 percentage points across all datasets, challenging the "deeper is better" paradigm for limited medical data. This result enables practical deployment on mobile/edge devices, directly addressing resource constraints in endemic regions.
 
