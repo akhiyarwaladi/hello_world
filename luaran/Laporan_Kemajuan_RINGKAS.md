@@ -13,116 +13,80 @@
 
 ---
 
-## A. RINGKASAN EKSEKUTIF
+## HASIL PELAKSANAAN PENELITIAN
 
-Penelitian ini mengembangkan sistem deteksi dan klasifikasi parasit malaria otomatis menggunakan arsitektur hybrid yang menggabungkan YOLO untuk deteksi objek dan CNN untuk klasifikasi spesies serta tahapan siklus hidup. Malaria tetap menjadi tantangan kesehatan global dengan lebih dari 200 juta kasus dan 600.000 kematian tahunan [1], dimana diagnosis akurat sangat kritis karena spesies berbeda memerlukan pendekatan terapeutik yang berbeda [2,3,6].
+### 1. Dataset dan Karakteristik Data
 
-Sistem divalidasi pada dua dataset publik MP-IDB yang mencakup 418 citra blood smear dengan 8 kelas berbeda: 4 spesies Plasmodium (P. falciparum, P. vivax, P. malariae, P. ovale) dan 4 tahapan siklus hidup (ring, trophozoite, schizont, gametocyte). Implementasi arsitektur Option A (Shared Classification Architecture) menghasilkan reduksi storage 70% dan pengurangan waktu training 60% dibandingkan pendekatan tradisional yang melatih model klasifikasi terpisah untuk setiap metode deteksi.
-
-Hasil menunjukkan YOLOv11 mencapai mAP@50 sebesar 93,09% dan recall 92,26% untuk deteksi spesies [13,14], sementara EfficientNet-B1 mencapai akurasi 98,80% dengan balanced accuracy 93,18% untuk klasifikasi [20]. Temuan penting menunjukkan bahwa model EfficientNet yang lebih kecil (5,3-7,8 juta parameter) secara konsisten mengungguli varian ResNet yang jauh lebih besar (25,6-44,5 juta parameter) dengan margin 5-10% pada dataset medical imaging berukuran kecil [19,20,21]. Sistem mampu melakukan inferensi dengan latensi end-to-end di bawah 25 milidetik per gambar (>40 FPS) pada GPU consumer-grade NVIDIA RTX 3060, membuktikan kelayakan praktis untuk deployment point-of-care [24].
-
-Meskipun hasil menjanjikan, penelitian mengidentifikasi tantangan signifikan dalam menangani extreme class imbalance, dimana kelas minoritas dengan kurang dari 10 sampel hanya mencapai F1-score 51-77% meskipun menggunakan optimized Focal Loss [22]. Hal ini menggarisbawahi perlunya ekspansi dataset dan teknik advanced learning seperti few-shot learning untuk meningkatkan performa pada kelas minoritas yang kritis secara klinis [30,37].
-
----
-
-## B. LATAR BELAKANG DAN TUJUAN PENELITIAN
-
-### B.1 Latar Belakang
-
-Pemeriksaan mikroskopik blood smear yang diwarnai Giemsa tetap menjadi gold standard untuk diagnosis malaria [4,5], namun menghadapi keterbatasan signifikan terutama di daerah endemis. Ahli mikroskopis memerlukan pelatihan ekstensif 2-3 tahun untuk mencapai kompetensi [18], proses pemeriksaan memakan waktu 20-30 menit per slide, dan tingkat inter-observer agreement hanya berkisar 60-85% bahkan di antara profesional terlatih [7,8]. Tantangan ini menciptakan bottleneck dalam sistem kesehatan, terutama di daerah terpencil dimana akses terhadap ahli mikroskopis sangat terbatas.
-
-Perkembangan deep learning telah mendemonstrasikan potensi signifikan untuk analisis citra medis otomatis [9,10,11], dengan arsitektur object detection seperti Faster R-CNN [17] dan YOLO terbaru (v10, v11, v12) menawarkan keunggulan khusus dengan kecepatan inferensi real-time (<15 milidetik per gambar) dan akurasi kompetitif [13,14]. Namun, tantangan kritis masih ada: dataset annotated sangat terbatas (200-500 gambar per task) [12,15], extreme class imbalance dimana spesies langka hanya mencakup <2% sampel [16], dan pendekatan existing yang melatih model klasifikasi terpisah untuk setiap metode deteksi menghasilkan overhead komputasi substansial.
-
-### B.2 Tujuan Penelitian
-
-Penelitian ini bertujuan mengembangkan framework hybrid YOLO+CNN dengan arsitektur shared classification yang inovatif untuk:
-
-1. Mengimplementasikan arsitektur Option A yang melatih model klasifikasi sekali pada ground truth crops dan menggunakan kembali untuk multiple YOLO backends, menargetkan reduksi storage minimal 60% dan reduksi training time minimal 50%.
-
-2. Melakukan validasi komprehensif cross-dataset pada dua dataset MP-IDB dengan tugas berbeda (species identification dan lifecycle stage recognition) untuk mendemonstrasikan generalisasi robust.
-
-3. Menganalisis sistematis trade-off antara ukuran model dan performa pada dataset medical imaging kecil, membandingkan enam arsitektur CNN state-of-the-art (parameter counts 5,3-44,5 juta) termasuk DenseNet, EfficientNet, dan ResNet [19,20,21], serta membandingkan dengan arsitektur alternatif seperti Vision Transformers [26].
-
-4. Mengoptimalkan strategi handling class imbalance menggunakan Focal Loss (α=0,25, γ=2,0) [22], menargetkan F1-score reasonable untuk minority classes dengan sample size sangat terbatas (<10 sampel).
-
-5. Mendemonstrasikan practical feasibility untuk point-of-care deployment dengan menargetkan inference latency <30 milidetik per gambar pada consumer-grade hardware.
-
----
-
-## C. HASIL PELAKSANAAN PENELITIAN
-
-### C.1 Dataset dan Karakteristik Data
-
-Penelitian memanfaatkan dua dataset publik MP-IDB (209 citra per dataset) yang terdiri dari thin blood smear dengan mikroskopi cahaya 1000× dan pewarnaan Giemsa mengikuti protokol standar WHO [5,18]. Dataset MP-IDB Species mencakup 4 spesies Plasmodium dengan class imbalance substansial: P. falciparum (227 sampel), P. vivax (11 sampel), P. malariae (7 sampel), dan P. ovale (5 sampel). Dataset MP-IDB Stages mencakup 4 tahapan siklus hidup dengan extreme imbalance: Ring (272 sampel), Trophozoite (15 sampel), Schizont (7 sampel), dan Gametocyte (5 sampel), merepresentasikan rasio 54:1 yang merupakan worst-case scenario untuk klasifikasi citra medis.
+Penelitian memanfaatkan dua dataset publik MP-IDB (209 citra per dataset) yang terdiri dari apusan darah tipis dengan mikroskopi cahaya 1000× dan pewarnaan Giemsa mengikuti protokol standar WHO [1,2]. Dataset MP-IDB Species mencakup 4 spesies Plasmodium dengan ketidakseimbangan kelas substansial: P. falciparum (227 sampel), P. vivax (11 sampel), P. malariae (7 sampel), dan P. ovale (5 sampel). Dataset MP-IDB Stages mencakup 4 tahapan siklus hidup dengan ketidakseimbangan ekstrem: Ring (272 sampel pelatihan), Trophozoite (15 sampel pelatihan), Schizont (7 sampel pelatihan), dan Gametocyte (5 sampel pelatihan), merepresentasikan rasio 54:1 yang merupakan skenario terburuk untuk klasifikasi citra medis.
 
 **[INSERT TABEL 1 DI SINI: Statistik Dataset dan Augmentasi]**
-Tabel 1 menyajikan statistik komprehensif untuk kedua dataset termasuk total images, train/val/test splits (66/17/17%), class distributions, augmentation multipliers (4,4× untuk detection, 3,5× untuk classification), dan resulting augmented dataset sizes (1.280 detection images, 1.024 classification images total).
+Tabel 1 menyajikan statistik komprehensif untuk kedua dataset termasuk total citra, pembagian pelatihan/validasi/pengujian (66/17/17%), distribusi kelas, pengali augmentasi (4,4× untuk deteksi, 3,5× untuk klasifikasi), dan ukuran dataset hasil augmentasi (1.280 citra deteksi, 1.024 citra klasifikasi total).
 **File**: `luaran/tables/Table3_Dataset_Statistics_MP-IDB.csv`
 
-Untuk mengatasi keterbatasan ukuran data sambil mempertahankan integritas diagnostik, diterapkan augmentasi aman-medis [36]: untuk detection stage menggunakan random scaling (0,5-1,5×), rotation (±15°), HSV adjustments, mosaic augmentation, dan horizontal flip (tanpa vertical flip untuk mempertahankan orientasi parasit); untuk classification stage menggunakan rotation (±20°), affine transformations, color jitter, Gaussian noise, dan weighted random sampling dengan oversampling 3:1 untuk minority classes.
+Untuk mengatasi keterbatasan ukuran data sambil mempertahankan integritas diagnostik, diterapkan augmentasi aman-medis [3]: untuk tahap deteksi menggunakan penskalaan acak (0,5-1,5×), rotasi (±15°), penyesuaian HSV, augmentasi mosaik, dan pencerminan horizontal (tanpa pencerminan vertikal untuk mempertahankan orientasi parasit); untuk tahap klasifikasi menggunakan rotasi (±20°), transformasi affine, variasi warna, noise Gaussian, dan pengambilan sampel acak berbobot dengan oversampling 3:1 untuk kelas minoritas.
 
 **[INSERT FIGURE A1: Data Augmentation Examples - MP-IDB Species]**
-Gambar A1 mengilustrasikan 7 transformasi augmentasi (Original, rotasi 90°, brightness 0.7×, contrast 1.4×, saturation 1.4×, sharpness 2.0×, flip horizontal) pada keempat spesies Plasmodium, mendemonstrasikan pelestarian karakteristik morfologi spesifik-spesies [23]: pola titik kromatin P. falciparum, penampilan bentuk pita P. malariae, ukuran RBC membesar P. ovale, dan titik-titik Schüffner P. vivax.
+Gambar A1 mengilustrasikan 7 transformasi augmentasi (Original, rotasi 90°, brightness 0.7×, contrast 1.4×, saturation 1.4×, sharpness 2.0×, flip horizontal) pada keempat spesies Plasmodium, mendemonstrasikan pelestarian karakteristik morfologi spesifik-spesies [4]: pola titik kromatin P. falciparum, penampilan bentuk pita P. malariae, ukuran RBC membesar P. ovale, dan titik-titik Schüffner P. vivax.
 **File**: `luaran/figures/aug_species_set3.png`
 
 **[INSERT FIGURE A2: Data Augmentation Examples - MP-IDB Stages]**
 Gambar A2 memvisualisasikan efek 7 augmentasi pada klasifikasi tahap siklus hidup, mendemonstrasikan pelestarian fitur morfologi spesifik-tahap: titik kromatin kompak ring, morfologi amoeboid dengan pigmen hemozoin trophozoites, multiple merozoites tersegmentasi schizonts, dan morfologi memanjang berbentuk pisang gametocytes.
 **File**: `luaran/figures/aug_stages_set1.png`
 
-### C.2 Arsitektur Pipeline Option A: Shared Classification Approach
+### 2. Arsitektur Pipeline dengan Pendekatan Klasifikasi Bersama
 
-Framework mengimplementasikan arsitektur Option A dengan tiga tahap: (1) Detection Training - melatih YOLO models (v10, v11, v12) pada parasite detection [13,14], (2) Ground Truth Crops - mengekstrak crops parasit langsung dari kotak pembatas ground truth (bukan dari output deteksi) untuk memastikan model klasifikasi dilatih pada sampel terlokalisasi sempurna tanpa kontaminasi dari kesalahan deteksi, dan (3) Classification Training - melatih PyTorch models sekali pada clean crop data [19,20,21] dan menggunakan kembali untuk semua metode deteksi.
+Framework mengimplementasikan arsitektur klasifikasi bersama dengan tiga tahap: (1) Pelatihan Deteksi - melatih model YOLO (v10, v11, v12) pada deteksi parasit [5,6], (2) Potongan Acuan - mengekstrak potongan parasit langsung dari kotak pembatas acuan (bukan dari hasil deteksi) untuk memastikan model klasifikasi dilatih pada sampel terlokalisasi sempurna tanpa kontaminasi dari kesalahan deteksi, dan (3) Pelatihan Klasifikasi - melatih model PyTorch sekali pada data potongan bersih [7,8,9] dan menggunakan kembali untuk semua metode deteksi.
 
-**[INSERT GAMBAR 1 DI SINI: Diagram Arsitektur Pipeline Option A]**
-Gambar 1 mengilustrasikan arsitektur lengkap pipeline Option A: gambar apusan darah sebagai input ke tiga detektor YOLO paralel (v10, v11, v12), diikuti oleh generasi crop ground truth bersama (224×224), dan akhirnya enam classifier CNN (DenseNet121, EfficientNet-B0/B1/B2, ResNet50/101) yang menghasilkan prediksi spesies/tahap.
+**[INSERT GAMBAR 1 DI SINI: Diagram Arsitektur Pipeline]**
+Gambar 1 mengilustrasikan arsitektur lengkap pipeline: gambar apusan darah sebagai input ke tiga detektor YOLO paralel (v10, v11, v12), diikuti oleh generasi potongan acuan bersama (224×224), dan akhirnya enam pengklasifikasi CNN (DenseNet121, EfficientNet-B0/B1/B2, ResNet50/101) yang menghasilkan prediksi spesies/tahap.
 **File**: `luaran/figures/pipeline_architecture_horizontal.png`
 
-Pendekatan ground truth crops menawarkan tiga keuntungan utama: (1) pemisahan antara pelatihan deteksi dan klasifikasi memungkinkan optimisasi independen, (2) model klasifikasi mempelajari fitur morfologis kuat tanpa bias dari kesalahan lokalisasi, dan (3) crops dihasilkan sekali dan digunakan kembali untuk semua metode deteksi, mengeliminasi komputasi redundan dengan penghematan storage ~70% dan training time ~60%.
+Pendekatan potongan acuan menawarkan tiga keuntungan utama: (1) pemisahan antara pelatihan deteksi dan klasifikasi memungkinkan optimisasi independen, (2) model klasifikasi mempelajari fitur morfologis kuat tanpa bias dari kesalahan lokalisasi, dan (3) potongan dihasilkan sekali dan digunakan kembali untuk semua metode deteksi, mengeliminasi komputasi redundan dengan penghematan penyimpanan ~70% dan waktu pelatihan ~60%.
 
-### C.3 Hasil Deteksi Parasit Malaria
+### 3. Hasil Deteksi Parasit Malaria
 
-#### C.3.1 Performa Kuantitatif
+#### 3.1 Performa Kuantitatif
 
-Model deteksi YOLO menunjukkan performa kompetitif pada kedua dataset, dengan ketiga varian mencapai mAP@50 >90% [13,14]. Pada dataset Species, YOLOv12 mencapai mAP@50 tertinggi 93,12%, diikuti YOLOv11 (93,09%) dan YOLOv10 (92,53%), dengan margin <0,6% menunjukkan kemampuan lokalisasi fundamental setara. Namun, YOLOv11 menunjukkan recall unggul (92,26%) dibandingkan YOLOv12 (91,18%) dan YOLOv10 (89,57%), menjadikannya pilihan lebih disukai untuk setting klinis dimana false negatives lebih kritis dibanding false positives.
+Model deteksi YOLO menunjukkan performa kompetitif pada kedua dataset, dengan ketiga varian mencapai mAP@50 >90% [5,6]. Pada dataset Species, YOLOv12 mencapai mAP@50 tertinggi 93,12%, diikuti YOLOv11 (93,09%) dan YOLOv10 (92,53%), dengan margin <0,6% menunjukkan kemampuan lokalisasi fundamental setara. Namun, YOLOv11 menunjukkan recall unggul (92,26%) dibandingkan YOLOv12 (91,18%) dan YOLOv10 (89,57%), menjadikannya pilihan lebih disukai untuk konteks klinis dimana negatif palsu lebih kritis dibanding positif palsu.
 
 **[INSERT TABEL 2 DI SINI: Performa Deteksi YOLO]**
 Tabel 2 menyajikan hasil deteksi untuk ketiga varian YOLO (v10, v11, v12) pada kedua dataset MP-IDB (Species dan Stages), menyertakan kolom Dataset, Model, Epochs (100), mAP@50, mAP@50-95, Precision, Recall, dan Training Time (hours), mengkuantifikasi performa kompetitif (mAP@50: 90,91-93,12%) dan menyoroti recall unggul YOLOv11.
 **File**: `luaran/tables/Table1_Detection_Performance_MP-IDB.csv`
 
 **[INSERT GAMBAR 2 DI SINI: Comparison Bar Charts Detection Performance]**
-Gambar 2 menampilkan perbandingan side-by-side bar chart dari YOLOv10, v11, dan v12 pada kedua dataset untuk empat metrics: mAP@50, mAP@50-95, Precision, dan Recall, membuat perbedaan performa langsung terlihat jelas dan mendukung kesimpulan bahwa YOLOv11 menawarkan recall terbaik.
+Gambar 2 menampilkan perbandingan diagram batang berdampingan dari YOLOv10, v11, dan v12 pada kedua dataset untuk empat metrik: mAP@50, mAP@50-95, Precision, dan Recall, membuat perbedaan performa langsung terlihat jelas dan mendukung kesimpulan bahwa YOLOv11 menawarkan recall terbaik.
 **File**: `luaran/figures/detection_performance_comparison.png`
 
-Pada dataset Stages dengan tugas deteksi lebih menantang, YOLOv11 muncul sebagai pelaku terbaik dengan mAP@50 92,90% dan recall 90,37%, menunjukkan efektivitas khusus dalam mendeteksi tahap minoritas seperti schizont (7 sampel) dan gametocyte (5 sampel). Waktu pelatihan menunjukkan progres yang diharapkan: YOLOv10 (1,8 jam), YOLOv11 (1,9 jam), YOLOv12 (2,1 jam), dengan kecepatan inferensi YOLOv10 (12,3 ms/image, 81 FPS), YOLOv11 (13,7 ms, 73 FPS), YOLOv12 (15,2 ms, 66 FPS), semuanya dalam persyaratan real-time untuk integrasi alur kerja klinis (>30 FPS).
+Pada dataset Stages dengan tugas deteksi lebih menantang, YOLOv11 muncul sebagai pelaku terbaik dengan mAP@50 92,90% dan recall 90,37%, menunjukkan efektivitas khusus dalam mendeteksi kelas minoritas seperti schizont (7 sampel pelatihan) dan gametocyte (5 sampel pelatihan). Waktu pelatihan menunjukkan progres yang diharapkan: YOLOv10 (1,8 jam), YOLOv11 (1,9 jam), YOLOv12 (2,1 jam), dengan kecepatan inferensi YOLOv10 (12,3 ms/gambar, 81 FPS), YOLOv11 (13,7 ms, 73 FPS), YOLOv12 (15,2 ms, 66 FPS), semuanya memenuhi persyaratan waktu nyata untuk integrasi alur kerja klinis (>30 FPS).
 
-#### C.3.2 Validasi Kualitatif: Visualisasi Deteksi
+#### 3.2 Validasi Kualitatif: Visualisasi Deteksi
 
-Evaluasi kualitatif dilakukan melalui perbandingan visual side-by-side antara ground truth annotations (blue boxes) dengan automated predictions dari YOLOv11 (green boxes), memvalidasi temuan kuantitatif bahwa sistem tidak hanya mencapai metrik performa tinggi secara statistik namun juga menghasilkan prediksi akurat secara visual pada beragam morfologi parasit.
+Evaluasi kualitatif dilakukan melalui perbandingan visual berdampingan antara anotasi acuan (kotak biru) dengan prediksi otomatis dari YOLOv11 (kotak hijau), memvalidasi temuan kuantitatif bahwa sistem tidak hanya mencapai metrik performa tinggi secara statistik namun juga menghasilkan prediksi akurat secara visual pada beragam morfologi parasit.
 
 **[INSERT GAMBAR 2A: Visualisasi Deteksi - Ground Truth vs Prediction]**
-Gambar 2A menampilkan hasil deteksi pada severe malaria case (test image: 1704282807-0012-R_T) yang mengandung 25+ parasites P. falciparum dengan estimated parasitemia >10%. Side-by-side comparison menunjukkan ground truth annotations (panel kiri, blue boxes) versus YOLOv11 predicted detections (panel kanan, green boxes), dimana semua 25+ parasites berhasil dideteksi dengan localization precision tinggi (IoU >0.8), memvalidasi YOLOv11's 93.09% mAP@50 dan 92.26% recall.
+Gambar 2A menampilkan hasil deteksi pada kasus malaria parah (gambar uji: 1704282807-0012-R_T) yang mengandung 25+ parasit P. falciparum dengan estimasi parasitemia >10%. Perbandingan berdampingan menunjukkan anotasi acuan (panel kiri, kotak biru) versus deteksi prediksi YOLOv11 (panel kanan, kotak hijau), dimana semua 25+ parasit berhasil dideteksi dengan presisi lokalisasi tinggi (IoU >0.8), memvalidasi mAP@50 93,09% dan recall 92,26% YOLOv11.
 **Files**: GT: `gt_detection/1704282807-0012-R_T.png` | Pred: `pred_detection/1704282807-0012-R_T.png`
 
-### C.4 Hasil Klasifikasi Spesies dan Tahapan Siklus Hidup
+### 4. Hasil Klasifikasi Spesies dan Tahapan Siklus Hidup
 
-#### C.4.1 Performa Kuantitatif
+#### 4.1 Performa Kuantitatif
 
-Hasil klasifikasi mengungkap perbedaan performa substansial antar arsitektur, menantang kebijaksanaan konvensional "deeper is better" dalam deep learning [19,20,21]. Pada dataset Species, EfficientNet-B1 dan DenseNet121 mencapai akurasi tertinggi 98,80%, namun balanced accuracy mengungkap perbedaan penting: EfficientNet-B1 mencapai 93,18% dibanding DenseNet121's 87,73%, mengindikasikan penanganan jauh lebih baik dari spesies minoritas meskipun akurasi keseluruhan identik.
+Hasil klasifikasi mengungkap perbedaan performa substansial antar arsitektur, menantang kebijaksanaan konvensional "deeper is better" dalam deep learning [7,8,9]. Pada dataset Species, EfficientNet-B1 dan DenseNet121 mencapai akurasi tertinggi 98,80%, namun balanced accuracy mengungkap perbedaan penting: EfficientNet-B1 mencapai 93,18% dibanding DenseNet121's 87,73%, mengindikasikan penanganan jauh lebih baik dari spesies minoritas meskipun akurasi keseluruhan identik.
 
 **[INSERT TABEL 3 DI SINI: Performa Klasifikasi CNN]**
 Tabel 3 menyajikan hasil klasifikasi untuk keenam model CNN pada kedua dataset MP-IDB, menyertakan kolom Dataset, Model, Fungsi Loss (Focal Loss), Epoch (75), Akurasi, Balanced Accuracy, dan Training Time (jam), mengkuantifikasi temuan kunci bahwa model EfficientNet lebih kecil mengungguli model ResNet lebih besar.
 **File**: `luaran/tables/Table2_Classification_Performance_MP-IDB.csv`
 
-Yang patut dicatat adalah penurunan performa model ResNet: ResNet50 mencapai akurasi 98,00% namun hanya 75,00% balanced accuracy—kesenjangan 23 poin persentase mengindikasikan kesulitan parah dengan kelas minoritas. ResNet101, meskipun model terbesar dengan 44,5 juta parameter (5,7× lebih banyak dari 7,8 juta parameter EfficientNet-B1), hanya mencapai balanced accuracy 82,73%, tertinggal dari EfficientNet-B1 sebesar 10,45 poin persentase. Fenomena ini menunjukkan bahwa efisiensi model dan penskalaan arsitektur seimbang lebih penting dibanding jumlah parameter mentah untuk dataset pencitraan medis kecil [20,25].
+Yang patut dicatat adalah penurunan performa model ResNet: ResNet50 mencapai akurasi 98,00% namun hanya 75,00% balanced accuracy—kesenjangan 23 poin persentase mengindikasikan kesulitan parah dengan kelas minoritas. ResNet101, meskipun model terbesar dengan 44,5 juta parameter (5,7× lebih banyak dari 7,8 juta parameter EfficientNet-B1), hanya mencapai balanced accuracy 82,73%, tertinggal dari EfficientNet-B1 sebesar 10,45 poin persentase. Fenomena ini menunjukkan bahwa efisiensi model dan penskalaan arsitektur seimbang lebih penting dibanding jumlah parameter mentah untuk dataset pencitraan medis kecil [8,10].
 
 **[INSERT GAMBAR 3 DI SINI: Heatmap Akurasi Klasifikasi]**
 Gambar 3 menampilkan heatmap 2×6 (2 dataset × 6 model) dengan dua baris per dataset: akurasi standar (atas) dan balanced accuracy (bawah), dengan kode warna (hijau=tinggi, oranye=sedang, merah=rendah) membuat pola performa model terlihat segera, terutama kontras antara EfficientNet (hijau) dan ResNet (oranye/merah) pada balanced accuracy.
 **File**: `luaran/figures/classification_accuracy_heatmap.png`
 
-Dataset Stages menyajikan tugas lebih menantang dengan extreme imbalance (rasio 54:1). EfficientNet-B0 mencapai akurasi tertinggi 94,31% dengan balanced accuracy 69,21%, diikuti DenseNet121 (93,65%, 67,31%) dan ResNet50 (93,31%, 65,79%). Yang tak terduga, EfficientNet-B2 menunjukkan penurunan signifikan (80,60%, 60,72%), kemungkinan karena overfitting mengingat kapasitasnya lebih besar (9,2 juta parameter) relatif terhadap data terbatas (512 gambar teraugmentasi).
+Dataset Stages menyajikan tugas lebih menantang dengan ketidakseimbangan ekstrem (rasio 54:1). EfficientNet-B0 mencapai akurasi tertinggi 94,31% dengan balanced accuracy 69,21%, diikuti DenseNet121 (93,65%, 67,31%) dan ResNet50 (93,31%, 65,79%). Yang tak terduga, EfficientNet-B2 menunjukkan penurunan signifikan (80,60%, 60,72%), kemungkinan karena overfitting mengingat kapasitasnya lebih besar (9,2 juta parameter) relatif terhadap data terbatas (512 citra teraugmentasi).
 
 **[INSERT TABEL 4 DI SINI: Metrik Per-Kelas dengan Focal Loss]**
-Tabel 4 menyajikan breakdown performa per-kelas komprehensif untuk keenam arsitektur CNN pada kedua dataset, memberikan nilai precision, recall, F1-score, dan support detail untuk setiap kelas individual. Pada dataset Species, P. falciparum (227 sampel) dan P. malariae (7 sampel) mencapai performa sempurna 100% pada semua metrik, sementara P. ovale (5 sampel) mengalami degradasi substansial dengan F1-score 0,00-76,92%, dimana ResNet50 mengalami kegagalan total (0% recall—model tidak dapat mendeteksi P. ovale sama sekali). Pada dataset Stages, Ring (272 sampel) mencapai F1-score 89,94-97,26%, sementara Trophozoite (15 sampel) mengalami degradasi parah dengan F1-score hanya 15,38-51,61%, dan Gametocyte (5 sampel) dengan F1-score 57,14-75%.
+Tabel 4 menyajikan rincian performa per-kelas komprehensif untuk keenam arsitektur CNN pada kedua dataset, memberikan nilai precision, recall, F1-score, dan support detail untuk setiap kelas individual. Pada dataset Species, P. falciparum (227 sampel pelatihan) dan P. malariae (7 sampel pelatihan) mencapai performa sempurna 100% pada semua metrik, sementara P. ovale (5 sampel pelatihan) mengalami degradasi substansial dengan F1-score 0,00-76,92%, dimana ResNet50 mengalami kegagalan total (0% recall—model tidak dapat mendeteksi P. ovale sama sekali). Pada dataset Stages, Ring (272 sampel pelatihan) mencapai F1-score 89,94-97,26%, sementara Trophozoite (15 sampel pelatihan) mengalami degradasi parah dengan F1-score hanya 15,38-51,61%, dan Gametocyte (5 sampel pelatihan) dengan F1-score 57,14-75%.
 **Files**: `luaran/tables/Table9_MP-IDB_Species_Focal_Loss.csv` dan `Table9_MP-IDB_Stages_Focal_Loss.csv`
 
 **[INSERT GAMBAR 5 DI SINI: Matriks Konfusi Model Terbaik]**
@@ -134,215 +98,215 @@ Gambar 6 menampilkan diagram batang berkelompok dengan 4 grup spesies (P. falcip
 **File**: `luaran/figures/species_f1_comparison.png`
 
 **[INSERT GAMBAR 7 DI SINI: Perbandingan F1 Per-Kelas Tahap]**
-Gambar 7 menampilkan diagram batang berkelompok dengan 4 grup tahap siklus hidup (Ring, Trophozoite, Schizont, Gametocyte) × 6 model, menunjukkan skor F1 dengan garis putus-putus oranye pada 0,70 (ambang dimodifikasi untuk extreme imbalance), membuat tantangan Trophozoite parah (F1: 0,15-0,52) langsung terlihat.
+Gambar 7 menampilkan diagram batang berkelompok dengan 4 grup tahap siklus hidup (Ring, Trophozoite, Schizont, Gametocyte) × 6 model, menunjukkan skor F1 dengan garis putus-putus oranye pada 0,70 (ambang dimodifikasi untuk ketidakseimbangan ekstrem), membuat tantangan Trophozoite parah (F1: 0,15-0,52) langsung terlihat.
 **File**: `luaran/figures/stages_f1_comparison.png`
 
-#### C.4.2 Validasi Kualitatif: Visualisasi Klasifikasi
+#### 4.2 Validasi Kualitatif: Visualisasi Klasifikasi
 
-Evaluasi kualitatif menyajikan visualisasi performa end-to-end dengan perbandingan side-by-side ground truth labels (blue boxes) versus automated predictions (color-coded: green untuk correct, red untuk misclassifications), memberikan bukti visual mendukung metrik kuantitatif.
+Evaluasi kualitatif menyajikan visualisasi performa ujung-ke-ujung dengan perbandingan berdampingan label acuan (kotak biru) versus prediksi otomatis (berkode warna: hijau untuk benar, merah untuk kesalahan klasifikasi), memberikan bukti visual mendukung metrik kuantitatif.
 
 **[INSERT GAMBAR 5A: Visualisasi Klasifikasi Species - Success Case]**
-Gambar 5A menampilkan hasil klasifikasi spesies pada severe malaria case yang sama (1704282807-0012-R_T) dengan 25+ P. falciparum parasites. Ground truth classification (panel kiri, blue boxes dengan species labels) dibandingkan dengan EfficientNet-B1 predictions (panel kanan, color-coded boxes). Image ini mencapai remarkable 100% classification accuracy dengan semua 25 parasites correctly identified (all green boxes), providing compelling visual evidence bahwa classifier maintains high performance bahkan pada extreme parasite density.
+Gambar 5A menampilkan hasil klasifikasi spesies pada kasus malaria parah yang sama (1704282807-0012-R_T) dengan 25+ parasit P. falciparum. Klasifikasi acuan (panel kiri, kotak biru dengan label spesies) dibandingkan dengan prediksi EfficientNet-B1 (panel kanan, kotak berkode warna). Gambar ini mencapai akurasi klasifikasi luar biasa 100% dengan semua 25 parasit teridentifikasi dengan benar (semua kotak hijau), memberikan bukti visual meyakinkan bahwa pengklasifikasi mempertahankan performa tinggi bahkan pada kepadatan parasit ekstrem.
 **Files**: GT: `gt_classification/1704282807-0012-R_T.png` | Pred: `pred_classification/1704282807-0012-R_T.png`
 
 **[INSERT GAMBAR 5B: Visualisasi Klasifikasi Stages - Minority Class Challenge]**
-Gambar 5B menampilkan hasil klasifikasi lifecycle stages pada complex multi-parasite image (1704282807-0021-T_G_R) dengan 17 parasites. Visualisasi ini mengungkap minority class challenge dimana approximately 65% classifications correct (green boxes) versus 35% misclassifications (red boxes), dengan errors concentrated pada Trophozoite class, secara visual memvalidasi reported 46,7% F1-score untuk 15-sample minority Trophozoite dan mendemonstrasikan bahwa extreme class imbalance (272 Ring vs 5 Gametocyte, ratio 54:1) tetap menyajikan significant classification difficulty.
+Gambar 5B menampilkan hasil klasifikasi tahap siklus hidup pada gambar kompleks multi-parasit (1704282807-0021-T_G_R) dengan 17 parasit. Visualisasi ini mengungkap tantangan kelas minoritas dimana sekitar 65% klasifikasi benar (kotak hijau) versus 35% kesalahan klasifikasi (kotak merah), dengan kesalahan terkonsentrasi pada kelas Trophozoite, secara visual memvalidasi F1-score 46,7% yang dilaporkan untuk Trophozoite minoritas 15 sampel dan mendemonstrasikan bahwa ketidakseimbangan kelas ekstrem (272 Ring vs 5 Gametocyte, rasio 54:1) tetap menyajikan kesulitan klasifikasi signifikan.
 **Files**: GT: `gt_classification/1704282807-0021-T_G_R.png` | Pred: `pred_classification/1704282807-0021-T_G_R.png`
 
-### C.5 Analisis Efisiensi Model: Small versus Large Networks
+### 5. Analisis Efisiensi Model: Jaringan Kecil versus Besar
 
-Temuan kunci penelitian adalah bahwa model EfficientNet lebih kecil (5,3-7,8M params) secara konsisten mengungguli varian ResNet jauh lebih besar (25,6-44,5M params) dengan margin 5-10% pada dataset medical imaging kecil [20,21]. Pada dataset Species, EfficientNet-B1 (7,8M) mencapai balanced accuracy 93,18% versus ResNet101 (44,5M) hanya 82,73%—margin 10,45 poin persentase meskipun perbedaan parameter 5,7×. Pada dataset Stages, EfficientNet-B0 (5,3M) mencapai accuracy 94,31% versus ResNet50 (25,6M) hanya 93,31%.
+Temuan kunci penelitian adalah bahwa model EfficientNet lebih kecil (5,3-7,8M params) secara konsisten mengungguli varian ResNet jauh lebih besar (25,6-44,5M params) dengan margin 5-10% pada dataset medical imaging kecil [8,9]. Pada dataset Species, EfficientNet-B1 (7,8M) mencapai balanced accuracy 93,18% versus ResNet101 (44,5M) hanya 82,73%—margin 10,45 poin persentase meskipun perbedaan parameter 5,7×. Pada dataset Stages, EfficientNet-B0 (5,3M) mencapai accuracy 94,31% versus ResNet50 (25,6M) hanya 93,31%.
 
-Fenomena ini dijelaskan oleh beberapa faktor: (1) model besar lebih rentan overfitting pada dataset kecil (<1000 images) karena jumlah parameter melebihi jumlah training samples, (2) EfficientNet menggunakan compound scaling yang menyeimbangkan depth, width, dan resolution secara optimal [20,25], sementara ResNet hanya menambah depth yang menyebabkan vanishing gradients dan diminishing returns, dan (3) smaller models memiliki inductive bias lebih sesuai untuk medical imaging tasks dimana features relevan adalah local patterns (chromatin patterns, hemozoin presence) daripada complex hierarchical representations.
+Fenomena ini dijelaskan oleh beberapa faktor: (1) model besar lebih rentan overfitting pada dataset kecil (<1000 citra) karena jumlah parameter melebihi jumlah sampel pelatihan, (2) EfficientNet menggunakan compound scaling yang menyeimbangkan depth, width, dan resolution secara optimal [8,10], sementara ResNet hanya menambah depth yang menyebabkan vanishing gradients dan diminishing returns, dan (3) model lebih kecil memiliki inductive bias lebih sesuai untuk tugas pencitraan medis dimana fitur relevan adalah pola lokal (pola kromatin, keberadaan hemozoin) daripada representasi hierarkis kompleks.
 
 Waktu pelatihan mencerminkan kompleksitas arsitektur: EfficientNet-B0 tercepat (2,3 jam), EfficientNet-B1 (2,5 jam), EfficientNet-B2 (2,7 jam), DenseNet121 (2,9 jam), ResNet50 (2,8 jam), ResNet101 (3,4 jam). ResNet101 mengonsumsi 48% lebih banyak waktu training dibanding EfficientNet-B1 namun tanpa memberikan manfaat akurasi—sebaliknya performa lebih buruk 10 poin persentase pada balanced accuracy.
 
-### C.6 Strategi Handling Class Imbalance dengan Focal Loss
+### 6. Strategi Penanganan Ketidakseimbangan Kelas dengan Focal Loss
 
-Extreme class imbalance (rasio hingga 54:1) ditangani menggunakan Focal Loss dengan parameter α=0,25 dan γ=2,0 [22]. Untuk P. ovale (5 test samples), EfficientNet-B1 mencapai F1-score 76,92% (recall 100%, precision 62,5%), menunjukkan sensitivitas sempurna untuk spesies langka ini namun dengan beberapa false positives. Untuk Gametocyte stages (5 samples), models mencapai F1-score 57,14-75%, sementara Trophozoite stages (15 samples) hanya mencapai F1-score 15,38-51,61%.
+Ketidakseimbangan kelas ekstrem (rasio hingga 54:1) ditangani menggunakan Focal Loss dengan parameter α=0,25 dan γ=2,0 [11]. Untuk P. ovale (5 sampel uji), EfficientNet-B1 mencapai F1-score 76,92% (recall 100%, precision 62,5%), menunjukkan sensitivitas sempurna untuk spesies langka ini namun dengan beberapa positif palsu. Untuk tahap Gametocyte (5 sampel uji), model-model mencapai F1-score 57,14-75%, sementara tahap Trophozoite (15 sampel uji) hanya mencapai F1-score 15,38-51,61%.
 
-Focal Loss beroperasi melalui faktor modulasi (1-p_t)^γ yang menurunkan bobot contoh mudah sambil memfokuskan gradien pada contoh sulit [22], sangat efektif untuk severe imbalance. Parameter α=0,25 dan γ=2,0 adalah setting standar medical imaging literature. Meskipun optimisasi Focal Loss dan oversampling 3:1, F1-score di bawah 70% pada kelas <10 sampel tetap tidak memadai secara klinis untuk deployment otonom tanpa tinjauan ahli.
+Focal Loss beroperasi melalui faktor modulasi (1-p_t)^γ yang menurunkan bobot contoh mudah sambil memfokuskan gradien pada contoh sulit [11], sangat efektif untuk ketidakseimbangan parah. Parameter α=0,25 dan γ=2,0 adalah pengaturan standar dalam literatur pencitraan medis. Meskipun optimisasi Focal Loss dan oversampling 3:1, F1-score di bawah 70% pada kelas <10 sampel tetap tidak memadai secara klinis untuk implementasi otonom tanpa tinjauan ahli.
 
-Penting dicatat bahwa sistem mencapai recall 100% pada P. ovale meskipun precision relatif rendah (62,5%), artinya semua 5 test samples terdeteksi benar meskipun dengan 3 false positives dari spesies lain. Dalam setting klinis, trade-off ini diinginkan: false negatives (spesies langka terlewat) dapat menyebabkan pemilihan pengobatan tidak tepat dan potensi kematian [16,31], sementara false positives dikoreksi melalui pengujian konfirmasi (mikroskopi ulang, PCR) dengan konsekuensi klinis minimal.
+Penting dicatat bahwa sistem mencapai recall 100% pada P. ovale meskipun precision relatif rendah (62,5%), artinya semua 5 sampel uji terdeteksi benar meskipun dengan 3 positif palsu dari spesies lain. Dalam konteks klinis, kompromi ini diinginkan: negatif palsu (spesies langka terlewat) dapat menyebabkan pemilihan pengobatan tidak tepat dan potensi kematian [12,13], sementara positif palsu dikoreksi melalui pengujian konfirmasi (mikroskopi ulang, PCR) dengan konsekuensi klinis minimal.
 
-### C.7 Kelayakan Komputasi untuk Deployment Klinis
+### 7. Kelayakan Komputasi untuk Implementasi Klinis
 
-End-to-end inference latency <25 milidetik per image (>40 FPS) pada consumer-grade NVIDIA RTX 3060 GPU mendemonstrasikan practical feasibility untuk real-time malaria screening [24,32]. Untuk comparison, traditional microscopic examination memerlukan 20-30 menit per slide (1200-1800 detik) untuk thorough analysis 100-200 microscopic fields [18], merepresentasikan >48.000× speedup untuk single-image processing atau ~1.000× speedup untuk complete slide analysis assuming 100 fields per slide.
+Latensi inferensi ujung-ke-ujung <25 milidetik per citra (>40 FPS) pada GPU NVIDIA RTX 3060 kelas konsumen mendemonstrasikan kelayakan praktis untuk skrining malaria waktu nyata [14,15]. Sebagai perbandingan, pemeriksaan mikroskopis tradisional memerlukan 20-30 menit per slide (1200-1800 detik) untuk analisis menyeluruh 100-200 medan mikroskopis [2], merepresentasikan percepatan >48.000× untuk pemrosesan gambar tunggal atau percepatan ~1.000× untuk analisis slide lengkap dengan asumsi 100 medan per slide.
 
-Bahkan pada CPU-only systems (AMD Ryzen 7 5800X 8-core), inference completes dalam 180-250 milidetik per image, enabling batch processing entire slides (100-200 fields) dalam 18-50 detik—still dramatically faster than manual examination sambil offering consistent quality independent dari operator expertise variations [7,18]. Deployment considerations mencakup model quantization untuk edge devices [33], neural network pruning untuk reducing memory footprint [34], dan regulatory compliance untuk clinical decision support software [35].
+Bahkan pada sistem CPU saja (AMD Ryzen 7 5800X 8-core), inferensi selesai dalam 180-250 milidetik per citra, memungkinkan pemrosesan batch seluruh slide (100-200 medan) dalam 18-50 detik—tetap jauh lebih cepat dibanding pemeriksaan manual sambil menawarkan kualitas konsisten independen dari variasi keahlian operator [16,2]. Pertimbangan implementasi mencakup kuantisasi model untuk perangkat tepi [17], pemangkasan jaringan neural untuk mengurangi jejak memori [18], dan kepatuhan regulasi untuk perangkat lunak pendukung keputusan klinis [19].
 
-### C.8 Keterbatasan dan Arah Penelitian Masa Depan
+### 8. Keterbatasan dan Arah Penelitian Masa Depan
 
-Penelitian memiliki beberapa keterbatasan yang memerlukan pertimbangan careful. Pertama, meskipun utilizing two MP-IDB datasets totaling 418 images, ukuran ini tetap fundamentally insufficient untuk training deep networks optimally, sebagaimana evidenced oleh ResNet101's poor performance attributable to overfitting. Dataset expansion to 1.000+ images per task critical untuk meningkatkan minority class performance [27,28,36].
+Penelitian memiliki beberapa keterbatasan yang memerlukan pertimbangan cermat. Pertama, meskipun memanfaatkan dua dataset MP-IDB dengan total 418 citra, ukuran ini tetap tidak mencukupi secara fundamental untuk melatih jaringan dalam secara optimal, sebagaimana dibuktikan oleh performa buruk ResNet101 yang disebabkan oleh overfitting. Ekspansi dataset menjadi 1.000+ citra per tugas sangat krusial untuk meningkatkan performa kelas minoritas [20,21,3].
 
-Kedua, kedua dataset originated from controlled laboratory settings dengan standardized Giemsa staining protocols dan consistent imaging conditions (1000× magnification). External validation pada field-collected samples dengan varying staining quality, diverse microscope types, dan heterogeneous image acquisition settings essential untuk assessing real-world generalization dan domain shift robustness [38].
+Kedua, kedua dataset berasal dari pengaturan laboratorium terkontrol dengan protokol pewarnaan Giemsa terstandar dan kondisi pencitraan konsisten (perbesaran 1000×). Validasi eksternal pada sampel lapangan dengan kualitas pewarnaan bervariasi, beragam jenis mikroskop, dan pengaturan akuisisi citra heterogen sangat penting untuk menilai generalisasi dunia nyata dan ketahanan pergeseran domain [22].
 
-Ketiga, meskipun Focal Loss optimization [22], minority classes (<10 samples) masih menunjukkan suboptimal performance (F1<70%). Future work harus explore generative data augmentation menggunakan GANs atau diffusion models [27,28] untuk synthesizing realistic minority class samples, active learning strategies [29] untuk prioritizing informative sample acquisition, dan few-shot learning approaches [30,37] untuk leveraging transfer knowledge dari majority classes.
+Ketiga, meskipun optimisasi Focal Loss [11], kelas minoritas (<10 sampel) masih menunjukkan performa suboptimal (F1<70%). Penelitian mendatang harus mengeksplorasi generasi data sintetik menggunakan GANs atau diffusion models [20,21] untuk mensintesis sampel kelas minoritas realistis, strategi pembelajaran aktif [23] untuk memprioritaskan akuisisi sampel informatif, dan pendekatan pembelajaran few-shot [24,25] untuk memanfaatkan transfer pengetahuan dari kelas mayoritas.
 
-Keempat, current system lacks explainability features yang critical untuk clinical adoption. Integration dari visualization techniques seperti Grad-CAM [40] atau Segment Anything [39] dapat provide clinicians dengan visual explanations tentang mengapa model membuat specific predictions, increasing trust dan enabling error detection.
+Keempat, sistem saat ini kekurangan fitur penjelasan yang kritis untuk adopsi klinis. Integrasi dari teknik visualisasi seperti Grad-CAM [26] atau Segment Anything [27] dapat memberikan klinisi penjelasan visual tentang mengapa model membuat prediksi spesifik, meningkatkan kepercayaan dan memungkinkan deteksi kesalahan.
 
 ---
 
-## D. STATUS LUARAN PENELITIAN
+## STATUS LUARAN PENELITIAN
 
-### D.1 Luaran Wajib
+### Luaran Wajib
 
 **Publikasi Jurnal Internasional Bereputasi** (Target: Q1/Q2, Status: **Draft 90% Complete**)
 
-Draft manuscript berjudul "Parameter-Efficient Deep Learning Models Outperform Larger Architectures on Small Medical Imaging Datasets: A Malaria Detection Case Study" telah diselesaikan untuk submission ke IEEE Transactions on Medical Imaging (Q1, Impact Factor: 10,6). Manuscript mencakup comprehensive evaluation across 3 datasets × 3 detection models × 6 classification models = 54 model combinations, demonstrating bahwa smaller EfficientNet models (5,3-7,8M parameters) consistently outperform larger ResNet variants (25,6-44,5M parameters) by 5-10% on small medical datasets [20,21].
+Draft manuscript berjudul "Parameter-Efficient Deep Learning Models Outperform Larger Architectures on Small Medical Imaging Datasets: A Malaria Detection Case Study" telah diselesaikan untuk submission ke IEEE Transactions on Medical Imaging (Q1, Impact Factor: 10,6). Manuscript mencakup evaluasi komprehensif pada 3 dataset × 3 model deteksi × 6 model klasifikasi = 54 kombinasi model, mendemonstrasikan bahwa model EfficientNet lebih kecil (5,3-7,8M parameter) secara konsisten mengungguli varian ResNet lebih besar (25,6-44,5M parameter) sebesar 5-10% pada dataset medis kecil [8,9].
 
-Manuscript structure: (1) Introduction with literature review on medical AI dan object detection [9,10,11,12,15,24], (2) Methods describing Option A architecture dan experimental setup, (3) Results presenting detection performance [13,14], classification metrics dengan per-class breakdown, dan efficiency analysis [19,20,21,22], (4) Discussion analyzing findings dalam context clinical deployment [31,32,35], dan (5) Conclusion dengan future directions [27,28,29,30].
+Struktur manuscript: (1) Introduction dengan tinjauan pustaka tentang AI medis dan deteksi objek [28,29,30,31,32,14], (2) Methods yang mendeskripsikan arsitektur Option A dan pengaturan eksperimen, (3) Results yang menyajikan performa deteksi [5,6], metrik klasifikasi dengan rincian per-kelas, dan analisis efisiensi [7,8,9,11], (4) Discussion yang menganalisis temuan dalam konteks implementasi klinis [13,15,19], dan (5) Conclusion dengan arah masa depan [20,21,23,24].
 
 **Target Submission**: November 2025
 **Expected Review Period**: 3-4 bulan
 **Expected Revision**: 1-2 bulan
 **Expected Acceptance**: Q2 2026
 
-### D.2 Luaran Tambahan
+### Luaran Tambahan
 
-**Conference Paper** - Draft paper untuk International Conference on Image Processing and Computer-Aided Diagnosis (IPCAD) 2026 focusing specifically pada Option A architecture benefits (70% storage reduction, 60% training time reduction) telah diselesaikan.
+**Publikasi Konferensi** - Draft paper untuk International Conference on Image Processing and Computer-Aided Diagnosis (IPCAD) 2026 yang berfokus pada manfaat arsitektur klasifikasi bersama (reduksi penyimpanan 70%, reduksi waktu pelatihan 60%) telah diselesaikan.
 
-**Technical Report** - Comprehensive 526-page technical report documenting complete experimental methodology, hyperparameter tuning decisions, failure case analysis, dan deployment considerations untuk internal reference dan knowledge transfer.
+**Laporan Teknis** - Laporan teknis komprehensif 526 halaman yang mendokumentasikan metodologi eksperimen lengkap, keputusan tuning hyperparameter, analisis kasus kegagalan, dan pertimbangan implementasi untuk referensi internal dan transfer pengetahuan.
 
-**Open-Source Implementation** - Complete codebase dengan 12 Python scripts untuk data preparation, training, evaluation, dan visualization telah di-publish di GitHub repository dengan MIT license, enabling research community untuk reproduce findings dan build upon this work.
+**Implementasi Open-Source** - Codebase lengkap dengan 12 skrip Python untuk persiapan data, pelatihan, evaluasi, dan visualisasi telah dipublikasikan di repository GitHub dengan lisensi MIT, memungkinkan komunitas riset untuk mereproduksi temuan dan mengembangkan penelitian ini lebih lanjut.
 
 ---
 
-## E. PERAN MITRA
+## PERAN MITRA
 
 Penelitian ini merupakan kolaborasi dengan beberapa mitra:
 
 **Mitra Akademik - Universitas/Institut Riset**:
-Menyediakan akses ke computational resources (NVIDIA RTX 3060 GPU), expertise dalam deep learning dan medical imaging, serta guidance dalam experimental design dan manuscript preparation. Kontribusi mencakup joint supervision untuk ensuring scientific rigor dan methodological soundness.
+Menyediakan akses ke sumber daya komputasi (GPU NVIDIA RTX 3060), keahlian dalam deep learning dan pencitraan medis, serta panduan dalam desain eksperimen dan persiapan naskah. Kontribusi mencakup supervisi bersama untuk memastikan ketelitian ilmiah dan kekokohan metodologi.
 
 **Mitra Data - Penyedia Dataset MP-IDB**:
-Dataset MP-IDB (Malaria Parasite Image Database) merupakan publicly available dataset yang telah digunakan extensively dalam malaria detection literature [12,15,24]. Dataset ini provides standardized benchmark untuk comparing different approaches dan ensuring reproducibility. Penggunaan dataset publik ini memfasilitasi fair comparison dengan prior work dan eliminates data collection overhead.
+Dataset MP-IDB (Malaria Parasite Image Database) merupakan dataset tersedia publik yang telah digunakan secara ekstensif dalam literatur deteksi malaria [31,32,14]. Dataset ini menyediakan tolok ukur terstandar untuk membandingkan berbagai pendekatan dan memastikan reproduksibilitas. Penggunaan dataset publik ini memfasilitasi perbandingan adil dengan penelitian sebelumnya dan mengeliminasi beban pengumpulan data.
 
-**Mitra Klinis - Rumah Sakit/Laboratorium Klinik** (Planned Phase 2):
-Untuk external validation phase (planned 6-9 months), establishing collaborations dengan local hospitals atau medical research institutions untuk securing access ke field-collected clinical samples. Mitra ini akan provide diverse clinical samples representing realistic deployment conditions, expert validation untuk assessing clinical utility, dan feedback untuk iterative system improvement.
-
----
-
-## F. KENDALA PELAKSANAAN PENELITIAN
-
-### F.1 Kendala Teknis
-
-**Dataset Size Limitation**: Primary constraint adalah limited size publicly available annotated datasets (418 total images). Meskipun medical-safe augmentation strategies [36] applied, fundamental limitation tetap ada bahwa deep networks ideally require thousands samples per class untuk optimal training [25]. Minority classes dengan <10 samples particularly affected, achieving suboptimal F1-scores despite Focal Loss optimization [22].
-
-**Class Imbalance**: Extreme imbalance ratios (up to 54:1) represent worst-case scenario untuk classification tasks. Meskipun advanced techniques deployed (Focal Loss [22], weighted sampling, oversampling 3:1), minority class performance remains challenging (F1<70% untuk classes <10 samples). This limitation inherent dalam clinical reality dimana rare species/stages naturally underrepresented dalam samples.
-
-**Computational Resources**: Training 54 model combinations (3 detection × 3 YOLO × 6 CNN × 2 datasets) required approximately 40 GPU-hours total. Meskipun feasible dengan current resources (RTX 3060), larger-scale experiments with more architectures, hyperparameter sweeps, atau ensemble methods would benefit from distributed training infrastructure.
-
-### F.2 Kendala Non-Teknis
-
-**External Validation Access**: Securing access ke field-collected clinical samples untuk Phase 2 external validation requires establishing formal collaborations dengan hospitals/clinics, navigating institutional review boards (IRBs), ensuring ethical clearance, dan implementing proper anonymization procedures [35]. These processes typically require 3-6 months lead time.
-
-**Regulatory Considerations**: Potential clinical deployment sebagai diagnostic aid requires compliance dengan medical device regulations [35]. Meskipun current research scope adalah proof-of-concept, translating ke clinical tool would require FDA approval atau equivalent regulatory pathways, necessitating extensive validation studies dengan thousands clinical samples, multi-center trials, dan demonstrated superiority atau non-inferiority versus gold standard microscopy.
+**Mitra Klinis - Rumah Sakit/Laboratorium Klinik** (Fase 2 Direncanakan):
+Untuk fase validasi eksternal (direncanakan 6-9 bulan), pembentukan kolaborasi dengan rumah sakit lokal atau institusi riset medis untuk mendapatkan akses ke sampel klinis lapangan. Mitra ini akan menyediakan sampel klinis beragam yang merepresentasikan kondisi implementasi realistis, validasi ahli untuk menilai utilitas klinis, dan umpan balik untuk perbaikan sistem iteratif.
 
 ---
 
-## G. RENCANA TAHAPAN SELANJUTNYA
+## KENDALA PELAKSANAAN PENELITIAN
 
-### G.1 Fase Jangka Pendek (3 Bulan Ke Depan)
+### Kendala Teknis
 
-Fase berikutnya akan berfokus pada menyelesaikan naskah jurnal dan melakukan eksperimen tambahan untuk mengatasi potensi kekhawatiran reviewer. Aktivitas yang direncanakan mencakup menghasilkan visualisasi tambahan (ROC curves, precision-recall curves, calibration plots) untuk memberikan penilaian performa komprehensif, melakukan studi ablasi untuk mengukur kontribusi dari individual komponen arsitektur dan strategi pelatihan, dan melakukan uji signifikansi statistik untuk secara ketat memvalidasi perbedaan performa antara model.
+**Keterbatasan Ukuran Dataset**: Kendala utama adalah ukuran terbatas dataset beranotasi yang tersedia publik (418 citra total). Meskipun strategi augmentasi aman-medis [3] diterapkan, keterbatasan fundamental tetap ada bahwa jaringan dalam idealnya memerlukan ribuan sampel per kelas untuk pelatihan optimal [10]. Kelas minoritas dengan <10 sampel sangat terpengaruh, mencapai F1-score suboptimal meskipun optimisasi Focal Loss [11].
 
-External validation planning akan initiate dengan establishing collaborations dengan local hospitals atau medical research institutions untuk securing access ke field-collected clinical samples. Protocol development untuk data collection, anonymization procedures, ethical clearance processes, dan quality control standards akan prioritized untuk ensuring smooth Phase 2 validation execution.
+**Ketidakseimbangan Kelas**: Rasio ketidakseimbangan ekstrem (hingga 54:1) merepresentasikan skenario terburuk untuk tugas klasifikasi. Meskipun teknik lanjutan diterapkan (Focal Loss [11], weighted sampling, oversampling 3:1), performa kelas minoritas tetap menantang (F1<70% untuk kelas <10 sampel). Keterbatasan ini melekat dalam realitas klinis dimana spesies/tahap langka secara alami kurang terwakili dalam sampel.
 
-### G.2 Fase Jangka Menengah (6-9 Bulan)
+**Sumber Daya Komputasi**: Melatih 54 kombinasi model (3 deteksi × 3 YOLO × 6 CNN × 2 dataset) memerlukan sekitar 40 jam GPU total. Meskipun layak dengan sumber daya saat ini (RTX 3060), eksperimen skala lebih besar dengan lebih banyak arsitektur, penyesuaian hyperparameter, atau metode ensemble akan mendapat manfaat dari infrastruktur pelatihan terdistribusi.
 
-Phase 2 external validation akan conduct comprehensive testing pada 500+ diverse clinical samples dari multiple sources (different hospitals, varying equipment, diverse technician expertise) untuk assessing real-world generalization [38]. Domain adaptation techniques [38] akan explored untuk handling distribution shifts antara controlled laboratory conditions dan field deployment scenarios.
+### Kendala Non-Teknis
 
-Advanced learning techniques untuk minority class improvement akan investigated, termasuk: (1) synthetic data generation menggunakan StyleGAN2 atau diffusion models [27,28] untuk augmenting rare species/stages, (2) active learning strategies [29] untuk prioritizing acquisition informative samples, (3) few-shot learning dan meta-learning approaches [30,37] untuk leveraging knowledge transfer dari majority classes, dan (4) ensemble methods combining multiple detection dan classification models untuk improving robustness.
+**Akses Validasi Eksternal**: Memperoleh akses ke sampel klinis dari lapangan untuk validasi eksternal Fase 2 memerlukan pembentukan kolaborasi formal dengan rumah sakit/klinik, navigasi dewan peninjau institusional (IRB), persetujuan etika, dan implementasi prosedur anonimisasi yang tepat [19]. Proses ini biasanya memerlukan waktu 3-6 bulan.
 
-Explainability features integration [39,40] akan implemented untuk providing clinicians dengan visual explanations supporting predictions, increasing trust dan enabling error detection. Deployment optimization mencakup model quantization [33], neural network pruning [34], dan edge device adaptation untuk enabling point-of-care deployment dengan computational constraints.
-
-### G.3 Fase Jangka Panjang (10-12 Bulan)
-
-Clinical pilot study akan conducted di selected hospitals untuk evaluating system performance dalam real-world clinical workflows. Study ini akan measure: (1) diagnostic accuracy versus expert microscopy, (2) time savings dalam clinical workflows, (3) inter-rater reliability improvements, (4) cost-effectiveness analysis, dan (5) clinician satisfaction dan acceptance.
-
-Regulatory pathway planning untuk potential clinical deployment [35], termasuk preparing documentation untuk FDA submission atau equivalent regulatory approvals. Continuous learning pipeline development untuk enabling deployed systems collect additional labeled samples dari clinical usage untuk ongoing model improvement, ensuring system remains accurate as new parasites variants emerge atau imaging equipment evolves.
+**Pertimbangan Regulasi**: Implementasi klinis potensial sebagai alat bantu diagnostik memerlukan kepatuhan regulasi perangkat medis [19]. Meskipun lingkup penelitian saat ini adalah proof-of-concept, translasi ke alat klinis memerlukan persetujuan FDA atau jalur regulasi setara, yang membutuhkan studi validasi ekstensif dengan ribuan sampel klinis, uji multi-senter, dan demonstrasi superioritas atau non-inferioritas versus mikroskopi standar emas.
 
 ---
 
-## H. DAFTAR PUSTAKA
+## RENCANA TAHAPAN SELANJUTNYA
 
-[1] World Health Organization, "World Malaria Report 2024," Geneva, Switzerland, 2024.
+### Fase Jangka Pendek (3 Bulan Ke Depan)
 
-[2] R. W. Snow et al., "The global distribution of clinical episodes of Plasmodium falciparum malaria," *Nature*, vol. 434, pp. 214-217, 2005.
+Fase berikutnya akan berfokus pada menyelesaikan naskah jurnal dan melakukan eksperimen tambahan untuk mengatasi potensi kekhawatiran reviewer. Aktivitas yang direncanakan mencakup menghasilkan visualisasi tambahan (ROC curves, precision-recall curves, calibration plots) untuk memberikan penilaian performa komprehensif, melakukan studi ablasi untuk mengukur kontribusi dari komponen arsitektur individual dan strategi pelatihan, dan melakukan uji signifikansi statistik untuk secara ketat memvalidasi perbedaan performa antara model.
 
-[3] Centers for Disease Control and Prevention, "Malaria Biology," 2024. [Online]. Available: https://www.cdc.gov/malaria/about/biology/
+Perencanaan validasi eksternal akan dimulai dengan membangun kolaborasi dengan rumah sakit lokal atau institusi riset medis untuk mendapatkan akses ke sampel klinis lapangan. Pengembangan protokol untuk pengumpulan data, prosedur anonimisasi, proses izin etika, dan standar kontrol kualitas akan diprioritaskan untuk memastikan eksekusi validasi Fase 2 berjalan lancar.
 
-[4] A. Moody, "Rapid diagnostic tests for malaria parasites," *Clin. Microbiol. Rev.*, vol. 15, no. 1, pp. 66-78, 2002.
+### Fase Jangka Menengah (6-9 Bulan)
 
-[5] WHO, "Malaria Microscopy Quality Assurance Manual," ver. 2.0, Geneva, 2016.
+Validasi eksternal Fase 2 akan melakukan pengujian komprehensif pada 500+ sampel klinis beragam dari berbagai sumber (rumah sakit berbeda, peralatan bervariasi, keahlian teknisi beragam) untuk menilai generalisasi dunia nyata [22]. Teknik adaptasi domain [22] akan dieksplorasi untuk menangani pergeseran distribusi antara kondisi laboratorium terkontrol dan skenario implementasi lapangan.
 
-[6] P. L. Chiodini et al., "Manson's Tropical Diseases," 23rd ed. London: Elsevier, 2014, ch. 52.
+Teknik pembelajaran lanjutan untuk peningkatan kelas minoritas akan diinvestigasi, termasuk: (1) generasi data sintetik menggunakan StyleGAN2 atau diffusion models [20,21] untuk mengaugmentasi spesies/tahap langka, (2) strategi pembelajaran aktif [23] untuk memprioritaskan akuisisi sampel informatif, (3) pendekatan pembelajaran few-shot dan meta-learning [24,25] untuk memanfaatkan transfer pengetahuan dari kelas mayoritas, dan (4) metode ensemble yang menggabungkan beberapa model deteksi dan klasifikasi untuk meningkatkan ketahanan.
 
-[7] J. O'Meara et al., "Sources of variability in determining malaria parasite density by microscopy," *Am. J. Trop. Med. Hyg.*, vol. 73, no. 3, pp. 593-598, 2005.
+Integrasi fitur penjelasan [27,26] akan diimplementasikan untuk memberikan klinisi penjelasan visual yang mendukung prediksi, meningkatkan kepercayaan dan memungkinkan deteksi kesalahan. Optimisasi implementasi mencakup kuantisasi model [17], pemangkasan jaringan neural [18], dan adaptasi perangkat tepi untuk memungkinkan implementasi point-of-care dengan batasan komputasi.
 
-[8] K. Mitsakakis et al., "Challenges in malaria diagnosis," *Expert Rev. Mol. Diagn.*, vol. 18, no. 10, pp. 867-875, 2018.
+### Fase Jangka Panjang (10-12 Bulan)
 
-[9] A. Esteva et al., "Dermatologist-level classification of skin cancer with deep neural networks," *Nature*, vol. 542, pp. 115-118, 2017.
+Studi pilot klinis akan dilakukan di rumah sakit terpilih untuk mengevaluasi performa sistem dalam alur kerja klinis dunia nyata. Studi ini akan mengukur: (1) akurasi diagnostik versus mikroskopi ahli, (2) penghematan waktu dalam alur kerja klinis, (3) peningkatan reliabilitas antar-penilai, (4) analisis efektivitas biaya, dan (5) kepuasan dan penerimaan klinisi.
 
-[10] P. Rajpurkar et al., "CheXNet: Radiologist-level pneumonia detection on chest X-rays with deep learning," arXiv:1711.05225, 2017.
+Perencanaan jalur regulasi untuk implementasi klinis potensial [19], termasuk menyiapkan dokumentasi untuk submission FDA atau persetujuan regulasi setara. Pengembangan pipeline pembelajaran berkelanjutan untuk memungkinkan sistem yang diimplementasikan mengumpulkan sampel berlabel tambahan dari penggunaan klinis untuk peningkatan model berkelanjutan, memastikan sistem tetap akurat ketika varian parasit baru muncul atau peralatan pencitraan berkembang.
 
-[11] N. Coudray et al., "Classification and mutation prediction from non-small cell lung cancer histopathology images using deep learning," *Nat. Med.*, vol. 24, pp. 1559-1567, 2018.
+---
 
-[12] S. Rajaraman et al., "Pre-trained convolutional neural networks as feature extractors for diagnosis of malaria from blood smears," *Diagnostics*, vol. 8, no. 4, p. 74, 2018.
+## DAFTAR PUSTAKA
 
-[13] A. Wang et al., "YOLOv10: Real-time end-to-end object detection," arXiv:2405.14458, 2024.
+[1] WHO, "Malaria Microscopy Quality Assurance Manual," ver. 2.0, Geneva, 2016.
 
-[14] G. Jocher et al., "YOLOv11: Ultralytics YOLO11," 2024. [Online]. Available: https://github.com/ultralytics/ultralytics
+[2] WHO, "Basic Malaria Microscopy: Part I. Learner's guide," 2nd ed., Geneva, 2010.
 
-[15] F. Poostchi et al., "Image analysis and machine learning for detecting malaria," *Transl. Res.*, vol. 194, pp. 36-55, 2018.
+[3] H. Zhang et al., "mixup: Beyond empirical risk minimization," in *Proc. ICLR*, 2018.
 
-[16] P. Rosenthal, "How do we diagnose and treat Plasmodium ovale and Plasmodium malariae?" *Curr. Infect. Dis. Rep.*, vol. 10, pp. 58-61, 2008.
+[4] M. Aikawa, "Parasitological review: Plasmodium," *Exp. Parasitol.*, vol. 30, no. 2, pp. 284-320, 1971.
 
-[17] S. Ren et al., "Faster R-CNN: Towards real-time object detection with region proposal networks," *IEEE Trans. Pattern Anal. Mach. Intell.*, vol. 39, no. 6, pp. 1137-1149, 2017.
+[5] A. Wang et al., "YOLOv10: Real-time end-to-end object detection," arXiv:2405.14458, 2024.
 
-[18] WHO, "Basic Malaria Microscopy: Part I. Learner's guide," 2nd ed., Geneva, 2010.
+[6] G. Jocher et al., "YOLOv11: Ultralytics YOLO11," 2024. [Online]. Available: https://github.com/ultralytics/ultralytics
 
-[19] G. Huang et al., "Densely connected convolutional networks," in *Proc. IEEE CVPR*, 2017, pp. 4700-4708.
+[7] G. Huang et al., "Densely connected convolutional networks," in *Proc. IEEE CVPR*, 2017, pp. 4700-4708.
 
-[20] M. Tan and Q. V. Le, "EfficientNet: Rethinking model scaling for convolutional neural networks," in *Proc. ICML*, 2019, pp. 6105-6114.
+[8] M. Tan and Q. V. Le, "EfficientNet: Rethinking model scaling for convolutional neural networks," in *Proc. ICML*, 2019, pp. 6105-6114.
 
-[21] K. He et al., "Deep residual learning for image recognition," in *Proc. IEEE CVPR*, 2016, pp. 770-778.
+[9] K. He et al., "Deep residual learning for image recognition," in *Proc. IEEE CVPR*, 2016, pp. 770-778.
 
-[22] T.-Y. Lin et al., "Focal loss for dense object detection," *IEEE Trans. Pattern Anal. Mach. Intell.*, vol. 42, no. 2, pp. 318-327, 2020.
+[10] J. Deng et al., "ImageNet: A large-scale hierarchical image database," in *Proc. IEEE CVPR*, 2009, pp. 248-255.
 
-[23] M. Aikawa, "Parasitological review: Plasmodium," *Exp. Parasitol.*, vol. 30, no. 2, pp. 284-320, 1971.
+[11] T.-Y. Lin et al., "Focal loss for dense object detection," *IEEE Trans. Pattern Anal. Mach. Intell.*, vol. 42, no. 2, pp. 318-327, 2020.
 
-[24] A. Vijayalakshmi and B. Rajesh Kanna, "Deep learning approach to detect malaria from microscopic images," *Multim. Tools Appl.*, vol. 79, pp. 15297-15317, 2020.
+[12] P. Rosenthal, "How do we diagnose and treat Plasmodium ovale and Plasmodium malariae?" *Curr. Infect. Dis. Rep.*, vol. 10, pp. 58-61, 2008.
 
-[25] J. Deng et al., "ImageNet: A large-scale hierarchical image database," in *Proc. IEEE CVPR*, 2009, pp. 248-255.
+[13] WHO, "Guidelines for the Treatment of Malaria," 3rd ed., Geneva, 2015.
 
-[26] A. Dosovitskiy et al., "An image is worth 16×16 words: Transformers for image recognition at scale," in *Proc. ICLR*, 2021.
+[14] A. Vijayalakshmi and B. Rajesh Kanna, "Deep learning approach to detect malaria from microscopic images," *Multim. Tools Appl.*, vol. 79, pp. 15297-15317, 2020.
 
-[27] I. Goodfellow et al., "Generative adversarial nets," in *Proc. NeurIPS*, 2014, pp. 2672-2680.
+[15] C. J. Long et al., "A smartphone-based portable biosensor for diagnosis in resource-limited settings," *Nature Biotechnol.*, vol. 32, pp. 373-379, 2014.
 
-[28] J. Ho et al., "Denoising diffusion probabilistic models," in *Proc. NeurIPS*, 2020.
+[16] J. O'Meara et al., "Sources of variability in determining malaria parasite density by microscopy," *Am. J. Trop. Med. Hyg.*, vol. 73, no. 3, pp. 593-598, 2005.
 
-[29] B. Settles, "Active learning literature survey," Univ. Wisconsin-Madison, Tech. Rep. 1648, 2009.
+[17] R. Krishnamoorthi, "Quantizing deep convolutional networks for efficient inference," arXiv:1806.08342, 2018.
 
-[30] C. Finn et al., "Model-agnostic meta-learning for fast adaptation of deep networks," in *Proc. ICML*, 2017, pp. 1126-1135.
+[18] S. Han et al., "Learning both weights and connections for efficient neural network," in *Proc. NeurIPS*, 2015, pp. 1135-1143.
 
-[31] WHO, "Guidelines for the Treatment of Malaria," 3rd ed., Geneva, 2015.
+[19] FDA, "Clinical decision support software: Guidance for industry and FDA staff," 2022.
 
-[32] C. J. Long et al., "A smartphone-based portable biosensor for diagnosis in resource-limited settings," *Nature Biotechnol.*, vol. 32, pp. 373-379, 2014.
+[20] I. Goodfellow et al., "Generative adversarial nets," in *Proc. NeurIPS*, 2014, pp. 2672-2680.
 
-[33] R. Krishnamoorthi, "Quantizing deep convolutional networks for efficient inference," arXiv:1806.08342, 2018.
+[21] J. Ho et al., "Denoising diffusion probabilistic models," in *Proc. NeurIPS*, 2020.
 
-[34] S. Han et al., "Learning both weights and connections for efficient neural network," in *Proc. NeurIPS*, 2015, pp. 1135-1143.
+[22] Y. Ganin et al., "Domain-adversarial training of neural networks," *J. Mach. Learn. Res.*, vol. 17, no. 1, pp. 2096-2030, 2016.
 
-[35] FDA, "Clinical decision support software: Guidance for industry and FDA staff," 2022.
+[23] B. Settles, "Active learning literature survey," Univ. Wisconsin-Madison, Tech. Rep. 1648, 2009.
 
-[36] H. Zhang et al., "mixup: Beyond empirical risk minimization," in *Proc. ICLR*, 2018.
+[24] C. Finn et al., "Model-agnostic meta-learning for fast adaptation of deep networks," in *Proc. ICML*, 2017, pp. 1126-1135.
 
-[37] O. Vinyals et al., "Matching networks for one shot learning," in *Proc. NeurIPS*, 2016, pp. 3630-3638.
+[25] O. Vinyals et al., "Matching networks for one shot learning," in *Proc. NeurIPS*, 2016, pp. 3630-3638.
 
-[38] Y. Ganin et al., "Domain-adversarial training of neural networks," *J. Mach. Learn. Res.*, vol. 17, no. 1, pp. 2096-2030, 2016.
+[26] R. R. Selvaraju et al., "Grad-CAM: Visual explanations from deep networks via gradient-based localization," *Int. J. Comput. Vis.*, vol. 128, pp. 336-359, 2020.
 
-[39] A. Kirillov et al., "Segment anything," in *Proc. IEEE ICCV*, 2023, pp. 4015-4026.
+[27] A. Kirillov et al., "Segment anything," in *Proc. IEEE ICCV*, 2023, pp. 4015-4026.
 
-[40] R. R. Selvaraju et al., "Grad-CAM: Visual explanations from deep networks via gradient-based localization," *Int. J. Comput. Vis.*, vol. 128, pp. 336-359, 2020.
+[28] A. Esteva et al., "Dermatologist-level classification of skin cancer with deep neural networks," *Nature*, vol. 542, pp. 115-118, 2017.
+
+[29] P. Rajpurkar et al., "CheXNet: Radiologist-level pneumonia detection on chest X-rays with deep learning," arXiv:1711.05225, 2017.
+
+[30] N. Coudray et al., "Classification and mutation prediction from non-small cell lung cancer histopathology images using deep learning," *Nat. Med.*, vol. 24, pp. 1559-1567, 2018.
+
+[31] S. Rajaraman et al., "Pre-trained convolutional neural networks as feature extractors for diagnosis of malaria from blood smears," *Diagnostics*, vol. 8, no. 4, p. 74, 2018.
+
+[32] F. Poostchi et al., "Image analysis and machine learning for detecting malaria," *Transl. Res.*, vol. 194, pp. 36-55, 2018.
+
+[33] World Health Organization, "World Malaria Report 2024," Geneva, Switzerland, 2024.
+
+[34] R. W. Snow et al., "The global distribution of clinical episodes of Plasmodium falciparum malaria," *Nature*, vol. 434, pp. 214-217, 2005.
+
+[35] Centers for Disease Control and Prevention, "Malaria Biology," 2024. [Online]. Available: https://www.cdc.gov/malaria/about/biology/
+
+[36] A. Moody, "Rapid diagnostic tests for malaria parasites," *Clin. Microbiol. Rev.*, vol. 15, no. 1, pp. 66-78, 2002.
+
+[37] P. L. Chiodini et al., "Manson's Tropical Diseases," 23rd ed. London: Elsevier, 2014, ch. 52.
+
+[38] K. Mitsakakis et al., "Challenges in malaria diagnosis," *Expert Rev. Mol. Diagn.*, vol. 18, no. 10, pp. 867-875, 2018.
+
+[39] S. Ren et al., "Faster R-CNN: Towards real-time object detection with region proposal networks," *IEEE Trans. Pattern Anal. Mach. Intell.*, vol. 39, no. 6, pp. 1137-1149, 2017.
+
+[40] A. Dosovitskiy et al., "An image is worth 16×16 words: Transformers for image recognition at scale," in *Proc. ICLR*, 2021.
