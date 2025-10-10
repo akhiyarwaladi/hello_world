@@ -1,0 +1,10 @@
+Study,Year,Dataset,Task,Best Model,Accuracy (%),Notes
+Rajaraman et al.,2018,NIH Malaria,Binary (infected/uninfected),Pre-trained CNN,95.90,Binary classification only
+Liang et al.,2016,Custom balanced,Species classification,ResNet-50,97.37,Balanced dataset
+Bibin et al.,2017,Custom,Binary,Custom CNN,98.80,Binary classification
+Yang et al.,2020,Thick blood smears,Detection + Classification,Faster R-CNN,89.20,Different imaging modality
+Nakasi et al.,2022,Custom,Detection,YOLOv3,87.30,Detection precision only
+Vijayalakshmi & Rajesh Kanna,2020,MP-IDB Species,Species classification,Custom CNN,93.00,Same dataset as our work
+**Our Work (Best)**,2025,MP-IDB Species,Species classification,EfficientNet-B1,**98.80**,**93.18% balanced accuracy**
+**Our Work (Best)**,2025,IML Lifecycle,Lifecycle stages,ResNet50,**89.89**,**80.19% balanced accuracy**
+**Our Work (Best)**,2025,MP-IDB Stages,Lifecycle stages,ResNet101,**95.99**,**68.10% balanced accuracy** (extreme 54:1 imbalance)
