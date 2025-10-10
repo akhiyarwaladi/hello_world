@@ -151,7 +151,18 @@ Keempat, sistem saat ini kekurangan fitur penjelasan yang kritis untuk adopsi kl
 
 ### Luaran Wajib
 
-**1. Publikasi Jurnal Nasional Terakreditasi Sinta** (Target: Sinta 3, Status: **Draft Lengkap 100%**)
+**1. Publikasi Prosiding Konferensi Internasional** (Status: **Abstract Diterima, Full Paper dalam Progres 70%**)
+
+Abstract telah diterima pada **Jambi International Conference on Engineering, Science, and Technology (JICEST)** yang diselenggarakan di Universitas Jambi, Indonesia, pada tanggal 28 November 2025. Full paper berfokus pada arsitektur klasifikasi bersama dengan manfaat signifikan: reduksi penyimpanan 70% dan reduksi waktu pelatihan 60% dibandingkan pendekatan tradisional.
+
+**Judul**: "Shared Classification Architecture for Multi-Model Malaria Detection: Efficiency Analysis"
+**File Draft**: `luaran/JICEST_Paper.md`
+**Status**: Abstract diterima, full paper dalam penyelesaian
+**Deadline Submission Full Paper**: November 2025
+**Tanggal Konferensi**: 28 November 2025
+**Lokasi**: Universitas Jambi, Indonesia
+
+**2. Publikasi Jurnal Nasional Terakreditasi Sinta** (Target: Sinta 3, Status: **Draft Lengkap 100%**)
 
 Draft artikel berjudul "Parameter-Efficient Deep Learning Models Outperform Larger Architectures on Small Medical Imaging Datasets: A Malaria Detection Case Study" telah diselesaikan untuk submission ke **Journal of Applied Informatics and Computing (JAIC)** yang terindeks Sinta 3 (https://jurnal.polibatam.ac.id/index.php/JAIC/index). Artikel mencakup evaluasi komprehensif pada 2 dataset × 3 model deteksi × 6 model klasifikasi = 36 kombinasi model, mendemonstrasikan bahwa model EfficientNet lebih kecil (5,3-7,8M parameter) secara konsisten mengungguli varian ResNet lebih besar (25,6-44,5M parameter) sebesar 5-10% pada dataset medis kecil [8,9].
 
@@ -167,24 +178,7 @@ Struktur artikel: (1) Pendahuluan dengan tinjauan pustaka tentang AI medis dan d
 
 ### Luaran Tambahan
 
-**1. Publikasi Prosiding Konferensi Internasional** (Status: **Abstract Diterima, Full Paper dalam Progres 70%**)
-
-Abstract telah diterima pada **Jambi International Conference on Engineering, Science, and Technology (JICEST)** yang diselenggarakan di Universitas Jambi, Indonesia, pada tanggal 28 November 2025. Full paper berfokus pada arsitektur klasifikasi bersama dengan manfaat signifikan: reduksi penyimpanan 70% dan reduksi waktu pelatihan 60% dibandingkan pendekatan tradisional.
-
-**Judul**: "Shared Classification Architecture for Multi-Model Malaria Detection: Efficiency Analysis"
-**File Draft**: `luaran/JICEST_Paper.md`
-**Status**: Abstract diterima, full paper dalam penyelesaian
-**Deadline Submission Full Paper**: November 2025
-**Tanggal Konferensi**: 28 November 2025
-**Lokasi**: Universitas Jambi, Indonesia
-
-**2. Laporan Teknis Komprehensif**
-
-Laporan teknis komprehensif yang mendokumentasikan metodologi eksperimen lengkap, keputusan tuning hyperparameter, analisis kasus kegagalan, dan pertimbangan implementasi untuk referensi internal dan transfer pengetahuan.
-
-**Status**: Tersedia dalam repository proyek
-
-**3. Implementasi Open-Source**
+**1. Implementasi Open-Source**
 
 Codebase lengkap dengan 12 skrip Python untuk persiapan data, pelatihan, evaluasi, dan visualisasi telah dipublikasikan di repository GitHub dengan lisensi MIT, memungkinkan komunitas riset untuk mereproduksi temuan dan mengembangkan penelitian ini lebih lanjut.
 
