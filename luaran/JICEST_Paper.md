@@ -137,7 +137,11 @@ Per-class analysis via confusion matrices (Figure 6) revealed systematic misclas
 
 For lifecycle stages using EfficientNet-B0, the majority class Ring achieved 97.4% accuracy (265/272 correct), with minor confusion with Trophozoite (3 samples), Schizont (2), and Gametocyte (2). Minority classes suffered more severely: Trophozoite (15 samples) achieved only 46.7% recall (7/15 correct), with misclassifications distributed across Ring (3), Schizont (3), and Gametocyte (2). Schizont (7 samples) performed better at 71.4% recall (5/7 correct), while Gametocyte (5 samples) struggled at 40% recall (2/5 correct). These errors primarily reflect morphological overlap during transitions between stages—early trophozoites resemble late rings, and late trophozoites resemble early schizonts [23].
 
-Per-class F1-scores quantify this minority class challenge more precisely (Figures 7-8). For species classification, majority classes (P. falciparum: 227 samples, P. malariae: 7 samples) achieved perfect 1.00 F1-scores across all models. P. vivax (11 samples) maintained strong performance (0.80-0.87 F1), but P. ovale (5 samples) degraded substantially (0.50-0.77 F1), with only EfficientNet-B1 and DenseNet121 exceeding 0.70 (clinical acceptability threshold). For lifecycle stages, Ring (272 samples) achieved strong F1 (0.90-0.97), but minority stages showed severe degradation: Trophozoite ranged 0.15-0.52 F1, Schizont 0.63-0.92 F1, and Gametocyte 0.56-0.75 F1. The 54:1 imbalance ratio between Ring and Gametocyte represents a worst-case scenario where even Focal Loss struggles to achieve clinical reliability on extreme minorities.
+Per-class F1-scores quantify this minority class challenge more precisely (Figures 7-8, detailed metrics in Table 4). For species classification, majority classes (P. falciparum: 227 samples, P. malariae: 7 samples) achieved perfect 1.00 F1-scores across all models. P. vivax (11 samples) maintained strong performance (0.80-0.87 F1), but P. ovale (5 samples) degraded substantially (0.00-0.77 F1), with only EfficientNet-B1 (0.77 F1) and DenseNet121/EfficientNet-B0 (0.67 F1) exceeding 0.60, while ResNet50 completely failed with 0.00 F1. For lifecycle stages, Ring (272 samples) achieved strong F1 (0.89-0.97), but minority stages showed severe degradation: Trophozoite ranged 0.15-0.52 F1, Schizont 0.63-0.92 F1, and Gametocyte 0.57-0.75 F1. The 54:1 imbalance ratio between Ring and Gametocyte represents a worst-case scenario where even Focal Loss struggles to achieve clinical reliability on extreme minorities.
+
+**[INSERT TABLE 4 HERE: Per-Class Performance Metrics with Focal Loss]**
+**Table 4** should be placed here, presenting comprehensive per-class performance breakdown for all six CNN architectures across both MP-IDB datasets. The table provides detailed precision, recall, F1-score, and support values for each individual class (4 Plasmodium species: P. falciparum, P. vivax, P. ovale, P. malariae; 4 lifecycle stages: ring, trophozoite, schizont, gametocyte), complementing the overall metrics in Table 3 with granular class-level analysis. This detailed breakdown reveals critical patterns masked by overall accuracy: (1) perfect precision-recall balance on majority classes (P. falciparum: 1.00 precision, 1.00 recall across all models), (2) precision-recall trade-offs on minority species (P. ovale: EfficientNet-B1 achieves 100% recall with 62.5% precision, indicating 5/5 true positives but 3 false positives), (3) severe minority class degradation on lifecycle stages (Trophozoite: EfficientNet-B2 achieves only 10% precision with 15.38% F1-score despite 33.33% recall on 15 test samples), and (4) model-specific failure modes (ResNet50 completely fails on P. ovale with 0% recall, 0% precision, 0.00 F1-score). These per-class metrics are essential for clinical deployment decisions, as autonomous diagnostic systems require consistent performance across all classes including rare but clinically critical species such as P. ovale (which can cause relapsing malaria requiring primaquine treatment) and minority lifecycle stages such as gametocytes (the only transmissible stage to mosquitoes, critical for malaria elimination programs).
+**Files**: `luaran/tables/Table9_MP-IDB_Species_Focal_Loss.csv` (Species) and `luaran/tables/Table9_MP-IDB_Stages_Focal_Loss.csv` (Stages)
 
 **[INSERT FIGURE 7 HERE: Species Per-Class F1-Score Comparison]**
 **Figure 7** should be placed here, displaying grouped bar chart with 4 species groups (P. falciparum, P. malariae, P. ovale, P. vivax) × 6 models. Bars should show F1-scores with a red dashed line at 0.90 (clinical threshold). This visualization highlights the dramatic performance drop on P. ovale (5 samples) compared to majority species.
@@ -362,23 +366,29 @@ This research was supported by BISMA Research Institute. We thank the IML Instit
 
 **Note:** Augmentation figures (1-2) use high-resolution 512×512 pixel crops with LANCZOS4 interpolation and PNG lossless format for publication quality (300 DPI). Figure 9 images are original PNG outputs from experiment folder, displayed side-by-side (GT left, Pred right) for direct visual comparison of ground truth annotations versus automated system predictions.
 
-### Tables (3 total - in order of appearance)
+### Tables (4 total - in order of appearance)
 
 1. **Table 1** (in Section 2.1, after dataset descriptions): `luaran/tables/Table3_Dataset_Statistics_MP-IDB.csv` - Dataset statistics showing 418 total images, splits, augmentation multipliers
 
 2. **Table 2** (in Section 3.1, paragraph 1): `luaran/tables/Table1_Detection_Performance_MP-IDB.csv` - Detection results for 3 YOLO models × 2 datasets (6 rows)
 
-3. **Table 3** (in Section 3.2, paragraph 1): `luaran/tables/Table2_Classification_Performance_MP-IDB.csv` - Classification results for 6 CNN models × 2 datasets (12 rows)
+3. **Table 3** (in Section 3.2, paragraph 1): `luaran/tables/Table2_Classification_Performance_MP-IDB.csv` - Classification results for 6 CNN models × 2 datasets (12 rows) - Overall metrics (accuracy, balanced accuracy, training time)
+
+4. **Table 4** (in Section 3.2, after per-class F1 discussion): `luaran/tables/Table9_MP-IDB_Species_Focal_Loss.csv` and `luaran/tables/Table9_MP-IDB_Stages_Focal_Loss.csv` - Comprehensive per-class performance metrics (precision, recall, F1-score, support) for all 6 CNN models across both datasets, providing granular class-level analysis that complements Table 3's overall metrics
 
 ---
 
 **Document Statistics:**
-- Word count: ~8,200 words (increased from ~7,500 with Figure 9 addition)
+- Word count: ~8,400 words (increased from ~8,200 with Table 4 addition)
 - Estimated pages: 16-19 pages (IEEE two-column format)
 - Figures: 12 total (9 main figures, with Figure 9 containing 4 sub-figures a-d)
   - Quantitative figures: 8 (Figures 1-8: augmentation, architecture, bar charts, heatmaps, confusion matrices, F1 comparisons)
   - Qualitative figures: 4 (Figure 9a-d: GT vs Prediction side-by-side comparisons)
-- Tables: 3 (all with placeholders and file paths)
+- Tables: 4 (all with placeholders and file paths)
+  - Table 1: Dataset statistics
+  - Table 2: Detection performance (overall metrics)
+  - Table 3: Classification performance (overall metrics: accuracy, balanced accuracy)
+  - Table 4: Per-class performance metrics (detailed: precision, recall, F1, support per class)
 - References: 40 (reduced from 51 - removed 11 tangential/redundant papers)
 
 **Formatting Notes:**
