@@ -184,9 +184,11 @@ Codebase lengkap dengan 12 skrip Python untuk persiapan data, pelatihan, evaluas
 
 ---
 
-## PELAKSANAAN PENELITIAN MANDIRI
+## PERAN MITRA
 
 Penelitian ini dilaksanakan secara mandiri tanpa keterlibatan mitra institusional formal, mendemonstrasikan bahwa pengembangan sistem deteksi malaria berbasis deep learning yang kompetitif dapat dicapai dengan sumber daya terbatas namun terkelola secara efektif. Pendekatan mandiri ini dimungkinkan oleh beberapa faktor kunci yang saling mendukung.
+
+### Faktor Pendukung Penelitian Mandiri
 
 Pertama, ketersediaan sumber daya komputasi yang memadai menjadi fondasi teknis penelitian. GPU NVIDIA RTX 3060 dengan 12GB VRAM, meskipun termasuk kategori perangkat keras kelas konsumen, terbukti mencukupi untuk melatih keseluruhan 36 kombinasi model (2 dataset × 3 model YOLO × 6 model CNN) dengan total waktu pelatihan sekitar 40 jam. Infrastruktur ini memungkinkan eksperimen iteratif yang diperlukan untuk optimisasi hyperparameter, evaluasi berbagai arsitektur neural network, dan perbandingan strategi penanganan ketidakseimbangan kelas tanpa ketergantungan pada fasilitas komputasi institusional yang mahal atau antrian penjadwalan cluster GPU bersama.
 
@@ -197,6 +199,8 @@ Ketiga, kemajuan pesat dalam kerangka kerja deep learning open-source dan tersed
 Keempat, pendekatan mandiri memberikan fleksibilitas metodologis dan kecepatan iterasi yang kadang sulit dicapai dalam kolaborasi formal. Desain eksperimen, pemilihan arsitektur, strategi augmentasi data, dan keputusan teknis lainnya dapat dibuat dan diimplementasikan dengan cepat tanpa memerlukan konsensus multi-pihak atau navigasi birokrasi institusional. Otonomi ini memungkinkan eksplorasi mendalam dari pertanyaan penelitian spesifik—seperti perbandingan sistematis antara model parameter-efisien versus model besar pada dataset medis kecil—yang mungkin tidak menjadi prioritas dalam agenda penelitian laboratorium dengan fokus lebih luas.
 
 Kelima, ruang lingkup penelitian saat ini sebagai proof-of-concept algoritmik berada dalam domain yang dapat diselesaikan secara mandiri. Tujuan utama adalah mendemonstrasikan kelayakan teknis dari arsitektur klasifikasi bersama, membandingkan performa berbagai kombinasi model deteksi-klasifikasi, dan mengidentifikasi strategi optimal untuk menangani ketidakseimbangan kelas ekstrem dalam dataset pencitraan medis kecil. Objektif-objektif ini tidak memerlukan akses ke sampel klinis lapangan, validasi klinisi ahli secara real-time, atau integrasi dengan sistem informasi rumah sakit—komponen-komponen yang memang memerlukan kemitraan formal namun berada di luar scope penelitian fase proof-of-concept ini.
+
+### Kontribusi dan Validasi Pendekatan
 
 Dengan pendekatan mandiri ini, penelitian berhasil menghasilkan beberapa kontribusi signifikan: (1) implementasi lengkap pipeline multi-model dengan penghematan komputasi substansial (70% reduksi penyimpanan, 60% reduksi waktu pelatihan), (2) temuan empiris bahwa model EfficientNet parameter-efisien (5,3-7,8M params) konsisten mengungguli model ResNet jauh lebih besar (25,6-44,5M params) dengan margin 5-10% pada dataset medis kecil, (3) publikasi konferensi internasional (JICEST) dan artikel jurnal nasional terakreditasi (JAIC Sinta 3), serta (4) codebase open-source komprehensif dengan 12 skrip Python untuk reproduksibilitas penuh. Pencapaian-pencapaian ini memvalidasi bahwa penelitian AI medis berkualitas publikasi dapat dilakukan secara efektif tanpa afiliasi institusional formal, selama peneliti memiliki akses ke sumber daya komputasi dasar, memanfaatkan dataset publik berkualitas, dan menerapkan metodologi rigor yang konsisten dengan standar ilmiah komunitas penelitian.
 
