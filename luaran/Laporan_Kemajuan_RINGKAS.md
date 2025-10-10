@@ -162,17 +162,13 @@ Abstract telah diterima pada **Jambi International Conference on Engineering, Sc
 **Tanggal Konferensi**: 28 November 2025
 **Lokasi**: Universitas Jambi, Indonesia
 
-**2. Publikasi Jurnal Nasional Terakreditasi Sinta** (Target: Sinta 3, Status: **Draft Lengkap 100%**)
+**2. Publikasi Jurnal Nasional Terakreditasi Sinta** (Target: Sinta 3, Status: **Draft dalam Progres 60%**)
 
-Draft artikel berjudul "Parameter-Efficient Deep Learning Models Outperform Larger Architectures on Small Medical Imaging Datasets: A Malaria Detection Case Study" telah diselesaikan untuk submission ke **Journal of Applied Informatics and Computing (JAIC)** yang terindeks Sinta 3 (https://jurnal.polibatam.ac.id/index.php/JAIC/index). Artikel mencakup evaluasi komprehensif pada 2 dataset × 3 model deteksi × 6 model klasifikasi = 36 kombinasi model, mendemonstrasikan bahwa model EfficientNet lebih kecil (5,3-7,8M parameter) secara konsisten mengungguli varian ResNet lebih besar (25,6-44,5M parameter) sebesar 5-10% pada dataset medis kecil [8,9].
+Draft artikel berjudul "Parameter-Efficient Deep Learning Models Outperform Larger Architectures on Small Medical Imaging Datasets: A Malaria Detection Case Study" sedang dikembangkan untuk submission ke **Journal of Applied Informatics and Computing (JAIC)** yang terindeks Sinta 3 (https://jurnal.polibatam.ac.id/index.php/JAIC/index). Artikel mencakup evaluasi komprehensif pada 2 dataset × 3 model deteksi × 6 model klasifikasi = 36 kombinasi model, mendemonstrasikan bahwa model EfficientNet lebih kecil (5,3-7,8M parameter) secara konsisten mengungguli varian ResNet lebih besar (25,6-44,5M parameter) sebesar 5-10% pada dataset medis kecil [8,9].
 
 Struktur artikel: (1) Pendahuluan dengan tinjauan pustaka tentang AI medis dan deteksi objek [28,29,30,31,32,14], (2) Metode yang mendeskripsikan arsitektur klasifikasi bersama dan pengaturan eksperimen, (3) Hasil yang menyajikan performa deteksi [5,6], metrik klasifikasi dengan rincian per-kelas, dan analisis efisiensi [7,8,9,11], (4) Pembahasan yang menganalisis temuan dalam konteks implementasi klinis [13,15,19], dan (5) Kesimpulan dengan arah masa depan [20,21,23,24].
 
-**File Draft**: `luaran/Draft_Journal_Q1_IEEE_TMI.md`
 **Target Submission**: November 2025
-**Periode Review Diharapkan**: 2-3 bulan
-**Periode Revisi Diharapkan**: 1 bulan
-**Publikasi Diharapkan**: Q2 2026
 
 ---
 
@@ -180,11 +176,10 @@ Struktur artikel: (1) Pendahuluan dengan tinjauan pustaka tentang AI medis dan d
 
 **1. Implementasi Open-Source**
 
-Codebase lengkap dengan 12 skrip Python untuk persiapan data, pelatihan, evaluasi, dan visualisasi telah dikembangkan dan siap untuk dipublikasikan di repository GitHub dengan lisensi MIT. Publikasi akan dilakukan setelah artikel jurnal diterbitkan untuk memastikan prioritas publikasi dan melindungi klaim kontribusi ilmiah.
+Codebase lengkap dengan 12 skrip Python untuk persiapan data, pelatihan, evaluasi, dan visualisasi telah dikembangkan dan siap untuk dipublikasikan di repository GitHub. Publikasi akan dilakukan setelah artikel jurnal diterbitkan untuk memastikan prioritas publikasi dan melindungi klaim kontribusi ilmiah.
 
 **Repository**: https://github.com/akhiyarwaladi/hello_world
-**Lisensi**: MIT (akan diterapkan)
-**Status**: Private - akan dipublikasikan setelah artikel jurnal diterbitkan (target: Q2 2026)
+**Status**: Private - akan dipublikasikan setelah artikel jurnal diterbitkan
 **Alasan**: Memastikan prioritas publikasi dan melindungi klaim ilmiah sebelum dipublikasikan secara luas
 
 ---
