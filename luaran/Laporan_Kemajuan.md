@@ -241,7 +241,7 @@ Kelima, while Grad-CAM visualizations provide qualitative insights into model at
 
 ---
 
-## D. LUARAN PENELITIAN
+## D. STATUS LUARAN PENELITIAN
 
 ### D.1 Luaran Wajib
 
@@ -261,25 +261,177 @@ Grad-CAM visualizations generated untuk all trained models provide interpretabil
 
 ---
 
-## E. RENCANA TAHAPAN SELANJUTNYA
+## E. PERAN MITRA
 
-### E.1 Fase Jangka Pendek (3 Bulan Ke Depan)
+Penelitian ini merupakan penelitian dasar (fundamental) yang berfokus pada pengembangan algoritma dan validasi teknis sistem deteksi malaria berbasis pembelajaran mendalam. Pada tahap saat ini (Tahun ke-1), penelitian dilaksanakan secara mandiri tanpa melibatkan mitra eksternal dalam proses pengembangan dan validasi awal. Pendekatan mandiri ini dipilih secara strategis untuk memungkinkan fokus penuh pada optimisasi arsitektur model, eksplorasi berbagai strategi penanganan ketidakseimbangan kelas, dan penetapan kinerja dasar yang komprehensif menggunakan dataset publik yang terkontrol dengan baik.
+
+### E.1 Rencana Keterlibatan Mitra untuk Tahap Berikutnya
+
+Meskipun belum melibatkan mitra pada tahap pengembangan awal, penelitian ini telah mengidentifikasi kebutuhan penting untuk berkolaborasi dengan mitra klinis dan teknologi pada tahap kedua mendatang, khususnya untuk penerapan di lapangan dan validasi eksternal. Tim peneliti saat ini sedang menjajaki kemungkinan kolaborasi dengan beberapa kategori mitra yang dapat mendukung transformasi sistem dari prototipe penelitian menuju aplikasi klinis yang siap digunakan.
+
+Untuk kategori mitra klinis dan akademik, penelitian ini merencanakan kolaborasi dengan rumah sakit atau pusat kesehatan masyarakat di daerah endemis malaria seperti Jawa Timur, Nusa Tenggara Timur, dan Papua. Mitra-mitra ini diharapkan dapat memberikan akses ke sampel darah klinis dan fasilitas untuk validasi lapangan. Selain itu, laboratorium patologi klinik diharapkan dapat terlibat untuk memberikan validasi ahli dan anotasi data pada sampel yang dikumpulkan dari lapangan. Institusi penelitian kesehatan masyarakat juga menjadi target kolaborasi untuk memberikan wawasan epidemiologi dan kebutuhan integrasi dengan alur kerja klinis yang sudah berjalan.
+
+Dari sisi teknologi, penelitian ini juga merencanakan kolaborasi dengan penyedia peralatan mikroskop digital untuk pengujian integrasi perangkat keras, penyedia platform komputasi tepi untuk optimisasi penerapan pada perangkat bergerak atau portabel, serta penyedia layanan komputasi awan seperti AWS, Google Cloud, atau Azure untuk arsitektur penerapan yang dapat diperluas sesuai kebutuhan.
+
+### E.2 Bentuk Kontribusi Mitra yang Diharapkan
+
+Kontribusi dari mitra diharapkan dalam dua bentuk utama yaitu kontribusi dalam bentuk barang atau jasa dan kontribusi finansial. Untuk kontribusi dalam bentuk barang atau jasa, penelitian ini mengharapkan akses ke sampel apusan darah klinis yang sudah dianonimkan dengan target minimal 500 citra, mencakup berbagai protokol pewarnaan dan kondisi pencitraan untuk keperluan validasi eksternal. Waktu dan keahlian dari dokter spesialis patologi sangat dibutuhkan untuk melakukan anotasi manual dan validasi terhadap prediksi model yang dihasilkan sistem. Fasilitas pengujian dan lingkungan alur kerja klinis juga diperlukan untuk uji coba penerapan pilot. Selain itu, umpan balik dan pengumpulan kebutuhan dari pengguna akhir akan sangat berharga untuk desain antarmuka pengguna dan strategi integrasi klinis.
+
+Untuk kontribusi finansial, saat ini belum ada komitmen pendanaan dari mitra potensial. Namun demikian, penelitian ini akan menjajaki kemungkinan pendanaan untuk tahap kedua melalui pengajuan hibah kolaboratif atau perjanjian kemitraan dengan industri yang dapat disusun bersama dengan mitra yang tertarik.
+
+### E.3 Status Terkini dan Rencana Waktu Keterlibatan Mitra
+
+Pada posisi saat ini di tahun pertama bulan kesepuluh, diskusi awal telah dimulai dengan beberapa rumah sakit di Jawa Timur untuk kemungkinan kolaborasi pada tahap kedua. Protokol persetujuan etik untuk pengumpulan data klinis sedang dalam tahap penyusunan dan akan diajukan ke komite etik yang relevan. Template nota kesepahaman juga telah disiapkan untuk mempermudah formalisasi kemitraan ketika mitra potensial siap untuk berkomitmen.
+
+Rencana waktu keterlibatan mitra untuk tahun kedua penelitian adalah sebagai berikut. Pada kuartal pertama (bulan 1-3 tahun ke-2), target utama adalah finalisasi nota kesepahaman dengan minimal dua mitra klinis dan memulai proses persetujuan etik. Kuartal kedua (bulan 4-6) akan difokuskan pada pengumpulan data dari sampel lapangan dan anotasi oleh ahli patologi. Kuartal ketiga (bulan 7-9) akan digunakan untuk validasi eksternal dan penyempurnaan model berdasarkan temuan dari data lapangan. Kuartal keempat (bulan 10-12) direncanakan untuk penerapan pilot di lokasi klinis terpilih dan evaluasi penerimaan pengguna.
+
+Perlu dicatat bahwa sebagai penelitian dasar pada tahun pertama, tidak adanya keterlibatan mitra eksternal pada tahap ini tidak menghambat kemajuan penelitian. Pengembangan algoritma dan validasi teknis pada dataset publik telah diselesaikan dengan sukses sesuai capaian yang direncanakan. Keterlibatan mitra akan menjadi sangat penting pada tahap kedua untuk mengubah prototipe penelitian menuju sistem yang siap untuk penerapan klinis di lapangan.
+
+---
+
+## F. KENDALA PELAKSANAAN PENELITIAN
+
+Selama pelaksanaan penelitian tahun pertama, beberapa kendala teknis dan metodologis telah diidentifikasi dan diatasi dengan berbagai strategi penanganan. Kendala-kendala ini tidak menghalangi pencapaian target luaran utama, namun memberikan pembelajaran berharga untuk perencanaan tahap kedua dan penelitian serupa di masa depan.
+
+### F.1 Keterbatasan Ukuran Dataset
+
+Dataset MP-IDB yang tersedia secara publik hanya berisi 418 gambar total (209 per tugas klasifikasi), jauh di bawah kebutuhan umum untuk melatih jaringan saraf dalam secara optimal yang biasanya memerlukan ribuan hingga puluhan ribu sampel. Keterbatasan ini sangat terasa pada kelas minoritas dimana beberapa spesies seperti P. ovale dan tahap seperti gametosit hanya memiliki 5 sampel asli sebelum dilakukan augmentasi data. Kondisi ini berdampak signifikan pada performa model, terutama model besar seperti ResNet101 dengan 44,5 juta parameter yang mengalami overfitting parah dengan selisih akurasi antara data latih dan validasi mencapai 8-9 persen. Skor F1 untuk kelas minoritas hanya berkisar 51-77 persen, masih di bawah ambang klinis 80-90 persen yang diperlukan untuk penerapan otonom. Ketidakseimbangan kelas yang ekstrem dengan rasio hingga 54:1 membuat pembelajaran fitur yang kokoh untuk kelas minoritas menjadi sangat menantang.
+
+Untuk mengatasi kendala ini, beberapa strategi telah diterapkan. Pertama, penelitian mengimplementasikan augmentasi data yang aman untuk citra medis dengan faktor pengali 3,5 hingga 4,4 kali untuk memperluas set data latih. Kedua, penggunaan bobot yang sudah dilatih pada ImageNet diterapkan untuk pembelajaran transfer, memanfaatkan fitur visual umum yang sudah dipelajari pada dataset besar. Ketiga, evaluasi sistematis terhadap efisiensi model dilakukan dan menemukan bahwa model yang lebih kecil seperti EfficientNet-B0 dan B1 ternyata mengungguli model yang lebih besar pada dataset kecil. Keempat, implementasi fungsi kerugian Focal Loss dengan parameter α=0,25 dan γ=2,0 dikombinasikan dengan pengambilan sampel berbobot dengan rasio 3:1 untuk kelas minoritas terbukti efektif dalam menangani ketidakseimbangan kelas. Untuk tahap kedua mendatang, perluasan dataset menjadi prioritas utama dengan target lebih dari 1000 gambar melalui kolaborasi dengan rumah sakit, pembangkitan data sintetis menggunakan GAN, dan kampanye anotasi bersama.
+
+### F.2 Keterbatasan Komputasi dan Waktu Pelatihan
+
+Pelatihan 18 model (6 model deteksi ditambah 12 model klasifikasi) memerlukan total 180 jam komputasi GPU pada perangkat NVIDIA RTX 3060 dengan memori 12GB. Keterbatasan perangkat keras membatasi ukuran batch maksimal yang dapat digunakan, yaitu 16-32 gambar untuk deteksi dan 32 gambar untuk klasifikasi, yang berpotensi mempengaruhi kecepatan konvergensi dan akurasi akhir model. Beberapa eksperimen memerlukan penggunaan GPU secara kontinu selama 48 hingga 72 jam. Waktu pelatihan yang panjang ini menyebabkan penundaan untuk beberapa studi ablasi dan eksperimen optimisasi hiperparameter. Keterbatasan memori juga mencegah pengujian ukuran batch yang lebih besar yang berpotensi menguntungkan untuk stabilitas normalisasi batch. Sistem juga tidak dapat melatih beberapa model secara bersamaan, sehingga mengharuskan eksekusi berurutan yang memperpanjang waktu keseluruhan penelitian.
+
+Untuk mengatasi kendala komputasi ini, beberapa strategi optimisasi telah diterapkan. Implementasi pelatihan presisi campuran (FP16) berhasil mencapai percepatan 30-40 persen tanpa kehilangan akurasi. Penyesuaian ukuran batch secara dinamis berdasarkan ketersediaan memori GPU juga diterapkan untuk memaksimalkan penggunaan sumber daya. Mekanisme penghentian dini dengan kesabaran optimal (20 epoch untuk deteksi, 15 epoch untuk klasifikasi) digunakan untuk mencegah pelatihan yang tidak perlu. Arsitektur klasifikasi bersama (Opsi A) yang dikembangkan dalam penelitian ini berhasil mengurangi total waktu pelatihan sebesar 60 persen dibandingkan pendekatan tradisional. Jadwal prioritas pelatihan juga disusun dengan fokus pada kombinasi model yang paling menjanjikan terlebih dahulu. Untuk tahap kedua, akses ke GPU yang lebih canggih seperti NVIDIA A100 atau V100, atau pengaturan multi-GPU akan diupayakan untuk memungkinkan ukuran batch yang lebih besar dan pelatihan paralel.
+
+### F.3 Keterbatasan Kinerja Kelas Minoritas
+
+Meskipun berbagai upaya optimisasi agresif telah dilakukan termasuk penerapan Focal Loss, pengambilan sampel berbobot, dan augmentasi data, kelas minoritas dengan kurang dari 10 sampel hanya mencapai skor F1 berkisar 51-77 persen. Klasifikasi tahap tropozoit sangat menantang dengan nilai recall hanya 46,7 persen pada model terbaik. Spesies P. ovale juga menghadapi kesulitan dengan presisi hanya 62,5 persen meskipun recall-nya sempurna 100 persen. Kinerja saat ini masih belum memadai untuk penerapan klinis yang sepenuhnya otonom pada kelas minoritas. Sistem memerlukan pengawasan ahli manusia untuk mengkonfirmasi prediksi pada spesies atau tahap yang langka. Tingkat positif palsu pada kelas minoritas yang mencapai 30-50 persen untuk beberapa kasus dapat menyebabkan biaya pengujian konfirmasi yang tidak perlu.
+
+Berbagai strategi telah dicoba untuk meningkatkan kinerja pada kelas minoritas ini. Penyetelan parameter Focal Loss dilakukan dengan menguji rentang α dari 0,1 hingga 0,5 dan rentang γ dari 1,0 hingga 3,0 untuk menemukan kombinasi optimal. Strategi pengambilan sampel berbobot dengan berbagai rasio oversampling (2:1, 3:1, 5:1) juga diuji. Augmentasi spesifik per kelas dengan transformasi yang lebih agresif diterapkan khusus untuk kelas minoritas. Pendekatan ensemble yang menggabungkan prediksi dari beberapa model juga diimplementasikan untuk meningkatkan keandalan. Untuk tahap kedua, rencana perbaikan meliputi pembangkitan data sintetis berbasis GAN khusus untuk kelas minoritas, pendekatan pembelajaran few-shot, pembelajaran aktif untuk memprioritaskan sampel minoritas yang informatif, dan teknik meta-learning.
+
+### F.4 Keterbatasan Generalisasi dan Validasi Eksternal
+
+Kedua dataset MP-IDB berasal dari pengaturan laboratorium yang terkontrol dengan protokol pewarnaan Giemsa yang terstandarisasi, kondisi pencitraan yang konsisten dengan pembesaran 1000 kali, dan teknik preparasi slide yang seragam. Tidak ada akses ke sampel yang dikumpulkan dari lapangan dengan kualitas pewarnaan yang bervariasi, tipe mikroskop yang beragam, dan pengaturan akuisisi citra yang heterogen yang representatif dari skenario penerapan klinis nyata. Kondisi ini menimbulkan ketidakpastian tentang ketahanan model terhadap pergeseran domain dan variabilitas dunia nyata. Terdapat potensi penurunan kinerja ketika diterapkan pada kondisi pencitraan yang berbeda, protokol pewarnaan yang bervariasi, atau tipe mikroskop yang tidak sama. Tanpa validasi eksternal yang komprehensif, klaim kesiapan untuk penerapan klinis tidak dapat dibuat secara konklusif.
+
+Untuk mengantisipasi kendala ini, beberapa langkah mitigasi telah dilakukan selama tahap pertama. Augmentasi data yang ekstensif diterapkan untuk mensimulasikan variabilitas pewarnaan melalui penyesuaian ruang warna HSV dan variasi kecerahan serta kontras. Pengujian dilakukan pada dua dataset yang berbeda (Spesies versus Tahap) untuk menilai generalisasi lintas tugas yang menunjukkan kemampuan model beradaptasi pada karakteristik data yang berbeda. Studi ablasi yang komprehensif dilakukan untuk mengidentifikasi komponen arsitektur mana yang paling kokoh terhadap variasi data. Dokumentasi menyeluruh dari parameter pencitraan dan langkah-langkah prapemrosesan juga disusun untuk memfasilitasi validasi eksternal di masa mendatang. Untuk tahap kedua, validasi eksternal direncanakan pada lebih dari 500 sampel yang dikumpulkan dari lapangan di rumah sakit di daerah endemis, pengujian lintas berbagai merek mikroskop, dan validasi dengan protokol pewarnaan yang beragam serta tingkat keahlian teknisi yang berbeda.
+
+### F.5 Keterbatasan Waktu untuk Fitur Lanjutan
+
+Beberapa fitur lanjutan yang awalnya direncanakan untuk tahun pertama tidak dapat diselesaikan sepenuhnya karena keterbatasan waktu, termasuk arsitektur pembelajaran multi-tugas tahap tunggal, validasi kuantitatif komprehensif terhadap peta perhatian Grad-CAM, studi ablasi ekstensif untuk semua hiperparameter, dan optimisasi penerapan pada perangkat bergerak melalui kuantisasi dan pemangkasan model. Sistem saat ini menggunakan pipeline dua tahap (deteksi diikuti klasifikasi) dengan latensi total 25 milidetik, sedikit lebih lambat dibandingkan potensi 10-15 milidetik yang dapat dicapai dengan pendekatan tahap tunggal. Visualisasi Grad-CAM telah dihasilkan namun belum divalidasi secara kuantitatif terhadap anotasi ahli. Model juga belum dioptimasi untuk penerapan pada perangkat bergerak, membatasi portabilitas sistem.
+
+Prioritasi dilakukan terhadap tujuan inti penelitian yaitu kinerja deteksi dan klasifikasi, memastikan bahwa fondasi sistem dibangun dengan kokoh terlebih dahulu. Dokumentasi hasil awal untuk fitur-fitur lanjutan telah disusun sebagai landasan untuk pengembangan pada tahap kedua. Tinjauan literatur yang ekstensif dan desain arsitektur awal untuk pendekatan tahap tunggal juga telah disiapkan. Diskusi kolaborasi dengan mitra industri potensial untuk dukungan optimisasi perangkat bergerak juga telah dimulai. Untuk tahap kedua mendatang, alokasi waktu khusus akan diberikan untuk pengembangan fitur-fitur lanjutan ini, dengan kemungkinan rekrutmen asisten peneliti tambahan untuk alur kerja paralel, serta eksperimen terfokus untuk arsitektur tahap tunggal dan optimisasi perangkat bergerak.
+
+### F.6 Kesimpulan Kendala dan Pembelajaran
+
+Secara keseluruhan, kendala-kendala yang dihadapi tidak menghambat pencapaian tujuan penelitian dasar yang fundamental yaitu mendemonstrasikan kelayakan kerangka kerja hibrida multi-model, mencapai kinerja deteksi dan klasifikasi yang kompetitif, serta membuktikan efisiensi pendekatan klasifikasi bersama Opsi A. Setiap kendala ditangani melalui strategi mitigasi yang sistematis dan didokumentasikan secara menyeluruh untuk memberikan masukan bagi arah penelitian mendatang. Beberapa kendala justru menghasilkan wawasan yang berharga, misalnya keterbatasan ukuran dataset mengungkapkan bahwa model EfficientNet yang lebih kecil mengungguli model ResNet yang lebih besar, menantang paradigma konvensional "semakin dalam semakin baik" dan memberikan panduan penting untuk penerapan kecerdasan buatan medis dalam pengaturan dengan sumber daya terbatas.
+
+---
+
+## G. RENCANA TAHAPAN SELANJUTNYA
+
+### G.1 Fase Jangka Pendek (3 Bulan Ke Depan)
 
 Phase immediate berikutnya akan focus pada finalizing journal manuscript dan conducting additional experiments untuk addressing reviewer potential concerns. Planned activities include generating additional visualizations (ROC curves, precision-recall curves, calibration plots) untuk providing comprehensive performance assessment, conducting ablation studies untuk quantifying contribution dari individual architectural components dan training strategies, dan performing statistical significance testing untuk rigorously validating performance differences between models.
 
 External validation planning akan initiate dengan establishing collaborations dengan local hospitals atau medical research institutions untuk securing access ke field-collected clinical samples. Protocol development untuk data collection, anonymization procedures, ethical clearance processes, dan quality control standards akan prioritized untuk ensuring smooth Phase 2 validation execution.
 
-### E.2 Fase Jangka Menengah (6-9 Bulan)
+### G.2 Fase Jangka Menengah (6-9 Bulan)
 
 Medium-term plans focus pada addressing identified limitations dan extending system capabilities. Dataset expansion akan pursued through multiple channels: crowdsourced annotation campaigns leveraging international pathologist networks, systematic data collection partnerships dengan endemic region hospitals, dan implementation dari synthetic data generation using trained GANs untuk augmenting minority classes. Target adalah achieving 1000+ images per task dengan more balanced class distributions.
 
 Single-stage multi-task learning architecture development akan accelerate, dengan prototype testing dan comparative evaluation against current two-stage pipeline. Model optimization untuk mobile deployment akan include quantization experiments (FP16, INT8, mixed precision), pruning studies untuk reducing model size sambil maintaining accuracy, dan neural architecture search untuk discovering optimal mobile-friendly architectures. Integration dengan portable microscopy platforms akan pilot-tested dalam controlled laboratory settings sebelum field deployment.
 
-### E.3 Fase Jangka Panjang (12+ Bulan)
+### G.3 Fase Jangka Panjang (12+ Bulan)
 
 Long-term vision includes full clinical deployment pilot program dalam selected endemic region hospitals atau health clinics. Deployment akan involve installing complete hardware-software solutions (digital microscopes, edge computing platforms, user interfaces), training healthcare workers dalam system operation, collecting real-world usage data untuk continuous improvement, dan conducting rigorous clinical validation studies comparing AI-assisted diagnosis versus traditional microscopy dalam terms of accuracy, speed, cost-effectiveness, dan clinician acceptance.
 
 International dissemination efforts akan expand beyond initial journal publication to include conference presentations at premier medical imaging atau tropical medicine venues, workshop organization untuk training other researchers dalam medical AI methodologies, dan potential patent applications untuk novel architectural innovations atau deployment strategies developed. Collaborations dengan commercial partners untuk translating research prototypes into FDA-approved atau CE-marked medical devices akan explored, potentially enabling widespread adoption dan significant public health impact dalam malaria-endemic regions worldwide.
+
+---
+
+## H. DAFTAR PUSTAKA
+
+[1] World Health Organization, "World Malaria Report 2024," Geneva, Switzerland, 2024.
+
+[2] R. W. Snow et al., "The global distribution of clinical episodes of Plasmodium falciparum malaria," *Nature*, vol. 434, pp. 214-217, 2005.
+
+[3] Centers for Disease Control and Prevention, "Malaria Biology," 2024. [Online]. Available: https://www.cdc.gov/malaria/about/biology/
+
+[4] A. Moody, "Rapid diagnostic tests for malaria parasites," *Clin. Microbiol. Rev.*, vol. 15, no. 1, pp. 66-78, 2002.
+
+[5] WHO, "Malaria Microscopy Quality Assurance Manual," ver. 2.0, Geneva, 2016.
+
+[6] P. L. Chiodini et al., "Manson's Tropical Diseases," 23rd ed. London: Elsevier, 2014, ch. 52.
+
+[7] J. O'Meara et al., "Sources of variability in determining malaria parasite density by microscopy," *Am. J. Trop. Med. Hyg.*, vol. 73, no. 3, pp. 593-598, 2005.
+
+[8] K. Mitsakakis et al., "Challenges in malaria diagnosis," *Expert Rev. Mol. Diagn.*, vol. 18, no. 10, pp. 867-875, 2018.
+
+[9] A. Esteva et al., "Dermatologist-level classification of skin cancer with deep neural networks," *Nature*, vol. 542, pp. 115-118, 2017.
+
+[10] P. Rajpurkar et al., "CheXNet: Radiologist-level pneumonia detection on chest X-rays with deep learning," arXiv:1711.05225, 2017.
+
+[11] N. Coudray et al., "Classification and mutation prediction from non-small cell lung cancer histopathology images using deep learning," *Nat. Med.*, vol. 24, pp. 1559-1567, 2018.
+
+[12] S. Rajaraman et al., "Pre-trained convolutional neural networks as feature extractors for diagnosis of malaria from blood smears," *Diagnostics*, vol. 8, no. 4, p. 74, 2018.
+
+[13] A. Wang et al., "YOLOv10: Real-time end-to-end object detection," arXiv:2405.14458, 2024.
+
+[14] G. Jocher et al., "YOLOv11: Ultralytics YOLO11," 2024. [Online]. Available: https://github.com/ultralytics/ultralytics
+
+[15] F. Poostchi et al., "Image analysis and machine learning for detecting malaria," *Transl. Res.*, vol. 194, pp. 36-55, 2018.
+
+[16] P. Rosenthal, "How do we diagnose and treat Plasmodium ovale and Plasmodium malariae?" *Curr. Infect. Dis. Rep.*, vol. 10, pp. 58-61, 2008.
+
+[17] S. Ren et al., "Faster R-CNN: Towards real-time object detection with region proposal networks," *IEEE Trans. Pattern Anal. Mach. Intell.*, vol. 39, no. 6, pp. 1137-1149, 2017.
+
+[18] WHO, "Basic Malaria Microscopy: Part I. Learner's guide," 2nd ed., Geneva, 2010.
+
+[19] G. Huang et al., "Densely connected convolutional networks," in *Proc. IEEE CVPR*, 2017, pp. 4700-4708.
+
+[20] M. Tan and Q. V. Le, "EfficientNet: Rethinking model scaling for convolutional neural networks," in *Proc. ICML*, 2019, pp. 6105-6114.
+
+[21] K. He et al., "Deep residual learning for image recognition," in *Proc. IEEE CVPR*, 2016, pp. 770-778.
+
+[22] T.-Y. Lin et al., "Focal loss for dense object detection," *IEEE Trans. Pattern Anal. Mach. Intell.*, vol. 42, no. 2, pp. 318-327, 2020.
+
+[23] M. Aikawa, "Parasitological review: Plasmodium," *Exp. Parasitol.*, vol. 30, no. 2, pp. 284-320, 1971.
+
+[24] A. Vijayalakshmi and B. Rajesh Kanna, "Deep learning approach to detect malaria from microscopic images," *Multim. Tools Appl.*, vol. 79, pp. 15297-15317, 2020.
+
+[25] J. Deng et al., "ImageNet: A large-scale hierarchical image database," in *Proc. IEEE CVPR*, 2009, pp. 248-255.
+
+[26] A. Dosovitskiy et al., "An image is worth 16×16 words: Transformers for image recognition at scale," in *Proc. ICLR*, 2021.
+
+[27] I. Goodfellow et al., "Generative adversarial nets," in *Proc. NeurIPS*, 2014, pp. 2672-2680.
+
+[28] J. Ho et al., "Denoising diffusion probabilistic models," in *Proc. NeurIPS*, 2020.
+
+[29] B. Settles, "Active learning literature survey," Univ. Wisconsin-Madison, Tech. Rep. 1648, 2009.
+
+[30] C. Finn et al., "Model-agnostic meta-learning for fast adaptation of deep networks," in *Proc. ICML*, 2017, pp. 1126-1135.
+
+[31] WHO, "Guidelines for the Treatment of Malaria," 3rd ed., Geneva, 2015.
+
+[32] C. J. Long et al., "A smartphone-based portable biosensor for diagnosis in resource-limited settings," *Nature Biotechnol.*, vol. 32, pp. 373-379, 2014.
+
+[33] R. Krishnamoorthi, "Quantizing deep convolutional networks for efficient inference," arXiv:1806.08342, 2018.
+
+[34] S. Han et al., "Learning both weights and connections for efficient neural network," in *Proc. NeurIPS*, 2015, pp. 1135-1143.
+
+[35] FDA, "Clinical decision support software: Guidance for industry and FDA staff," 2022.
+
+[36] H. Zhang et al., "mixup: Beyond empirical risk minimization," in *Proc. ICLR*, 2018.
+
+[37] O. Vinyals et al., "Matching networks for one shot learning," in *Proc. NeurIPS*, 2016, pp. 3630-3638.
+
+[38] Y. Ganin et al., "Domain-adversarial training of neural networks," *J. Mach. Learn. Res.*, vol. 17, no. 1, pp. 2096-2030, 2016.
+
+[39] A. Kirillov et al., "Segment anything," in *Proc. IEEE ICCV*, 2023, pp. 4015-4026.
+
+[40] R. R. Selvaraju et al., "Grad-CAM: Visual explanations from deep networks via gradient-based localization," *Int. J. Comput. Vis.*, vol. 128, pp. 336-359, 2020.
 
 ---
 
