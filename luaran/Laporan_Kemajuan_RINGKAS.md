@@ -180,11 +180,12 @@ Struktur artikel: (1) Pendahuluan dengan tinjauan pustaka tentang AI medis dan d
 
 **1. Implementasi Open-Source**
 
-Codebase lengkap dengan 12 skrip Python untuk persiapan data, pelatihan, evaluasi, dan visualisasi telah dipublikasikan di repository GitHub dengan lisensi MIT, memungkinkan komunitas riset untuk mereproduksi temuan dan mengembangkan penelitian ini lebih lanjut.
+Codebase lengkap dengan 12 skrip Python untuk persiapan data, pelatihan, evaluasi, dan visualisasi telah dikembangkan dan siap untuk dipublikasikan di repository GitHub dengan lisensi MIT. Publikasi akan dilakukan setelah artikel jurnal diterbitkan untuk memastikan prioritas publikasi dan melindungi klaim kontribusi ilmiah.
 
 **Repository**: https://github.com/akhiyarwaladi/hello_world
-**Lisensi**: MIT
-**Status**: Publik dan tersedia
+**Lisensi**: MIT (akan diterapkan)
+**Status**: Private - akan dipublikasikan setelah artikel jurnal diterbitkan (target: Q2 2026)
+**Alasan**: Memastikan prioritas publikasi dan melindungi klaim ilmiah sebelum dipublikasikan secara luas
 
 ---
 
