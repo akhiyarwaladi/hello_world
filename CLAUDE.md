@@ -1,23 +1,23 @@
 # CLAUDE.md - Malaria Detection Project
 
 ## 📋 PROJECT OVERVIEW
-Advanced malaria parasite detection and classification system using **Option A: Shared Classification Architecture** with YOLO detection models and PyTorch classification models.
+Advanced malaria parasite detection and classification system using **shared classification architecture** with YOLO detection models and PyTorch classification models.
 
-## 🚀 MAIN PIPELINE: OPTION A (YOLO-FOCUSED)
+## 🚀 MAIN PIPELINE
 
-### Option A Pipeline (PRIMARY - Only Pipeline)
+### Malaria Detection Pipeline (Shared Classification Architecture)
 ```bash
 # Default: All datasets, all YOLO models, all classification models
-python run_multiple_models_pipeline_OPTION_A.py
+python main_pipeline.py
 
 # Single dataset with specific models
-python run_multiple_models_pipeline_OPTION_A.py --dataset iml_lifecycle --include yolo11 --classification-models densenet121
+python main_pipeline.py --dataset iml_lifecycle --include yolo11 --classification-models densenet121
 
 # Full training with custom epochs
-python run_multiple_models_pipeline_OPTION_A.py --epochs-det 100 --epochs-cls 50
+python main_pipeline.py --epochs-det 100 --epochs-cls 50
 ```
 
-### **Option A Benefits:**
+### **Key Benefits:**
 - ✅ **~70% storage reduction** - Shared classification architecture
 - ✅ **~60% training time reduction** - Ground truth crops generated once
 - ✅ **Consistent classification** - Same models across all detection methods
@@ -65,13 +65,17 @@ python run_multiple_models_pipeline_OPTION_A.py --epochs-det 100 --epochs-cls 50
 
 ```
 hello_world/
-├── run_multiple_models_pipeline_OPTION_A.py    # MAIN PIPELINE (Option A)
+├── CLAUDE.md                                   # Main documentation (ONLY MD file in root)
+├── main_pipeline.py                            # MAIN PIPELINE
+├── run_baseline_comparison.py                  # Baseline experiments
 ├── scripts/
 │   ├── training/
 │   │   ├── generate_ground_truth_crops.py      # Ground truth crop generation
 │   │   └── 12_train_pytorch_classification.py  # Classification training
 │   ├── data_setup/                            # Dataset preparation scripts
-│   └── analysis/                              # Analysis and evaluation tools
+│   ├── analysis/                              # Analysis and evaluation tools
+│   └── visualization/                         # Visualization and figure generation (7 files)
+│       └── generate_pipeline_architecture_diagram.py  # Pipeline diagram generator
 ├── data/
 │   ├── raw/                                   # Raw datasets
 │   ├── processed/                             # Processed datasets (YOLO format)
@@ -81,13 +85,28 @@ hello_world/
 │   │   ├── experiments/                       # Individual dataset results
 │   │   └── consolidated_analysis/             # Cross-dataset analysis
 │   └── exp_optA_[timestamp]_[dataset]/        # Single dataset experiments
+├── luaran/                                    # Research outputs (papers, reports, figures, tables)
+├── archive/                                   # Archived redundant files (cleanup: 2025-10-11)
+│   ├── pipeline_diagrams/                     # Old pipeline diagram versions (4 files)
+│   ├── one_time_fixes/                        # Executed fix scripts (4 files)
+│   ├── figure_generators/                     # One-time figure generation scripts (4 files)
+│   ├── logs/                                  # Old training logs (10 files)
+│   ├── documentation/                         # Cleanup & verification docs (10 files)
+│   │   ├── howto/                             # HOWTO guides (4 files)
+│   │   └── laporan_backup/                    # Report backup versions (1 file)
+│   └── scripts/                               # Archived redundant scripts (16 files)
+│       ├── visualization/                     # Old visualization versions (4 files)
+│       ├── analysis/                          # One-time analysis scripts (6 files)
+│       ├── training/                          # Old training methods (4 files)
+│       ├── documentation/                     # DOCX generator (1 file)
+│       └── create_gt_pred_composites.py       # Composite generator (1 file)
 └── utils/
     └── results_manager.py                     # Results organization
 ```
 
 ## 🔧 KEY FEATURES
 
-### Option A: Shared Classification Architecture
+### Shared Classification Architecture
 - **Ground Truth Crops Generated Once**: All detection models use same clean crop data
 - **Classification Models Trained Once**: Shared across all detection methods
 - **Clean Separation**: Detection and classification stages are independent
@@ -183,13 +202,13 @@ Class-Balanced Loss:
 ```bash
 # PHASE 1 OPTIMIZED: 3 datasets × 3 detection × 6 classification = 54 experiments
 # Epochs: Detection=100, Classification=75 (increased for better convergence)
-python run_multiple_models_pipeline_OPTION_A.py
+python main_pipeline.py
 ```
 
 ### Quick Test Run
 ```bash
 # Single dataset, single models
-python run_multiple_models_pipeline_OPTION_A.py \
+python main_pipeline.py \
   --dataset iml_lifecycle \
   --include yolo11 \
   --classification-models densenet121 \
@@ -201,13 +220,13 @@ python run_multiple_models_pipeline_OPTION_A.py \
 ### Specific Experiments
 ```bash
 # YOLO comparison on single dataset
-python run_multiple_models_pipeline_OPTION_A.py \
+python main_pipeline.py \
   --dataset mp_idb_species \
   --include yolo10 yolo11 yolo12 \
   --classification-models densenet121 efficientnet_b1
 
 # Full training with more epochs
-python run_multiple_models_pipeline_OPTION_A.py \
+python main_pipeline.py \
   --epochs-det 100 \
   --epochs-cls 50
 ```
@@ -215,7 +234,7 @@ python run_multiple_models_pipeline_OPTION_A.py \
 ### Continue Existing Experiment
 ```bash
 # Resume from specific stage
-python run_multiple_models_pipeline_OPTION_A.py \
+python main_pipeline.py \
   --continue-from optA_20250929_203726 \
   --start-stage classification
 ```
@@ -365,28 +384,28 @@ results/optA_20251004_114731/                    ← Parent folder
 #### Basic Usage
 ```bash
 # Default full experiment
-python run_multiple_models_pipeline_OPTION_A.py
+python main_pipeline.py
 
 # Single dataset
-python run_multiple_models_pipeline_OPTION_A.py --dataset iml_lifecycle
+python main_pipeline.py --dataset iml_lifecycle
 
 # Specific YOLO models
-python run_multiple_models_pipeline_OPTION_A.py --include yolo11 yolo12
+python main_pipeline.py --include yolo11 yolo12
 
 # Specific classification models
-python run_multiple_models_pipeline_OPTION_A.py --classification-models densenet121 efficientnet_b1
+python main_pipeline.py --classification-models densenet121 efficientnet_b1
 ```
 
 #### Custom Data Splits
 ```bash
 # Custom 66/17/17 split (as requested)
-python run_multiple_models_pipeline_OPTION_A.py \
+python main_pipeline.py \
   --train-ratio 0.66 \
   --val-ratio 0.17 \
   --test-ratio 0.17
 
 # Custom 80/10/10 split
-python run_multiple_models_pipeline_OPTION_A.py \
+python main_pipeline.py \
   --dataset iml_lifecycle \
   --train-ratio 0.80 \
   --val-ratio 0.10 \
@@ -396,16 +415,16 @@ python run_multiple_models_pipeline_OPTION_A.py \
 #### Stage Control
 ```bash
 # Detection only
-python run_multiple_models_pipeline_OPTION_A.py --stop-stage detection
+python main_pipeline.py --stop-stage detection
 
 # Classification only (requires existing detection)
-python run_multiple_models_pipeline_OPTION_A.py \
+python main_pipeline.py \
   --continue-from optA_20250929_203726 \
   --start-stage classification \
   --stop-stage classification
 
 # Analysis only
-python run_multiple_models_pipeline_OPTION_A.py \
+python main_pipeline.py \
   --continue-from optA_20250929_203726 \
   --start-stage analysis
 ```
@@ -440,7 +459,7 @@ python scripts/analysis/compare_models_performance.py \
 ## 🚨 IMPORTANT NOTES
 
 - **YOLO-Only Pipeline**: RT-DETR removed for faster execution
-- **Option A is Primary**: Only actively maintained pipeline
+- **Single Pipeline Architecture**: Shared classification for efficiency
 - **GPU Optimized**: RTX 3060 tested and optimized
 - **Medical-Safe Augmentation**: Preserves diagnostic features
 - **Automatic Setup**: Datasets auto-download and setup
@@ -459,5 +478,147 @@ python scripts/analysis/compare_models_performance.py \
 3. **Full analysis**: Default command (no parameters)
 
 ---
-*Last Updated: 2025-09-30*
-*Option A Pipeline: YOLO-focused shared classification architecture for efficient malaria detection*
+
+## 🧹 CODEBASE MAINTENANCE
+
+### Cleanup History (2025-10-11)
+
+#### Phase 1: Script & Documentation Cleanup
+**Archived 14 redundant script files** to reduce root directory clutter:
+
+**Pipeline Diagrams** (4 files → `archive/pipeline_diagrams/`):
+- `create_pipeline_diagram.py` - Original version
+- `create_pipeline_diagram_v2.py` - Version 2
+- `create_pipeline_final.py` - "Final" version
+- `create_pipeline_clean.py` - "Clean" version
+- ✅ **KEPT**: `create_pipeline_diagram_publication.py` (current, publication-quality)
+
+**One-Time Fix Scripts** (4 files → `archive/one_time_fixes/`):
+- `fix_all_code_switching.py` - Fixed Bahasa/English mixing (executed)
+- `fix_iml_removal.py` - Removed IML dataset references (executed)
+- `fix_language_consistency.py` - Language consistency fixes (executed)
+- `update_to_mp_idb_only.py` - Updated to MP-IDB only (executed)
+
+**One-Time Figure Generators** (4 files → `archive/figure_generators/`):
+- `add_figure_narratives.py` - Added figure descriptions (executed)
+- `check_figure_mentions.py` - Verified figure mentions (executed)
+- `generate_comprehensive_consolidated_analysis.py` - Generated analysis (executed)
+- `restructure_laporan_kemajuan.py` - Restructured progress report (executed)
+
+**Cleanup Documentation** (2 files → `archive/documentation/`):
+- `CODEBASE_CLEANUP_ANALYSIS.md` - Cleanup analysis report (task completed)
+- `CLEANUP_COMPLETED_SUMMARY.md` - Cleanup summary (task completed)
+
+**Main Pipeline Renamed**:
+- `run_multiple_models_pipeline_OPTION_A.py` → `main_pipeline.py` (simplified naming)
+
+#### Phase 2: MD Documentation Cleanup
+**Archived 5 MD documentation files** (completed tasks):
+
+**Verification Documentation** (1 file → `archive/documentation/`):
+- `FINAL_VERIFICATION.md` - Paper/report verification checklist (task completed Oct 8)
+
+**HOWTO Guides** (4 files → `archive/documentation/howto/`):
+- `HOWTO_ADD_NEW_LOSS_OR_MODEL.md` - Developer guide for adding models/losses
+- `HOWTO_BATCH_GENERATE_ALL_FIGURES.md` - Batch figure generation guide
+- `HOWTO_GENERATE_AUGMENTATION_FIGURES.md` - Augmentation visualization guide
+- `HOWTO_GENERATE_FIGURES_DETECTION_CLASSIFICATION.md` - Detection/classification figures guide
+
+**Reason for Archiving**: All figure generation tasks completed, guides reference outdated filenames, and all outputs already exist in `luaran/figures/`
+
+#### Phase 3: scripts/ Directory Cleanup
+**Archived 15 redundant scripts** (old versions, one-time use):
+
+**Visualization Scripts** (4 files → `archive/scripts/visualization/`):
+- `visualize_augmentation.py` - Original augmentation visualizer
+- `generate_high_quality_augmentation_figure.py` - High-quality variant
+- `generate_augmentation_no_title.py` - No-title variant
+- `generate_gradcam.py` - Original GradCAM (superseded by improved version)
+- ✅ **KEPT**: `generate_compact_augmentation_figures.py` (latest), `generate_improved_gradcam.py` (improved)
+
+**Analysis Scripts** (6 files → `archive/scripts/analysis/`):
+- `classification_deep_analysis.py` - Deep analysis (Sep 24)
+- `comprehensive_classification_test.py` - Comprehensive test (Sep 27)
+- `crop_resolution_analysis.py` - Resolution analysis (Sep 27)
+- `quick_bias_analysis.py` - Bias check (Sep 27)
+- `simple_classification_analysis.py` - Simple analysis (Sep 27)
+- `unified_journal_analysis.py` - Journal-specific analysis (Sep 28)
+- ✅ **KEPT**: `compare_models_performance.py`, `dataset_statistics_analyzer.py` (used by main pipeline)
+
+**Training Scripts** (4 files → `archive/scripts/training/`):
+- `11_crop_detections.py` - Old cropping method
+- `13_fix_classification_structure.py` - One-time structure fix
+- `train_all_crop_datasets.py` - Redundant batch trainer
+- `train_classification_from_crops.py` - Old training method
+- ✅ **KEPT**: `12_train_pytorch_classification.py`, `generate_ground_truth_crops.py`, `advanced_losses.py`, `baseline_classification.py`
+
+**Root Level Scripts** (1 file → `archive/scripts/`):
+- `create_gt_pred_composites.py` - One-time composite generator for Figure 9
+
+**Reason for Archiving**: Multiple versions of same functionality, one-time exploratory analysis (Sep 24-28), superseded by main pipeline
+
+#### Phase 4: Logs, Temps, and Working Documents Cleanup
+**Archived/deleted 16 files** (logs, temporary files, working documents):
+
+**Log Files** (10 files → `archive/logs/`):
+- `analysis_rerun.log` - Analysis rerun log (Sep 30)
+- `baseline_run.log` - Baseline run log (Oct 5)
+- `baseline_training.log` - Baseline training v1 (Oct 5)
+- `baseline_training_v2.log` - Baseline training v2 (Oct 5)
+- `baseline_training_v3.log` - Baseline training v3 (Oct 5)
+- `efficientnet_b1_training.log` - EfficientNet training (Oct 1)
+- `pipeline_final_test.log` - Pipeline final test (Oct 1)
+- `pipeline_full_test.log` - Pipeline full test (Oct 1, 250 KB)
+- `test_cb_fix.log` - CB fix test (Oct 3)
+- `test_cb_fixed.log` - CB fixed test (Oct 3)
+
+**Working Analysis Documents** (3 files → `archive/documentation/`):
+- `SCRIPTS_CLEANUP_ANALYSIS.md` - scripts/ cleanup analysis (Oct 11)
+- `ROOT_SCRIPTS_ANALYSIS.md` - Root scripts analysis (Oct 11)
+- `FINAL_COMPREHENSIVE_CLEANUP.md` - Phase 4 cleanup plan (Oct 11)
+
+**Backup Versions** (1 file → `archive/documentation/laporan_backup/`):
+- `Laporan_Kemajuan_RINGKAS.md` - Condensed version of progress report (Oct 10)
+
+**Root Scripts Relocated**:
+- `create_pipeline_diagram_publication.py` → `scripts/visualization/generate_pipeline_architecture_diagram.py` (moved for better organization)
+
+**Root Scripts Archived** (1 file → `archive/scripts/documentation/`):
+- `generate_docx_from_markdown.py` - MD to DOCX converter (outdated file paths)
+
+**Temporary Files** (1 file - Word lock file):
+- `luaran/~WRL1769.tmp` - Skipped (file locked by open Word document)
+
+**Reason for Cleanup**: Outdated training logs (before main pipeline finalized), completed working documents, backup versions superseded, Word temp files, and scripts with outdated paths or better locations
+
+#### Total Cleanup Summary (4 Phases)
+
+| Phase | Files Processed | Action | Category |
+|-------|----------------|--------|----------|
+| **Phase 1** | 14 files | Archived | Root Python scripts + cleanup docs |
+| **Phase 2** | 5 files | Archived | MD documentation |
+| **Phase 3** | 15 files | Archived | scripts/ directory redundant scripts |
+| **Phase 4** | 16 files | Archived/Moved/Skipped | Logs, temps, working docs, root scripts |
+| **TOTAL** | **50 files** | **Cleaned** | **Professional codebase** |
+
+**Root Directory Cleanup**:
+- **Before**: 25+ files (confusing, cluttered)
+- **After**: 3 essential files only (1 MD + 2 Python)
+- **Reduction**: **88% reduction** (25 → 3)
+
+**scripts/ Directory Cleanup**:
+- **Before**: 40 Python scripts (many redundant)
+- **After**: 26 active scripts only (includes relocated pipeline diagram generator)
+- **Reduction**: **35% reduction** (40 → 26)
+
+**Benefits**:
+- Ultra-clean root directory (only CLAUDE.md for docs)
+- Clean scripts/ directory (only latest/active versions)
+- Professional project structure
+- All archived files 100% restorable from `archive/` folder
+
+**Note**: Archived files can be restored from `archive/` folder if needed.
+
+---
+*Last Updated: 2025-10-11*
+*Main Pipeline: YOLO-focused shared classification architecture for efficient malaria detection*
