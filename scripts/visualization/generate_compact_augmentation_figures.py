@@ -327,8 +327,8 @@ def main():
     parser.add_argument(
         '--output-dir',
         type=str,
-        default='luaran/figures',
-        help='Output directory (default: luaran/figures)'
+        default='luaran/auto_generated/figures/augmentation',
+        help='Output directory (default: luaran/auto_generated/figures/augmentation)'
     )
     parser.add_argument(
         '--prefix',
