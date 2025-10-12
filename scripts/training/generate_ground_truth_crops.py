@@ -54,6 +54,10 @@ class GroundTruthCropGenerator:
         if (self.dataset_path / "annotations.json").exists() and (self.dataset_path / "IML_Malaria").exists():
             return 'iml_lifecycle'
 
+        # Check for MD_2019 raw data structure
+        if (self.dataset_path / "LifeStages.xlsx").exists() or 'md_2019' in str(self.dataset_path).lower():
+            return 'md_2019_stages'
+
         # Check for processed data with data.yaml
         if (self.dataset_path / "data.yaml").exists():
             # Read data.yaml to understand structure
@@ -61,7 +65,10 @@ class GroundTruthCropGenerator:
             with open(self.dataset_path / "data.yaml", 'r') as f:
                 config = yaml.safe_load(f)
 
-            if config.get('nc', 0) == 1 and 'parasite' in config.get('names', []):
+            # MD_2019 has nc=3 with ring/schizont/trophozoite
+            if config.get('nc', 0) == 3 and 'ring' in str(config.get('names', [])):
+                return 'md_2019_stages'
+            elif config.get('nc', 0) == 1 and 'parasite' in config.get('names', []):
                 return 'iml_lifecycle'
             elif 'ring' in str(config.get('names', [])):
                 return 'mp_idb_stages'
@@ -70,7 +77,9 @@ class GroundTruthCropGenerator:
 
         # Fallback detection based on path
         dataset_name = str(self.dataset_path).lower()
-        if 'lifecycle' in dataset_name or 'malaria_lifecycle' in dataset_name:
+        if 'md_2019' in dataset_name or 'md2019' in dataset_name:
+            return 'md_2019_stages'
+        elif 'lifecycle' in dataset_name or 'malaria_lifecycle' in dataset_name:
             return 'iml_lifecycle'
         elif 'species' in dataset_name:
             return 'mp_idb_species'
@@ -112,6 +121,18 @@ class GroundTruthCropGenerator:
                 'detection_to_classification': stage_mapping,
                 'class_names': ['ring', 'schizont', 'trophozoite', 'gametocyte'],
                 'class_ids': {'ring': 0, 'schizont': 1, 'trophozoite': 2, 'gametocyte': 3}
+            }
+        elif dataset_type == 'md_2019_stages':
+            # Map from 3 classes to 3 stages (no gametocyte)
+            # MD_2019 has single detection class (parasite) but 3 classification classes
+            stage_mapping = {}
+            for i in range(3):
+                stage_mapping[i] = i  # Direct mapping: 0->0, 1->1, 2->2
+
+            return {
+                'detection_to_classification': stage_mapping,
+                'class_names': ['ring', 'schizont', 'trophozoite'],
+                'class_ids': {'ring': 0, 'schizont': 1, 'trophozoite': 2}
             }
 
         return None
@@ -239,12 +260,23 @@ class GroundTruthCropGenerator:
                     dominant_class = max(set(class_ids), key=class_ids.count)
                     stratify_labels.append(dominant_class)
         else:
-            # For MP-IDB datasets, scan labels
+            # For MP-IDB and MD_2019 datasets, scan labels
             images_dir = self.dataset_path / "images"
             labels_dir = self.dataset_path / "labels"
 
+            # Determine file patterns based on dataset type
+            if dataset_type == 'md_2019_stages':
+                file_patterns = ["*.png", "*.PNG"]
+            else:
+                file_patterns = ["*.jpg", "*.JPG"]
+
             # Sort image files for deterministic file ordering
-            for image_file in sorted(images_dir.glob("*.jpg")):
+            import itertools
+            all_image_files = sorted(itertools.chain.from_iterable(
+                images_dir.glob(pattern) for pattern in file_patterns
+            ))
+
+            for image_file in all_image_files:
                 label_file = labels_dir / f"{image_file.stem}.txt"
                 if label_file.exists():
                     image_files.append(image_file.name)
@@ -262,6 +294,9 @@ class GroundTruthCropGenerator:
                                 elif dataset_type == 'mp_idb_stages':
                                     # Map to stages: 0,4,8,12->0, 1,5,9,13->1, etc.
                                     class_id = class_id % 4
+                                elif dataset_type == 'md_2019_stages':
+                                    # MD_2019 uses direct mapping: 0->ring, 1->schizont, 2->trophozoite
+                                    pass  # No transformation needed
                                 class_ids.append(class_id)
 
                     if class_ids:
@@ -468,8 +503,21 @@ class GroundTruthCropGenerator:
             print(f"[SPLIT] Processing {split}...")
 
             # Process each image
-            image_pattern = "*.JPG" if dataset_type == 'iml_lifecycle' else "*.jpg"
-            for image_path in images_dir.glob(image_pattern):
+            # Determine image patterns based on dataset type
+            if dataset_type == 'iml_lifecycle':
+                image_patterns = ["*.JPG"]
+            elif dataset_type == 'md_2019_stages':
+                image_patterns = ["*.png", "*.PNG"]
+            else:
+                image_patterns = ["*.jpg", "*.JPG"]
+
+            # Collect all image files from all patterns
+            import itertools
+            all_images = itertools.chain.from_iterable(
+                images_dir.glob(pattern) for pattern in image_patterns
+            )
+
+            for image_path in all_images:
                 # For IML lifecycle, we use original annotations directly
                 if dataset_type == 'iml_lifecycle' and image_path.name in original_annotations:
                     # Load image
@@ -567,7 +615,7 @@ class GroundTruthCropGenerator:
                         x1, y1, x2, y2 = bbox_coords
 
                         # Map to classification class
-                        if dataset_type in ['mp_idb_species', 'mp_idb_stages']:
+                        if dataset_type in ['mp_idb_species', 'mp_idb_stages', 'md_2019_stages']:
                             class_id = class_mapping['detection_to_classification'].get(yolo_class_id, 0)
                         else:
                             class_id = 0  # Default for single class
@@ -630,7 +678,7 @@ def main():
     parser.add_argument('--dataset', required=True, help='Path to dataset directory (with train/val/test structure)')
     parser.add_argument('--output', required=True, help='Output directory for generated crops')
     parser.add_argument('--crop_size', type=int, default=224, help='Size of generated crops (default: 224 for paper compatibility)')
-    parser.add_argument('--type', choices=['iml_lifecycle', 'mp_idb_species', 'mp_idb_stages'],
+    parser.add_argument('--type', choices=['iml_lifecycle', 'mp_idb_species', 'mp_idb_stages', 'md_2019_stages'],
                        help='Force dataset type (overrides auto-detection)')
     parser.add_argument('--train-ratio', type=float, default=0.66,
                        help='Training set ratio (default: 0.66 = 66%%)')
