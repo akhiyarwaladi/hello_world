@@ -16,13 +16,19 @@ import shutil
 class GroundTruthCropGenerator:
     """Generate crops from ground truth annotations"""
 
-    def __init__(self, dataset_path, output_path, crop_size=224, train_ratio=0.66, val_ratio=0.17, test_ratio=0.17):
+    def __init__(self, dataset_path, output_path, crop_size=224, train_ratio=0.66, val_ratio=0.17, test_ratio=0.17, 
+                 apply_clahe=True, clahe_clip_limit=2.0, clahe_tile_size=8):
         self.dataset_path = Path(dataset_path)
         self.output_path = Path(output_path)
         self.crop_size = crop_size
         self.train_ratio = train_ratio
         self.val_ratio = val_ratio
         self.test_ratio = test_ratio
+        
+        # CLAHE enhancement parameters
+        self.apply_clahe = apply_clahe
+        self.clahe_clip_limit = clahe_clip_limit
+        self.clahe_tile_size = clahe_tile_size
 
         # Validate ratios
         total_ratio = train_ratio + val_ratio + test_ratio
@@ -47,6 +53,12 @@ class GroundTruthCropGenerator:
             'split_distribution': defaultdict(lambda: defaultdict(int)),
             'class_distribution': defaultdict(int)
         }
+        
+        # Print CLAHE status
+        if self.apply_clahe:
+            print(f"[CLAHE] Enhancement ENABLED (clip_limit={self.clahe_clip_limit}, tile_size={self.clahe_tile_size}x{self.clahe_tile_size})")
+        else:
+            print(f"[CLAHE] Enhancement DISABLED (using original crops)")
 
     def detect_dataset_type(self):
         """Detect which dataset we're processing"""
@@ -424,7 +436,58 @@ class GroundTruthCropGenerator:
             # Downscaling - use area interpolation to preserve details
             crop_resized = cv2.resize(crop, (target_size, target_size), interpolation=cv2.INTER_AREA)
 
+        # Apply CLAHE enhancement if enabled
+        if self.apply_clahe:
+            crop_resized = self.enhance_crop_clahe(
+                crop_resized, 
+                clip_limit=self.clahe_clip_limit,
+                tile_grid_size=(self.clahe_tile_size, self.clahe_tile_size)
+            )
+
         return crop_resized
+
+    def enhance_crop_clahe(self, crop, clip_limit=2.0, tile_grid_size=(8, 8)):
+        """
+        Apply CLAHE (Contrast Limited Adaptive Histogram Equalization) to enhance crop.
+        
+        CLAHE improves local contrast while preventing over-amplification of noise.
+        Works in LAB color space to preserve color information while enhancing luminance.
+        
+        Args:
+            crop: Input crop image (BGR format)
+            clip_limit: Threshold for contrast limiting (default: 2.0)
+                       Higher values = more contrast enhancement
+                       Typical range: 1.0-4.0 for medical images
+            tile_grid_size: Size of grid for histogram equalization (default: 8x8)
+                           Smaller tiles = more local enhancement
+        
+        Returns:
+            Enhanced crop image (BGR format)
+        
+        References:
+            - Nature Scientific Reports 2024: "Best results with CLAHE on blue channel"
+            - PMC 2024: "CLAHE widely used for malaria parasite detection"
+        """
+        if crop is None or crop.size == 0:
+            return crop
+        
+        # Convert BGR to LAB color space
+        # L: Lightness, A: green-red, B: blue-yellow
+        lab = cv2.cvtColor(crop, cv2.COLOR_BGR2LAB)
+        l_channel, a_channel, b_channel = cv2.split(lab)
+        
+        # Apply CLAHE only to L (lightness) channel
+        # This preserves color information while enhancing contrast
+        clahe = cv2.createCLAHE(clipLimit=clip_limit, tileGridSize=tile_grid_size)
+        l_channel_clahe = clahe.apply(l_channel)
+        
+        # Merge enhanced L channel with original A and B channels
+        lab_enhanced = cv2.merge([l_channel_clahe, a_channel, b_channel])
+        
+        # Convert back to BGR
+        crop_enhanced = cv2.cvtColor(lab_enhanced, cv2.COLOR_LAB2BGR)
+        
+        return crop_enhanced
 
     def process_dataset(self, dataset_type):
         """Process dataset to generate ground truth crops"""
@@ -513,9 +576,11 @@ class GroundTruthCropGenerator:
 
             # Collect all image files from all patterns
             import itertools
-            all_images = itertools.chain.from_iterable(
+            all_images_raw = itertools.chain.from_iterable(
                 images_dir.glob(pattern) for pattern in image_patterns
             )
+            # Deduplicate images (case-insensitive filesystems match same file multiple times)
+            all_images = list(dict.fromkeys(all_images_raw))  # Preserves order, removes duplicates
 
             for image_path in all_images:
                 # For IML lifecycle, we use original annotations directly
@@ -606,10 +671,20 @@ class GroundTruthCropGenerator:
                             continue
 
                         yolo_class_id = int(parts[0])
-                        polygon_coords = parts[1:]  # All coordinates after class_id
+                        coords = parts[1:]  # All coordinates after class_id
 
-                        # Convert polygon to bounding box
-                        bbox_coords = self.polygon_to_bbox(polygon_coords, img_width, img_height)
+                        # Detect format: YOLO bbox (4 values) or polygon (6+ values)
+                        if len(coords) == 4:
+                            # YOLO bbox format: x_center y_center width height
+                            yolo_coords = [float(coords[0]), float(coords[1]), float(coords[2]), float(coords[3])]
+                            bbox_coords = self.yolo_to_pixel_coords(yolo_coords, img_width, img_height)
+                        elif len(coords) >= 6:
+                            # Polygon format: x1 y1 x2 y2 x3 y3 ...
+                            bbox_coords = self.polygon_to_bbox(coords, img_width, img_height)
+                        else:
+                            # Invalid format
+                            continue
+
                         if bbox_coords is None:
                             continue
                         x1, y1, x2, y2 = bbox_coords
@@ -686,6 +761,14 @@ def main():
                        help='Validation set ratio (default: 0.17 = 17%%)')
     parser.add_argument('--test-ratio', type=float, default=0.17,
                        help='Test set ratio (default: 0.17 = 17%%)')
+    
+    # CLAHE enhancement parameters
+    parser.add_argument('--apply-clahe', type=lambda x: x.lower() == 'true', default=True,
+                       help='Apply CLAHE enhancement to crops (default: True). Use "false" to disable.')
+    parser.add_argument('--clahe-clip-limit', type=float, default=2.0,
+                       help='CLAHE clip limit for contrast limiting (default: 2.0, range: 1.0-4.0)')
+    parser.add_argument('--clahe-tile-size', type=int, default=8,
+                       help='CLAHE tile grid size (default: 8 for 8x8 grid)')
 
     args = parser.parse_args()
 
@@ -698,12 +781,15 @@ def main():
         print(f"  --test-ratio: {args.test_ratio}")
         return
 
-    # Initialize generator with split ratios
+    # Initialize generator with split ratios and CLAHE parameters
     generator = GroundTruthCropGenerator(
         args.dataset, args.output, args.crop_size,
         train_ratio=args.train_ratio,
         val_ratio=args.val_ratio,
-        test_ratio=args.test_ratio
+        test_ratio=args.test_ratio,
+        apply_clahe=args.apply_clahe,
+        clahe_clip_limit=args.clahe_clip_limit,
+        clahe_tile_size=args.clahe_tile_size
     )
 
     # Detect or use specified dataset type
