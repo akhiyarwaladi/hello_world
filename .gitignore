@@ -143,3 +143,4 @@ backup/
 # Large files (> 50MB)
 *.tiff
 luaran/JICEST_Paper.docx
+~$*.docx
