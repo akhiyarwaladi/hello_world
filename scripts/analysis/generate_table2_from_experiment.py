@@ -266,8 +266,8 @@ def main():
     parser.add_argument(
         '--output',
         type=str,
-        default='luaran/tables/Table2_Classification_Performance_Summary.csv',
-        help='Output CSV file path (default: luaran/tables/Table2_Classification_Performance_Summary.csv)'
+        default='luaran/auto_generated/tables/classification/Table2_Classification_Performance_Summary.csv',
+        help='Output CSV file path (default: luaran/auto_generated/tables/classification/Table2_Classification_Performance_Summary.csv)'
     )
 
     args = parser.parse_args()

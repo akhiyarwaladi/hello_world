@@ -155,12 +155,15 @@ for x, y, label in stage_labels:
 # Benefits removed per user request
 
 # Save with publication quality - zero padding for minimal whitespace
+import os
+output_path = 'luaran/auto_generated/figures/pipeline_diagrams/pipeline_architecture_horizontal.png'
+os.makedirs(os.path.dirname(output_path), exist_ok=True)
 plt.tight_layout(pad=0)
-plt.savefig('luaran/figures/pipeline_architecture_horizontal.png',
+plt.savefig(output_path,
             dpi=600, bbox_inches='tight', facecolor='white', edgecolor='none',
             pad_inches=0.05)  # Minimal padding (0.05 = ~3px at 600dpi)
 print("SUCCESS: Publication-quality diagram created (optimized, minimal whitespace)")
-print("         File: luaran/figures/pipeline_architecture_horizontal.png")
+print(f"         File: {output_path}")
 print("         DPI: 600 (publication standard)")
 print("         Whitespace: Minimized with tight bounds + 0.05 padding")
 print("         Style: Professional, clean, Q1 journal quality")
