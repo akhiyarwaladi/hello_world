@@ -1,3 +1,0 @@
-**Note**: Archived files can be restored from `archive/` folder if needed.
-
----

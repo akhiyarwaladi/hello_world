@@ -1,4 +1,0 @@
----
-*Last Updated: 2025-10-12*
-*Main Pipeline: YOLO-focused shared classification architecture for efficient malaria detection*
-*Luaran Structure: Automated publication outputs with 90% time reduction*
