@@ -53,7 +53,7 @@ python run_multiple_models_pipeline_OPTION_A.py
 # Output: Detection models in results/*/det_yolo*/
 #
 # Models trained:
-# - YOLO10 Medium (yolov10m.pt)
+# - YOLO10 Medium (yolo10m.pt)
 # - YOLO11 Medium (yolo11m.pt)
 # - YOLO12 Medium (yolo12m.pt)
 ```
