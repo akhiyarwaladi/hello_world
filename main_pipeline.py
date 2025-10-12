@@ -566,8 +566,8 @@ Multi-Dataset Continue Examples:
                        help="PHASE 1: Epochs for classification training (increased from 50 for minority class convergence)")
     parser.add_argument("--experiment-name", default="optA",
                        help="Base name for experiments")
-    parser.add_argument("--dataset", choices=["mp_idb_species", "mp_idb_stages", "iml_lifecycle", "all"], default="all",
-                       help="Dataset selection: mp_idb_species (4 species), mp_idb_stages (4 stages), iml_lifecycle (4 stages), all (run all datasets - DEFAULT)")
+    parser.add_argument("--dataset", choices=["mp_idb_species", "mp_idb_stages", "iml_lifecycle", "md_2019_stages", "all"], default="all",
+                       help="Dataset selection: mp_idb_species (4 species), mp_idb_stages (4 stages), iml_lifecycle (4 stages), md_2019_stages (3 stages), all (run all datasets - DEFAULT)")
     parser.add_argument("--classification-models", nargs="+",
                        choices=["densenet121", "efficientnet_b1", "vgg16", "resnet50", "efficientnet_b2", "resnet101", "all"],
                        default=["all"],
@@ -643,7 +643,7 @@ Multi-Dataset Continue Examples:
             parent_manager = create_option_a_manager(parent_exp_name)
             print(f"[PARENT] Created: {parent_manager.parent_folder}")
 
-        datasets_to_run = ["mp_idb_species", "mp_idb_stages", "iml_lifecycle"]
+        datasets_to_run = ["mp_idb_species", "mp_idb_stages", "iml_lifecycle", "md_2019_stages"]
         all_results = []
 
         # Handle --consolidated-only flag
@@ -1129,6 +1129,27 @@ def run_pipeline_for_dataset(args):
 
             print("[SUCCESS] MP-IDB stages dataset setup completed")
 
+    elif args.dataset == "md_2019_stages":
+        # Setup MD_2019 stage dataset paths
+        md2019_ready_path = Path("data/processed/md_2019_stages/data.yaml")
+
+        if not md2019_ready_path.exists():
+            print("[SETUP] Setting up MD_2019 stages dataset for pipeline...")
+            import subprocess
+
+            # Convert to stage format (3 classes only - no Gametocyte)
+            setup_result = subprocess.run([sys.executable, "scripts/data_setup/10_setup_md2019_stage_for_pipeline.py",
+                                         "--multi-class",
+                                         "--train-ratio", str(args.train_ratio),
+                                         "--val-ratio", str(args.val_ratio),
+                                         "--test-ratio", str(args.test_ratio)],
+                                        capture_output=True, text=True, encoding='utf-8', errors='replace')
+            if setup_result.returncode != 0:
+                print(f"[ERROR] Failed to setup MD_2019 stages dataset: {setup_result.stderr}")
+                return
+
+            print("[SUCCESS] MD_2019 stages dataset setup completed")
+
     else:  # mp_idb_species
         # MP-IDB species dataset setup
         kaggle_ready_path = Path("data/processed/species/data.yaml")
@@ -1207,6 +1228,15 @@ def run_pipeline_for_dataset(args):
                 else:
                     print(f"[ERROR] MP-IDB stages dataset not found! Setup first.")
                     failed_models.append(f"{model_key} (no MP-IDB stages dataset)")
+                    continue
+            elif args.dataset == "md_2019_stages":
+                md2019_path = Path("data/processed/md_2019_stages")
+                if md2019_path.exists() and (md2019_path / "data.yaml").exists():
+                    data_yaml = "data/processed/md_2019_stages/data.yaml"
+                    print(f"[MD_2019_STAGES] Using MD_2019 stages dataset for detection training (1 class: parasite)")
+                else:
+                    print(f"[ERROR] MD_2019 stages dataset not found! Setup first.")
+                    failed_models.append(f"{model_key} (no MD_2019 stages dataset)")
                     continue
             else:  # mp_idb_species
                 # MP-IDB species dataset logic (single-class detection)
@@ -1348,6 +1378,10 @@ def run_pipeline_for_dataset(args):
             raw_dataset_path = "data/raw/kaggle_dataset/MP-IDB-YOLO"
             dataset_type = "mp_idb_stages"
             print(f"[MP_IDB_STAGES] Using MP-IDB raw annotations for ground truth crops")
+        elif args.dataset == "md_2019_stages":
+            raw_dataset_path = "data/raw/md_2019"
+            dataset_type = "md_2019_stages"
+            print(f"[MD_2019_STAGES] Using MD_2019 raw annotations for ground truth crops")
         elif args.dataset == "mp_idb_species":
             raw_dataset_path = "data/raw/kaggle_dataset/MP-IDB-YOLO"
             dataset_type = "mp_idb_species"
