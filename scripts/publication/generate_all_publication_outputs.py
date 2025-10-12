@@ -102,11 +102,11 @@ class PublicationOutputGenerator:
 
     def step2_generate_performance_figures(self) -> bool:
         """Generate performance analysis figures."""
-        # Check if figures already exist in luaran/figures/
-        figures_dir = Path("luaran/figures")
+        # Check if figures already exist in luaran/auto_generated/figures/performance/
+        figures_dir = Path("luaran/auto_generated/figures/performance")
 
         if figures_dir.exists():
-            figure_count = len(list(figures_dir.rglob("*.png")))
+            figure_count = len(list(figures_dir.glob("*.png")))
             print(f"\n[{datetime.now().strftime('%H:%M:%S')}] 📈 Performance figures")
             print(f"  ℹ️ Found {figure_count} existing figures in {figures_dir}")
             print(f"  ✅ Using existing performance figures")
@@ -134,18 +134,20 @@ class PublicationOutputGenerator:
 
     def step4_generate_augmentation_figures(self) -> bool:
         """Generate augmentation visualization figures."""
-        # Check if augmentation figures already exist
-        aug_figures = list(Path("luaran/figures").glob("Figure_5_Augmentation_*.png"))
+        # Check if augmentation figures already exist in auto_generated/
+        aug_dir = Path("luaran/auto_generated/figures/augmentation")
 
         print(f"\n[{datetime.now().strftime('%H:%M:%S')}] 🎨 Augmentation figures")
 
-        if aug_figures:
-            print(f"  ℹ️ Found {len(aug_figures)} existing augmentation figures")
-            print(f"  ✅ Using existing augmentation figures")
-            self.step_results.append(("Augmentation Figures", True, f"{len(aug_figures)} files found"))
-            return True
+        if aug_dir.exists():
+            aug_figures = list(aug_dir.glob("augmentation_*.png"))
+            if aug_figures:
+                print(f"  ℹ️ Found {len(aug_figures)} existing augmentation figures")
+                print(f"  ✅ Using existing augmentation figures")
+                self.step_results.append(("Augmentation Figures", True, f"{len(aug_figures)} files found"))
+                return True
 
-        print(f"  ⚠️ No augmentation figures found")
+        print(f"  ⚠️ No augmentation figures found in {aug_dir}")
         print(f"  ℹ️ To generate, run: scripts/visualization/generate_compact_augmentation_figures.py")
         self.step_results.append(("Augmentation Figures", False, "No figures found"))
         return False

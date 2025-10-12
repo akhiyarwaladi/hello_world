@@ -166,7 +166,7 @@ libreoffice --headless --convert-to pdf reports/Laporan\ Kemajuan\ Malaria.docx
 ![Figure 2: Data Augmentation - IML Lifecycle](../../auto_generated/figures/augmentation/augmentation_iml_lifecycle_combined.png)
 
 <!-- Performance Analysis -->
-![Figure 3: Confusion Matrix - YOLO11](../../auto_generated/figures/performance/confusion_matrix_yolo11.png)
+![Figure 3: Confusion Matrices - All Models](../../auto_generated/figures/performance/confusion_matrices.png)
 ```
 
 **With captions and labels**:
