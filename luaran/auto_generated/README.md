@@ -15,13 +15,13 @@ All files in this directory are **automatically generated** from pipeline experi
 
 ## 📊 Contents Overview
 
-This directory contains **42 auto-generated files** organized into 3 categories:
+This directory contains **44 auto-generated files** organized into 3 categories:
 
-### 📈 Figures (30 files)
+### 📈 Figures (31 files)
 ```
 figures/
-├── pipeline_diagrams/     (6 files)  - Architecture & flow diagrams
-├── augmentation/          (18 files) - Data augmentation visualizations
+├── pipeline_diagrams/     (5 files)  - Architecture & flow diagrams
+├── augmentation/          (21 files) - Data augmentation visualizations
 └── performance/           (8 files)  - Performance analysis plots
 ```
 
@@ -49,13 +49,13 @@ _metadata.json             (1 file)   - Generation metadata & integrity tracking
 python scripts/publication/generate_all_publication_outputs.py
 
 # Output:
-# ✅ Generating 30 figures...
+# ✅ Generating 31 figures...
 # ✅ Exporting 12 tables...
 # ✅ Creating metadata.json...
 # ✅ Verifying data integrity...
 #
 # Generated in ~5 minutes:
-# - 30 publication-quality figures
+# - 31 publication-quality figures
 # - 12 comprehensive data tables
 # - 1 metadata file with integrity tracking
 ```
@@ -73,38 +73,26 @@ python scripts/publication/generate_all_publication_outputs.py
 
 ## 🔧 Selective Regeneration
 
-### Figures Only
+### Future Feature (Not Yet Implemented)
+
+The following flags are **planned but not yet available**. Currently, use the main regeneration command only.
 
 ```bash
-# Regenerate all figures
-python scripts/publication/generate_all_publication_outputs.py --figures-only
+# FUTURE: Selective regeneration by category
+# python scripts/publication/generate_all_publication_outputs.py --figures-only
+# python scripts/publication/generate_all_publication_outputs.py --tables-only
 
-# Specific figure categories
-python scripts/publication/generate_all_publication_outputs.py --pipeline-diagrams
-python scripts/publication/generate_all_publication_outputs.py --augmentation-figures
-python scripts/publication/generate_all_publication_outputs.py --performance-figures
+# FUTURE: Specific figure/table categories
+# python scripts/publication/generate_all_publication_outputs.py --pipeline-diagrams
+# python scripts/publication/generate_all_publication_outputs.py --classification-tables
+
+# FUTURE: Specific experiment selection
+# python scripts/publication/generate_all_publication_outputs.py \
+#   --experiment-id optA_20251012_103000
 ```
 
-### Tables Only
-
+**Current Usage**: Use the full regeneration command:
 ```bash
-# Regenerate all tables
-python scripts/publication/generate_all_publication_outputs.py --tables-only
-
-# Specific table categories
-python scripts/publication/generate_all_publication_outputs.py --classification-tables
-python scripts/publication/generate_all_publication_outputs.py --detection-tables
-python scripts/publication/generate_all_publication_outputs.py --statistics-tables
-```
-
-### From Specific Experiment
-
-```bash
-# Use specific experiment results
-python scripts/publication/generate_all_publication_outputs.py \
-  --experiment-id optA_20251012_103000
-
-# Use latest experiment (default)
 python scripts/publication/generate_all_publication_outputs.py
 ```
 
@@ -112,7 +100,7 @@ python scripts/publication/generate_all_publication_outputs.py
 
 ## 📁 Detailed File Catalog
 
-### 1. figures/pipeline_diagrams/ (6 files)
+### 1. figures/pipeline_diagrams/ (5 files)
 
 **Purpose**: Visual architecture and workflow diagrams for papers/reports
 
@@ -127,14 +115,15 @@ python scripts/publication/generate_all_publication_outputs.py
 
 **Regeneration**:
 ```bash
-python scripts/publication/generate_all_publication_outputs.py --pipeline-diagrams
+# Full regeneration (includes all pipeline diagrams)
+python scripts/publication/generate_all_publication_outputs.py
 ```
 
 **Source**: Generated from pipeline architecture and configuration
 
 ---
 
-### 2. figures/augmentation/ (18 files)
+### 2. figures/augmentation/ (21 files)
 
 **Purpose**: Data augmentation visualizations for 3 datasets × 2 types (detection/classification)
 
@@ -156,12 +145,8 @@ python scripts/publication/generate_all_publication_outputs.py --pipeline-diagra
 
 **Regeneration**:
 ```bash
-# All augmentation figures
-python scripts/publication/generate_all_publication_outputs.py --augmentation-figures
-
-# Specific dataset
-python scripts/publication/generate_all_publication_outputs.py \
-  --augmentation-figures --dataset iml_lifecycle
+# Full regeneration (includes all augmentation figures)
+python scripts/publication/generate_all_publication_outputs.py
 ```
 
 **Source**: Generated from training data and augmentation parameters
@@ -185,7 +170,8 @@ python scripts/publication/generate_all_publication_outputs.py \
 
 **Regeneration**:
 ```bash
-python scripts/publication/generate_all_publication_outputs.py --performance-figures
+# Full regeneration (includes all performance figures)
+python scripts/publication/generate_all_publication_outputs.py
 ```
 
 **Source**: Generated from experiment results and trained models
@@ -214,7 +200,8 @@ iml_lifecycle,efficientnet_b1,0.8090,0.7845,0.8234,0.8090,0.8012
 
 **Regeneration**:
 ```bash
-python scripts/publication/generate_all_publication_outputs.py --classification-tables
+# Full regeneration (includes all classification tables)
+python scripts/publication/generate_all_publication_outputs.py
 ```
 
 **Source**: Extracted from `results/optA_*/experiments/experiment_*/analysis_classification_*/`
@@ -243,7 +230,8 @@ iml_lifecycle,YOLO12,0.9412,0.7956,0.9102,0.9469,0.9281
 
 **Regeneration**:
 ```bash
-python scripts/publication/generate_all_publication_outputs.py --detection-tables
+# Full regeneration (includes all detection tables)
+python scripts/publication/generate_all_publication_outputs.py
 ```
 
 **Source**: Extracted from `results/optA_*/experiments/experiment_*/det_*/results.csv`
@@ -271,7 +259,8 @@ mp_idb_stages,146,640,512,4.4x,3.5x
 
 **Regeneration**:
 ```bash
-python scripts/publication/generate_all_publication_outputs.py --statistics-tables
+# Full regeneration (includes all statistics tables)
+python scripts/publication/generate_all_publication_outputs.py
 ```
 
 **Source**: Extracted from `results/optA_*/experiments/experiment_*/analysis_dataset_statistics/`
@@ -298,12 +287,12 @@ Tracks generation metadata and ensures data integrity:
   "experiment_path": "results/optA_20251012_103000",
   "
 _info": {
-    "total_count": 42,
+    "total_count": 44,
     "figures": {
-      "count": 30,
+      "count": 31,
       "categories": {
-        "pipeline_diagrams": 6,
-        "augmentation": 18,
+        "pipeline_diagrams": 5,
+        "augmentation": 21,
         "performance": 8
       }
     },
@@ -358,7 +347,7 @@ python scripts/publication/verify_publication_data.py
 python scripts/publication/generate_all_publication_outputs.py
 
 # Output includes verification:
-# ✅ Generated 30 figures
+# ✅ Generated 31 figures
 # ✅ Exported 12 tables
 # ✅ Created metadata.json
 # ✅ Verification: All files present and valid
@@ -493,13 +482,13 @@ python scripts/publication/verify_publication_data.py --verify-data
 
 | Category | Files | Time | Bottleneck |
 |----------|-------|------|------------|
-| Pipeline Diagrams | 6 | ~30s | Diagram rendering |
-| Augmentation Figures | 18 | ~2m | Image processing |
+| Pipeline Diagrams | 5 | ~30s | Diagram rendering |
+| Augmentation Figures | 21 | ~2m | Image processing |
 | Performance Figures | 8 | ~1m | Plot generation |
 | Classification Tables | 4 | ~30s | CSV export |
 | Detection Tables | 4 | ~30s | Excel formatting |
 | Statistics Tables | 4 | ~30s | Data aggregation |
-| **TOTAL** | **42** | **~5m** | Image processing |
+| **TOTAL** | **44** | **~5m** | Image processing |
 
 **Optimization tips**:
 - Use `--figures-only` or `--tables-only` for faster partial updates
@@ -510,13 +499,13 @@ python scripts/publication/verify_publication_data.py --verify-data
 
 | Category | Files | Size (Approx) |
 |----------|-------|---------------|
-| Pipeline Diagrams | 6 | 2-3 MB |
-| Augmentation Figures | 18 | 8-12 MB |
+| Pipeline Diagrams | 5 | 2-3 MB |
+| Augmentation Figures | 21 | 8-12 MB |
 | Performance Figures | 8 | 4-6 MB |
 | Tables (CSV) | 8 | 100-200 KB |
 | Tables (Excel) | 4 | 200-300 KB |
 | Metadata | 1 | 20-50 KB |
-| **TOTAL** | **42** | **~15-20 MB** |
+| **TOTAL** | **44** | **~15-20 MB** |
 
 **Storage optimization**:
 - Figures use optimized PNG compression
@@ -591,7 +580,7 @@ pandoc hand_created/papers/JICEST_Paper.md \
 - ✅ Created auto_generated/ directory
 - ✅ Implemented one-command regeneration
 - ✅ Added metadata tracking and integrity verification
-- ✅ Generated 42 files (30 figures + 12 tables)
+- ✅ Generated 44 files (31 figures + 12 tables)
 
 ---
 
