@@ -251,6 +251,73 @@ else:  # Trophozoite
 
 ---
 
+## ✅ FIX IMPLEMENTED (2025-10-14)
+
+### **Code Changes:**
+
+File: `scripts/data_setup/10_setup_md2019_stage_for_pipeline.py`
+
+**Line 159 Fix** - Correct mask filename matching:
+```python
+# BEFORE (WRONG):
+mask_path = masks_dir / image_name.replace('.jpg', '_GT.png')
+
+# AFTER (CORRECT):
+mask_filename = Path(image_name).stem + '_GT.png'
+mask_path = masks_dir / mask_filename
+```
+
+**Lines 197-228 Fix** - Remove hardcoded fallback:
+```python
+# FIX (2025-10-14): ALWAYS require ground truth mask bbox - no hardcoded fallback!
+# Reason: Hardcoded sizes cause 99.82% accuracy (model learns size, not morphology)
+
+if not bboxes_from_mask:
+    # Skip annotations without mask - no guessing!
+    total_excluded += 1
+    continue
+
+# Find closest bbox to this center point
+...
+
+# Require match within 100 pixels (increased from 50 for better coverage)
+if not best_bbox or min_dist >= 100:
+    # Skip if no close match - better to skip than use wrong bbox
+    total_excluded += 1
+    continue
+
+# Use mask-derived bbox (actual parasite size from ground truth)
+x_min, y_min, x_max, y_max = best_bbox
+```
+
+### **Results After Fix:**
+
+Successfully re-generated MD_2019 dataset with **NATURAL bbox sizes from ground truth masks**:
+
+| Class | CV (%) | Unique Sizes | Most Common | Conclusion |
+|-------|--------|--------------|-------------|------------|
+| **Ring** | **37.57%** ✅ | **64** | 6.4% | Natural variation |
+| **Trophozoite** | **23.36%** ✅ | **82** | 3.4% | Natural variation |
+| **Schizont** | **24.45%** ✅ | **124** | 2.6% | Natural variation |
+
+**Comparison:**
+
+| Metric | Before Fix (Hardcoded) | After Fix (Mask-derived) |
+|--------|------------------------|--------------------------|
+| **Ring CV** | 2.98% ❌ | 37.57% ✅ |
+| **Ring Unique Sizes** | 9 ❌ | 64 ✅ |
+| **Ring Most Common** | 98.2% ❌ | 6.4% ✅ |
+| **Trophozoite CV** | 3.94% ❌ | 23.36% ✅ |
+| **Schizont CV** | 6.62% ❌ | 24.45% ✅ |
+
+**Conclusion:**
+- ✅ Bbox sizes now have **NATURAL variation** (CV > 20%)
+- ✅ **No more hardcoded sizes** - all from ground truth masks
+- ✅ Model will **learn morphological features** instead of size patterns
+- ✅ Expected accuracy: **70-85%** (realistic, matching paper's 82.7%)
+
+---
+
 ## 🔍 UPDATE: ADDITIONAL INVESTIGATION (Why Resize Doesn't Help)
 
 ### Question from Researcher:
