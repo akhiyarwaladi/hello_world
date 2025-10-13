@@ -12,6 +12,11 @@ import json
 import argparse
 import random
 import shutil
+
+# Fix Qt platform plugin error for headless environments
+os.environ['MPLBACKEND'] = 'Agg'
+os.environ['QT_QPA_PLATFORM'] = 'offscreen'
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
