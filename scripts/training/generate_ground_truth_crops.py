@@ -16,19 +16,22 @@ import shutil
 class GroundTruthCropGenerator:
     """Generate crops from ground truth annotations"""
 
-    def __init__(self, dataset_path, output_path, crop_size=224, train_ratio=0.66, val_ratio=0.17, test_ratio=0.17, 
-                 apply_clahe=True, clahe_clip_limit=2.0, clahe_tile_size=8):
+    def __init__(self, dataset_path, output_path, crop_size=224, train_ratio=0.66, val_ratio=0.17, test_ratio=0.17,
+                 apply_clahe=True, clahe_clip_limit=2.0, clahe_tile_size=8, margin_ratio=0.0):
         self.dataset_path = Path(dataset_path)
         self.output_path = Path(output_path)
         self.crop_size = crop_size
         self.train_ratio = train_ratio
         self.val_ratio = val_ratio
         self.test_ratio = test_ratio
-        
+
         # CLAHE enhancement parameters
         self.apply_clahe = apply_clahe
         self.clahe_clip_limit = clahe_clip_limit
         self.clahe_tile_size = clahe_tile_size
+
+        # Margin/padding for publication crops
+        self.margin_ratio = margin_ratio
 
         # Validate ratios
         total_ratio = train_ratio + val_ratio + test_ratio
@@ -413,6 +416,18 @@ class GroundTruthCropGenerator:
 
         x1, y1, x2, y2 = bbox
 
+        # Add margin/padding if specified (for publication crops)
+        if self.margin_ratio > 0:
+            w = x2 - x1
+            h = y2 - y1
+            margin_x = int(w * self.margin_ratio)
+            margin_y = int(h * self.margin_ratio)
+
+            x1 = x1 - margin_x
+            y1 = y1 - margin_y
+            x2 = x2 + margin_x
+            y2 = y2 + margin_y
+
         # Ensure coordinates are within image bounds
         img_height, img_width = image.shape[:2]
         x1 = max(0, min(x1, img_width - 1))
@@ -770,6 +785,10 @@ def main():
     parser.add_argument('--clahe-tile-size', type=int, default=8,
                        help='CLAHE tile grid size (default: 8 for 8x8 grid)')
 
+    # Margin/padding parameters for publication crops
+    parser.add_argument('--margin-ratio', type=float, default=0.0,
+                       help='Add margin around bbox (0.0 = tight crop, 0.2 = 20%% extra padding for publication)')
+
     args = parser.parse_args()
 
     # Validate split ratios
@@ -781,7 +800,7 @@ def main():
         print(f"  --test-ratio: {args.test_ratio}")
         return
 
-    # Initialize generator with split ratios and CLAHE parameters
+    # Initialize generator with split ratios, CLAHE, and margin parameters
     generator = GroundTruthCropGenerator(
         args.dataset, args.output, args.crop_size,
         train_ratio=args.train_ratio,
@@ -789,7 +808,8 @@ def main():
         test_ratio=args.test_ratio,
         apply_clahe=args.apply_clahe,
         clahe_clip_limit=args.clahe_clip_limit,
-        clahe_tile_size=args.clahe_tile_size
+        clahe_tile_size=args.clahe_tile_size,
+        margin_ratio=args.margin_ratio
     )
 
     # Detect or use specified dataset type
