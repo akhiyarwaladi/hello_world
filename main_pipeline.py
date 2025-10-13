@@ -1278,7 +1278,8 @@ def run_pipeline_for_dataset(args):
             if split_path.exists():
                 for class_dir in split_path.iterdir():
                     if class_dir.is_dir():
-                        total_crops += len(list(class_dir.glob("*.jpg")))
+                        # FIX: Ground truth crops are saved as PNG (not JPG)
+                        total_crops += len(list(class_dir.glob("*.png")))
 
         print(f"   [SUCCESS] Generated {total_crops} shared ground truth crops")
         print(f"   [EFFICIENCY] All detection models will use these same crops for classification")

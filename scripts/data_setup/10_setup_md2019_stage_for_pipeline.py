@@ -15,9 +15,10 @@ import argparse
 import pandas as pd
 import cv2
 import numpy as np
+import re
 from pathlib import Path
 from sklearn.model_selection import train_test_split
-from collections import Counter
+from collections import Counter, defaultdict
 
 # Add path for import
 script_dir = Path(__file__).parent
@@ -78,6 +79,31 @@ def map_md2019_stage_to_3class(stage_name):
     }
 
     return stage_mapping.get(stage_name)
+
+
+def extract_base_image_name(filename):
+    """Extract base image name from MD_2019 augmented filename
+
+    MD_2019 dataset has pre-augmented images with patterns:
+    - Trip 017 Day 1 19-10-05 Image 14 add_1.png  → Trip 017 Day 1 19-10-05 Image 14
+    - Trip 053 Day 2 19-11-05 Image 1_12.png      → Trip 053 Day 2 19-11-05 Image 1
+
+    Args:
+        filename: Image filename (with or without extension)
+
+    Returns:
+        Base image name without augmentation suffix
+    """
+    # Remove extension
+    name = Path(filename).stem
+
+    # Remove add_N suffix (most common pattern)
+    name = re.sub(r'\s+add_\d+$', '', name)
+
+    # Remove _N suffix (alternative pattern)
+    name = re.sub(r'_\d+$', '', name)
+
+    return name.strip()
 
 
 def convert_md2019_to_yolo_format(md2019_dir):
@@ -333,11 +359,18 @@ def convert_md2019_to_stage_format(md2019_dir, output_dir, single_class=False,
 
     print(f"[INFO] Found {len(valid_images)} images with labels")
 
-    # Create stratification labels based on stages in each image
-    print(f"[STRATIFY] Analyzing stage distribution for stratified splitting...")
-    stratify_labels = []
+    # MD_2019 FIX: Group by base image to prevent data leakage
+    print(f"[MD_2019_FIX] Grouping augmented images by base image to prevent leakage...")
+
+    # Group images by base name
+    base_to_images = defaultdict(list)
+    base_to_labels = defaultdict(list)
 
     for image_file, label_file in valid_images:
+        base_name = extract_base_image_name(image_file.name)
+        base_to_images[base_name].append((image_file, label_file))
+
+        # Read dominant stage for this image
         stages_in_image = []
         with open(label_file, 'r') as f:
             for line in f:
@@ -346,42 +379,91 @@ def convert_md2019_to_stage_format(md2019_dir, output_dir, single_class=False,
                     class_id = int(parts[0])
                     stages_in_image.append(class_id)
 
-        # Use most frequent stage in image for stratification
         if stages_in_image:
             dominant_stage = max(set(stages_in_image), key=stages_in_image.count)
-            stratify_labels.append(dominant_stage)
         else:
-            stratify_labels.append(0)  # Default to ring
+            dominant_stage = 0  # Default to ring
 
-    # Print stage distribution
-    stage_dist = Counter(stratify_labels)
+        base_to_labels[base_name].append(dominant_stage)
+
+    # Get unique base images and their dominant stages
+    base_names = list(base_to_images.keys())
+    base_stages = []
+
+    for base_name in base_names:
+        # Use most common stage across all augmented versions of this base image
+        stages = base_to_labels[base_name]
+        dominant_stage = max(set(stages), key=stages.count)
+        base_stages.append(dominant_stage)
+
+    print(f"[MD_2019_FIX] Found {len(base_names)} unique base images")
+    print(f"[MD_2019_FIX] Total augmented images: {len(valid_images)}")
+    print(f"[MD_2019_FIX] Avg augmentations per base: {len(valid_images) / len(base_names):.1f}")
+
+    # Print stage distribution (by base images)
+    stage_dist = Counter(base_stages)
     stage_names = ['ring', 'schizont', 'trophozoite']
-    print(f"[STRATIFY] Stage distribution for stratification (3 classes):")
+    print(f"[STRATIFY] Base image stage distribution (3 classes):")
     for stage_id, count in sorted(stage_dist.items()):
         stage_name = stage_names[stage_id] if stage_id < len(stage_names) else f"stage_{stage_id}"
-        print(f"   {stage_name}: {count} images")
+        print(f"   {stage_name}: {count} base images")
 
-    # Stratified split with custom ratios
+    # Stratified split on BASE IMAGES (not individual augmented images)
     try:
-        # First split: separate train set
-        temp_size = val_ratio + test_ratio  # Remaining after train
-        train_images, temp_images, train_labels, temp_labels = train_test_split(
-            valid_images, stratify_labels,
-            test_size=temp_size, random_state=42, stratify=stratify_labels
-        )
-        # Second split: separate val and test from remaining
-        val_adjusted = val_ratio / (val_ratio + test_ratio)
-        val_images, test_images, val_labels, test_labels = train_test_split(
-            temp_images, temp_labels,
-            test_size=(1 - val_adjusted), random_state=42, stratify=temp_labels
-        )
-        print(f"[STRATIFY] Successfully applied stratified splitting")
-    except ValueError as e:
-        print(f"[WARNING] Stratified split failed ({e}), using random split")
+        # First split: separate train base images
         temp_size = val_ratio + test_ratio
-        train_images, temp_images = train_test_split(valid_images, test_size=temp_size, random_state=42)
+        train_bases, temp_bases, train_base_stages, temp_base_stages = train_test_split(
+            base_names, base_stages,
+            test_size=temp_size, random_state=42, stratify=base_stages
+        )
+        # Second split: separate val and test base images
         val_adjusted = val_ratio / (val_ratio + test_ratio)
-        val_images, test_images = train_test_split(temp_images, test_size=(1 - val_adjusted), random_state=42)
+        val_bases, test_bases, _, _ = train_test_split(
+            temp_bases, temp_base_stages,
+            test_size=(1 - val_adjusted), random_state=42, stratify=temp_base_stages
+        )
+        print(f"[STRATIFY] Successfully applied GROUP-BASED stratified splitting")
+        print(f"[STRATIFY] Base images split: {len(train_bases)} train, {len(val_bases)} val, {len(test_bases)} test")
+    except ValueError as e:
+        print(f"[WARNING] Stratified split failed ({e}), using random split on base images")
+        temp_size = val_ratio + test_ratio
+        train_bases, temp_bases = train_test_split(base_names, test_size=temp_size, random_state=42)
+        val_adjusted = val_ratio / (val_ratio + test_ratio)
+        val_bases, test_bases = train_test_split(temp_bases, test_size=(1 - val_adjusted), random_state=42)
+
+    # Convert base image splits to full image lists (including all augmented versions)
+    train_images = []
+    val_images = []
+    test_images = []
+
+    for base in train_bases:
+        train_images.extend(base_to_images[base])
+
+    for base in val_bases:
+        val_images.extend(base_to_images[base])
+
+    for base in test_bases:
+        test_images.extend(base_to_images[base])
+
+    print(f"[MD_2019_FIX] Expanded to full images: {len(train_images)} train, {len(val_images)} val, {len(test_images)} test")
+
+    # Verify no overlap (critical check)
+    train_bases_set = set(train_bases)
+    val_bases_set = set(val_bases)
+    test_bases_set = set(test_bases)
+
+    train_val_overlap = train_bases_set & val_bases_set
+    train_test_overlap = train_bases_set & test_bases_set
+    val_test_overlap = val_bases_set & test_bases_set
+
+    if train_val_overlap or train_test_overlap or val_test_overlap:
+        print(f"[ERROR] Data leakage detected!")
+        print(f"   Train-Val overlap: {len(train_val_overlap)} base images")
+        print(f"   Train-Test overlap: {len(train_test_overlap)} base images")
+        print(f"   Val-Test overlap: {len(val_test_overlap)} base images")
+        raise ValueError("Data leakage detected in split!")
+    else:
+        print(f"[SUCCESS] No data leakage: All base images in separate splits")
 
     splits = {
         'train': train_images,
@@ -389,23 +471,26 @@ def convert_md2019_to_stage_format(md2019_dir, output_dir, single_class=False,
         'test': test_images
     }
 
-    # Validate split distribution
+    # Validate split distribution (count by images, not base images)
     def validate_stage_distribution(images, split_name):
         split_stage_dist = Counter()
-        for i, (image_file, label_file) in enumerate(images):
-            # Find the stratify label for this image
-            image_idx = valid_images.index((image_file, label_file))
-            stage_id = stratify_labels[image_idx]
-            split_stage_dist[stage_id] += 1
+        for image_file, label_file in images:
+            # Read stages from label file
+            with open(label_file, 'r') as f:
+                for line in f:
+                    parts = line.strip().split()
+                    if len(parts) >= 5:
+                        class_id = int(parts[0])
+                        split_stage_dist[class_id] += 1
 
         print(f"   {split_name} stage distribution:")
         for stage_id, count in sorted(split_stage_dist.items()):
             stage_name = stage_names[stage_id] if stage_id < len(stage_names) else f"stage_{stage_id}"
-            print(f"      {stage_name}: {count} images")
+            print(f"      {stage_name}: {count} annotations")
 
         return split_stage_dist
 
-    print(f"\n[VALIDATION] Final split distribution:")
+    print(f"\n[VALIDATION] Final split distribution (by annotations):")
     train_dist = validate_stage_distribution(train_images, "Train")
     val_dist = validate_stage_distribution(val_images, "Val")
     test_dist = validate_stage_distribution(test_images, "Test")
