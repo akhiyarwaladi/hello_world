@@ -199,6 +199,58 @@ For valid malaria detection research, use datasets with:
 
 ---
 
+## 🎯 ROOT CAUSE CONFIRMATION (2025-10-14)
+
+### **DEFINITIVE PROOF OF HARDCODED BBOX SIZES**
+
+Analysis of YOLO-format labels reveals **SMOKING GUN evidence**:
+
+#### Bbox Size Distribution (Normalized):
+
+| Class | Most Common Width | Samples | Percentage | CV (%) | Unique Values |
+|-------|-------------------|---------|------------|--------|---------------|
+| **Ring** | 0.028944 | 834/849 | **98.2%** | **2.98%** | **9** |
+| **Trophozoite** | 0.051375 | 671/701 | **95.7%** | **3.94%** | **19** |
+| **Schizont** | 0.065847 | 1268/1369 | **92.6%** | **6.62%** | **38** |
+
+### **Conclusive Evidence:**
+
+1. **92-98% of bboxes have IDENTICAL sizes** within each class
+2. **CV < 5% for Ring and Trophozoite** (natural data should have CV > 20%)
+3. **Only 9-38 unique sizes** out of 849-1369 samples per class
+
+### **Root Cause in Code:**
+
+File: `scripts/data_setup/10_setup_md2019_stage_for_pipeline.py` (lines 218-242)
+
+```python
+# Fallback: estimate bbox size based on stage
+# From analysis: Ring (39.8×36.4), Trophozoite (71.0×70.3), Schizont (91.1×95.5)
+if stage_id == 0:  # Ring
+    w, h = 40, 36  # ← HARDCODED!
+elif stage_id == 1:  # Schizont
+    w, h = 91, 96  # ← HARDCODED!
+else:  # Trophozoite
+    w, h = 71, 70  # ← HARDCODED!
+```
+
+**Problem:** Script uses hardcoded sizes as "fallback" when mask matching fails (min_dist >= 50 pixels). In practice, **92-98% of bboxes use this hardcoded fallback** instead of actual mask-derived sizes.
+
+### **Impact:**
+
+- Original paper: **82.7% accuracy** with random forest
+- Our CNN: **99.82% accuracy** (artificially inflated)
+- Model learns trivial size-based rule instead of morphological features
+- Results are **NOT valid** for publication
+
+### **Fix Required:**
+
+1. **Always use bbox from ground truth mask** (lines 176-216)
+2. **Remove hardcoded fallback entirely**
+3. **Skip annotations without matching mask** instead of guessing
+
+---
+
 ## 🔍 UPDATE: ADDITIONAL INVESTIGATION (Why Resize Doesn't Help)
 
 ### Question from Researcher:
