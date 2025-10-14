@@ -1,0 +1,129 @@
+================================================================================
+AUGMENTATION FIGURE QUALITY COMPARISON (4 DATASETS)
+================================================================================
+Generated: 2025-10-13 23:56
+
+GOAL: Find largest parasites for publication-quality augmentation visualization
+QUALITY THRESHOLD: Native size ≥250px preferred (upscale ≤2x)
+
+================================================================================
+DATASET COMPARISON
+================================================================================
+
+1. IML LIFECYCLE (4 lifecycle stages)
+   - Classes: Ring, Trophozoite, Schizont, Gametocyte
+   - Native sizes: 174-206px (with 25% margin)
+   - Upscale ratios: 1.65-1.88x
+   - Quality rating: ⚠️ OK / ❌ NOT IDEAL
+   - Samples ≥250px: 0 (searched all 529 parasites)
+   - Status: ✅ GENERATED (8.75 MB)
+   
+   Details:
+   - Ring: 174px → 300px (1.72x) ❌ NOT IDEAL
+   - Trophozoite: 182px → 300px (1.65x) ❌ NOT IDEAL
+   - Schizont: 204px → 384px (1.88x) ⚠️ OK
+   - Gametocyte: 206px → 384px (1.87x) ⚠️ OK
+
+2. MP-IDB SPECIES (4 species)
+   - Classes: P_falciparum ONLY (collapsed to 1 class in processed data)
+   - Native sizes: Up to 334px
+   - Upscale ratio: 1.54x
+   - Quality rating: ✅ VERY GOOD
+   - Samples ≥250px: 18 (P_falciparum only)
+   - Status: ❌ INCOMPLETE (only 1 of 4 classes)
+   
+   Details:
+   - P_falciparum: 334px → 512px (1.54x) ✅ VERY GOOD
+   - P_vivax: 0 samples (collapsed in processed data)
+   - P_ovale: 0 samples (collapsed in processed data)
+   - P_malariae: 0 samples (collapsed in processed data)
+
+3. MP-IDB STAGES (4 lifecycle stages)
+   - Classes: Ring ONLY (collapsed to 1 class in processed data)
+   - Native sizes: Up to 332px
+   - Upscale ratio: 1.55x
+   - Quality rating: ✅ VERY GOOD
+   - Samples ≥250px: 18 (Ring only)
+   - Status: ❌ INCOMPLETE (only 1 of 4 classes)
+   
+   Details:
+   - Ring: 332px → 512px (1.55x) ✅ VERY GOOD
+   - Trophozoite: 0 samples (collapsed in processed data)
+   - Schizont: 0 samples (collapsed in processed data)
+   - Gametocyte: 0 samples (collapsed in processed data)
+
+4. MD_2019 STAGES (3 lifecycle stages)
+   - Classes: Ring, Trophozoite, Schizont
+   - Native sizes: 60-144px
+   - Upscale ratios: 1.78-1.80x
+   - Quality rating: ❌ POOR
+   - Samples ≥250px: 0
+   - Status: ✅ GENERATED (5.33 MB) - BUT POOR QUALITY
+   
+   Details:
+   - Ring: 60px → 108px (1.80x) ❌ POOR
+   - Trophozoite: 144px → 256px (1.78x) ❌ POOR
+   - Schizont: 106px → 189px (1.80x) ❌ POOR
+
+================================================================================
+CONCLUSION
+================================================================================
+
+BEST AVAILABLE OPTION: **IML Lifecycle** (8.75 MB figure)
+
+REASONS:
+1. ✅ All 4 classes available (ring, trophozoite, schizont, gametocyte)
+2. ⚠️ Acceptable quality (1.65-1.88x upscale, OK rating)
+3. ✅ Consistent with paper focus (lifecycle classification)
+4. ✅ Generated from original high-res images with margin
+5. ✅ Publication-ready format (300 DPI, 512×512 per image)
+
+WHY NOT MP-IDB?
+- ❌ Processed data collapsed to single detection class
+- ❌ Original MP-IDB raw annotations not extracted
+- ✅ Individual parasites are LARGER (334px vs 206px)
+- ❌ Cannot generate 4-class visualization without raw annotations
+
+WHY NOT MD_2019?
+- ❌ Very small parasites (60-144px native)
+- ❌ Poor quality (1.78-1.80x upscale)
+- ❌ Only 3 classes (missing gametocyte)
+
+================================================================================
+RECOMMENDATION FOR PUBLICATION
+================================================================================
+
+USE: luaran/auto_generated/figures/augmentation/augmentation_iml_lifecycle_from_raw.png
+
+This figure represents:
+- Best achievable quality with available data
+- All 4 parasite lifecycle stages
+- Direct extraction from original high-resolution images
+- Minimal processing (25% margin, adaptive resize, no CLAHE)
+- Publication-quality formatting (300 DPI)
+
+ALTERNATIVE (if larger parasites needed):
+1. Extract original MP-IDB raw annotations (from git repo)
+2. Parse original XML/JSON annotations for species/stage labels
+3. Regenerate with proper 4-class mapping
+4. Expected quality: 1.54x upscale (✅ VERY GOOD)
+
+================================================================================
+FILES GENERATED
+================================================================================
+
+1. luaran/auto_generated/figures/augmentation/augmentation_iml_lifecycle_from_raw.png
+   - Size: 8.75 MB
+   - Resolution: 300 DPI
+   - Layout: 8 rows × 7 columns (4 classes × 14 augmentations)
+   - Quality: ⚠️ OK / ❌ NOT IDEAL (best available)
+
+2. luaran/auto_generated/figures/augmentation/augmentation_md_2019_stages_from_raw.png
+   - Size: 5.33 MB
+   - Resolution: 300 DPI
+   - Layout: 6 rows × 7 columns (3 classes × 14 augmentations)
+   - Quality: ❌ POOR (not recommended)
+
+================================================================================
+END OF SUMMARY
+================================================================================

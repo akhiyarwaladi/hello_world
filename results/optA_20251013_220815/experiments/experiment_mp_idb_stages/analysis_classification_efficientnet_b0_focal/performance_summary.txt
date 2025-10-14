@@ -1,0 +1,30 @@
+Classification Analysis: efficientnet_b0_focal
+===============================================
+
+Overall Performance:
+- Accuracy: 0.9431
+- Balanced Accuracy: 0.5910
+- Test Accuracy: 0.9431
+
+Per-Class Performance:
+
+gametocyte:
+  - Precision: 0.6667
+  - Recall: 0.4000
+  - F1-Score: 0.5000
+  - Support: 5
+ring:
+  - Precision: 0.9677
+  - Recall: 0.9926
+  - F1-Score: 0.9800
+  - Support: 272
+schizont:
+  - Precision: 0.8000
+  - Recall: 0.5714
+  - F1-Score: 0.6667
+  - Support: 7
+trophozoite:
+  - Precision: 0.5000
+  - Recall: 0.4000
+  - F1-Score: 0.4444
+  - Support: 15

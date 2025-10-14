@@ -1,0 +1,32 @@
+{
+  "model_name": "efficientnet_b1_focal",
+  "overall_accuracy": 0.98,
+  "overall_balanced_accuracy": 0.859090909090909,
+  "test_accuracy": 0.98,
+  "class_performance": {
+    "P_falciparum": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "support": 227.0
+    },
+    "P_malariae": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "support": 7.0
+    },
+    "P_ovale": {
+      "precision": 0.5,
+      "recall": 0.8,
+      "f1_score": 0.6153846153846154,
+      "support": 5.0
+    },
+    "P_vivax": {
+      "precision": 0.875,
+      "recall": 0.6363636363636364,
+      "f1_score": 0.7368421052631579,
+      "support": 11.0
+    }
+  }
+}

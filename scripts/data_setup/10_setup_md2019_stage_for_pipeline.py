@@ -156,7 +156,9 @@ def convert_md2019_to_yolo_format(md2019_dir):
 
         # Source paths
         src_image_path = images_source_dir / image_name
-        mask_path = masks_dir / image_name.replace('.jpg', '_GT.png')
+        # Fix: mask path should replace extension (both .jpg and .png) with _GT.png
+        mask_filename = Path(image_name).stem + '_GT.png'
+        mask_path = masks_dir / mask_filename
 
         if not src_image_path.exists():
             print(f"[WARNING] Image not found: {src_image_path}")
@@ -194,52 +196,38 @@ def convert_md2019_to_yolo_format(md2019_dir):
             center_x_px = float(row['center_x'])
             center_y_px = float(row['center_y'])
 
-            # Find matching bbox from mask or estimate bbox size
-            if bboxes_from_mask:
-                # Find closest bbox to this center point
-                min_dist = float('inf')
-                best_bbox = None
+            # FIX (2025-10-14): ALWAYS require ground truth mask bbox - no hardcoded fallback!
+            # Reason: Hardcoded sizes cause 99.82% accuracy (model learns size, not morphology)
+            # Paper original: 82.7% accuracy with random forest + 112 features
 
-                for bbox in bboxes_from_mask:
-                    x_min, y_min, x_max, y_max = bbox
-                    bbox_center_x = (x_min + x_max) / 2
-                    bbox_center_y = (y_min + y_max) / 2
+            if not bboxes_from_mask:
+                # Skip annotations without mask - no guessing!
+                total_excluded += 1
+                continue
 
-                    dist = np.sqrt((bbox_center_x - center_x_px)**2 + (bbox_center_y - center_y_px)**2)
+            # Find closest bbox to this center point
+            min_dist = float('inf')
+            best_bbox = None
 
-                    if dist < min_dist:
-                        min_dist = dist
-                        best_bbox = bbox
+            for bbox in bboxes_from_mask:
+                x_min, y_min, x_max, y_max = bbox
+                bbox_center_x = (x_min + x_max) / 2
+                bbox_center_y = (y_min + y_max) / 2
 
-                if best_bbox and min_dist < 50:  # Within 50 pixels
-                    x_min, y_min, x_max, y_max = best_bbox
-                else:
-                    # Fallback: estimate bbox size based on stage
-                    # From analysis: Ring (39.8×36.4), Trophozoite (71.0×70.3), Schizont (91.1×95.5)
-                    if stage_id == 0:  # Ring
-                        w, h = 40, 36
-                    elif stage_id == 1:  # Schizont
-                        w, h = 91, 96
-                    else:  # Trophozoite
-                        w, h = 71, 70
+                dist = np.sqrt((bbox_center_x - center_x_px)**2 + (bbox_center_y - center_y_px)**2)
 
-                    x_min = max(0, center_x_px - w/2)
-                    y_min = max(0, center_y_px - h/2)
-                    x_max = min(img_width, center_x_px + w/2)
-                    y_max = min(img_height, center_y_px + h/2)
-            else:
-                # Fallback: estimate bbox size
-                if stage_id == 0:  # Ring
-                    w, h = 40, 36
-                elif stage_id == 1:  # Schizont
-                    w, h = 91, 96
-                else:  # Trophozoite
-                    w, h = 71, 70
+                if dist < min_dist:
+                    min_dist = dist
+                    best_bbox = bbox
 
-                x_min = max(0, center_x_px - w/2)
-                y_min = max(0, center_y_px - h/2)
-                x_max = min(img_width, center_x_px + w/2)
-                y_max = min(img_height, center_y_px + h/2)
+            # Require match within 100 pixels (increased from 50 for better coverage)
+            if not best_bbox or min_dist >= 100:
+                # Skip if no close match - better to skip than use wrong bbox
+                total_excluded += 1
+                continue
+
+            # Use mask-derived bbox (actual parasite size from ground truth)
+            x_min, y_min, x_max, y_max = best_bbox
 
             # Convert to YOLO format (normalized)
             x_center = ((x_min + x_max) / 2) / img_width

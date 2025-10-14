@@ -253,8 +253,8 @@ def generate_pred_detection(image_path, detection_model, output_dir, conf_thresh
             pred_boxes.append([int(c) for c in box_coords])
             pred_labels.append("parasite")
 
-    # Draw green boxes with confidence labels
-    colors = [(0, 255, 0)] * len(pred_boxes)  # Green
+    # Draw medium green boxes with confidence labels
+    colors = [(0, 180, 0)] * len(pred_boxes)  # Medium green (clear, not too bright)
     img_with_boxes = draw_boxes(image, pred_boxes, labels=pred_labels, colors=colors)
 
     # Save
@@ -343,9 +343,9 @@ def generate_pred_classification(
         # Get GT class for comparison
         gt_class = gt_class_mapping.get(idx, 'unknown')
 
-        # Color code: Green if correct, Red if wrong
+        # Color code: Medium green if correct, Red if wrong
         if pred_class == gt_class:
-            color = (0, 255, 0)  # Green - correct
+            color = (0, 180, 0)  # Medium green - correct (clear, not too bright)
             label = pred_class
         else:
             color = (0, 0, 255)  # Red - wrong

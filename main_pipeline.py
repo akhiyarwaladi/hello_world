@@ -94,6 +94,7 @@ def run_optimized_training(model_name, data_yaml, epochs, exp_name, centralized_
             lr0=lr_value,       # Model-specific learning rate
             weight_decay=0.0005, # L2 regularization
             warmup_epochs=5,     # Warmup for stability
+            close_mosaic=0,      # FIX: Disable fitness collapse recovery (PyTorch 2.8.0+ compatibility)
 
             # CONSERVATIVE AUGMENTATION - Prevent overfitting on small dataset
             augment=True,
@@ -1840,6 +1841,32 @@ Per-Class Performance:
 
         # Also create Excel version for easier reading
         create_master_summary_excel(exp_dir, exp_master_summary)
+
+        # 4H: Generate Detection + Classification Visualizations (Separate per Model)
+        print(f"\n[VISUALIZE] STAGE 4H: Generating Detection + Classification Figures")
+        print(f"   [EFFICIENT] Generating {len(detection_models_trained)} detection + {len(classification_models_trained)} classification + 2 GT folders")
+        print(f"   [TOTAL] {len(detection_models_trained) + len(classification_models_trained) + 2} folders (not combinations)")
+        try:
+            # Import helper
+            sys.path.insert(0, str(Path(__file__).parent / "scripts" / "pipeline"))
+            from generate_separate_model_visualizations import generate_all_separate_visualizations
+
+            # Generate separate visualizations per model (not combinations)
+            viz_success = generate_all_separate_visualizations(
+                experiment_dir=str(results_manager.pipeline_dir),
+                dataset_name=args.dataset,
+                detection_models_trained=detection_models_trained,
+                classification_models_trained=classification_models_trained,
+                max_images=None  # Process ALL test images (set to 5 for quick test)
+            )
+
+            if viz_success:
+                print(f"   [SUCCESS] All visualizations generated")
+
+        except Exception as e:
+            print(f"   [WARNING] Visualization generation failed: {e}")
+            import traceback
+            traceback.print_exc()
 
     successful_models.append(f"Option A Pipeline: {len(detection_models_trained)} detection × {len(classification_models_trained)} classification models")
 

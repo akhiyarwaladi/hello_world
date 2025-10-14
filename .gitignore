@@ -53,10 +53,26 @@ models/rtdetr/*
 !models/yolov8/.gitkeep
 !models/rtdetr/.gitkeep
 
-# Results - Exclude entire results directory to prevent large file commits
-results/
-# BUT allow important analysis documentation
-!results/multi_dataset_training/COMPREHENSIVE_EXPERIMENT_ANALYSIS.md
+# Results - Track structure and small files, exclude large files
+# First, track everything in results/
+!results/
+
+# Then exclude large files
+results/**/*.pt
+results/**/*.pth
+results/**/*.onnx
+results/**/*.engine
+results/**/*.weights
+
+# Exclude images and crops
+results/**/crops/
+results/**/crops_gt_crops/crops/
+results/**/*.png
+results/**/*.jpg
+results/**/*.jpeg
+results/**/*.bmp
+
+# Small files (CSV, JSON, TXT, YAML, MD) will be tracked automatically
 
 # Test folders - Exclude all test folders in root directory
 test_*/
