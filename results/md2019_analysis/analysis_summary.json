@@ -1,0 +1,44 @@
+{
+  "dataset": "MD-2019 Plasmodium falciparum",
+  "total_annotations": 3663,
+  "total_images": 883,
+  "usable_annotations": 2921,
+  "excluded_annotations": 742,
+  "class_distribution": {
+    "Esch": 714,
+    "DEBRIS": 691,
+    "R": 542,
+    "Lsch": 447,
+    "LT": 368,
+    "MT": 333,
+    "LR-ET": 307,
+    "Seg": 208,
+    "WBC": 51,
+    "Gam": 2
+  },
+  "mapped_4class_distribution": {
+    "schizont": 1369,
+    "ring": 849,
+    "trophozoite": 701,
+    "gametocyte": 2
+  },
+  "class_imbalance_ratio": 357.0,
+  "bbox_statistics": {
+    "mean_width": 70.08275862068966,
+    "mean_height": 71.18620689655172,
+    "mean_area": 4033.1068965517243,
+    "mean_aspect_ratio": 1.0393269320000693
+  },
+  "recommendations": {
+    "strategy": "MERGE_WITH_MP_IDB_STAGES",
+    "class_mapping": "Use 4-class system (ring/trophozoite/schizont/gametocyte)",
+    "exclude_classes": [
+      "DEBRIS",
+      "WBC"
+    ],
+    "critical_issues": [
+      "Gametocyte class has only 2 samples"
+    ],
+    "split_strategy": "Image-level stratified split to avoid data leakage"
+  }
+}

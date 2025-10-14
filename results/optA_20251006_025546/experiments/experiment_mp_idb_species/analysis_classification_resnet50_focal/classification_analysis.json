@@ -1,0 +1,32 @@
+{
+  "model_name": "resnet50_focal",
+  "overall_accuracy": 0.98,
+  "overall_balanced_accuracy": 0.75,
+  "test_accuracy": 0.98,
+  "class_performance": {
+    "P_falciparum": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "support": 227.0
+    },
+    "P_malariae": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "support": 7.0
+    },
+    "P_ovale": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1_score": 0.0,
+      "support": 5.0
+    },
+    "P_vivax": {
+      "precision": 0.6875,
+      "recall": 1.0,
+      "f1_score": 0.8148148148148148,
+      "support": 11.0
+    }
+  }
+}

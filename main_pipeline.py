@@ -1244,7 +1244,7 @@ def run_pipeline_for_dataset(args):
         shared_crops_path = results_manager.get_crops_path("shared", "gt_crops")
         output_path = str(shared_crops_path)
 
-        # Generate ground truth crops using our improved script with CLAHE enhancement
+        # Generate ground truth crops (CLAHE disabled by default; enable via script flag if needed)
         cmd2 = [
             "python", "scripts/training/generate_ground_truth_crops.py",
             "--dataset", raw_dataset_path,
@@ -1253,10 +1253,7 @@ def run_pipeline_for_dataset(args):
             "--crop_size", "224",  # FIXED: Use 224px to match pre-processed ground truth
             "--train-ratio", str(args.train_ratio),
             "--val-ratio", str(args.val_ratio),
-            "--test-ratio", str(args.test_ratio),
-            "--apply-clahe", "true",  # CLAHE enhancement ENABLED by default (research-backed)
-            "--clahe-clip-limit", "2.0",  # Standard medical imaging clip limit
-            "--clahe-tile-size", "8"  # 8x8 tile grid for local enhancement
+            "--test-ratio", str(args.test_ratio)
         ]
 
         if not run_command(cmd2, f"Generating shared ground truth crops"):

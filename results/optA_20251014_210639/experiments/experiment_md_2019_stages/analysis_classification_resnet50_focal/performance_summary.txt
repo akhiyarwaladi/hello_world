@@ -1,0 +1,25 @@
+Classification Analysis: resnet50_focal
+===============================================
+
+Overall Performance:
+- Accuracy: 0.5200
+- Balanced Accuracy: 0.5346
+- Test Accuracy: 0.5200
+
+Per-Class Performance:
+
+ring:
+  - Precision: 1.0000
+  - Recall: 0.8000
+  - F1-Score: 0.8889
+  - Support: 5
+schizont:
+  - Precision: 0.7273
+  - Recall: 0.4706
+  - F1-Score: 0.5714
+  - Support: 17
+trophozoite:
+  - Precision: 0.1000
+  - Recall: 0.3333
+  - F1-Score: 0.1538
+  - Support: 3

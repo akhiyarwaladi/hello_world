@@ -1,0 +1,30 @@
+Classification Analysis: efficientnet_b2_focal
+===============================================
+
+Overall Performance:
+- Accuracy: 0.9840
+- Balanced Accuracy: 0.8273
+- Test Accuracy: 0.9840
+
+Per-Class Performance:
+
+P_falciparum:
+  - Precision: 1.0000
+  - Recall: 1.0000
+  - F1-Score: 1.0000
+  - Support: 227
+P_malariae:
+  - Precision: 1.0000
+  - Recall: 1.0000
+  - F1-Score: 1.0000
+  - Support: 7
+P_ovale:
+  - Precision: 0.6667
+  - Recall: 0.4000
+  - F1-Score: 0.5000
+  - Support: 5
+P_vivax:
+  - Precision: 0.7692
+  - Recall: 0.9091
+  - F1-Score: 0.8333
+  - Support: 11

@@ -1,0 +1,17 @@
+Model: efficientnet_b2
+Best Val Acc: 99.42%
+Test Acc: 98.40%
+Balanced Acc: 82.73%
+Training Time: 3.6 min
+
+Classification Report:
+              precision    recall  f1-score   support
+
+P_falciparum       1.00      1.00      1.00       227
+  P_malariae       1.00      1.00      1.00         7
+     P_ovale       0.67      0.40      0.50         5
+     P_vivax       0.77      0.91      0.83        11
+
+    accuracy                           0.98       250
+   macro avg       0.86      0.83      0.83       250
+weighted avg       0.98      0.98      0.98       250

@@ -17,7 +17,7 @@ class GroundTruthCropGenerator:
     """Generate crops from ground truth annotations"""
 
     def __init__(self, dataset_path, output_path, crop_size=224, train_ratio=0.66, val_ratio=0.17, test_ratio=0.17,
-                 apply_clahe=True, clahe_clip_limit=2.0, clahe_tile_size=8, margin_ratio=0.0):
+                 apply_clahe=False, clahe_clip_limit=2.0, clahe_tile_size=8, margin_ratio=0.0):
         self.dataset_path = Path(dataset_path)
         self.output_path = Path(output_path)
         self.crop_size = crop_size
@@ -778,8 +778,8 @@ def main():
                        help='Test set ratio (default: 0.17 = 17%%)')
     
     # CLAHE enhancement parameters
-    parser.add_argument('--apply-clahe', type=lambda x: x.lower() == 'true', default=True,
-                       help='Apply CLAHE enhancement to crops (default: True). Use "false" to disable.')
+    parser.add_argument('--apply-clahe', type=lambda x: x.lower() == 'true', default=False,
+                       help='Apply CLAHE enhancement to crops (default: False). Pass "true" to enable.')
     parser.add_argument('--clahe-clip-limit', type=float, default=2.0,
                        help='CLAHE clip limit for contrast limiting (default: 2.0, range: 1.0-4.0)')
     parser.add_argument('--clahe-tile-size', type=int, default=8,

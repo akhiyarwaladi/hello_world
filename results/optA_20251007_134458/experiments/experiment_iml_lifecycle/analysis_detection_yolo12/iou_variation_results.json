@@ -1,0 +1,29 @@
+{
+  "iou_0.5": {
+    "iou_threshold": 0.5,
+    "map50": 0.97195,
+    "map50_95": 0.78305,
+    "precision": 0.93249,
+    "recall": 0.94792,
+    "epoch": 26,
+    "source": "training_validation"
+  },
+  "iou_0.75": {
+    "iou_threshold": 0.75,
+    "map75": 0.9396599999999999,
+    "map50_95": 0.78305,
+    "precision": 0.93249,
+    "recall": 0.94792,
+    "epoch": 26,
+    "source": "estimated_from_training"
+  },
+  "iou_avg": {
+    "iou_threshold": "0.5:0.95",
+    "map_avg": 0.78305,
+    "map50_95": 0.78305,
+    "precision": 0.93249,
+    "recall": 0.94792,
+    "epoch": 26,
+    "source": "training_validation"
+  }
+}

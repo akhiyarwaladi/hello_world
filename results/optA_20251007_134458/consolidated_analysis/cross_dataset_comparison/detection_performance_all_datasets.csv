@@ -1,0 +1,10 @@
+Dataset,Model,Epochs,mAP@50,mAP@50-95,Precision,Recall
+iml_lifecycle,YOLO10,100,0.9186,0.749,0.9054,0.9386
+iml_lifecycle,YOLO11,100,0.9387,0.7937,0.898,0.9498
+iml_lifecycle,YOLO12,100,0.9571,0.7862,0.9056,0.951
+mp_idb_species,YOLO10,100,0.9253,0.572,0.8974,0.8957
+mp_idb_species,YOLO11,100,0.931,0.596,0.8647,0.9226
+mp_idb_species,YOLO12,100,0.9312,0.5872,0.8751,0.9118
+mp_idb_stages,YOLO10,100,0.9091,0.5526,0.8873,0.8556
+mp_idb_stages,YOLO11,100,0.929,0.565,0.8992,0.9037
+mp_idb_stages,YOLO12,100,0.9239,0.5836,0.9034,0.8756

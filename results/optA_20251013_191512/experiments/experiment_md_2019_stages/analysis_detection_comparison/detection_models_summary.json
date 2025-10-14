@@ -1,0 +1,13 @@
+{
+  "experiment_name": "optA_20251013_191512_md_2019_stages",
+  "dataset": "md_2019_stages",
+  "models_performance": {
+    "yolo11": {
+      "epochs_trained": 5,
+      "mAP50": 0.78015,
+      "mAP50_95": 0.57048,
+      "precision": 0.68403,
+      "recall": 0.80404
+    }
+  }
+}

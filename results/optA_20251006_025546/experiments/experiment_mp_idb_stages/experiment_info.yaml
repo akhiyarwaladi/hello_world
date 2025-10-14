@@ -1,0 +1,8 @@
+created_at: '2025-10-06T08:27:40.846357'
+dataset: mp_idb_stages
+experiment_name: experiment
+models:
+- yolo10
+- yolo11
+- yolo12
+status: running

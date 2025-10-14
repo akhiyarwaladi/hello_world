@@ -1,0 +1,32 @@
+{
+  "model_name": "resnet101_focal",
+  "overall_accuracy": 0.9297658862876255,
+  "overall_balanced_accuracy": 0.6569327731092437,
+  "test_accuracy": 0.9297658862876255,
+  "class_performance": {
+    "gametocyte": {
+      "precision": 1.0,
+      "recall": 0.4,
+      "f1_score": 0.5714285714285714,
+      "support": 5.0
+    },
+    "ring": {
+      "precision": 0.9705882352941176,
+      "recall": 0.9705882352941176,
+      "f1_score": 0.9705882352941176,
+      "support": 272.0
+    },
+    "schizont": {
+      "precision": 0.75,
+      "recall": 0.8571428571428571,
+      "f1_score": 0.8,
+      "support": 7.0
+    },
+    "trophozoite": {
+      "precision": 0.35294117647058826,
+      "recall": 0.4,
+      "f1_score": 0.375,
+      "support": 15.0
+    }
+  }
+}

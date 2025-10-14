@@ -1,0 +1,11 @@
+{
+  "experiment_name": "optA_20251007_134458_iml_lifecycle",
+  "timestamp": "2025-10-07T23:10:20.928903",
+  "pipeline_type": "option_a_shared_classification",
+  "folder_structure": {
+    "detection": 0,
+    "classification": 0,
+    "crop_data": 0,
+    "analysis": 0
+  }
+}

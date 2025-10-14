@@ -1,0 +1,11 @@
+{
+  "experiment_name": "optA_20251007_134458_mp_idb_species",
+  "timestamp": "2025-10-07T17:43:52.560070",
+  "pipeline_type": "option_a_shared_classification",
+  "folder_structure": {
+    "detection": 0,
+    "classification": 0,
+    "crop_data": 0,
+    "analysis": 0
+  }
+}

@@ -1,0 +1,16 @@
+Model: resnet50
+Best Val Acc: 0.00%
+Test Acc: 52.00%
+Balanced Acc: 53.46%
+Training Time: 0.1 min
+
+Classification Report:
+              precision    recall  f1-score   support
+
+        ring       1.00      0.80      0.89         5
+    schizont       0.73      0.47      0.57        17
+ trophozoite       0.10      0.33      0.15         3
+
+    accuracy                           0.52        25
+   macro avg       0.61      0.53      0.54        25
+weighted avg       0.71      0.52      0.58        25

@@ -1,0 +1,8 @@
+created_at: '2025-10-06T02:55:46.709800'
+dataset: mp_idb_species
+experiment_name: experiment
+models:
+- yolo10
+- yolo11
+- yolo12
+status: running
