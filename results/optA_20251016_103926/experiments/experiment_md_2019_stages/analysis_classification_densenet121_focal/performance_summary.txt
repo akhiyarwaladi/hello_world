@@ -1,0 +1,25 @@
+Classification Analysis: densenet121_focal
+===============================================
+
+Overall Performance:
+- Accuracy: 0.8535
+- Balanced Accuracy: 0.8427
+- Test Accuracy: 0.8535
+
+Per-Class Performance:
+
+ring:
+  - Precision: 0.8736
+  - Recall: 0.9464
+  - F1-Score: 0.9086
+  - Support: 168
+schizont:
+  - Precision: 0.9444
+  - Recall: 0.8467
+  - F1-Score: 0.8929
+  - Support: 261
+trophozoite:
+  - Precision: 0.6615
+  - Recall: 0.7350
+  - F1-Score: 0.6964
+  - Support: 117

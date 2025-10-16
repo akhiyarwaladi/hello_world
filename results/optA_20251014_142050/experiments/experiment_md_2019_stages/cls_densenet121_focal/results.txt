@@ -1,0 +1,16 @@
+Model: densenet121
+Best Val Acc: 85.12%
+Test Acc: 87.18%
+Balanced Acc: 84.92%
+Training Time: 27.2 min
+
+Classification Report:
+              precision    recall  f1-score   support
+
+        ring       0.88      0.95      0.91       168
+    schizont       0.92      0.90      0.91       261
+ trophozoite       0.74      0.70      0.72       117
+
+    accuracy                           0.87       546
+   macro avg       0.85      0.85      0.85       546
+weighted avg       0.87      0.87      0.87       546

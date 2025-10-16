@@ -1,0 +1,26 @@
+{
+  "experiment_info": {
+    "architecture": "Option A - Shared Classification",
+    "detection_models": [
+      "yolo11",
+      "yolo12"
+    ],
+    "classification_models": [
+      "densenet121_focal",
+      "efficientnet_b1_focal",
+      "efficientnet_b0_focal",
+      "resnet50_focal",
+      "efficientnet_b2_focal",
+      "resnet101_focal"
+    ],
+    "dataset": "md_2019_stages",
+    "timestamp": "2025-10-14 20:04:02",
+    "efficiency_gains": {
+      "storage_reduction": "~70%",
+      "training_time_reduction": "~60%",
+      "architecture": "Shared ground truth crops and classification models"
+    }
+  },
+  "detection_results": {},
+  "classification_results": {}
+}

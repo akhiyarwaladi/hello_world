@@ -1,0 +1,877 @@
+{
+  "parent_experiment": "optA_20251016_103926",
+  "total_datasets": 4,
+  "analysis_timestamp": "2025-10-16T13:10:50.221635",
+  "datasets": {
+    "iml_lifecycle": {
+      "path": "results/optA_20251016_103926/experiments/experiment_iml_lifecycle",
+      "has_detection_analysis": true,
+      "has_classification_analysis": true,
+      "has_dataset_statistics": true
+    },
+    "md_2019_stages": {
+      "path": "results/optA_20251016_103926/experiments/experiment_md_2019_stages",
+      "has_detection_analysis": true,
+      "has_classification_analysis": true,
+      "has_dataset_statistics": true
+    },
+    "mp_idb_species": {
+      "path": "results/optA_20251016_103926/experiments/experiment_mp_idb_species",
+      "has_detection_analysis": true,
+      "has_classification_analysis": true,
+      "has_dataset_statistics": true
+    },
+    "mp_idb_stages": {
+      "path": "results/optA_20251016_103926/experiments/experiment_mp_idb_stages",
+      "has_detection_analysis": true,
+      "has_classification_analysis": true,
+      "has_dataset_statistics": true
+    }
+  },
+  "dataset_statistics": [
+    {
+      "Dataset": "mp_idb_species",
+      "Original_Train": 137,
+      "Original_Val": 36,
+      "Original_Test": 36,
+      "Detection_Aug_Train": 601,
+      "Classification_Aug_Train": 480,
+      "Detection_Multiplier": "4.4x",
+      "Classification_Multiplier": "3.5x"
+    },
+    {
+      "Dataset": "mp_idb_stages",
+      "Original_Train": 137,
+      "Original_Val": 36,
+      "Original_Test": 36,
+      "Detection_Aug_Train": 601,
+      "Classification_Aug_Train": 480,
+      "Detection_Multiplier": "4.4x",
+      "Classification_Multiplier": "3.5x"
+    },
+    {
+      "Dataset": "mp_idb_species",
+      "Original_Train": 137,
+      "Original_Val": 36,
+      "Original_Test": 36,
+      "Detection_Aug_Train": 601,
+      "Classification_Aug_Train": 480,
+      "Detection_Multiplier": "4.4x",
+      "Classification_Multiplier": "3.5x"
+    },
+    {
+      "Dataset": "mp_idb_stages",
+      "Original_Train": 137,
+      "Original_Val": 36,
+      "Original_Test": 36,
+      "Detection_Aug_Train": 601,
+      "Classification_Aug_Train": 480,
+      "Detection_Multiplier": "4.4x",
+      "Classification_Multiplier": "3.5x"
+    },
+    {
+      "Dataset": "mp_idb_species",
+      "Original_Train": 137,
+      "Original_Val": 36,
+      "Original_Test": 36,
+      "Detection_Aug_Train": 601,
+      "Classification_Aug_Train": 480,
+      "Detection_Multiplier": "4.4x",
+      "Classification_Multiplier": "3.5x"
+    },
+    {
+      "Dataset": "mp_idb_stages",
+      "Original_Train": 137,
+      "Original_Val": 36,
+      "Original_Test": 36,
+      "Detection_Aug_Train": 601,
+      "Classification_Aug_Train": 480,
+      "Detection_Multiplier": "4.4x",
+      "Classification_Multiplier": "3.5x"
+    },
+    {
+      "Dataset": "mp_idb_species",
+      "Original_Train": 137,
+      "Original_Val": 36,
+      "Original_Test": 36,
+      "Detection_Aug_Train": 601,
+      "Classification_Aug_Train": 480,
+      "Detection_Multiplier": "4.4x",
+      "Classification_Multiplier": "3.5x"
+    },
+    {
+      "Dataset": "mp_idb_stages",
+      "Original_Train": 137,
+      "Original_Val": 36,
+      "Original_Test": 36,
+      "Detection_Aug_Train": 601,
+      "Classification_Aug_Train": 480,
+      "Detection_Multiplier": "4.4x",
+      "Classification_Multiplier": "3.5x"
+    }
+  ],
+  "detection_performance": {
+    "iml_lifecycle": {
+      "yolo11": {
+        "epochs_trained": 100,
+        "mAP50": 0.95463,
+        "mAP50_95": 0.77748,
+        "precision": 0.90095,
+        "recall": 0.91111
+      },
+      "yolo12": {
+        "epochs_trained": 100,
+        "mAP50": 0.89094,
+        "mAP50_95": 0.71979,
+        "precision": 0.8933,
+        "recall": 0.93029
+      }
+    },
+    "md_2019_stages": {
+      "yolo11": {
+        "epochs_trained": 100,
+        "mAP50": 0.70717,
+        "mAP50_95": 0.56176,
+        "precision": 0.67497,
+        "recall": 0.70691
+      },
+      "yolo12": {
+        "epochs_trained": 100,
+        "mAP50": 0.69736,
+        "mAP50_95": 0.55665,
+        "precision": 0.61387,
+        "recall": 0.72344
+      }
+    },
+    "mp_idb_species": {
+      "yolo11": {
+        "epochs_trained": 100,
+        "mAP50": 0.93223,
+        "mAP50_95": 0.62934,
+        "precision": 0.90434,
+        "recall": 0.88696
+      },
+      "yolo12": {
+        "epochs_trained": 100,
+        "mAP50": 0.92435,
+        "mAP50_95": 0.62273,
+        "precision": 0.86013,
+        "recall": 0.90907
+      }
+    },
+    "mp_idb_stages": {
+      "yolo11": {
+        "epochs_trained": 100,
+        "mAP50": 0.93817,
+        "mAP50_95": 0.59786,
+        "precision": 0.91993,
+        "recall": 0.91189
+      },
+      "yolo12": {
+        "epochs_trained": 100,
+        "mAP50": 0.95163,
+        "mAP50_95": 0.59461,
+        "precision": 0.95231,
+        "recall": 0.84529
+      }
+    }
+  },
+  "classification_performance": {
+    "iml_lifecycle": {
+      "focal_loss": [
+        {
+          "Class": "Overall",
+          "Metric": "accuracy",
+          "densenet121": 0.8427,
+          "efficientnet_b0": 0.8652,
+          "efficientnet_b1": 0.8427,
+          "efficientnet_b2": 0.8427,
+          "resnet101": 0.809,
+          "resnet50": 0.8876
+        },
+        {
+          "Class": "Overall",
+          "Metric": "balanced_accuracy",
+          "densenet121": 0.7429,
+          "efficientnet_b0": 0.7512,
+          "efficientnet_b1": 0.7362,
+          "efficientnet_b2": 0.7238,
+          "resnet101": 0.6999,
+          "resnet50": 0.7958
+        },
+        {
+          "Class": "gametocyte",
+          "Metric": "precision",
+          "densenet121": 0.95,
+          "efficientnet_b0": 0.907,
+          "efficientnet_b1": 0.95,
+          "efficientnet_b2": 0.8696,
+          "resnet101": 0.8478,
+          "resnet50": 0.9512
+        },
+        {
+          "Class": "gametocyte",
+          "Metric": "recall",
+          "densenet121": 0.9268,
+          "efficientnet_b0": 0.9512,
+          "efficientnet_b1": 0.9268,
+          "efficientnet_b2": 0.9756,
+          "resnet101": 0.9512,
+          "resnet50": 0.9512
+        },
+        {
+          "Class": "gametocyte",
+          "Metric": "f1_score",
+          "densenet121": 0.9383,
+          "efficientnet_b0": 0.9286,
+          "efficientnet_b1": 0.9383,
+          "efficientnet_b2": 0.9195,
+          "resnet101": 0.8966,
+          "resnet50": 0.9512
+        },
+        {
+          "Class": "gametocyte",
+          "Metric": "support",
+          "densenet121": 41.0,
+          "efficientnet_b0": 41.0,
+          "efficientnet_b1": 41.0,
+          "efficientnet_b2": 41.0,
+          "resnet101": 41.0,
+          "resnet50": 41.0
+        },
+        {
+          "Class": "ring",
+          "Metric": "precision",
+          "densenet121": 0.8571,
+          "efficientnet_b0": 0.8667,
+          "efficientnet_b1": 0.8621,
+          "efficientnet_b2": 0.8889,
+          "resnet101": 0.9565,
+          "resnet50": 0.96
+        },
+        {
+          "Class": "ring",
+          "Metric": "recall",
+          "densenet121": 0.8571,
+          "efficientnet_b0": 0.9286,
+          "efficientnet_b1": 0.8929,
+          "efficientnet_b2": 0.8571,
+          "resnet101": 0.7857,
+          "resnet50": 0.8571
+        },
+        {
+          "Class": "ring",
+          "Metric": "f1_score",
+          "densenet121": 0.8571,
+          "efficientnet_b0": 0.8966,
+          "efficientnet_b1": 0.8772,
+          "efficientnet_b2": 0.8727,
+          "resnet101": 0.8627,
+          "resnet50": 0.9057
+        },
+        {
+          "Class": "ring",
+          "Metric": "support",
+          "densenet121": 28.0,
+          "efficientnet_b0": 28.0,
+          "efficientnet_b1": 28.0,
+          "efficientnet_b2": 28.0,
+          "resnet101": 28.0,
+          "resnet50": 28.0
+        },
+        {
+          "Class": "schizont",
+          "Metric": "precision",
+          "densenet121": 0.5,
+          "efficientnet_b0": 0.6667,
+          "efficientnet_b1": 0.3333,
+          "efficientnet_b2": 0.5,
+          "resnet101": 0.6667,
+          "resnet50": 0.5
+        },
+        {
+          "Class": "schizont",
+          "Metric": "recall",
+          "densenet121": 0.5,
+          "efficientnet_b0": 0.5,
+          "efficientnet_b1": 0.5,
+          "efficientnet_b2": 0.5,
+          "resnet101": 0.5,
+          "resnet50": 0.5
+        },
+        {
+          "Class": "schizont",
+          "Metric": "f1_score",
+          "densenet121": 0.5,
+          "efficientnet_b0": 0.5714,
+          "efficientnet_b1": 0.4,
+          "efficientnet_b2": 0.5,
+          "resnet101": 0.5714,
+          "resnet50": 0.5
+        },
+        {
+          "Class": "schizont",
+          "Metric": "support",
+          "densenet121": 4.0,
+          "efficientnet_b0": 4.0,
+          "efficientnet_b1": 4.0,
+          "efficientnet_b2": 4.0,
+          "resnet101": 4.0,
+          "resnet50": 4.0
+        },
+        {
+          "Class": "trophozoite",
+          "Metric": "precision",
+          "densenet121": 0.6471,
+          "efficientnet_b0": 0.7692,
+          "efficientnet_b1": 0.7143,
+          "efficientnet_b2": 0.75,
+          "resnet101": 0.5294,
+          "resnet50": 0.7368
+        },
+        {
+          "Class": "trophozoite",
+          "Metric": "recall",
+          "densenet121": 0.6875,
+          "efficientnet_b0": 0.625,
+          "efficientnet_b1": 0.625,
+          "efficientnet_b2": 0.5625,
+          "resnet101": 0.5625,
+          "resnet50": 0.875
+        },
+        {
+          "Class": "trophozoite",
+          "Metric": "f1_score",
+          "densenet121": 0.6667,
+          "efficientnet_b0": 0.6897,
+          "efficientnet_b1": 0.6667,
+          "efficientnet_b2": 0.6429,
+          "resnet101": 0.5455,
+          "resnet50": 0.8
+        },
+        {
+          "Class": "trophozoite",
+          "Metric": "support",
+          "densenet121": 16.0,
+          "efficientnet_b0": 16.0,
+          "efficientnet_b1": 16.0,
+          "efficientnet_b2": 16.0,
+          "resnet101": 16.0,
+          "resnet50": 16.0
+        }
+      ]
+    },
+    "md_2019_stages": {
+      "focal_loss": [
+        {
+          "Class": "Overall",
+          "Metric": "accuracy",
+          "densenet121": 0.8535,
+          "efficientnet_b0": 0.8645,
+          "efficientnet_b1": 0.848,
+          "efficientnet_b2": 0.8773,
+          "resnet101": 0.8297,
+          "resnet50": 0.8553
+        },
+        {
+          "Class": "Overall",
+          "Metric": "balanced_accuracy",
+          "densenet121": 0.8427,
+          "efficientnet_b0": 0.8403,
+          "efficientnet_b1": 0.8205,
+          "efficientnet_b2": 0.8682,
+          "resnet101": 0.8261,
+          "resnet50": 0.8299
+        },
+        {
+          "Class": "ring",
+          "Metric": "precision",
+          "densenet121": 0.8736,
+          "efficientnet_b0": 0.8876,
+          "efficientnet_b1": 0.8793,
+          "efficientnet_b2": 0.9398,
+          "resnet101": 0.8689,
+          "resnet50": 0.8883
+        },
+        {
+          "Class": "ring",
+          "Metric": "recall",
+          "densenet121": 0.9464,
+          "efficientnet_b0": 0.9405,
+          "efficientnet_b1": 0.9107,
+          "efficientnet_b2": 0.9286,
+          "resnet101": 0.9464,
+          "resnet50": 0.9464
+        },
+        {
+          "Class": "ring",
+          "Metric": "f1_score",
+          "densenet121": 0.9086,
+          "efficientnet_b0": 0.9133,
+          "efficientnet_b1": 0.8947,
+          "efficientnet_b2": 0.9341,
+          "resnet101": 0.906,
+          "resnet50": 0.9164
+        },
+        {
+          "Class": "ring",
+          "Metric": "support",
+          "densenet121": 168.0,
+          "efficientnet_b0": 168.0,
+          "efficientnet_b1": 168.0,
+          "efficientnet_b2": 168.0,
+          "resnet101": 168.0,
+          "resnet50": 168.0
+        },
+        {
+          "Class": "schizont",
+          "Metric": "precision",
+          "densenet121": 0.9444,
+          "efficientnet_b0": 0.9213,
+          "efficientnet_b1": 0.9102,
+          "efficientnet_b2": 0.9237,
+          "resnet101": 0.9455,
+          "resnet50": 0.9059
+        },
+        {
+          "Class": "schizont",
+          "Metric": "recall",
+          "densenet121": 0.8467,
+          "efficientnet_b0": 0.8966,
+          "efficientnet_b1": 0.8927,
+          "efficientnet_b2": 0.8812,
+          "resnet101": 0.7969,
+          "resnet50": 0.8851
+        },
+        {
+          "Class": "schizont",
+          "Metric": "f1_score",
+          "densenet121": 0.8929,
+          "efficientnet_b0": 0.9087,
+          "efficientnet_b1": 0.9014,
+          "efficientnet_b2": 0.902,
+          "resnet101": 0.8649,
+          "resnet50": 0.8953
+        },
+        {
+          "Class": "schizont",
+          "Metric": "support",
+          "densenet121": 261.0,
+          "efficientnet_b0": 261.0,
+          "efficientnet_b1": 261.0,
+          "efficientnet_b2": 261.0,
+          "resnet101": 261.0,
+          "resnet50": 261.0
+        },
+        {
+          "Class": "trophozoite",
+          "Metric": "precision",
+          "densenet121": 0.6615,
+          "efficientnet_b0": 0.7018,
+          "efficientnet_b1": 0.6638,
+          "efficientnet_b2": 0.7099,
+          "resnet101": 0.6014,
+          "resnet50": 0.6875
+        },
+        {
+          "Class": "trophozoite",
+          "Metric": "recall",
+          "densenet121": 0.735,
+          "efficientnet_b0": 0.6838,
+          "efficientnet_b1": 0.6581,
+          "efficientnet_b2": 0.7949,
+          "resnet101": 0.735,
+          "resnet50": 0.6581
+        },
+        {
+          "Class": "trophozoite",
+          "Metric": "f1_score",
+          "densenet121": 0.6964,
+          "efficientnet_b0": 0.6926,
+          "efficientnet_b1": 0.6609,
+          "efficientnet_b2": 0.75,
+          "resnet101": 0.6615,
+          "resnet50": 0.6725
+        },
+        {
+          "Class": "trophozoite",
+          "Metric": "support",
+          "densenet121": 117.0,
+          "efficientnet_b0": 117.0,
+          "efficientnet_b1": 117.0,
+          "efficientnet_b2": 117.0,
+          "resnet101": 117.0,
+          "resnet50": 117.0
+        }
+      ]
+    },
+    "mp_idb_species": {
+      "focal_loss": [
+        {
+          "Class": "Overall",
+          "Metric": "accuracy",
+          "densenet121": 0.984,
+          "efficientnet_b0": 0.988,
+          "efficientnet_b1": 0.992,
+          "efficientnet_b2": 0.98,
+          "resnet101": 0.996,
+          "resnet50": 0.976
+        },
+        {
+          "Class": "Overall",
+          "Metric": "balanced_accuracy",
+          "densenet121": 0.8818,
+          "efficientnet_b0": 0.8916,
+          "efficientnet_b1": 0.9,
+          "efficientnet_b2": 0.8045,
+          "resnet101": 0.95,
+          "resnet50": 0.7978
+        },
+        {
+          "Class": "P_falciparum",
+          "Metric": "precision",
+          "densenet121": 1.0,
+          "efficientnet_b0": 0.9956,
+          "efficientnet_b1": 1.0,
+          "efficientnet_b2": 1.0,
+          "resnet101": 1.0,
+          "resnet50": 1.0
+        },
+        {
+          "Class": "P_falciparum",
+          "Metric": "recall",
+          "densenet121": 1.0,
+          "efficientnet_b0": 1.0,
+          "efficientnet_b1": 1.0,
+          "efficientnet_b2": 1.0,
+          "resnet101": 1.0,
+          "resnet50": 0.9912
+        },
+        {
+          "Class": "P_falciparum",
+          "Metric": "f1_score",
+          "densenet121": 1.0,
+          "efficientnet_b0": 0.9978,
+          "efficientnet_b1": 1.0,
+          "efficientnet_b2": 1.0,
+          "resnet101": 1.0,
+          "resnet50": 0.9956
+        },
+        {
+          "Class": "P_falciparum",
+          "Metric": "support",
+          "densenet121": 227.0,
+          "efficientnet_b0": 227.0,
+          "efficientnet_b1": 227.0,
+          "efficientnet_b2": 227.0,
+          "resnet101": 227.0,
+          "resnet50": 227.0
+        },
+        {
+          "Class": "P_malariae",
+          "Metric": "precision",
+          "densenet121": 1.0,
+          "efficientnet_b0": 1.0,
+          "efficientnet_b1": 1.0,
+          "efficientnet_b2": 1.0,
+          "resnet101": 1.0,
+          "resnet50": 0.875
+        },
+        {
+          "Class": "P_malariae",
+          "Metric": "recall",
+          "densenet121": 1.0,
+          "efficientnet_b0": 0.8571,
+          "efficientnet_b1": 1.0,
+          "efficientnet_b2": 1.0,
+          "resnet101": 1.0,
+          "resnet50": 1.0
+        },
+        {
+          "Class": "P_malariae",
+          "Metric": "f1_score",
+          "densenet121": 1.0,
+          "efficientnet_b0": 0.9231,
+          "efficientnet_b1": 1.0,
+          "efficientnet_b2": 1.0,
+          "resnet101": 1.0,
+          "resnet50": 0.9333
+        },
+        {
+          "Class": "P_malariae",
+          "Metric": "support",
+          "densenet121": 7.0,
+          "efficientnet_b0": 7.0,
+          "efficientnet_b1": 7.0,
+          "efficientnet_b2": 7.0,
+          "resnet101": 7.0,
+          "resnet50": 7.0
+        },
+        {
+          "Class": "P_ovale",
+          "Metric": "precision",
+          "densenet121": 0.5714,
+          "efficientnet_b0": 0.8,
+          "efficientnet_b1": 1.0,
+          "efficientnet_b2": 0.5,
+          "resnet101": 1.0,
+          "resnet50": 0.5
+        },
+        {
+          "Class": "P_ovale",
+          "Metric": "recall",
+          "densenet121": 0.8,
+          "efficientnet_b0": 0.8,
+          "efficientnet_b1": 0.6,
+          "efficientnet_b2": 0.4,
+          "resnet101": 0.8,
+          "resnet50": 0.2
+        },
+        {
+          "Class": "P_ovale",
+          "Metric": "f1_score",
+          "densenet121": 0.6667,
+          "efficientnet_b0": 0.8,
+          "efficientnet_b1": 0.75,
+          "efficientnet_b2": 0.4444,
+          "resnet101": 0.8889,
+          "resnet50": 0.2857
+        },
+        {
+          "Class": "P_ovale",
+          "Metric": "support",
+          "densenet121": 5.0,
+          "efficientnet_b0": 5.0,
+          "efficientnet_b1": 5.0,
+          "efficientnet_b2": 5.0,
+          "resnet101": 5.0,
+          "resnet50": 5.0
+        },
+        {
+          "Class": "P_vivax",
+          "Metric": "precision",
+          "densenet121": 0.8889,
+          "efficientnet_b0": 0.9091,
+          "efficientnet_b1": 0.8462,
+          "efficientnet_b2": 0.75,
+          "resnet101": 0.9167,
+          "resnet50": 0.7333
+        },
+        {
+          "Class": "P_vivax",
+          "Metric": "recall",
+          "densenet121": 0.7273,
+          "efficientnet_b0": 0.9091,
+          "efficientnet_b1": 1.0,
+          "efficientnet_b2": 0.8182,
+          "resnet101": 1.0,
+          "resnet50": 1.0
+        },
+        {
+          "Class": "P_vivax",
+          "Metric": "f1_score",
+          "densenet121": 0.8,
+          "efficientnet_b0": 0.9091,
+          "efficientnet_b1": 0.9167,
+          "efficientnet_b2": 0.7826,
+          "resnet101": 0.9565,
+          "resnet50": 0.8462
+        },
+        {
+          "Class": "P_vivax",
+          "Metric": "support",
+          "densenet121": 11.0,
+          "efficientnet_b0": 11.0,
+          "efficientnet_b1": 11.0,
+          "efficientnet_b2": 11.0,
+          "resnet101": 11.0,
+          "resnet50": 11.0
+        }
+      ]
+    },
+    "mp_idb_stages": {
+      "focal_loss": [
+        {
+          "Class": "Overall",
+          "Metric": "accuracy",
+          "densenet121": 0.9264,
+          "efficientnet_b0": 0.9465,
+          "efficientnet_b1": 0.9264,
+          "efficientnet_b2": 0.9431,
+          "resnet101": 0.9465,
+          "resnet50": 0.9264
+        },
+        {
+          "Class": "Overall",
+          "Metric": "balanced_accuracy",
+          "densenet121": 0.6022,
+          "efficientnet_b0": 0.7106,
+          "efficientnet_b1": 0.7194,
+          "efficientnet_b2": 0.5643,
+          "resnet101": 0.5571,
+          "resnet50": 0.6718
+        },
+        {
+          "Class": "gametocyte",
+          "Metric": "precision",
+          "densenet121": 0.6667,
+          "efficientnet_b0": 1.0,
+          "efficientnet_b1": 0.6667,
+          "efficientnet_b2": 0.5,
+          "resnet101": 0.4,
+          "resnet50": 1.0
+        },
+        {
+          "Class": "gametocyte",
+          "Metric": "recall",
+          "densenet121": 0.4,
+          "efficientnet_b0": 0.6,
+          "efficientnet_b1": 0.8,
+          "efficientnet_b2": 0.2,
+          "resnet101": 0.4,
+          "resnet50": 0.4
+        },
+        {
+          "Class": "gametocyte",
+          "Metric": "f1_score",
+          "densenet121": 0.5,
+          "efficientnet_b0": 0.75,
+          "efficientnet_b1": 0.7273,
+          "efficientnet_b2": 0.2857,
+          "resnet101": 0.4,
+          "resnet50": 0.5714
+        },
+        {
+          "Class": "gametocyte",
+          "Metric": "support",
+          "densenet121": 5.0,
+          "efficientnet_b0": 5.0,
+          "efficientnet_b1": 5.0,
+          "efficientnet_b2": 5.0,
+          "resnet101": 5.0,
+          "resnet50": 5.0
+        },
+        {
+          "Class": "ring",
+          "Metric": "precision",
+          "densenet121": 0.9742,
+          "efficientnet_b0": 0.9745,
+          "efficientnet_b1": 0.974,
+          "efficientnet_b2": 0.9611,
+          "resnet101": 0.9714,
+          "resnet50": 0.974
+        },
+        {
+          "Class": "ring",
+          "Metric": "recall",
+          "densenet121": 0.9706,
+          "efficientnet_b0": 0.9853,
+          "efficientnet_b1": 0.9632,
+          "efficientnet_b2": 1.0,
+          "resnet101": 1.0,
+          "resnet50": 0.9632
+        },
+        {
+          "Class": "ring",
+          "Metric": "f1_score",
+          "densenet121": 0.9724,
+          "efficientnet_b0": 0.9799,
+          "efficientnet_b1": 0.9686,
+          "efficientnet_b2": 0.9802,
+          "resnet101": 0.9855,
+          "resnet50": 0.9686
+        },
+        {
+          "Class": "ring",
+          "Metric": "support",
+          "densenet121": 272.0,
+          "efficientnet_b0": 272.0,
+          "efficientnet_b1": 272.0,
+          "efficientnet_b2": 272.0,
+          "resnet101": 272.0,
+          "resnet50": 272.0
+        },
+        {
+          "Class": "schizont",
+          "Metric": "precision",
+          "densenet121": 0.8,
+          "efficientnet_b0": 0.6667,
+          "efficientnet_b1": 0.8333,
+          "efficientnet_b2": 0.6667,
+          "resnet101": 0.5,
+          "resnet50": 0.8571
+        },
+        {
+          "Class": "schizont",
+          "Metric": "recall",
+          "densenet121": 0.5714,
+          "efficientnet_b0": 0.8571,
+          "efficientnet_b1": 0.7143,
+          "efficientnet_b2": 0.8571,
+          "resnet101": 0.4286,
+          "resnet50": 0.8571
+        },
+        {
+          "Class": "schizont",
+          "Metric": "f1_score",
+          "densenet121": 0.6667,
+          "efficientnet_b0": 0.75,
+          "efficientnet_b1": 0.7692,
+          "efficientnet_b2": 0.75,
+          "resnet101": 0.4615,
+          "resnet50": 0.8571
+        },
+        {
+          "Class": "schizont",
+          "Metric": "support",
+          "densenet121": 7.0,
+          "efficientnet_b0": 7.0,
+          "efficientnet_b1": 7.0,
+          "efficientnet_b2": 7.0,
+          "resnet101": 7.0,
+          "resnet50": 7.0
+        },
+        {
+          "Class": "trophozoite",
+          "Metric": "precision",
+          "densenet121": 0.35,
+          "efficientnet_b0": 0.5,
+          "efficientnet_b1": 0.3333,
+          "efficientnet_b2": 0.6,
+          "resnet101": 0.75,
+          "resnet50": 0.3333
+        },
+        {
+          "Class": "trophozoite",
+          "Metric": "recall",
+          "densenet121": 0.4667,
+          "efficientnet_b0": 0.4,
+          "efficientnet_b1": 0.4,
+          "efficientnet_b2": 0.2,
+          "resnet101": 0.4,
+          "resnet50": 0.4667
+        },
+        {
+          "Class": "trophozoite",
+          "Metric": "f1_score",
+          "densenet121": 0.4,
+          "efficientnet_b0": 0.4444,
+          "efficientnet_b1": 0.3636,
+          "efficientnet_b2": 0.3,
+          "resnet101": 0.5217,
+          "resnet50": 0.3889
+        },
+        {
+          "Class": "trophozoite",
+          "Metric": "support",
+          "densenet121": 15.0,
+          "efficientnet_b0": 15.0,
+          "efficientnet_b1": 15.0,
+          "efficientnet_b2": 15.0,
+          "resnet101": 15.0,
+          "resnet50": 15.0
+        }
+      ]
+    }
+  }
+}

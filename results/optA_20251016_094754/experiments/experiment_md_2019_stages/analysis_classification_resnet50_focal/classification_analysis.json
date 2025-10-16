@@ -1,0 +1,26 @@
+{
+  "model_name": "resnet50_focal",
+  "overall_accuracy": 0.7728937728937729,
+  "overall_balanced_accuracy": 0.785130099785272,
+  "test_accuracy": 0.7728937728937728,
+  "class_performance": {
+    "ring": {
+      "precision": 0.8440860215053764,
+      "recall": 0.9345238095238095,
+      "f1_score": 0.8870056497175142,
+      "support": 168.0
+    },
+    "schizont": {
+      "precision": 0.9470899470899471,
+      "recall": 0.685823754789272,
+      "f1_score": 0.7955555555555556,
+      "support": 261.0
+    },
+    "trophozoite": {
+      "precision": 0.5029239766081871,
+      "recall": 0.7350427350427351,
+      "f1_score": 0.5972222222222222,
+      "support": 117.0
+    }
+  }
+}

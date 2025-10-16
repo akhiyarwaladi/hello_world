@@ -1,0 +1,17 @@
+Model: resnet101
+Best Val Acc: 88.89%
+Test Acc: 94.65%
+Balanced Acc: 55.71%
+Training Time: 1.9 min
+
+Classification Report:
+              precision    recall  f1-score   support
+
+  gametocyte       0.40      0.40      0.40         5
+        ring       0.97      1.00      0.99       272
+    schizont       0.50      0.43      0.46         7
+ trophozoite       0.75      0.40      0.52        15
+
+    accuracy                           0.95       299
+   macro avg       0.66      0.56      0.59       299
+weighted avg       0.94      0.95      0.94       299

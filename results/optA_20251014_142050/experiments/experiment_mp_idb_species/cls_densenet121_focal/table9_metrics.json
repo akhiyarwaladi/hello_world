@@ -1,0 +1,39 @@
+{
+  "overall_accuracy": 0.98,
+  "overall_balanced_accuracy": 0.8261714056868243,
+  "test_accuracy": 0.98,
+  "per_class_metrics": {
+    "class_0": {
+      "class_name": "P_falciparum",
+      "class_index": 0,
+      "precision": 1.0,
+      "recall": 0.9955947136563876,
+      "f1_score": 0.9977924944812362,
+      "support": 227.0
+    },
+    "class_1": {
+      "class_name": "P_malariae",
+      "class_index": 1,
+      "precision": 0.875,
+      "recall": 1.0,
+      "f1_score": 0.9333333333333333,
+      "support": 7.0
+    },
+    "class_2": {
+      "class_name": "P_ovale",
+      "class_index": 2,
+      "precision": 0.6666666666666666,
+      "recall": 0.4,
+      "f1_score": 0.5,
+      "support": 5.0
+    },
+    "class_3": {
+      "class_name": "P_vivax",
+      "class_index": 3,
+      "precision": 0.7692307692307693,
+      "recall": 0.9090909090909091,
+      "f1_score": 0.8333333333333334,
+      "support": 11.0
+    }
+  }
+}

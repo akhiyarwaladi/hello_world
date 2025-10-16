@@ -1,0 +1,3 @@
+Dataset,Original_Train,Original_Val,Original_Test,Original_Total,Detection_Aug_Train,Classification_Aug_Train,Aug_Val,Aug_Test,Detection_Aug_Total,Classification_Aug_Total,Detection_Multiplier,Classification_Multiplier
+mp_idb_species,137,36,36,209,601,480,36,36,673,552,4.4x,3.5x
+mp_idb_stages,137,36,36,209,601,480,36,36,673,552,4.4x,3.5x

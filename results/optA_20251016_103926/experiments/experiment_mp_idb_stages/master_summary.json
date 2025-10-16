@@ -1,0 +1,11 @@
+{
+  "experiment_name": "optA_20251016_103926_mp_idb_stages_mp_idb_stages",
+  "timestamp": "2025-10-16T11:30:47.387910",
+  "pipeline_type": "option_a_shared_classification",
+  "folder_structure": {
+    "detection": 2,
+    "classification": 6,
+    "crop_data": 1,
+    "analysis": 11
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "parent_experiment": "optA_20251013_220815",
+  "total_datasets": 4,
+  "datasets_analyzed": [
+    "mp_idb_species",
+    "mp_idb_stages",
+    "iml_lifecycle",
+    "md_2019_stages"
+  ],
+  "analysis_timestamp": "2025-10-14T02:40:02.660554",
+  "detection_models": [
+    "yolo10",
+    "yolo11",
+    "yolo12"
+  ],
+  "classification_models": [
+    "all_6_models"
+  ],
+  "cross_dataset_performance": {}
+}
