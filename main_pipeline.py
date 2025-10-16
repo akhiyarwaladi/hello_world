@@ -783,6 +783,8 @@ def run_pipeline_for_dataset(args):
                         return self.pipeline_dir / exp_name
 
                 results_manager = ParentStructureManager(dataset_exp_folder)
+                # FIX: Update experiment_dir to dataset-specific folder for find_detection_models()
+                experiment_dir = str(dataset_exp_folder)
             else:
                 print(f"[ERROR] Dataset experiment not found in parent folder: {dataset_exp_folder}")
                 print(f"[INFO] Available experiments:")
