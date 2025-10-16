@@ -1,0 +1,30 @@
+Classification Analysis: densenet121_focal
+===============================================
+
+Overall Performance:
+- Accuracy: 0.8652
+- Balanced Accuracy: 0.8153
+- Test Accuracy: 0.8652
+
+Per-Class Performance:
+
+gametocyte:
+  - Precision: 0.9302
+  - Recall: 0.9756
+  - F1-Score: 0.9524
+  - Support: 41
+ring:
+  - Precision: 0.9167
+  - Recall: 0.7857
+  - F1-Score: 0.8462
+  - Support: 28
+schizont:
+  - Precision: 0.6000
+  - Recall: 0.7500
+  - F1-Score: 0.6667
+  - Support: 4
+trophozoite:
+  - Precision: 0.7059
+  - Recall: 0.7500
+  - F1-Score: 0.7273
+  - Support: 16

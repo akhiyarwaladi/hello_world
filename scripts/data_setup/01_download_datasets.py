@@ -191,7 +191,7 @@ class MalariaDatasetDownloader:
             print("Please run: kaggle datasets download rayhanadi/yolo-formatted-mp-idb-malaria-dataset")
             return False
 
-        dataset_dir = self.base_dir.parent / "kaggle_dataset"
+        dataset_dir = self.base_dir / "kaggle_dataset"  # FIX: Konsisten dengan dataset lain di data/raw/
         dataset_dir.mkdir(exist_ok=True)
 
         dataset_name = "rayhanadi/yolo-formatted-mp-idb-malaria-dataset"

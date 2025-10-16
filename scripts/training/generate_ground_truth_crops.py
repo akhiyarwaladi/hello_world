@@ -527,7 +527,13 @@ class GroundTruthCropGenerator:
         metadata = []
 
         # Check if dataset has train/val/test structure or is a single directory
-        has_splits = any((self.dataset_path / split).exists() for split in ['train', 'val', 'test'])
+        # FIX: Handle Windows file locking (WinError 1920)
+        has_splits = False
+        try:
+            has_splits = any((self.dataset_path / split).exists() for split in ['train', 'val', 'test'])
+        except OSError as e:
+            print(f"[WARNING] Cannot check for train/val/test splits (WinError: {e}), assuming single directory")
+            has_splits = False
 
         # For single directory datasets, prepare stratified splits
         image_split_assignment = {}
@@ -566,16 +572,26 @@ class GroundTruthCropGenerator:
                 actual_split = split
 
             # Check if images directory exists
-            if not images_dir.exists():
-                continue
+            # FIX: Handle Windows file locking (WinError 1920)
+            try:
+                if not images_dir.exists():
+                    continue
+            except OSError as e:
+                print(f"[WARNING] Cannot verify images directory (WinError: {e}), trying anyway...")
+                # Try to continue anyway - glob will handle missing directories
 
             # For IML lifecycle raw data, labels are in original_annotations
             if dataset_type == 'iml_lifecycle' and split == 'all':
                 if not original_annotations:
                     print(f"[WARNING] No original annotations loaded for IML lifecycle")
                     continue
-            elif labels_dir and not labels_dir.exists():
-                continue
+            elif labels_dir:
+                # FIX: Handle Windows file locking (WinError 1920)
+                try:
+                    if not labels_dir.exists():
+                        continue
+                except OSError as e:
+                    print(f"[WARNING] Cannot verify labels directory (WinError: {e}), trying anyway...")
 
             print(f"[SPLIT] Processing {split}...")
 

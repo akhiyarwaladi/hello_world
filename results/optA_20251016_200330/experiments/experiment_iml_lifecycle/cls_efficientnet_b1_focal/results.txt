@@ -1,0 +1,17 @@
+Model: efficientnet_b1
+Best Val Acc: 92.05%
+Test Acc: 83.15%
+Balanced Acc: 71.10%
+Training Time: 3.3 min
+
+Classification Report:
+              precision    recall  f1-score   support
+
+  gametocyte       0.91      0.95      0.93        41
+        ring       0.86      0.89      0.88        28
+    schizont       0.40      0.50      0.44         4
+ trophozoite       0.67      0.50      0.57        16
+
+    accuracy                           0.83        89
+   macro avg       0.71      0.71      0.71        89
+weighted avg       0.83      0.83      0.83        89

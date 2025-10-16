@@ -1165,7 +1165,7 @@ def run_pipeline_for_dataset(args):
             dataset_type = "iml_lifecycle"
             print(f"[IML_LIFECYCLE] Using IML lifecycle raw annotations for ground truth crops")
         elif args.dataset == "mp_idb_stages":
-            raw_dataset_path = "data/raw/kaggle_dataset/MP-IDB-YOLO"
+            raw_dataset_path = "data/raw/kaggle_dataset/MP-IDB-YOLO"  # Proper path after download script fix
             dataset_type = "mp_idb_stages"
             print(f"[MP_IDB_STAGES] Using MP-IDB raw annotations for ground truth crops")
         elif args.dataset == "md_2019_stages":
@@ -1173,17 +1173,25 @@ def run_pipeline_for_dataset(args):
             dataset_type = "md_2019_stages"
             print(f"[MD_2019_STAGES] Using MD_2019 raw annotations for ground truth crops")
         elif args.dataset == "mp_idb_species":
-            raw_dataset_path = "data/raw/kaggle_dataset/MP-IDB-YOLO"
+            raw_dataset_path = "data/raw/kaggle_dataset/MP-IDB-YOLO"  # Proper path after download script fix
             dataset_type = "mp_idb_species"
             print(f"[MP_IDB_SPECIES] Using MP-IDB raw annotations for ground truth crops")
         else:
             print(f"[ERROR] Unknown dataset type: {args.dataset}")
             return
 
-        # Check if raw dataset exists
-        if not Path(raw_dataset_path).exists():
-            print(f"[ERROR] Raw dataset not found: {raw_dataset_path}")
-            return
+        # Check if raw dataset exists (FIX: Use os.path.isdir to avoid WinError 1920)
+        import os
+        try:
+            # Try alternative check that doesn't trigger file locking
+            if not os.path.isdir(raw_dataset_path):
+                print(f"[ERROR] Raw dataset not found: {raw_dataset_path}")
+                return
+            print(f"[INFO] Raw dataset path verified: {raw_dataset_path}")
+        except OSError as e:
+            # If os.path.isdir fails, try to proceed anyway (folder may be accessible despite stat error)
+            print(f"[WARNING] Cannot verify raw dataset path (WinError: {e}), proceeding anyway...")
+            print(f"[INFO] If crop generation fails, check raw data folder: {raw_dataset_path}")
 
         # SIMPLIFIED: Use simple crops path name
         shared_crops_path = results_manager.get_crops_path("shared", "gt_crops")

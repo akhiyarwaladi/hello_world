@@ -1,0 +1,30 @@
+Classification Analysis: resnet50_focal
+===============================================
+
+Overall Performance:
+- Accuracy: 0.8090
+- Balanced Accuracy: 0.7055
+- Test Accuracy: 0.8090
+
+Per-Class Performance:
+
+gametocyte:
+  - Precision: 0.9024
+  - Recall: 0.9024
+  - F1-Score: 0.9024
+  - Support: 41
+ring:
+  - Precision: 0.8571
+  - Recall: 0.8571
+  - F1-Score: 0.8571
+  - Support: 28
+schizont:
+  - Precision: 0.4000
+  - Recall: 0.5000
+  - F1-Score: 0.4444
+  - Support: 4
+trophozoite:
+  - Precision: 0.6000
+  - Recall: 0.5625
+  - F1-Score: 0.5806
+  - Support: 16

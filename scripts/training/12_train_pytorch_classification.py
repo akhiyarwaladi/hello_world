@@ -529,6 +529,19 @@ def main():
             experiment_name=args.name
         )
 
+    # CLEANUP: Try to delete experiment folder for clean start (Windows-safe with fallback)
+    if experiment_path.exists():
+        try:
+            print(f"[CLEANUP] Deleting existing experiment folder: {experiment_path}")
+            shutil.rmtree(experiment_path)
+            print(f"[CLEANUP] ✓ Folder deleted successfully")
+        except (PermissionError, OSError) as e:
+            # Windows Error 1920: File locking issue (common on Windows)
+            # Fallback to overwrite approach (safer for Windows)
+            print(f"[CLEANUP] ⚠️ Cannot delete folder (Windows file locking): {e}")
+            print(f"[CLEANUP] → Fallback: Using overwrite mode (files will be overwritten)")
+
+    # Create experiment folder (exist_ok=True for Windows fallback mode)
     experiment_path.mkdir(parents=True, exist_ok=True)
 
     # Check if data exists
