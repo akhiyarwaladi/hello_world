@@ -38,13 +38,13 @@ class GroundTruthCropGenerator:
         if abs(total_ratio - 1.0) > 0.001:
             raise ValueError(f"Split ratios must sum to 1.0, got {total_ratio:.4f}")
 
-        # FIX: Don't delete output directory - just overwrite (avoids Windows file locking)
-        # Previous approach: shutil.rmtree(self.output_path) → caused WinError 1920
-        # New approach: Use exist_ok=True and overwrite existing crops
+        # AUTO-DELETE old crop folder before regeneration (with Windows-safe method)
         if self.output_path.exists():
-            print(f"[INFO] Output directory exists, will overwrite crops: {self.output_path}")
+            print(f"[CLEANUP] Removing old crop folder: {self.output_path}")
+            self._safe_delete_folder(self.output_path)
+            print(f"[CLEANUP] Old crop folder removed successfully")
 
-        # Create output directory structure (exist_ok=True handles existing dirs)
+        # Create output directory structure
         self.crops_dir = self.output_path / "crops"
         self.crops_dir.mkdir(parents=True, exist_ok=True)
 
@@ -61,6 +61,87 @@ class GroundTruthCropGenerator:
             print(f"[CLAHE] Enhancement ENABLED (clip_limit={self.clahe_clip_limit}, tile_size={self.clahe_tile_size}x{self.clahe_tile_size})")
         else:
             print(f"[CLAHE] Enhancement DISABLED (using original crops)")
+
+    def _safe_delete_folder(self, folder_path):
+        """
+        Safely delete folder with Windows file locking handling
+
+        Strategy:
+        1. Try normal shutil.rmtree
+        2. If fails (WinError 1920), try deleting files one by one
+        3. If still fails, try with longer delay
+        4. If all fails, give clear error message
+        """
+        import time
+
+        if not folder_path.exists():
+            return  # Nothing to delete
+
+        # Method 1: Try normal deletion
+        try:
+            shutil.rmtree(folder_path)
+            return  # Success!
+        except PermissionError as e:
+            print(f"[WARNING] Permission error during deletion (WinError {e.winerror if hasattr(e, 'winerror') else 'unknown'})")
+            print(f"[RETRY] Attempting alternative deletion method...")
+        except Exception as e:
+            print(f"[WARNING] Deletion error: {e}")
+            print(f"[RETRY] Attempting alternative deletion method...")
+
+        # Method 2: Try deleting files individually with delay
+        try:
+            import os
+            for root, dirs, files in os.walk(folder_path, topdown=False):
+                # Delete files first
+                for name in files:
+                    file_path = Path(root) / name
+                    try:
+                        file_path.unlink()
+                    except PermissionError:
+                        time.sleep(0.1)  # Small delay
+                        try:
+                            file_path.unlink()
+                        except:
+                            print(f"[WARNING] Could not delete file: {file_path}")
+
+                # Delete empty directories
+                for name in dirs:
+                    dir_path = Path(root) / name
+                    try:
+                        dir_path.rmdir()
+                    except:
+                        pass  # Skip if not empty
+
+            # Delete root folder
+            folder_path.rmdir()
+            print(f"[SUCCESS] Folder deleted using alternative method")
+            return  # Success!
+        except Exception as e:
+            print(f"[WARNING] Alternative deletion method failed: {e}")
+
+        # Method 3: Force delete with longer delay (last resort)
+        try:
+            print(f"[RETRY] Attempting forced deletion with delay...")
+            time.sleep(1)  # Wait for file handles to close
+            shutil.rmtree(folder_path, ignore_errors=True)
+
+            # Verify deletion
+            if not folder_path.exists():
+                print(f"[SUCCESS] Folder deleted with forced method")
+                return  # Success!
+        except Exception as e:
+            print(f"[ERROR] Forced deletion failed: {e}")
+
+        # If we reach here, deletion failed
+        if folder_path.exists():
+            raise RuntimeError(
+                f"Failed to delete folder: {folder_path}\n"
+                f"Possible causes:\n"
+                f"  1. Files are being used by another process\n"
+                f"  2. Insufficient permissions\n"
+                f"  3. File system lock\n"
+                f"Manual fix: Close all applications using these files and delete manually"
+            )
 
     def detect_dataset_type(self):
         """Detect which dataset we're processing"""
