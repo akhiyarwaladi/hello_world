@@ -468,8 +468,9 @@ def main():
     # Enable cuDNN benchmark for 2-3x speedup (slight non-determinism acceptable for medical AI)
     set_seed(42, enable_cudnn_benchmark=True)
 
-    # Simple GPU setup
-    torch.set_num_threads(4)
+    # RTX 4090 + 32 CPU cores: Optimize PyTorch thread pool
+    # 8 threads optimal for 32 cores (balance parallelism vs context switching)
+    torch.set_num_threads(8)
 
     parser = argparse.ArgumentParser(description="Train PyTorch Classification Models")
     parser.add_argument("--data", default="data/classification_multispecies",
