@@ -693,7 +693,7 @@ def run_pipeline_for_dataset(args):
             "focal_alpha": 0.25,  # OPTIMIZED: Standard medical imaging (was 0.5)
             "focal_gamma": 2.0,   # OPTIMIZED: Standard focusing parameter (was 1.5)
             "epochs": args.epochs_cls,  # Use command-line parameter (default: 75)
-            "batch": 32,         # Optimized for 224px images
+            "batch": 64,         # Optimized for RTX 4090 (24GB) with 224px images
             "lr": 0.0005,        # Lower LR for focal loss stability
             "display_name": f"{model.upper()} (Focal Loss)"
         }
