@@ -107,6 +107,10 @@ def find_detection_models(experiment_dir: str) -> Dict[str, List[Path]]:
     """
     Find all detection models in an experiment
 
+    Supports TWO structures:
+    1. OLD: exp_path/detection/yolo11_detection/exp/weights/best.pt
+    2. NEW (Parent Structure): exp_path/det_yolo11/weights/best.pt
+
     Args:
         experiment_dir: Path to experiment directory
 
@@ -116,6 +120,35 @@ def find_detection_models(experiment_dir: str) -> Dict[str, List[Path]]:
     exp_path = Path(experiment_dir)
     models = {}
 
+    # FIX: Check for parent structure first (det_* folders)
+    det_folders = list(exp_path.glob("det_*"))
+    if det_folders:
+        # Parent structure: detection models are det_yolo10, det_yolo11, det_yolo12
+        for det_folder in det_folders:
+            if det_folder.is_dir():
+                # Extract model type from folder name (det_yolo10 -> yolov10)
+                folder_name = det_folder.name  # det_yolo10
+                if folder_name.startswith("det_"):
+                    model_key = folder_name[4:]  # yolo10
+
+                    # Map to model_type for compatibility (yolo10 -> yolov10)
+                    if model_key == "yolo10":
+                        model_type = "yolov10"
+                    elif model_key == "yolo11":
+                        model_type = "yolov11"
+                    elif model_key == "yolo12":
+                        model_type = "yolov12"
+                    else:
+                        model_type = model_key
+
+                    # Find best.pt weights
+                    weights = list(det_folder.glob("weights/best.pt"))
+                    if weights:
+                        models[model_type] = weights
+
+        return models
+
+    # OLD structure: detection/yolo11_detection/exp/weights/best.pt
     detection_path = exp_path / "detection"
     if detection_path.exists():
         for model_dir in detection_path.iterdir():
@@ -131,6 +164,10 @@ def find_crop_data(experiment_dir: str) -> List[Path]:
     """
     Find all crop data directories in an experiment
 
+    Supports TWO structures:
+    1. OLD: exp_path/crop_data/crops_from_yolo11/
+    2. NEW (Parent Structure): exp_path/crops_gt_crops/
+
     Args:
         experiment_dir: Path to experiment directory
 
@@ -138,6 +175,14 @@ def find_crop_data(experiment_dir: str) -> List[Path]:
         List of crop data directory paths
     """
     exp_path = Path(experiment_dir)
+
+    # FIX: Check for parent structure first (crops_* folders)
+    crops_folders = list(exp_path.glob("crops_*"))
+    if crops_folders:
+        # Parent structure: ground truth crops are crops_gt_crops
+        return crops_folders
+
+    # OLD structure: crop_data/crops_from_*
     crop_data_path = exp_path / "crop_data"
 
     if not crop_data_path.exists():
