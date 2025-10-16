@@ -1260,6 +1260,19 @@ def run_pipeline_for_dataset(args):
         shared_crops_path = results_manager.get_crops_path("shared", "gt_crops")
         output_path = str(shared_crops_path)
 
+        # IMPORTANT: Always use explicit split ratios (defaults: 66%/17%/17%)
+        # These defaults are applied even in continue mode to ensure consistency
+        train_ratio_to_use = args.train_ratio
+        val_ratio_to_use = args.val_ratio
+        test_ratio_to_use = args.test_ratio
+
+        print(f"[SPLIT RATIOS] Using split ratios for crop generation:")
+        print(f"   Train: {train_ratio_to_use:.0%} ({train_ratio_to_use})")
+        print(f"   Val:   {val_ratio_to_use:.0%} ({val_ratio_to_use})")
+        print(f"   Test:  {test_ratio_to_use:.0%} ({test_ratio_to_use})")
+        if continue_mode:
+            print(f"[CONTINUE MODE] Using explicit split ratios (not loaded from metadata)")
+
         # Generate ground truth crops (CLAHE disabled by default; enable via script flag if needed)
         cmd2 = [
             "python", "scripts/training/generate_ground_truth_crops.py",
@@ -1267,9 +1280,9 @@ def run_pipeline_for_dataset(args):
             "--output", output_path,
             "--type", dataset_type,
             "--crop_size", "224",  # FIXED: Use 224px to match pre-processed ground truth
-            "--train-ratio", str(args.train_ratio),
-            "--val-ratio", str(args.val_ratio),
-            "--test-ratio", str(args.test_ratio)
+            "--train-ratio", str(train_ratio_to_use),  # ALWAYS explicit (default: 0.66)
+            "--val-ratio", str(val_ratio_to_use),      # ALWAYS explicit (default: 0.17)
+            "--test-ratio", str(test_ratio_to_use)     # ALWAYS explicit (default: 0.17)
         ]
 
         if not run_command(cmd2, f"Generating shared ground truth crops"):
