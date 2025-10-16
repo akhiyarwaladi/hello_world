@@ -284,11 +284,14 @@ class GroundTruthCropGenerator:
             else:
                 file_patterns = ["*.jpg", "*.JPG"]
 
-            # Sort image files for deterministic file ordering
+            # Collect all image files from all patterns
             import itertools
-            all_image_files = sorted(itertools.chain.from_iterable(
+            all_images_raw = itertools.chain.from_iterable(
                 images_dir.glob(pattern) for pattern in file_patterns
-            ))
+            )
+            # Deduplicate images (case-insensitive filesystems match same file multiple times)
+            # FIX: Windows filesystem is case-insensitive, so *.jpg and *.JPG match SAME files twice!
+            all_image_files = sorted(list(dict.fromkeys(all_images_raw)))  # Preserves order, removes duplicates
 
             for image_file in all_image_files:
                 label_file = labels_dir / f"{image_file.stem}.txt"
