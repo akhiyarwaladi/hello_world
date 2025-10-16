@@ -254,12 +254,13 @@ class GroundTruthCropGenerator:
         return image_to_annotations
 
     def create_stratified_splits(self, dataset_type, original_annotations=None):
-        """Create stratified train/val/test splits for single directory datasets"""
+        """Create stratified train/val/test splits optimized for crop-level distribution"""
         from sklearn.model_selection import train_test_split
         from collections import Counter
 
         image_files = []
         stratify_labels = []
+        image_to_crop_count = {}  # Track number of crops per image
 
         if dataset_type == 'iml_lifecycle' and original_annotations:
             # For IML lifecycle, stratify by dominant class in each image
@@ -273,6 +274,8 @@ class GroundTruthCropGenerator:
                     class_ids = [ann['class_id'] for ann in anns]
                     dominant_class = max(set(class_ids), key=class_ids.count)
                     stratify_labels.append(dominant_class)
+                    # Track crop count
+                    image_to_crop_count[image_name] = len(anns)
         else:
             # For MP-IDB and MD_2019 datasets, scan labels
             images_dir = self.dataset_path / "images"
@@ -298,7 +301,7 @@ class GroundTruthCropGenerator:
                 if label_file.exists():
                     image_files.append(image_file.name)
 
-                    # Read label file and get dominant class
+                    # Read label file and get dominant class + crop count
                     class_ids = []
                     with open(label_file, 'r') as f:
                         for line in f:
@@ -319,6 +322,8 @@ class GroundTruthCropGenerator:
                     if class_ids:
                         dominant_class = max(set(class_ids), key=class_ids.count)
                         stratify_labels.append(dominant_class)
+                        # Track crop count
+                        image_to_crop_count[image_file.name] = len(class_ids)
                     else:
                         image_files.pop()  # Remove if no valid labels
 
@@ -328,30 +333,94 @@ class GroundTruthCropGenerator:
 
         # Print distribution before split
         class_dist = Counter(stratify_labels)
+        total_crops = sum(image_to_crop_count.values())
         print(f"[STRATIFY] Overall class distribution: {dict(class_dist)}")
+        print(f"[STRATIFY] Total images: {len(image_files)}, Total crops: {total_crops}")
 
-        # Stratified split using configured ratios (default: 66% train, 17% val, 17% test)
+        # MULTI RANDOM SEED OPTIMIZATION
+        # Try multiple random seeds to find split with crop distribution closest to target ratios
         temp_size = self.val_ratio + self.test_ratio
         test_relative_size = self.test_ratio / temp_size if temp_size > 0 else 0.5
 
-        print(f"[SPLIT RATIOS] Train={self.train_ratio:.0%}, Val={self.val_ratio:.0%}, Test={self.test_ratio:.0%}")
+        print(f"[SPLIT RATIOS] Target: Train={self.train_ratio:.0%}, Val={self.val_ratio:.0%}, Test={self.test_ratio:.0%}")
+        print(f"[OPTIMIZE] Searching for best random seed (trying 500 candidates)...")
 
-        try:
-            train_files, temp_files, train_labels, temp_labels = train_test_split(
-                image_files, stratify_labels,
-                test_size=temp_size, random_state=42, stratify=stratify_labels
-            )
-            val_files, test_files, val_labels, test_labels = train_test_split(
-                temp_files, temp_labels,
-                test_size=test_relative_size, random_state=42, stratify=temp_labels
-            )
-            print(f"[STRATIFY] Split: {len(train_files)} train ({len(train_files)/len(image_files):.1%}), "
-                  f"{len(val_files)} val ({len(val_files)/len(image_files):.1%}), "
-                  f"{len(test_files)} test ({len(test_files)/len(image_files):.1%})")
-        except ValueError as e:
-            print(f"[WARNING] Stratified split failed ({e}), using random split")
+        best_random_state = 42
+        best_deviation = float('inf')
+        best_split_info = None
+
+        # Try random states from 0 to 499
+        for random_state in range(500):
+            try:
+                # Perform stratified split
+                train_files_candidate, temp_files_candidate, train_labels_candidate, temp_labels_candidate = train_test_split(
+                    image_files, stratify_labels,
+                    test_size=temp_size, random_state=random_state, stratify=stratify_labels
+                )
+                val_files_candidate, test_files_candidate, val_labels_candidate, test_labels_candidate = train_test_split(
+                    temp_files_candidate, temp_labels_candidate,
+                    test_size=test_relative_size, random_state=random_state, stratify=temp_labels_candidate
+                )
+
+                # Calculate crop counts for this split
+                train_crop_count = sum(image_to_crop_count.get(f, 0) for f in train_files_candidate)
+                val_crop_count = sum(image_to_crop_count.get(f, 0) for f in val_files_candidate)
+                test_crop_count = sum(image_to_crop_count.get(f, 0) for f in test_files_candidate)
+                total_crops_split = train_crop_count + val_crop_count + test_crop_count
+
+                # Calculate actual crop-level ratios
+                train_crop_ratio = train_crop_count / total_crops_split if total_crops_split > 0 else 0
+                val_crop_ratio = val_crop_count / total_crops_split if total_crops_split > 0 else 0
+                test_crop_ratio = test_crop_count / total_crops_split if total_crops_split > 0 else 0
+
+                # Calculate deviation from target ratios (sum of absolute differences)
+                deviation = (
+                    abs(train_crop_ratio - self.train_ratio) +
+                    abs(val_crop_ratio - self.val_ratio) +
+                    abs(test_crop_ratio - self.test_ratio)
+                )
+
+                # Track best split
+                if deviation < best_deviation:
+                    best_deviation = deviation
+                    best_random_state = random_state
+                    best_split_info = {
+                        'train_files': train_files_candidate,
+                        'val_files': val_files_candidate,
+                        'test_files': test_files_candidate,
+                        'train_crop_count': train_crop_count,
+                        'val_crop_count': val_crop_count,
+                        'test_crop_count': test_crop_count,
+                        'train_crop_ratio': train_crop_ratio,
+                        'val_crop_ratio': val_crop_ratio,
+                        'test_crop_ratio': test_crop_ratio,
+                        'deviation': deviation
+                    }
+
+            except ValueError:
+                # Skip if stratified split fails for this random_state
+                continue
+
+        # Use best split found
+        if best_split_info is None:
+            # Fallback to simple random split if all stratified attempts failed
+            print(f"[WARNING] Stratified split failed for all random states, using simple random split")
             train_files, temp_files = train_test_split(image_files, test_size=temp_size, random_state=42)
             val_files, test_files = train_test_split(temp_files, test_size=test_relative_size, random_state=42)
+        else:
+            train_files = best_split_info['train_files']
+            val_files = best_split_info['val_files']
+            test_files = best_split_info['test_files']
+
+            print(f"[OPTIMIZE] Best random_state found: {best_random_state}")
+            print(f"[OPTIMIZE] Image-level split: {len(train_files)} train ({len(train_files)/len(image_files):.1%}), "
+                  f"{len(val_files)} val ({len(val_files)/len(image_files):.1%}), "
+                  f"{len(test_files)} test ({len(test_files)/len(image_files):.1%})")
+            print(f"[OPTIMIZE] Crop-level distribution:")
+            print(f"   Train: {best_split_info['train_crop_count']} crops ({best_split_info['train_crop_ratio']:.1%}) - Target: {self.train_ratio:.1%}")
+            print(f"   Val:   {best_split_info['val_crop_count']} crops ({best_split_info['val_crop_ratio']:.1%}) - Target: {self.val_ratio:.1%}")
+            print(f"   Test:  {best_split_info['test_crop_count']} crops ({best_split_info['test_crop_ratio']:.1%}) - Target: {self.test_ratio:.1%}")
+            print(f"[OPTIMIZE] Total deviation: {best_split_info['deviation']:.4f} (lower is better, 0.00 = perfect match)")
 
         # Create assignment dictionary
         assignment = {}
