@@ -784,6 +784,7 @@ def main():
 
     print("\n[TIMER] Starting training...")
     start_time = time.time()
+    epoch_times = []  # Track per-epoch timing for analysis
 
     # Dual Checkpoint Strategy - Save both best_val_loss and best_val_acc
     # Analysis of training curves shows:
@@ -805,6 +806,7 @@ def main():
     print(f"[EARLY STOPPING] Saving: best_val_loss.pt + best_val_acc.pt → test set picks winner")
 
     for epoch in range(args.epochs):
+        epoch_start_time = time.time()
         print(f"\nEpoch {epoch+1}/{args.epochs}")
         print("-" * 30)
 
@@ -830,6 +832,12 @@ def main():
 
         print(f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2f}%")
         print(f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2f}%")
+
+        # Track epoch timing
+        epoch_end_time = time.time()
+        epoch_duration = epoch_end_time - epoch_start_time
+        epoch_times.append(epoch_duration)
+        print(f"[EPOCH TIMER] Epoch {epoch+1} completed in {epoch_duration:.1f}s")
 
         # Dual Checkpoint Strategy: Save both best_val_loss and best_val_acc
         # Three-tier filtering to ensure only stable, proven models are saved:
@@ -907,7 +915,14 @@ def main():
     print("\n" + "=" * 60)
     print("[DONE] PYTORCH CLASSIFICATION TRAINING COMPLETED!")
     print("=" * 60)
-    print(f"[TIMER] Training time: {training_time/60:.1f} minutes")
+    print(f"[TIMER] Total training time: {training_time/60:.1f} minutes ({training_time:.1f} seconds)")
+    print(f"[TIMER] Total epochs completed: {len(epoch_times)}")
+    if epoch_times:
+        avg_epoch_time = np.mean(epoch_times)
+        min_epoch_time = np.min(epoch_times)
+        max_epoch_time = np.max(epoch_times)
+        print(f"[TIMER] Average epoch time: {avg_epoch_time:.1f}s (min: {min_epoch_time:.1f}s, max: {max_epoch_time:.1f}s)")
+        print(f"[TIMER] Throughput: {60/avg_epoch_time:.1f} epochs/minute")
     print(f"[RESULTS] Results saved to: {experiment_path}")
     print(f"[BEST VAL_LOSS] Val Loss: {best_val_loss:.4f}, Val Acc: {best_val_acc:.2f}%")
     print(f"[BEST VAL_ACC] Val Acc: {best_acc_val_acc:.2f}%, Val Loss: {best_acc_val_loss:.4f}")
