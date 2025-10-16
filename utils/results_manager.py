@@ -25,7 +25,11 @@ class ResultsManager:
 
         if self.centralized_mode:
             # Use centralized folder inside results directory with shorter name
-            self.pipeline_dir = self.base_dir / f"exp_{pipeline_name}"
+            # FIX: Don't add "exp_" prefix if it already exists (avoid duplicate)
+            if pipeline_name.startswith("exp_"):
+                self.pipeline_dir = self.base_dir / pipeline_name
+            else:
+                self.pipeline_dir = self.base_dir / f"exp_{pipeline_name}"
             self.pipeline_dir.mkdir(parents=True, exist_ok=True)
         else:
             # Original distributed structure

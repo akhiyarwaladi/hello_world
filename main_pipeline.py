@@ -730,9 +730,72 @@ def run_pipeline_for_dataset(args):
 
     # Handle experiment naming for continue vs new mode
     if continue_mode:
-        # Use existing experiment directory
-        base_exp_name = Path(experiment_dir).name.replace("exp_", "")
-        results_manager = get_results_manager(pipeline_name=base_exp_name)
+        # FIX: Detect which manager type was used originally
+        experiment_path = Path(experiment_dir)
+
+        # Check if this is a parent structure (has experiments/ subfolder)
+        if (experiment_path / "experiments").exists():
+            # Parent structure - user is continuing from parent folder but targeting single dataset
+            print(f"[INFO] Detected parent folder structure: {experiment_path.name}")
+
+            # Find the specific dataset experiment within parent folder
+            dataset_exp_folder = experiment_path / "experiments" / f"experiment_{args.dataset}"
+
+            if dataset_exp_folder.exists():
+                print(f"[CONTINUE] Continuing dataset experiment: {dataset_exp_folder}")
+                # Use dataset folder directly as experiment directory
+                base_exp_name = f"{experiment_path.name}_{args.dataset}"
+
+                # Create a ParentStructureManager to work with existing structure
+                class ParentStructureManager:
+                    def __init__(self, dataset_path):
+                        self.pipeline_dir = dataset_exp_folder
+                        self.base_dir = dataset_exp_folder
+
+                    def get_experiment_path(self, exp_type, model_name, exp_name):
+                        return self.pipeline_dir / exp_name
+
+                    def create_experiment_path(self, exp_type, model_name, exp_name):
+                        path = self.get_experiment_path(exp_type, model_name, exp_name)
+                        path.mkdir(parents=True, exist_ok=True)
+                        return path
+
+                    def get_crops_path(self, detection_model, experiment_name):
+                        return self.pipeline_dir / f"crops_{experiment_name}"
+
+                    def create_crops_path(self, detection_model, experiment_name):
+                        path = self.get_crops_path(detection_model, experiment_name)
+                        path.mkdir(parents=True, exist_ok=True)
+                        return path
+
+                    def get_analysis_path(self, analysis_type):
+                        return self.pipeline_dir / f"analysis_{analysis_type}"
+
+                    def create_analysis_path(self, analysis_type):
+                        path = self.get_analysis_path(analysis_type)
+                        path.mkdir(parents=True, exist_ok=True)
+                        return path
+
+                    def get_classification_path(self, cls_exp_name):
+                        return self.pipeline_dir / cls_exp_name
+
+                    def find_experiment_path(self, exp_type, model_name, exp_name):
+                        return self.pipeline_dir / exp_name
+
+                results_manager = ParentStructureManager(dataset_exp_folder)
+            else:
+                print(f"[ERROR] Dataset experiment not found in parent folder: {dataset_exp_folder}")
+                print(f"[INFO] Available experiments:")
+                for exp_dir in (experiment_path / "experiments").iterdir():
+                    if exp_dir.is_dir():
+                        print(f"   - {exp_dir.name}")
+                return
+        else:
+            # Single experiment structure - use ResultsManager (no "exp_" prefix manipulation needed)
+            base_exp_name = experiment_path.name
+            # FIX: Don't strip "exp_" prefix - use folder name as-is to avoid creating duplicate
+            results_manager = get_results_manager(pipeline_name=base_exp_name)
+
         print(f"[INFO] CONTINUING: {experiment_dir}/")
     else:
         # Check if this is part of a multi-dataset parent experiment
