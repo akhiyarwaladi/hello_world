@@ -1,3 +1,0 @@
-Dataset,Original_Train,Original_Val,Original_Test,Original_Total,Augmented_Train,Augmented_Val,Augmented_Test,Augmented_Total,Multiplier
-mp_idb_species,137,36,36,209,480,36,36,552,3.5x
-mp_idb_stages,137,36,36,209,480,36,36,552,3.5x

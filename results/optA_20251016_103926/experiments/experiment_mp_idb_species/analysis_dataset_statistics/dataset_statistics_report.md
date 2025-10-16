@@ -1,6 +1,6 @@
 # Dataset Statistics Analysis Report
 
-**Generated on:** 2025-10-16 11:04:43
+**Generated on:** 2025-10-16 14:08:14
 
 ## Overview
 
@@ -19,14 +19,12 @@ This report analyzes the train/validation/test splits for malaria detection data
 | Dataset | Original Train | Original Val | Original Test | Original Total | Augmented Train | Augmented Val | Augmented Test | Augmented Total | Multiplier |
 |---------|----------------|---------------|---------------|----------------|-----------------|---------------|----------------|-----------------|------------|
 | mp_idb_species | 137 | 36 | 36 | 209 | 601 | 36 | 36 | 673 | 4.4x |
-| mp_idb_stages | 137 | 36 | 36 | 209 | 601 | 36 | 36 | 673 | 4.4x |
 
 ### Classification Model Training
 
 | Dataset | Original Train | Original Val | Original Test | Original Total | Augmented Train | Augmented Val | Augmented Test | Augmented Total | Multiplier |
 |---------|----------------|---------------|---------------|----------------|-----------------|---------------|----------------|-----------------|------------|
 | mp_idb_species | 137 | 36 | 36 | 209 | 480 | 36 | 36 | 552 | 3.5x |
-| mp_idb_stages | 137 | 36 | 36 | 209 | 480 | 36 | 36 | 552 | 3.5x |
 
 ## Augmentation Parameters
 

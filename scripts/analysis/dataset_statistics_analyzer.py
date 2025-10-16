@@ -15,12 +15,25 @@ from datetime import datetime
 class DatasetStatsAnalyzer:
     """Analyzer untuk statistik dataset sebelum dan sesudah augmentasi"""
 
-    def __init__(self):
+    def __init__(self, specific_dataset=None, specific_dataset_path=None):
+        """
+        Initialize analyzer with optional single dataset mode
+
+        Args:
+            specific_dataset: Name of dataset to analyze (if single mode)
+            specific_dataset_path: Path to dataset (if single mode)
+        """
+        # Default: analyze all known datasets
         self.datasets = {
             "iml_lifecycle": "data/processed/lifecycle",
+            "md_2019_stages": "data/processed/md_2019_stages",  # FIXED: Added missing dataset with correct path
             "mp_idb_species": "data/processed/species",
             "mp_idb_stages": "data/processed/stages"
         }
+
+        # Single dataset mode (for per-dataset analysis in pipeline)
+        if specific_dataset and specific_dataset_path:
+            self.datasets = {specific_dataset: specific_dataset_path}
 
         # Parameter augmentasi yang digunakan dalam training
         self.detection_augmentation_params = {
@@ -55,11 +68,13 @@ class DatasetStatsAnalyzer:
         if not dataset_dir.exists():
             return stats
 
-        # Hitung images di setiap split
+        # Hitung images di setiap split (case-insensitive extensions)
         for split in ["train", "val", "test"]:
             split_dir = dataset_dir / split / "images"
             if split_dir.exists():
-                stats[split] = len(list(split_dir.glob("*.jpg"))) + len(list(split_dir.glob("*.png")))
+                jpg_count = len(list(split_dir.glob("*.jpg"))) + len(list(split_dir.glob("*.JPG")))
+                png_count = len(list(split_dir.glob("*.png"))) + len(list(split_dir.glob("*.PNG")))
+                stats[split] = jpg_count + png_count
 
         return stats
 
@@ -314,10 +329,17 @@ def main():
     parser = argparse.ArgumentParser(description="Analyze dataset statistics and augmentation effects")
     parser.add_argument("--output", default="analysis_dataset_stats",
                        help="Output directory for analysis results")
+    parser.add_argument("--dataset", default=None,
+                       help="Specific dataset name (for single dataset mode)")
+    parser.add_argument("--dataset-path", default=None,
+                       help="Specific dataset path (for single dataset mode)")
 
     args = parser.parse_args()
 
-    analyzer = DatasetStatsAnalyzer()
+    analyzer = DatasetStatsAnalyzer(
+        specific_dataset=args.dataset,
+        specific_dataset_path=args.dataset_path
+    )
     results = analyzer.analyze_all_datasets(args.output)
 
     if results is not None:

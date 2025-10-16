@@ -1,6 +1,0 @@
-created_at: '2025-10-13T20:18:39.674676'
-dataset: md_2019_stages
-experiment_name: experiment
-models:
-- yolo11
-status: running

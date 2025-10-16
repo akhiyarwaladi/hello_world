@@ -1,7 +1,7 @@
 {
   "parent_experiment": "optA_20251016_103926",
   "total_datasets": 4,
-  "analysis_timestamp": "2025-10-16T13:10:50.221635",
+  "analysis_timestamp": "2025-10-16T14:08:43.466265",
   "datasets": {
     "iml_lifecycle": {
       "path": "results/optA_20251016_103926/experiments/experiment_iml_lifecycle",
@@ -30,62 +30,22 @@
   },
   "dataset_statistics": [
     {
-      "Dataset": "mp_idb_species",
-      "Original_Train": 137,
-      "Original_Val": 36,
-      "Original_Test": 36,
-      "Detection_Aug_Train": 601,
-      "Classification_Aug_Train": 480,
+      "Dataset": "iml_lifecycle",
+      "Original_Train": 206,
+      "Original_Val": 56,
+      "Original_Test": 51,
+      "Detection_Aug_Train": 903,
+      "Classification_Aug_Train": 723,
       "Detection_Multiplier": "4.4x",
       "Classification_Multiplier": "3.5x"
     },
     {
-      "Dataset": "mp_idb_stages",
-      "Original_Train": 137,
-      "Original_Val": 36,
-      "Original_Test": 36,
-      "Detection_Aug_Train": 601,
-      "Classification_Aug_Train": 480,
-      "Detection_Multiplier": "4.4x",
-      "Classification_Multiplier": "3.5x"
-    },
-    {
-      "Dataset": "mp_idb_species",
-      "Original_Train": 137,
-      "Original_Val": 36,
-      "Original_Test": 36,
-      "Detection_Aug_Train": 601,
-      "Classification_Aug_Train": 480,
-      "Detection_Multiplier": "4.4x",
-      "Classification_Multiplier": "3.5x"
-    },
-    {
-      "Dataset": "mp_idb_stages",
-      "Original_Train": 137,
-      "Original_Val": 36,
-      "Original_Test": 36,
-      "Detection_Aug_Train": 601,
-      "Classification_Aug_Train": 480,
-      "Detection_Multiplier": "4.4x",
-      "Classification_Multiplier": "3.5x"
-    },
-    {
-      "Dataset": "mp_idb_species",
-      "Original_Train": 137,
-      "Original_Val": 36,
-      "Original_Test": 36,
-      "Detection_Aug_Train": 601,
-      "Classification_Aug_Train": 480,
-      "Detection_Multiplier": "4.4x",
-      "Classification_Multiplier": "3.5x"
-    },
-    {
-      "Dataset": "mp_idb_stages",
-      "Original_Train": 137,
-      "Original_Val": 36,
-      "Original_Test": 36,
-      "Detection_Aug_Train": 601,
-      "Classification_Aug_Train": 480,
+      "Dataset": "md_2019_stages",
+      "Original_Train": 514,
+      "Original_Val": 135,
+      "Original_Test": 164,
+      "Detection_Aug_Train": 2255,
+      "Classification_Aug_Train": 1804,
       "Detection_Multiplier": "4.4x",
       "Classification_Multiplier": "3.5x"
     },

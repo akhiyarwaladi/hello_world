@@ -4,7 +4,7 @@
 - **Parent Experiment**: optA_20251016_103926
 - **Total Datasets**: 4
 - **Datasets Analyzed**: iml_lifecycle, md_2019_stages, mp_idb_species, mp_idb_stages
-- **Generated**: 2025-10-16 13:10:50
+- **Generated**: 2025-10-16 14:08:44
 
 ---
 
@@ -12,12 +12,8 @@
 
 | Dataset | Original Train | Original Val | Original Test | Detection Aug | Classification Aug | Det Multiplier | Cls Multiplier |
 |---------|----------------|--------------|---------------|---------------|-------------------|----------------|----------------|
-| mp_idb_species | 137 | 36 | 36 | 601 | 480 | 4.4x | 3.5x |
-| mp_idb_stages | 137 | 36 | 36 | 601 | 480 | 4.4x | 3.5x |
-| mp_idb_species | 137 | 36 | 36 | 601 | 480 | 4.4x | 3.5x |
-| mp_idb_stages | 137 | 36 | 36 | 601 | 480 | 4.4x | 3.5x |
-| mp_idb_species | 137 | 36 | 36 | 601 | 480 | 4.4x | 3.5x |
-| mp_idb_stages | 137 | 36 | 36 | 601 | 480 | 4.4x | 3.5x |
+| iml_lifecycle | 206 | 56 | 51 | 903 | 723 | 4.4x | 3.5x |
+| md_2019_stages | 514 | 135 | 164 | 2255 | 1804 | 4.4x | 3.5x |
 | mp_idb_species | 137 | 36 | 36 | 601 | 480 | 4.4x | 3.5x |
 | mp_idb_stages | 137 | 36 | 36 | 601 | 480 | 4.4x | 3.5x |
 

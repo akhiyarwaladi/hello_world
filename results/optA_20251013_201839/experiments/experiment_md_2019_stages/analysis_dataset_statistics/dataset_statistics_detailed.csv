@@ -1,4 +1,0 @@
-Dataset,Original_Train,Original_Val,Original_Test,Original_Total,Detection_Aug_Train,Classification_Aug_Train,Aug_Val,Aug_Test,Detection_Aug_Total,Classification_Aug_Total,Detection_Multiplier,Classification_Multiplier
-iml_lifecycle,218,62,33,313,956,765,62,33,1051,860,4.4x,3.5x
-mp_idb_species,146,42,21,209,640,512,42,21,703,575,4.4x,3.5x
-mp_idb_stages,137,36,36,209,601,480,36,36,673,552,4.4x,3.5x
