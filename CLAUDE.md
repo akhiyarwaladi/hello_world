@@ -3,6 +3,104 @@
 ## 📋 PROJECT OVERVIEW
 Advanced malaria parasite detection and classification system using **shared classification architecture** with YOLO detection models and PyTorch classification models.
 
+**Status:** ✅ **VERIFIED WORKING** (Last tested: 2025-10-16)
+**Environment:** Python 3.13.5, PyTorch 2.8.0+cu128, CUDA 12.8
+**GPU:** NVIDIA RTX 4090 (24GB VRAM) - Fully tested and optimized
+
+---
+
+## ⚙️ ENVIRONMENT SETUP
+
+### Prerequisites
+- **Python:** 3.13.5 (via Anaconda/Miniconda recommended)
+- **GPU:** NVIDIA GPU with CUDA support (RTX 3060+ recommended)
+- **RAM:** 16GB minimum, 32GB recommended
+- **Storage:** 50GB+ free space
+
+### Quick Setup (Automated)
+
+**Option 1: One-Command Setup**
+```bash
+python setup_environment.py
+```
+
+This will automatically install:
+- ✅ PyTorch 2.8.0 with CUDA 12.8
+- ✅ Ultralytics (YOLO 10, 11, 12)
+- ✅ All computer vision and data science packages
+- ✅ Verify all installations
+
+**Option 2: Manual Setup**
+```bash
+# 1. Install PyTorch with CUDA
+pip install torch==2.8.0 torchvision==0.23.0 --index-url https://download.pytorch.org/whl/cu128
+
+# 2. Install Ultralytics
+pip install ultralytics==8.3.202
+
+# 3. Install remaining dependencies
+pip install -r requirements.txt
+
+# 4. Verify installation
+python -c "import torch; print(f'CUDA Available: {torch.cuda.is_available()}')"
+```
+
+### Cross-Platform Path Compatibility
+
+**Important:** Dataset paths must use forward slashes for Windows/Linux compatibility.
+
+If you encounter path errors, run the path fixer:
+```bash
+python fix_data_yaml_paths.py
+```
+
+This script:
+- ✅ Converts all `data.yaml` paths to use forward slashes
+- ✅ Works on both Windows and Linux
+- ✅ Updates 4 dataset configurations automatically
+
+**Manual path check:**
+```bash
+# Check if paths are correct
+cat data/processed/lifecycle/data.yaml
+
+# Should show: path: C:/Users/.../data/processed/lifecycle
+# NOT: path: /mnt/c/Users/... (Linux WSL path)
+```
+
+### Verify Installation
+
+```bash
+# Quick verification
+python -c "import torch; print(f'PyTorch: {torch.__version__}'); print(f'CUDA: {torch.cuda.is_available()}')"
+python -c "import ultralytics; print(f'Ultralytics: {ultralytics.__version__}')"
+
+# GPU check
+nvidia-smi
+```
+
+**Expected Output:**
+```
+PyTorch: 2.8.0+cu128
+CUDA: True
+Ultralytics: 8.3.202
+```
+
+### Quick Test (5 minutes)
+
+Verify your setup with a quick test:
+```bash
+python main_pipeline.py --dataset iml_lifecycle --include yolo11 --classification-models densenet121 --epochs-det 5 --epochs-cls 5
+```
+
+**Expected Results:**
+- ✅ Detection mAP@50: ~0.90 (90%)
+- ✅ Classification Accuracy: ~0.80 (80%)
+- ✅ Total time: ~5 minutes
+- ✅ Output: `results/optA_[timestamp]/`
+
+---
+
 ## 🚀 MAIN PIPELINE
 
 ### Malaria Detection Pipeline (Shared Classification Architecture)
@@ -68,6 +166,11 @@ hello_world/
 ├── CLAUDE.md                                   # Main documentation (ONLY MD file in root)
 ├── main_pipeline.py                            # MAIN PIPELINE
 ├── run_baseline_comparison.py                  # Baseline experiments
+├── setup_environment.py                        # Automated environment setup ⚙️
+├── setup_env.bat                              # Windows batch setup script
+├── fix_data_yaml_paths.py                     # Cross-platform path fixer 🔧
+├── requirements.txt                           # Python dependencies (96 packages)
+├── SETUP_GUIDE.md                             # Environment setup guide
 ├── scripts/
 │   ├── training/
 │   │   ├── generate_ground_truth_crops.py      # Ground truth crop generation
@@ -361,8 +464,8 @@ New file created?
 ### Classification Training
 - Stratified sampling for class balance
 - Weighted loss functions
-- Mixed precision training (RTX 3060 optimized)
-- Focal Loss vs Class-Balanced Loss comparison
+- Mixed precision training (GPU optimized: RTX 3060+, tested on RTX 4090)
+- Focal Loss optimized (alpha=0.25, gamma=2.0)
 
 ### Data Quality
 - Ground truth crops eliminate detection noise
@@ -379,17 +482,22 @@ New file created?
 python main_pipeline.py
 ```
 
-### Quick Test Run
+### Quick Test Run (5 minutes)
 ```bash
-# Single dataset, single models
+# Single dataset, single models - Fast verification
 python main_pipeline.py \
   --dataset iml_lifecycle \
   --include yolo11 \
   --classification-models densenet121 \
   --epochs-det 5 \
-  --epochs-cls 5 \
-  --no-zip
+  --epochs-cls 5
 ```
+
+**Verified Results (2025-10-16):**
+- Detection (YOLO11): mAP@50 = 0.897 (89.7%), mAP@50-95 = 0.596 (59.6%)
+- Classification (DenseNet121): Accuracy = 79.78%, Balanced Accuracy = 66.88%
+- Time: ~5 minutes on RTX 4090
+- Output: 529 ground truth crops, comprehensive analysis, visualizations
 
 ### Specific Experiments
 ```bash
@@ -632,24 +740,81 @@ python scripts/analysis/compare_models_performance.py \
 
 ## 🚨 IMPORTANT NOTES
 
+- **✅ Verified Working**: Pipeline tested and verified on 2025-10-16
 - **YOLO-Only Pipeline**: RT-DETR removed for faster execution
 - **Single Pipeline Architecture**: Shared classification for efficiency
-- **GPU Optimized**: RTX 3060 tested and optimized
+- **GPU Optimized**: Tested on RTX 3060 and RTX 4090 (24GB VRAM)
+- **Cross-Platform**: Forward slashes in paths work on Windows and Linux
 - **Medical-Safe Augmentation**: Preserves diagnostic features
 - **Automatic Setup**: Datasets auto-download and setup
+- **Python 3.13.5**: Latest Python with PyTorch 2.8.0 + CUDA 12.8
 
 ## 🔧 TROUBLESHOOTING
 
 ### Common Issues
-1. **CUDA out of memory**: Reduce batch size or use fewer models
-2. **Long training time**: Use `--include yolo11` for fastest single model
-3. **Storage space**: Use `--no-zip` and clean results folder regularly
-4. **Missing datasets**: Pipeline auto-downloads, ensure internet connection
+
+**1. Path Errors (data.yaml not found)**
+```
+Error: Dataset 'data/processed/lifecycle/data.yaml' images not found
+```
+**Solution:**
+```bash
+# Run the path fixer
+python fix_data_yaml_paths.py
+
+# Verify paths are correct
+cat data/processed/lifecycle/data.yaml
+# Should show: path: C:/Users/.../data/processed/lifecycle (forward slashes)
+```
+
+**2. CUDA out of memory**
+```
+RuntimeError: CUDA out of memory
+```
+**Solution:**
+- Reduce batch size in pipeline
+- Use fewer models: `--include yolo11 --classification-models densenet121`
+- Close other GPU applications
+- Check GPU memory: `nvidia-smi`
+
+**3. Long training time**
+**Solution:**
+- Use `--include yolo11` for fastest single YOLO model
+- Reduce epochs: `--epochs-det 5 --epochs-cls 5` for quick test
+- Use single classification model: `--classification-models densenet121`
+
+**4. Storage space issues**
+**Solution:**
+- Clean old results folder: `rm -rf results/optA_OLD_TIMESTAMP/`
+- Monitor disk space during training
+- Minimum 50GB free recommended
+
+**5. Missing datasets**
+```
+Error: Dataset not found
+```
+**Solution:**
+- Pipeline auto-downloads datasets
+- Ensure active internet connection
+- Check ~5GB free space for raw datasets
+- Verify Kaggle API if using MP-IDB datasets
+
+**6. Import errors or version mismatches**
+**Solution:**
+```bash
+# Reinstall all packages
+pip install --upgrade --force-reinstall -r requirements.txt
+
+# Or run setup again
+python setup_environment.py
+```
 
 ### Performance Tips
-1. **Quick test**: `--dataset iml_lifecycle --include yolo11 --classification-models densenet121`
+1. **Quick test (5 min)**: `python main_pipeline.py --dataset iml_lifecycle --include yolo11 --classification-models densenet121 --epochs-det 5 --epochs-cls 5`
 2. **YOLO comparison**: `--include yolo10 yolo11 yolo12 --classification-models densenet121`
 3. **Full analysis**: Default command (no parameters)
+4. **GPU check**: Run `nvidia-smi` to monitor GPU usage
+5. **Path verification**: Run `python fix_data_yaml_paths.py` after any dataset changes
 
 ---
 
@@ -794,6 +959,114 @@ python scripts/analysis/compare_models_performance.py \
 **Note**: Archived files can be restored from `archive/` folder if needed.
 
 ---
-*Last Updated: 2025-10-12*
+
+## 📦 SETUP & UTILITY FILES
+
+### Environment Setup
+- `setup_environment.py` - Automated environment setup script (Python)
+- `setup_env.bat` - Batch script for Windows Conda setup
+- `fix_data_yaml_paths.py` - Cross-platform path compatibility fixer
+- `requirements.txt` - Complete package dependencies (96 packages)
+- `SETUP_GUIDE.md` - Detailed setup documentation
+
+### Installation Verification
+```bash
+# Quick verification script
+python -c "
+import torch, ultralytics, cv2, pandas, numpy, sklearn
+print(f'✓ PyTorch: {torch.__version__}')
+print(f'✓ CUDA: {torch.cuda.is_available()}')
+print(f'✓ Ultralytics: {ultralytics.__version__}')
+print(f'✓ OpenCV: {cv2.__version__}')
+print(f'✓ All packages installed successfully!')
+"
+```
+
+### Key Dependencies
+| Package | Version | Purpose |
+|---------|---------|---------|
+| torch | 2.8.0+cu128 | Deep learning framework |
+| torchvision | 0.23.0+cu128 | Vision utilities |
+| ultralytics | 8.3.202 | YOLO 10, 11, 12 models |
+| opencv-python | 4.12.0.88 | Image processing |
+| pandas | 2.3.2 | Data analysis |
+| numpy | 2.2.6 | Numerical computing |
+| scikit-learn | 1.7.2 | Machine learning |
+| albumentations | 2.0.8 | Data augmentation |
+
+Full list: See `requirements.txt` (96 packages total)
+
+---
+
+## 🎯 PERFORMANCE BENCHMARKS (Verified 2025-10-16)
+
+### Quick Test Results (5 minutes)
+**Configuration:**
+- Dataset: IML Lifecycle (206 train, 56 val, 89 test images)
+- Detection: YOLO11 Medium (20M params)
+- Classification: DenseNet121 (8M params)
+- GPU: RTX 4090 (24GB VRAM)
+- Epochs: 5 detection, 5 classification
+
+**Detection Performance (YOLO11):**
+- mAP@50: **0.897** (89.7%) ✅ Excellent
+- mAP@50-95: **0.596** (59.6%) ✅ Good
+- Precision: 0.869
+- Recall: 0.813
+- Training time: 22 seconds (5 epochs)
+
+**Classification Performance (DenseNet121 + Focal Loss):**
+- Overall Accuracy: **79.78%** ✅
+- Balanced Accuracy: **66.88%** ✅
+- Training time: ~2.5 minutes (5 epochs)
+
+**Per-Class Results:**
+| Class | Precision | Recall | F1-Score | Samples |
+|-------|-----------|--------|----------|---------|
+| Gametocyte | 0.946 | 0.854 | 0.897 | 41 |
+| Ring | 0.821 | 0.821 | 0.821 | 28 |
+| Trophozoite | 0.600 | 0.750 | 0.667 | 16 |
+| Schizont | 0.250 | 0.250 | 0.250 | 4 |
+
+**Output Generated:**
+- ✅ 529 ground truth crops
+- ✅ Detection model weights (39 MB)
+- ✅ Classification model weights (81 MB)
+- ✅ Comprehensive analysis reports
+- ✅ Confusion matrix and training curves
+- ✅ Visualization samples (GT + predictions)
+
+**Total Pipeline Time:** ~5 minutes (end-to-end)
+
+---
+
+## 📝 CHANGELOG
+
+### 2025-10-16 - Environment Verification & Path Fixes
+- ✅ **Verified working** on Python 3.13.5 + PyTorch 2.8.0 + CUDA 12.8
+- ✅ **Tested on RTX 4090** (24GB VRAM) - Full pipeline successful
+- ✅ **Cross-platform paths** - Added `fix_data_yaml_paths.py` for Windows/Linux compatibility
+- ✅ **Updated documentation** - Added environment setup, benchmarks, troubleshooting
+- ✅ **Quick test verified** - 5-minute test achieves 89.7% mAP@50, 79.78% classification accuracy
+- 🔧 Fixed: Dataset path compatibility (forward slashes)
+- 🔧 Updated: GPU requirements and tested hardware
+- 📝 Added: Comprehensive setup section
+- 📝 Added: Performance benchmarks and verified results
+
+### 2025-10-12 - Luaran Structure Automation
+- 🎯 Refactored publication outputs (90% automation reduction)
+- 📂 Clear separation: `auto_generated/` vs `hand_created/`
+- ✅ One-command regeneration for all figures and tables
+
+### 2025-10-11 - Codebase Cleanup
+- 🧹 Archived 50 redundant files
+- 📁 88% root directory reduction (25 → 3 files)
+- 🎯 Professional project structure achieved
+
+---
+
+*Last Updated: 2025-10-16*
+*Status: ✅ Verified Working*
+*Environment: Python 3.13.5, PyTorch 2.8.0+cu128, CUDA 12.8*
 *Main Pipeline: YOLO-focused shared classification architecture for efficient malaria detection*
 *Luaran Structure: Automated publication outputs with 90% time reduction*

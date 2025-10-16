@@ -595,30 +595,30 @@ def main():
             (test_path / class_name).mkdir(exist_ok=True)
         print(f"[TEST] Created test directory with {len(train_dataset.classes)} class folders")
 
-    # GPU-optimized DataLoader setup (matched with YOLO detection)
-    # CRITICAL for full GPU utilization:
-    # - num_workers=4: Parallel data loading prevents GPU starvation
+    # GPU-optimized DataLoader setup (WSL-compatible settings)
+    # WSL + CUDA + MultiProcessing can be unstable, so use conservative settings:
+    # - num_workers=2: Parallel data loading (reduced from 4 for WSL stability)
     # - pin_memory=True: Faster host-to-device transfer
-    # - persistent_workers=True: Reuse workers between epochs (2-3x faster)
-    # - prefetch_factor=4: Preload 4 batches per worker (reduces wait time)
-    num_workers = 4  # OPTIMIZED: Changed from 0 to 4 (matches YOLO)
+    # - persistent_workers=False: Disabled for WSL compatibility (prevents crashes)
+    # - prefetch_factor=2: Reduced from 4 to save memory (prevents OOM)
+    num_workers = 2  # WSL-SAFE: Reduced from 4 to avoid multiprocessing issues
     pin_memory = True
-    persistent_workers = True if num_workers > 0 else False
-    prefetch_factor = 4 if num_workers > 0 else None
+    persistent_workers = False  # WSL-SAFE: Disabled to prevent CUDA fork issues
+    prefetch_factor = 2 if num_workers > 0 else None  # WSL-SAFE: Reduced memory footprint
 
     # Create data loaders
     # FIXED: Adjust batch size and drop_last for small datasets
     actual_batch_size = min(args.batch, len(train_dataset))
     use_drop_last = len(train_dataset) >= args.batch * 2  # Only drop last if we have enough data
 
-    print(f"\n[GPU OPTIMIZATION] DataLoader Configuration:")
+    print(f"\n[WSL-SAFE] DataLoader Configuration:")
     print(f"   Batch size: {actual_batch_size} (original: {args.batch})")
-    print(f"   Workers: {num_workers} (parallel data loading, prevents GPU starvation)")
-    print(f"   Persistent workers: {persistent_workers} (worker reuse between epochs)")
-    print(f"   Prefetch factor: {prefetch_factor if prefetch_factor else 'N/A'} (preload batches per worker)")
+    print(f"   Workers: {num_workers} (WSL-safe: reduced from 4 to prevent crashes)")
+    print(f"   Persistent workers: {persistent_workers} (disabled for WSL/CUDA stability)")
+    print(f"   Prefetch factor: {prefetch_factor if prefetch_factor else 'N/A'} (reduced from 4 to save RAM)")
     print(f"   Pin memory: {pin_memory} (faster host-to-device transfer)")
     print(f"   Drop last: {use_drop_last}")
-    print(f"[GPU] DataLoader speedup: 2-3x faster than single-threaded loading")
+    print(f"[WSL] Conservative settings for WSL + CUDA stability")
 
     # Build DataLoader kwargs dynamically to avoid None values
     train_loader_kwargs = {
@@ -628,7 +628,9 @@ def main():
         'pin_memory': pin_memory,
         'drop_last': use_drop_last
     }
-    if persistent_workers:
+    # Only add persistent_workers if num_workers > 0 and persistent_workers=True
+    # (WSL: persistent_workers disabled for stability)
+    if num_workers > 0 and persistent_workers:
         train_loader_kwargs['persistent_workers'] = True
     if prefetch_factor is not None:
         train_loader_kwargs['prefetch_factor'] = prefetch_factor
@@ -642,7 +644,7 @@ def main():
         'num_workers': num_workers,
         'pin_memory': pin_memory
     }
-    if persistent_workers:
+    if num_workers > 0 and persistent_workers:
         val_loader_kwargs['persistent_workers'] = True
     if prefetch_factor is not None:
         val_loader_kwargs['prefetch_factor'] = prefetch_factor
@@ -656,7 +658,7 @@ def main():
             'num_workers': num_workers,
             'pin_memory': pin_memory
         }
-        if persistent_workers:
+        if num_workers > 0 and persistent_workers:
             test_loader_kwargs['persistent_workers'] = True
         if prefetch_factor is not None:
             test_loader_kwargs['prefetch_factor'] = prefetch_factor
@@ -709,7 +711,7 @@ def main():
         'pin_memory': pin_memory,
         'drop_last': use_drop_last
     }
-    if persistent_workers:
+    if num_workers > 0 and persistent_workers:
         weighted_loader_kwargs['persistent_workers'] = True
     if prefetch_factor is not None:
         weighted_loader_kwargs['prefetch_factor'] = prefetch_factor

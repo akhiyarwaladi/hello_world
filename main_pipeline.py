@@ -996,7 +996,7 @@ def run_pipeline_for_dataset(args):
 
             # Direct YOLO training command with auto-download for YOLO models
             if detection_model == "yolov10_detection":
-                yolo_model = "yolo10m.pt"  # YOLOv10 medium
+                yolo_model = "yolov10m.pt"  # YOLOv10 medium (with "v")
             elif detection_model == "yolov11_detection":
                 yolo_model = "yolo11m.pt"    # YOLOv11 medium
             elif detection_model == "yolov12_detection":

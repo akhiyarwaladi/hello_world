@@ -1,0 +1,55 @@
+# ============================================
+# MANUAL INSTALLATION COMMANDS
+# ============================================
+#
+# Buka Anaconda Prompt sebagai ADMINISTRATOR
+# Kemudian jalankan perintah berikut satu per satu:
+# ============================================
+
+# 1. Aktivasi base environment
+conda activate base
+
+# 2. Navigasi ke folder project
+cd "C:\Users\MyPC PRO\Documents\hello_world"
+
+# 3. Install PyTorch dengan CUDA 12.8 (ini yang terpenting!)
+pip install torch==2.8.0 torchvision==0.23.0 --index-url https://download.pytorch.org/whl/cu128
+
+# 4. Verifikasi CUDA
+python -c "import torch; print(f'PyTorch: {torch.__version__}'); print(f'CUDA Available: {torch.cuda.is_available()}'); print(f'CUDA Version: {torch.version.cuda if torch.cuda.is_available() else \"N/A\"}')"
+
+# 5. Install Ultralytics (YOLO)
+pip install ultralytics==8.3.202
+
+# 6. Install dependencies dari requirements.txt
+pip install -r requirements.txt
+
+# 7. Verifikasi semua package
+python -c "import torch; print(f'✓ PyTorch: {torch.__version__}')"
+python -c "import ultralytics; print(f'✓ Ultralytics: {ultralytics.__version__}')"
+python -c "import cv2; print(f'✓ OpenCV: {cv2.__version__}')"
+python -c "import pandas; print(f'✓ Pandas: {pandas.__version__}')"
+python -c "import albumentations; print(f'✓ Albumentations: {albumentations.__version__}')"
+
+# ============================================
+# QUICK TEST SETELAH INSTALASI
+# ============================================
+
+# Test cepat (5 menit)
+python main_pipeline.py --dataset iml_lifecycle --include yolo11 --classification-models densenet121 --epochs-det 5 --epochs-cls 5 --no-zip
+
+# ============================================
+# CATATAN PENTING
+# ============================================
+#
+# Jika masih ada error "Access is denied":
+# 1. Pastikan Anaconda Prompt dibuka sebagai Administrator
+# 2. Tutup semua aplikasi yang menggunakan Python
+# 3. Coba install dengan flag --user:
+#    pip install --user torch==2.8.0 torchvision==0.23.0 --index-url https://download.pytorch.org/whl/cu128
+#
+# Jika CUDA tidak tersedia setelah install:
+# 1. Cek NVIDIA driver: nvidia-smi
+# 2. Update driver NVIDIA ke versi terbaru
+# 3. Restart komputer
+#
