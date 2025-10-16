@@ -38,14 +38,13 @@ class GroundTruthCropGenerator:
         if abs(total_ratio - 1.0) > 0.001:
             raise ValueError(f"Split ratios must sum to 1.0, got {total_ratio:.4f}")
 
-        # Remove existing output directory to prevent duplicates
+        # FIX: Don't delete output directory - just overwrite (avoids Windows file locking)
+        # Previous approach: shutil.rmtree(self.output_path) → caused WinError 1920
+        # New approach: Use exist_ok=True and overwrite existing crops
         if self.output_path.exists():
-            print(f"[CLEAN] Removing existing output directory: {self.output_path}")
-            import shutil
-            shutil.rmtree(self.output_path)
-            print(f"[CLEAN] Directory cleaned successfully")
+            print(f"[INFO] Output directory exists, will overwrite crops: {self.output_path}")
 
-        # Create output directory structure
+        # Create output directory structure (exist_ok=True handles existing dirs)
         self.crops_dir = self.output_path / "crops"
         self.crops_dir.mkdir(parents=True, exist_ok=True)
 
