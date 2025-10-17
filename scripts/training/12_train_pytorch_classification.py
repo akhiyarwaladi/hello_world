@@ -818,7 +818,7 @@ def main():
     best_val_acc = 0.0  # Track val_acc for best_val_loss checkpoint
     best_acc_val_acc = 0.0  # Track best val_acc checkpoint
     best_acc_val_loss = float('inf')  # Track val_loss for best_val_acc checkpoint
-    patience = 12  # Increased from 10 - more patient to find best models
+    patience = 15  # Increased from 12 - more patient for minority class convergence
     patience_counter = 0
     min_val_acc_threshold = 85.0  # Quality threshold (only save proven good models)
     warmup_epochs = 12  # Skip unstable chaos phase completely (epoch 1-12)
