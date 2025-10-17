@@ -1,16 +1,16 @@
 Model: efficientnet_b0
-Best Val Acc: 86.01%
-Test Acc: 85.97%
-Balanced Acc: 82.81%
-Training Time: 6.5 min
+Best Val Acc: 85.62%
+Test Acc: 86.45%
+Balanced Acc: 84.13%
+Training Time: 8.7 min
 
 Classification Report:
               precision    recall  f1-score   support
 
-        ring       0.92      0.86      0.89       251
-    schizont       0.89      0.94      0.91       427
- trophozoite       0.72      0.68      0.70       199
+        ring       0.86      0.92      0.89       170
+    schizont       0.93      0.91      0.92       286
+ trophozoite       0.72      0.70      0.71       127
 
-    accuracy                           0.86       877
-   macro avg       0.84      0.83      0.83       877
-weighted avg       0.86      0.86      0.86       877
+    accuracy                           0.86       583
+   macro avg       0.84      0.84      0.84       583
+weighted avg       0.86      0.86      0.86       583

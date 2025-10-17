@@ -2,29 +2,29 @@ Classification Analysis: efficientnet_b2_focal
 ===============================================
 
 Overall Performance:
-- Accuracy: 0.8427
-- Balanced Accuracy: 0.7429
-- Test Accuracy: 0.8427
+- Accuracy: 0.9151
+- Balanced Accuracy: 0.9057
+- Test Accuracy: 0.9151
 
 Per-Class Performance:
 
 gametocyte:
-  - Precision: 0.8837
-  - Recall: 0.9268
-  - F1-Score: 0.9048
-  - Support: 41
+  - Precision: 0.9583
+  - Recall: 0.9388
+  - F1-Score: 0.9485
+  - Support: 49
 ring:
-  - Precision: 0.9600
-  - Recall: 0.8571
-  - F1-Score: 0.9057
-  - Support: 28
+  - Precision: 0.8947
+  - Recall: 1.0000
+  - F1-Score: 0.9444
+  - Support: 34
 schizont:
-  - Precision: 0.5000
-  - Recall: 0.5000
-  - F1-Score: 0.5000
+  - Precision: 1.0000
+  - Recall: 1.0000
+  - F1-Score: 1.0000
   - Support: 4
 trophozoite:
-  - Precision: 0.6471
-  - Recall: 0.6875
-  - F1-Score: 0.6667
-  - Support: 16
+  - Precision: 0.8125
+  - Recall: 0.6842
+  - F1-Score: 0.7429
+  - Support: 19

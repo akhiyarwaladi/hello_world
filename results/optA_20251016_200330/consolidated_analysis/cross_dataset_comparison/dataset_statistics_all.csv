@@ -1,0 +1,17 @@
+Dataset,Original_Train,Original_Val,Original_Test,Detection_Aug_Train,Classification_Aug_Train,Detection_Multiplier,Classification_Multiplier
+iml_lifecycle,412,112,102,1807,1446,4.4x,3.5x
+md_2019_stages,1028,270,328,4510,3608,4.4x,3.5x
+mp_idb_species,274,72,72,1202,961,4.4x,3.5x
+mp_idb_stages,274,72,72,1202,961,4.4x,3.5x
+iml_lifecycle,412,112,102,1807,1446,4.4x,3.5x
+md_2019_stages,1028,270,328,4510,3608,4.4x,3.5x
+mp_idb_species,274,72,72,1202,961,4.4x,3.5x
+mp_idb_stages,274,72,72,1202,961,4.4x,3.5x
+iml_lifecycle,412,112,102,1807,1446,4.4x,3.5x
+md_2019_stages,1028,270,328,4510,3608,4.4x,3.5x
+mp_idb_species,274,72,72,1202,961,4.4x,3.5x
+mp_idb_stages,274,72,72,1202,961,4.4x,3.5x
+iml_lifecycle,412,112,102,1807,1446,4.4x,3.5x
+md_2019_stages,1028,270,328,4510,3608,4.4x,3.5x
+mp_idb_species,274,72,72,1202,961,4.4x,3.5x
+mp_idb_stages,274,72,72,1202,961,4.4x,3.5x

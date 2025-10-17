@@ -1,0 +1,25 @@
+Classification Analysis: efficientnet_b0_focal
+===============================================
+
+Overall Performance:
+- Accuracy: 0.8645
+- Balanced Accuracy: 0.8413
+- Test Accuracy: 0.8645
+
+Per-Class Performance:
+
+ring:
+  - Precision: 0.8571
+  - Recall: 0.9176
+  - F1-Score: 0.8864
+  - Support: 170
+schizont:
+  - Precision: 0.9317
+  - Recall: 0.9056
+  - F1-Score: 0.9184
+  - Support: 286
+trophozoite:
+  - Precision: 0.7236
+  - Recall: 0.7008
+  - F1-Score: 0.7120
+  - Support: 127

@@ -1,0 +1,30 @@
+Classification Analysis: densenet121_focal
+===============================================
+
+Overall Performance:
+- Accuracy: 0.9793
+- Balanced Accuracy: 0.8095
+- Test Accuracy: 0.9793
+
+Per-Class Performance:
+
+P_falciparum:
+  - Precision: 0.9885
+  - Recall: 1.0000
+  - F1-Score: 0.9942
+  - Support: 259
+P_malariae:
+  - Precision: 1.0000
+  - Recall: 0.6667
+  - F1-Score: 0.8000
+  - Support: 9
+P_ovale:
+  - Precision: 1.0000
+  - Recall: 0.5714
+  - F1-Score: 0.7273
+  - Support: 7
+P_vivax:
+  - Precision: 0.8333
+  - Recall: 1.0000
+  - F1-Score: 0.9091
+  - Support: 15

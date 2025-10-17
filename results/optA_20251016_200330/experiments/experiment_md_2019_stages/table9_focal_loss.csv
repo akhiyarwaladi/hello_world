@@ -1,0 +1,15 @@
+Class,Metric,densenet121,efficientnet_b0,efficientnet_b1,efficientnet_b2,resnet101,resnet50
+Overall,accuracy,0.8456,0.8645,0.8525,0.8491,0.8422,0.8439
+Overall,balanced_accuracy,0.837,0.8413,0.832,0.8188,0.8136,0.8246
+ring,precision,0.8686,0.8571,0.8556,0.8876,0.8547,0.8449
+ring,recall,0.8941,0.9176,0.9412,0.8824,0.9,0.9294
+ring,f1_score,0.8812,0.8864,0.8964,0.885,0.8768,0.8852
+ring,support,170.0,170.0,170.0,170.0,170.0,170.0
+schizont,precision,0.9421,0.9317,0.9228,0.8938,0.9078,0.9151
+schizont,recall,0.8531,0.9056,0.8776,0.9126,0.8951,0.8671
+schizont,f1_score,0.8954,0.9184,0.8996,0.9031,0.9014,0.8905
+schizont,support,286.0,286.0,286.0,286.0,286.0,286.0
+trophozoite,precision,0.651,0.7236,0.6935,0.6885,0.6721,0.688
+trophozoite,recall,0.7638,0.7008,0.6772,0.6614,0.6457,0.6772
+trophozoite,f1_score,0.7029,0.712,0.6853,0.6747,0.6586,0.6825
+trophozoite,support,127.0,127.0,127.0,127.0,127.0,127.0

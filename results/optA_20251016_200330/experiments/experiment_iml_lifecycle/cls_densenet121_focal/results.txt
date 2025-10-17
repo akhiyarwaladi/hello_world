@@ -1,17 +1,17 @@
 Model: densenet121
-Best Val Acc: 87.50%
-Test Acc: 86.52%
-Balanced Acc: 81.53%
-Training Time: 20.1 min
+Best Val Acc: 92.45%
+Test Acc: 89.62%
+Balanced Acc: 88.75%
+Training Time: 3.9 min
 
 Classification Report:
               precision    recall  f1-score   support
 
-  gametocyte       0.93      0.98      0.95        41
-        ring       0.92      0.79      0.85        28
-    schizont       0.60      0.75      0.67         4
- trophozoite       0.71      0.75      0.73        16
+  gametocyte       0.98      0.92      0.95        49
+        ring       0.83      1.00      0.91        34
+    schizont       1.00      1.00      1.00         4
+ trophozoite       0.80      0.63      0.71        19
 
-    accuracy                           0.87        89
-   macro avg       0.79      0.82      0.80        89
-weighted avg       0.87      0.87      0.87        89
+    accuracy                           0.90       106
+   macro avg       0.90      0.89      0.89       106
+weighted avg       0.90      0.90      0.89       106

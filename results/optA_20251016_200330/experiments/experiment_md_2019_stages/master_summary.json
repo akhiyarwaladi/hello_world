@@ -1,0 +1,11 @@
+{
+  "experiment_name": "optA_20251016_200330_md_2019_stages_md_2019_stages",
+  "timestamp": "2025-10-17T23:10:33.777796",
+  "pipeline_type": "option_a_shared_classification",
+  "folder_structure": {
+    "detection": 3,
+    "classification": 6,
+    "crop_data": 1,
+    "analysis": 12
+  }
+}

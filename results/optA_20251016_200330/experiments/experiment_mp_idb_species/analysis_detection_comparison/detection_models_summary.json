@@ -1,0 +1,27 @@
+{
+  "experiment_name": "optA_20251016_200330_mp_idb_species",
+  "dataset": "mp_idb_species",
+  "models_performance": {
+    "yolo10": {
+      "epochs_trained": 100,
+      "mAP50": 0.92437,
+      "mAP50_95": 0.6012,
+      "precision": 0.85668,
+      "recall": 0.90725
+    },
+    "yolo11": {
+      "epochs_trained": 100,
+      "mAP50": 0.92574,
+      "mAP50_95": 0.62173,
+      "precision": 0.86518,
+      "recall": 0.91884
+    },
+    "yolo12": {
+      "epochs_trained": 100,
+      "mAP50": 0.92721,
+      "mAP50_95": 0.62253,
+      "precision": 0.88987,
+      "recall": 0.89275
+    }
+  }
+}

@@ -818,14 +818,14 @@ def main():
     best_val_acc = 0.0  # Track val_acc for best_val_loss checkpoint
     best_acc_val_acc = 0.0  # Track best val_acc checkpoint
     best_acc_val_loss = float('inf')  # Track val_loss for best_val_acc checkpoint
-    patience = 20  # Increased from 15 - even more patient for minority class convergence
+    patience = 12  # Match old successful experiment (optA_20251016_103926)
     patience_counter = 0
     min_val_acc_threshold = 85.0  # Quality threshold (only save proven good models)
     warmup_epochs = 12  # Skip unstable chaos phase completely (epoch 1-12)
     print(f"[EARLY STOPPING] Dual Checkpoint Strategy")
     print(f"[EARLY STOPPING] Warmup: {warmup_epochs} epochs (skip chaos phase)")
     print(f"[EARLY STOPPING] Threshold: Val Acc > {min_val_acc_threshold}% (quality filter)")
-    print(f"[EARLY STOPPING] Patience: {patience} epochs (explore more before stopping)")
+    print(f"[EARLY STOPPING] Patience: {patience} epochs")
     print(f"[EARLY STOPPING] Saving: best_val_loss.pt + best_val_acc.pt → test set picks winner")
 
     for epoch in range(args.epochs):

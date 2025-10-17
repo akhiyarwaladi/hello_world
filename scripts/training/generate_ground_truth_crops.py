@@ -12,6 +12,13 @@ from pathlib import Path
 from collections import defaultdict, Counter
 import argparse
 import shutil
+import random
+
+# FIXED RANDOM SEED for reproducible train/val/test splits
+RANDOM_SEED = 42
+random.seed(RANDOM_SEED)
+np.random.seed(RANDOM_SEED)
+print(f"[SEED] Fixed random seed: {RANDOM_SEED} (ensures reproducible splits)")
 
 class GroundTruthCropGenerator:
     """Generate crops from ground truth annotations"""
@@ -762,8 +769,8 @@ class GroundTruthCropGenerator:
             all_images_raw = itertools.chain.from_iterable(
                 images_dir.glob(pattern) for pattern in image_patterns
             )
-            # Deduplicate images (case-insensitive filesystems match same file multiple times)
-            all_images = list(dict.fromkeys(all_images_raw))  # Preserves order, removes duplicates
+            # Deduplicate and SORT images for reproducibility (case-insensitive filesystems match same file multiple times)
+            all_images = sorted(list(dict.fromkeys(all_images_raw)))  # Sort for deterministic order
 
             for image_path in all_images:
                 # For IML lifecycle, we use original annotations directly

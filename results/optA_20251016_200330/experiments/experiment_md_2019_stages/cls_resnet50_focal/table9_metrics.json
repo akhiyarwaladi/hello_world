@@ -1,31 +1,31 @@
 {
-  "overall_accuracy": 0.8608893956670467,
-  "overall_balanced_accuracy": 0.8437277842290628,
-  "test_accuracy": 0.8608893956670468,
+  "overall_accuracy": 0.8439108061749572,
+  "overall_balanced_accuracy": 0.8245699953898193,
+  "test_accuracy": 0.8439108061749572,
   "per_class_metrics": {
     "class_0": {
       "class_name": "ring",
       "class_index": 0,
-      "precision": 0.8953488372093024,
-      "recall": 0.9203187250996016,
-      "f1_score": 0.9076620825147348,
-      "support": 251.0
+      "precision": 0.8449197860962567,
+      "recall": 0.9294117647058824,
+      "f1_score": 0.8851540616246498,
+      "support": 170.0
     },
     "class_1": {
       "class_name": "schizont",
       "class_index": 1,
-      "precision": 0.9136690647482014,
-      "recall": 0.892271662763466,
-      "f1_score": 0.9028436018957346,
-      "support": 427.0
+      "precision": 0.915129151291513,
+      "recall": 0.8671328671328671,
+      "f1_score": 0.8904847396768402,
+      "support": 286.0
     },
     "class_2": {
       "class_name": "trophozoite",
       "class_index": 2,
-      "precision": 0.7079207920792079,
-      "recall": 0.7185929648241206,
-      "f1_score": 0.713216957605985,
-      "support": 199.0
+      "precision": 0.688,
+      "recall": 0.6771653543307087,
+      "f1_score": 0.6825396825396826,
+      "support": 127.0
     }
   }
 }
