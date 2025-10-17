@@ -427,12 +427,12 @@ Multi-Dataset Continue Examples:
                        help="Classification models to exclude")
 
     # Data split ratios
-    parser.add_argument("--train-ratio", type=float, default=0.66,
-                       help="Training set ratio (default: 0.66 = 66%%)")
-    parser.add_argument("--val-ratio", type=float, default=0.17,
-                       help="Validation set ratio (default: 0.17 = 17%%)")
-    parser.add_argument("--test-ratio", type=float, default=0.17,
-                       help="Test set ratio (default: 0.17 = 17%%)")
+    parser.add_argument("--train-ratio", type=float, default=0.60,
+                       help="Training set ratio (default: 0.60 = 60%%)")
+    parser.add_argument("--val-ratio", type=float, default=0.20,
+                       help="Validation set ratio (default: 0.20 = 20%%)")
+    parser.add_argument("--test-ratio", type=float, default=0.20,
+                       help="Test set ratio (default: 0.20 = 20%%)")
 
     # Continue/Resume functionality
     parser.add_argument("--continue-from", type=str, metavar="EXPERIMENT_NAME",
@@ -1262,7 +1262,7 @@ def run_pipeline_for_dataset(args):
         shared_crops_path = results_manager.get_crops_path("shared", "gt_crops")
         output_path = str(shared_crops_path)
 
-        # IMPORTANT: Always use explicit split ratios (defaults: 66%/17%/17%)
+        # IMPORTANT: Always use explicit split ratios (defaults: 60%/20%/20%)
         # These defaults are applied even in continue mode to ensure consistency
         train_ratio_to_use = args.train_ratio
         val_ratio_to_use = args.val_ratio
@@ -1282,9 +1282,9 @@ def run_pipeline_for_dataset(args):
             "--output", output_path,
             "--type", dataset_type,
             "--crop_size", "224",  # FIXED: Use 224px to match pre-processed ground truth
-            "--train-ratio", str(train_ratio_to_use),  # ALWAYS explicit (default: 0.66)
-            "--val-ratio", str(val_ratio_to_use),      # ALWAYS explicit (default: 0.17)
-            "--test-ratio", str(test_ratio_to_use)     # ALWAYS explicit (default: 0.17)
+            "--train-ratio", str(train_ratio_to_use),  # ALWAYS explicit (default: 0.60)
+            "--val-ratio", str(val_ratio_to_use),      # ALWAYS explicit (default: 0.20)
+            "--test-ratio", str(test_ratio_to_use)     # ALWAYS explicit (default: 0.20)
         ]
 
         if not run_command(cmd2, f"Generating shared ground truth crops"):
