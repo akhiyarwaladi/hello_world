@@ -67,6 +67,7 @@ results/**/*.weights
 # Exclude images and crops
 results/**/crops/
 results/**/crops_gt_crops/crops/
+results/**/visualizations/
 results/**/*.png
 results/**/*.jpg
 results/**/*.jpeg
