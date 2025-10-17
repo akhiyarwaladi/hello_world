@@ -684,14 +684,14 @@ def run_pipeline_for_dataset(args):
     # PHASE 1 OPTIMIZATION: Use ONLY Focal Loss (Class-Balanced causes -8% to -26% degradation)
     # Evidence: MP-IDB Stages with CB loss drops from 96% to 67.6-88.3%
     for model in base_models:
-        # Configuration: Optimized Focal Loss (Standard medical imaging parameters)
+        # Configuration: Optimized Focal Loss (Aggressive minority class focus)
         classification_configs[f"{model}_focal"] = {
             "type": "pytorch",
             "script": "scripts/training/12_train_pytorch_classification.py",
             "model": model,
             "loss": "focal",
-            "focal_alpha": 0.25,  # OPTIMIZED: Standard medical imaging (was 0.5)
-            "focal_gamma": 2.0,   # OPTIMIZED: Standard focusing parameter (was 1.5)
+            "focal_alpha": 0.5,   # TUNED: Stronger minority class focus (from 0.25)
+            "focal_gamma": 2.5,   # TUNED: More aggressive focusing (from 2.0)
             "epochs": args.epochs_cls,  # Use command-line parameter (default: 75)
             "batch": 64,         # Optimized for RTX 4090 (24GB) with 224px images
             "lr": 0.0005,        # Lower LR for focal loss stability
@@ -1453,18 +1453,19 @@ def run_pipeline_for_dataset(args):
             exp_path = Path(experiment_dir)
             classification_models_trained = []
 
-            # Look through all model type directories
-            for model_type_dir in (exp_path / "classification").glob("*"):
-                if model_type_dir.is_dir():
-                    # Look for experiment directories within each model type
-                    for exp_dir in model_type_dir.glob("*"):
-                        if exp_dir.is_dir():
-                            # Extract the classification model name from the path
-                            cls_model_name = model_type_dir.name
-                            classification_models_trained.append(cls_model_name)
+            # FIX: For parent structure, classification models are directly in exp_path (not in classification/)
+            # Look for directories starting with "cls_"
+            for cls_dir in exp_path.glob("cls_*"):
+                if cls_dir.is_dir():
+                    # Check if this is a valid classification model (has table9_metrics.json or best.pt)
+                    if (cls_dir / "table9_metrics.json").exists() or (cls_dir / "best.pt").exists():
+                        # Extract classification model name from directory name
+                        cls_model_name = cls_dir.name
+                        classification_models_trained.append(cls_model_name)
+                        print(f"   [FOUND] {cls_model_name}")
 
             if classification_models_trained:
-                print(f"   [SUCCESS] Found existing classification models: {classification_models_trained}")
+                print(f"   [SUCCESS] Found {len(classification_models_trained)} existing classification models")
             else:
                 print(f"   [ERROR] No existing classification models found")
                 return
