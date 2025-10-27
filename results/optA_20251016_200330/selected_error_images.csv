@@ -1,0 +1,7 @@
+dataset,image_name,n_false_positives,n_false_negatives,status,image_file
+mp_idb_species,1704282807-0010-R,2,1,Mixed (FP + FN),results\optA_20251016_200330\experiments\experiment_mp_idb_species\visualizations\pred_detection_yolo11\1704282807-0010-R.png
+mp_idb_species,1704282807-0010-R,2,1,Mixed (FP + FN),results\optA_20251016_200330\experiments\experiment_mp_idb_species\visualizations\pred_detection_yolo11\1704282807-0010-R.png
+mp_idb_stages,1405022890-0003-R,8,0,False positives (FP),results\optA_20251016_200330\experiments\experiment_mp_idb_stages\visualizations\pred_detection_yolo11\1405022890-0003-R.png
+mp_idb_stages,1405022890-0003-R,8,0,False positives (FP),results\optA_20251016_200330\experiments\experiment_mp_idb_stages\visualizations\pred_detection_yolo11\1405022890-0003-R.png
+mp_idb_stages,1701151546-0009-R,0,2,Missing detections (FN),results\optA_20251016_200330\experiments\experiment_mp_idb_stages\visualizations\pred_detection_yolo11\1701151546-0009-R.png
+mp_idb_stages,1701151546-0009-R,0,2,Missing detections (FN),results\optA_20251016_200330\experiments\experiment_mp_idb_stages\visualizations\pred_detection_yolo11\1701151546-0009-R.png

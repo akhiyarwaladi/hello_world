@@ -1,7 +1,7 @@
 {
   "parent_experiment": "optA_20251016_200330",
   "total_datasets": 4,
-  "analysis_timestamp": "2025-10-17T23:47:57.471089",
+  "analysis_timestamp": "2025-10-27T02:24:56.578723",
   "datasets": {
     "iml_lifecycle": {
       "path": "results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle",

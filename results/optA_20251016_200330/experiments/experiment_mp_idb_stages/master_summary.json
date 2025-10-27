@@ -1,6 +1,6 @@
 {
   "experiment_name": "optA_20251016_200330_mp_idb_stages_mp_idb_stages",
-  "timestamp": "2025-10-17T20:50:01.932506",
+  "timestamp": "2025-10-27T02:13:30.497088",
   "pipeline_type": "option_a_shared_classification",
   "folder_structure": {
     "detection": 3,

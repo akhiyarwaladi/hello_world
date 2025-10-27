@@ -1,0 +1,2260 @@
+{
+  "experiment_name": "optA_20251016_200330",
+  "base_path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330",
+  "datasets": {
+    "iml_lifecycle": {
+      "experiment_path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle",
+      "detection": {
+        "yolo10": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\det_yolo10",
+          "exists": true,
+          "files": {
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\det_yolo10\\results.csv",
+              "size": 12344,
+              "description": "Training metrics"
+            },
+            "args.yaml": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\det_yolo10\\args.yaml",
+              "size": 1807,
+              "description": "Training arguments"
+            },
+            "weights/best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\det_yolo10\\weights\\best.pt",
+              "size": 33468350,
+              "description": "Best model weights"
+            },
+            "weights/last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\det_yolo10\\weights\\last.pt",
+              "size": 33468350,
+              "description": "Last checkpoint"
+            },
+            "results.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\det_yolo10\\results.png",
+              "size": 251635,
+              "description": "Training curves"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\det_yolo10\\confusion_matrix.png",
+              "size": 94769,
+              "description": "Confusion matrix"
+            },
+            "BoxPR_curve.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\det_yolo10\\BoxPR_curve.png",
+              "size": 75743,
+              "description": "Precision-Recall curve"
+            }
+          },
+          "total_files": 19
+        },
+        "yolo11": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\det_yolo11",
+          "exists": true,
+          "files": {
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\det_yolo11\\results.csv",
+              "size": 12312,
+              "description": "Training metrics"
+            },
+            "args.yaml": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\det_yolo11\\args.yaml",
+              "size": 1806,
+              "description": "Training arguments"
+            },
+            "weights/best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\det_yolo11\\weights\\best.pt",
+              "size": 40509548,
+              "description": "Best model weights"
+            },
+            "weights/last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\det_yolo11\\weights\\last.pt",
+              "size": 40509548,
+              "description": "Last checkpoint"
+            },
+            "results.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\det_yolo11\\results.png",
+              "size": 240079,
+              "description": "Training curves"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\det_yolo11\\confusion_matrix.png",
+              "size": 94990,
+              "description": "Confusion matrix"
+            },
+            "BoxPR_curve.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\det_yolo11\\BoxPR_curve.png",
+              "size": 75285,
+              "description": "Precision-Recall curve"
+            }
+          },
+          "total_files": 19
+        },
+        "yolo12": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\det_yolo12",
+          "exists": true,
+          "files": {
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\det_yolo12\\results.csv",
+              "size": 12308,
+              "description": "Training metrics"
+            },
+            "args.yaml": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\det_yolo12\\args.yaml",
+              "size": 1806,
+              "description": "Training arguments"
+            },
+            "weights/best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\det_yolo12\\weights\\best.pt",
+              "size": 40760750,
+              "description": "Best model weights"
+            },
+            "weights/last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\det_yolo12\\weights\\last.pt",
+              "size": 40760750,
+              "description": "Last checkpoint"
+            },
+            "results.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\det_yolo12\\results.png",
+              "size": 266948,
+              "description": "Training curves"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\det_yolo12\\confusion_matrix.png",
+              "size": 94965,
+              "description": "Confusion matrix"
+            },
+            "BoxPR_curve.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\det_yolo12\\BoxPR_curve.png",
+              "size": 75858,
+              "description": "Precision-Recall curve"
+            }
+          },
+          "total_files": 19
+        }
+      },
+      "classification": {
+        "densenet121_focal": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_densenet121_focal",
+          "exists": true,
+          "files": {
+            "best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_densenet121_focal\\best.pt",
+              "size": 84421122,
+              "description": "Best model weights"
+            },
+            "last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_densenet121_focal\\last.pt",
+              "size": 84319513,
+              "description": "Last checkpoint"
+            },
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_densenet121_focal\\results.csv",
+              "size": 2316,
+              "description": "Training metrics"
+            },
+            "table9_metrics.json": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_densenet121_focal\\table9_metrics.json",
+              "size": 985,
+              "description": "Classification metrics"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_densenet121_focal\\confusion_matrix.png",
+              "size": 27059,
+              "description": "Confusion matrix"
+            },
+            "training_curves.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_densenet121_focal\\training_curves.png",
+              "size": 99118,
+              "description": "Training curves"
+            }
+          }
+        },
+        "efficientnet_b0_focal": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_efficientnet_b0_focal",
+          "exists": true,
+          "files": {
+            "best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_efficientnet_b0_focal\\best.pt",
+              "size": 48634834,
+              "description": "Best model weights"
+            },
+            "last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_efficientnet_b0_focal\\last.pt",
+              "size": 48584106,
+              "description": "Last checkpoint"
+            },
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_efficientnet_b0_focal\\results.csv",
+              "size": 1736,
+              "description": "Training metrics"
+            },
+            "table9_metrics.json": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_efficientnet_b0_focal\\table9_metrics.json",
+              "size": 1019,
+              "description": "Classification metrics"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_efficientnet_b0_focal\\confusion_matrix.png",
+              "size": 25053,
+              "description": "Confusion matrix"
+            },
+            "training_curves.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_efficientnet_b0_focal\\training_curves.png",
+              "size": 106583,
+              "description": "Training curves"
+            }
+          }
+        },
+        "efficientnet_b1_focal": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_efficientnet_b1_focal",
+          "exists": true,
+          "files": {
+            "best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_efficientnet_b1_focal\\best.pt",
+              "size": 78914122,
+              "description": "Best model weights"
+            },
+            "last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_efficientnet_b1_focal\\last.pt",
+              "size": 78841273,
+              "description": "Last checkpoint"
+            },
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_efficientnet_b1_focal\\results.csv",
+              "size": 1804,
+              "description": "Training metrics"
+            },
+            "table9_metrics.json": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_efficientnet_b1_focal\\table9_metrics.json",
+              "size": 1031,
+              "description": "Classification metrics"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_efficientnet_b1_focal\\confusion_matrix.png",
+              "size": 26841,
+              "description": "Confusion matrix"
+            },
+            "training_curves.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_efficientnet_b1_focal\\training_curves.png",
+              "size": 108111,
+              "description": "Training curves"
+            }
+          }
+        },
+        "efficientnet_b2_focal": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_efficientnet_b2_focal",
+          "exists": true,
+          "files": {
+            "best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_efficientnet_b2_focal\\best.pt",
+              "size": 93193025,
+              "description": "Best model weights"
+            },
+            "last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_efficientnet_b2_focal\\last.pt",
+              "size": 93125241,
+              "description": "Last checkpoint"
+            },
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_efficientnet_b2_focal\\results.csv",
+              "size": 1668,
+              "description": "Training metrics"
+            },
+            "table9_metrics.json": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_efficientnet_b2_focal\\table9_metrics.json",
+              "size": 989,
+              "description": "Classification metrics"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_efficientnet_b2_focal\\confusion_matrix.png",
+              "size": 25141,
+              "description": "Confusion matrix"
+            },
+            "training_curves.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_efficientnet_b2_focal\\training_curves.png",
+              "size": 110450,
+              "description": "Training curves"
+            }
+          }
+        },
+        "resnet50_focal": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_resnet50_focal",
+          "exists": true,
+          "files": {
+            "best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_resnet50_focal\\best.pt",
+              "size": 282654511,
+              "description": "Best model weights"
+            },
+            "last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_resnet50_focal\\last.pt",
+              "size": 282609726,
+              "description": "Last checkpoint"
+            },
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_resnet50_focal\\results.csv",
+              "size": 2316,
+              "description": "Training metrics"
+            },
+            "table9_metrics.json": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_resnet50_focal\\table9_metrics.json",
+              "size": 1005,
+              "description": "Classification metrics"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_resnet50_focal\\confusion_matrix.png",
+              "size": 26660,
+              "description": "Confusion matrix"
+            },
+            "training_curves.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_resnet50_focal\\training_curves.png",
+              "size": 100957,
+              "description": "Training curves"
+            }
+          }
+        },
+        "resnet101_focal": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_resnet101_focal",
+          "exists": true,
+          "files": {
+            "best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_resnet101_focal\\best.pt",
+              "size": 511005083,
+              "description": "Best model weights"
+            },
+            "last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_resnet101_focal\\last.pt",
+              "size": 510917509,
+              "description": "Last checkpoint"
+            },
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_resnet101_focal\\results.csv",
+              "size": 1936,
+              "description": "Training metrics"
+            },
+            "table9_metrics.json": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_resnet101_focal\\table9_metrics.json",
+              "size": 1006,
+              "description": "Classification metrics"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_resnet101_focal\\confusion_matrix.png",
+              "size": 27307,
+              "description": "Confusion matrix"
+            },
+            "training_curves.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\cls_resnet101_focal\\training_curves.png",
+              "size": 92447,
+              "description": "Training curves"
+            }
+          }
+        }
+      },
+      "crops": {
+        "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\crops_gt_crops\\crops",
+        "exists": true,
+        "splits": {
+          "train": {
+            "exists": true,
+            "image_count": 317
+          },
+          "val": {
+            "exists": true,
+            "image_count": 106
+          },
+          "test": {
+            "exists": true,
+            "image_count": 106
+          }
+        }
+      },
+      "analysis": {
+        "analysis_detection_yolo10": {
+          "exists": true,
+          "file_count": 3
+        },
+        "analysis_detection_yolo11": {
+          "exists": true,
+          "file_count": 3
+        },
+        "analysis_detection_yolo12": {
+          "exists": true,
+          "file_count": 3
+        },
+        "analysis_classification_densenet121_focal": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_classification_efficientnet_b0_focal": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_classification_efficientnet_b1_focal": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_classification_efficientnet_b2_focal": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_classification_resnet50_focal": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_classification_resnet101_focal": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_detection_comparison": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_dataset_statistics": {
+          "exists": true,
+          "file_count": 5
+        },
+        "analysis_option_a_summary": {
+          "exists": true,
+          "file_count": 2
+        }
+      },
+      "visualizations": {
+        "gt_detection": {
+          "exists": true,
+          "image_count": 51
+        },
+        "gt_classification": {
+          "exists": true,
+          "image_count": 51
+        },
+        "pred_detection_yolo10": {
+          "exists": true,
+          "image_count": 51
+        },
+        "pred_detection_yolo11": {
+          "exists": true,
+          "image_count": 51
+        },
+        "pred_detection_yolo12": {
+          "exists": true,
+          "image_count": 51
+        },
+        "pred_classification_densenet121_focal": {
+          "exists": true,
+          "image_count": 51
+        },
+        "pred_classification_efficientnet_b0_focal": {
+          "exists": true,
+          "image_count": 51
+        },
+        "pred_classification_efficientnet_b1_focal": {
+          "exists": true,
+          "image_count": 51
+        },
+        "pred_classification_efficientnet_b2_focal": {
+          "exists": true,
+          "image_count": 51
+        },
+        "pred_classification_resnet50_focal": {
+          "exists": true,
+          "image_count": 51
+        },
+        "pred_classification_resnet101_focal": {
+          "exists": true,
+          "image_count": 51
+        }
+      },
+      "summary_files": {
+        "master_summary.json": {
+          "exists": true,
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\master_summary.json",
+          "size": 296,
+          "description": "Master summary JSON"
+        },
+        "master_summary.xlsx": {
+          "exists": true,
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\master_summary.xlsx",
+          "size": 5375,
+          "description": "Master summary Excel"
+        },
+        "table9_classification_pivot.xlsx": {
+          "exists": true,
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\table9_classification_pivot.xlsx",
+          "size": 5882,
+          "description": "Classification pivot table"
+        },
+        "table9_focal_loss.csv": {
+          "exists": true,
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\table9_focal_loss.csv",
+          "size": 1087,
+          "description": "Focal loss metrics"
+        },
+        "experiment_info.yaml": {
+          "exists": true,
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle\\experiment_info.yaml",
+          "size": 151,
+          "description": "Experiment info"
+        }
+      },
+      "file_count": 586,
+      "total_size_mb": 2316.2875690460205
+    },
+    "mp_idb_species": {
+      "experiment_path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species",
+      "detection": {
+        "yolo10": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\det_yolo10",
+          "exists": true,
+          "files": {
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\det_yolo10\\results.csv",
+              "size": 12274,
+              "description": "Training metrics"
+            },
+            "args.yaml": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\det_yolo10\\args.yaml",
+              "size": 1807,
+              "description": "Training arguments"
+            },
+            "weights/best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\det_yolo10\\weights\\best.pt",
+              "size": 33468350,
+              "description": "Best model weights"
+            },
+            "weights/last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\det_yolo10\\weights\\last.pt",
+              "size": 33468350,
+              "description": "Last checkpoint"
+            },
+            "results.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\det_yolo10\\results.png",
+              "size": 269154,
+              "description": "Training curves"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\det_yolo10\\confusion_matrix.png",
+              "size": 95210,
+              "description": "Confusion matrix"
+            },
+            "BoxPR_curve.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\det_yolo10\\BoxPR_curve.png",
+              "size": 79942,
+              "description": "Precision-Recall curve"
+            }
+          },
+          "total_files": 17
+        },
+        "yolo11": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\det_yolo11",
+          "exists": true,
+          "files": {
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\det_yolo11\\results.csv",
+              "size": 12362,
+              "description": "Training metrics"
+            },
+            "args.yaml": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\det_yolo11\\args.yaml",
+              "size": 1806,
+              "description": "Training arguments"
+            },
+            "weights/best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\det_yolo11\\weights\\best.pt",
+              "size": 40509548,
+              "description": "Best model weights"
+            },
+            "weights/last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\det_yolo11\\weights\\last.pt",
+              "size": 40509548,
+              "description": "Last checkpoint"
+            },
+            "results.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\det_yolo11\\results.png",
+              "size": 224641,
+              "description": "Training curves"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\det_yolo11\\confusion_matrix.png",
+              "size": 94271,
+              "description": "Confusion matrix"
+            },
+            "BoxPR_curve.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\det_yolo11\\BoxPR_curve.png",
+              "size": 81161,
+              "description": "Precision-Recall curve"
+            }
+          },
+          "total_files": 17
+        },
+        "yolo12": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\det_yolo12",
+          "exists": true,
+          "files": {
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\det_yolo12\\results.csv",
+              "size": 12380,
+              "description": "Training metrics"
+            },
+            "args.yaml": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\det_yolo12\\args.yaml",
+              "size": 1806,
+              "description": "Training arguments"
+            },
+            "weights/best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\det_yolo12\\weights\\best.pt",
+              "size": 40760750,
+              "description": "Best model weights"
+            },
+            "weights/last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\det_yolo12\\weights\\last.pt",
+              "size": 40760750,
+              "description": "Last checkpoint"
+            },
+            "results.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\det_yolo12\\results.png",
+              "size": 270205,
+              "description": "Training curves"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\det_yolo12\\confusion_matrix.png",
+              "size": 95347,
+              "description": "Confusion matrix"
+            },
+            "BoxPR_curve.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\det_yolo12\\BoxPR_curve.png",
+              "size": 82150,
+              "description": "Precision-Recall curve"
+            }
+          },
+          "total_files": 17
+        }
+      },
+      "classification": {
+        "densenet121_focal": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_densenet121_focal",
+          "exists": true,
+          "files": {
+            "best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_densenet121_focal\\best.pt",
+              "size": 84419297,
+              "description": "Best model weights"
+            },
+            "last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_densenet121_focal\\last.pt",
+              "size": 84319513,
+              "description": "Last checkpoint"
+            },
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_densenet121_focal\\results.csv",
+              "size": 1600,
+              "description": "Training metrics"
+            },
+            "table9_metrics.json": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_densenet121_focal\\table9_metrics.json",
+              "size": 989,
+              "description": "Classification metrics"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_densenet121_focal\\confusion_matrix.png",
+              "size": 25668,
+              "description": "Confusion matrix"
+            },
+            "training_curves.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_densenet121_focal\\training_curves.png",
+              "size": 109525,
+              "description": "Training curves"
+            }
+          }
+        },
+        "efficientnet_b0_focal": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_efficientnet_b0_focal",
+          "exists": true,
+          "files": {
+            "best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_efficientnet_b0_focal\\best.pt",
+              "size": 48635839,
+              "description": "Best model weights"
+            },
+            "last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_efficientnet_b0_focal\\last.pt",
+              "size": 48584106,
+              "description": "Last checkpoint"
+            },
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_efficientnet_b0_focal\\results.csv",
+              "size": 1601,
+              "description": "Training metrics"
+            },
+            "table9_metrics.json": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_efficientnet_b0_focal\\table9_metrics.json",
+              "size": 1021,
+              "description": "Classification metrics"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_efficientnet_b0_focal\\confusion_matrix.png",
+              "size": 25818,
+              "description": "Confusion matrix"
+            },
+            "training_curves.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_efficientnet_b0_focal\\training_curves.png",
+              "size": 82027,
+              "description": "Training curves"
+            }
+          }
+        },
+        "efficientnet_b1_focal": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_efficientnet_b1_focal",
+          "exists": true,
+          "files": {
+            "best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_efficientnet_b1_focal\\best.pt",
+              "size": 78914122,
+              "description": "Best model weights"
+            },
+            "last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_efficientnet_b1_focal\\last.pt",
+              "size": 78841273,
+              "description": "Last checkpoint"
+            },
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_efficientnet_b1_focal\\results.csv",
+              "size": 1260,
+              "description": "Training metrics"
+            },
+            "table9_metrics.json": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_efficientnet_b1_focal\\table9_metrics.json",
+              "size": 1019,
+              "description": "Classification metrics"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_efficientnet_b1_focal\\confusion_matrix.png",
+              "size": 25678,
+              "description": "Confusion matrix"
+            },
+            "training_curves.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_efficientnet_b1_focal\\training_curves.png",
+              "size": 90341,
+              "description": "Training curves"
+            }
+          }
+        },
+        "efficientnet_b2_focal": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_efficientnet_b2_focal",
+          "exists": true,
+          "files": {
+            "best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_efficientnet_b2_focal\\best.pt",
+              "size": 93194954,
+              "description": "Best model weights"
+            },
+            "last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_efficientnet_b2_focal\\last.pt",
+              "size": 93125241,
+              "description": "Last checkpoint"
+            },
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_efficientnet_b2_focal\\results.csv",
+              "size": 1634,
+              "description": "Training metrics"
+            },
+            "table9_metrics.json": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_efficientnet_b2_focal\\table9_metrics.json",
+              "size": 991,
+              "description": "Classification metrics"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_efficientnet_b2_focal\\confusion_matrix.png",
+              "size": 25684,
+              "description": "Confusion matrix"
+            },
+            "training_curves.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_efficientnet_b2_focal\\training_curves.png",
+              "size": 100678,
+              "description": "Training curves"
+            }
+          }
+        },
+        "resnet50_focal": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_resnet50_focal",
+          "exists": true,
+          "files": {
+            "best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_resnet50_focal\\best.pt",
+              "size": 282654511,
+              "description": "Best model weights"
+            },
+            "last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_resnet50_focal\\last.pt",
+              "size": 282609726,
+              "description": "Last checkpoint"
+            },
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_resnet50_focal\\results.csv",
+              "size": 1328,
+              "description": "Training metrics"
+            },
+            "table9_metrics.json": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_resnet50_focal\\table9_metrics.json",
+              "size": 1034,
+              "description": "Classification metrics"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_resnet50_focal\\confusion_matrix.png",
+              "size": 25704,
+              "description": "Confusion matrix"
+            },
+            "training_curves.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_resnet50_focal\\training_curves.png",
+              "size": 94753,
+              "description": "Training curves"
+            }
+          }
+        },
+        "resnet101_focal": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_resnet101_focal",
+          "exists": true,
+          "files": {
+            "best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_resnet101_focal\\best.pt",
+              "size": 511005083,
+              "description": "Best model weights"
+            },
+            "last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_resnet101_focal\\last.pt",
+              "size": 510917509,
+              "description": "Last checkpoint"
+            },
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_resnet101_focal\\results.csv",
+              "size": 1601,
+              "description": "Training metrics"
+            },
+            "table9_metrics.json": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_resnet101_focal\\table9_metrics.json",
+              "size": 1021,
+              "description": "Classification metrics"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_resnet101_focal\\confusion_matrix.png",
+              "size": 25681,
+              "description": "Confusion matrix"
+            },
+            "training_curves.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\cls_resnet101_focal\\training_curves.png",
+              "size": 78986,
+              "description": "Training curves"
+            }
+          }
+        }
+      },
+      "crops": {
+        "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\crops_gt_crops\\crops",
+        "exists": true,
+        "splits": {
+          "train": {
+            "exists": true,
+            "image_count": 863
+          },
+          "val": {
+            "exists": true,
+            "image_count": 283
+          },
+          "test": {
+            "exists": true,
+            "image_count": 290
+          }
+        }
+      },
+      "analysis": {
+        "analysis_detection_yolo10": {
+          "exists": true,
+          "file_count": 3
+        },
+        "analysis_detection_yolo11": {
+          "exists": true,
+          "file_count": 3
+        },
+        "analysis_detection_yolo12": {
+          "exists": true,
+          "file_count": 3
+        },
+        "analysis_classification_densenet121_focal": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_classification_efficientnet_b0_focal": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_classification_efficientnet_b1_focal": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_classification_efficientnet_b2_focal": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_classification_resnet50_focal": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_classification_resnet101_focal": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_detection_comparison": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_dataset_statistics": {
+          "exists": true,
+          "file_count": 5
+        },
+        "analysis_option_a_summary": {
+          "exists": true,
+          "file_count": 2
+        }
+      },
+      "visualizations": {
+        "gt_detection": {
+          "exists": true,
+          "image_count": 36
+        },
+        "gt_classification": {
+          "exists": true,
+          "image_count": 36
+        },
+        "pred_detection_yolo10": {
+          "exists": true,
+          "image_count": 36
+        },
+        "pred_detection_yolo11": {
+          "exists": true,
+          "image_count": 36
+        },
+        "pred_detection_yolo12": {
+          "exists": true,
+          "image_count": 36
+        },
+        "pred_classification_densenet121_focal": {
+          "exists": true,
+          "image_count": 36
+        },
+        "pred_classification_efficientnet_b0_focal": {
+          "exists": true,
+          "image_count": 36
+        },
+        "pred_classification_efficientnet_b1_focal": {
+          "exists": true,
+          "image_count": 36
+        },
+        "pred_classification_efficientnet_b2_focal": {
+          "exists": true,
+          "image_count": 36
+        },
+        "pred_classification_resnet50_focal": {
+          "exists": true,
+          "image_count": 36
+        },
+        "pred_classification_resnet101_focal": {
+          "exists": true,
+          "image_count": 36
+        }
+      },
+      "summary_files": {
+        "master_summary.json": {
+          "exists": true,
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\master_summary.json",
+          "size": 298,
+          "description": "Master summary JSON"
+        },
+        "master_summary.xlsx": {
+          "exists": true,
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\master_summary.xlsx",
+          "size": 5378,
+          "description": "Master summary Excel"
+        },
+        "table9_classification_pivot.xlsx": {
+          "exists": true,
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\table9_classification_pivot.xlsx",
+          "size": 5817,
+          "description": "Classification pivot table"
+        },
+        "table9_focal_loss.csv": {
+          "exists": true,
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\table9_focal_loss.csv",
+          "size": 1096,
+          "description": "Focal loss metrics"
+        },
+        "experiment_info.yaml": {
+          "exists": true,
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_species\\experiment_info.yaml",
+          "size": 152,
+          "description": "Experiment info"
+        }
+      },
+      "file_count": 1493,
+      "total_size_mb": 2316.2447242736816
+    },
+    "mp_idb_stages": {
+      "experiment_path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages",
+      "detection": {
+        "yolo10": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\det_yolo10",
+          "exists": true,
+          "files": {
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\det_yolo10\\results.csv",
+              "size": 12338,
+              "description": "Training metrics"
+            },
+            "args.yaml": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\det_yolo10\\args.yaml",
+              "size": 1804,
+              "description": "Training arguments"
+            },
+            "weights/best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\det_yolo10\\weights\\best.pt",
+              "size": 33468350,
+              "description": "Best model weights"
+            },
+            "weights/last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\det_yolo10\\weights\\last.pt",
+              "size": 33468350,
+              "description": "Last checkpoint"
+            },
+            "results.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\det_yolo10\\results.png",
+              "size": 285526,
+              "description": "Training curves"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\det_yolo10\\confusion_matrix.png",
+              "size": 96633,
+              "description": "Confusion matrix"
+            },
+            "BoxPR_curve.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\det_yolo10\\BoxPR_curve.png",
+              "size": 78602,
+              "description": "Precision-Recall curve"
+            }
+          },
+          "total_files": 17
+        },
+        "yolo11": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\det_yolo11",
+          "exists": true,
+          "files": {
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\det_yolo11\\results.csv",
+              "size": 12348,
+              "description": "Training metrics"
+            },
+            "args.yaml": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\det_yolo11\\args.yaml",
+              "size": 1803,
+              "description": "Training arguments"
+            },
+            "weights/best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\det_yolo11\\weights\\best.pt",
+              "size": 40509548,
+              "description": "Best model weights"
+            },
+            "weights/last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\det_yolo11\\weights\\last.pt",
+              "size": 40509548,
+              "description": "Last checkpoint"
+            },
+            "results.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\det_yolo11\\results.png",
+              "size": 229157,
+              "description": "Training curves"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\det_yolo11\\confusion_matrix.png",
+              "size": 93658,
+              "description": "Confusion matrix"
+            },
+            "BoxPR_curve.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\det_yolo11\\BoxPR_curve.png",
+              "size": 79540,
+              "description": "Precision-Recall curve"
+            }
+          },
+          "total_files": 17
+        },
+        "yolo12": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\det_yolo12",
+          "exists": true,
+          "files": {
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\det_yolo12\\results.csv",
+              "size": 12370,
+              "description": "Training metrics"
+            },
+            "args.yaml": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\det_yolo12\\args.yaml",
+              "size": 1803,
+              "description": "Training arguments"
+            },
+            "weights/best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\det_yolo12\\weights\\best.pt",
+              "size": 40760750,
+              "description": "Best model weights"
+            },
+            "weights/last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\det_yolo12\\weights\\last.pt",
+              "size": 40760750,
+              "description": "Last checkpoint"
+            },
+            "results.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\det_yolo12\\results.png",
+              "size": 247876,
+              "description": "Training curves"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\det_yolo12\\confusion_matrix.png",
+              "size": 92052,
+              "description": "Confusion matrix"
+            },
+            "BoxPR_curve.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\det_yolo12\\BoxPR_curve.png",
+              "size": 76555,
+              "description": "Precision-Recall curve"
+            }
+          },
+          "total_files": 17
+        }
+      },
+      "classification": {
+        "densenet121_focal": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_densenet121_focal",
+          "exists": true,
+          "files": {
+            "best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_densenet121_focal\\best.pt",
+              "size": 84419297,
+              "description": "Best model weights"
+            },
+            "last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_densenet121_focal\\last.pt",
+              "size": 84319513,
+              "description": "Last checkpoint"
+            },
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_densenet121_focal\\results.csv",
+              "size": 1464,
+              "description": "Training metrics"
+            },
+            "table9_metrics.json": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_densenet121_focal\\table9_metrics.json",
+              "size": 974,
+              "description": "Classification metrics"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_densenet121_focal\\confusion_matrix.png",
+              "size": 27113,
+              "description": "Confusion matrix"
+            },
+            "training_curves.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_densenet121_focal\\training_curves.png",
+              "size": 96925,
+              "description": "Training curves"
+            }
+          }
+        },
+        "efficientnet_b0_focal": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_efficientnet_b0_focal",
+          "exists": true,
+          "files": {
+            "best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_efficientnet_b0_focal\\best.pt",
+              "size": 48635839,
+              "description": "Best model weights"
+            },
+            "last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_efficientnet_b0_focal\\last.pt",
+              "size": 48584106,
+              "description": "Last checkpoint"
+            },
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_efficientnet_b0_focal\\results.csv",
+              "size": 1702,
+              "description": "Training metrics"
+            },
+            "table9_metrics.json": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_efficientnet_b0_focal\\table9_metrics.json",
+              "size": 1000,
+              "description": "Classification metrics"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_efficientnet_b0_focal\\confusion_matrix.png",
+              "size": 26789,
+              "description": "Confusion matrix"
+            },
+            "training_curves.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_efficientnet_b0_focal\\training_curves.png",
+              "size": 102458,
+              "description": "Training curves"
+            }
+          }
+        },
+        "efficientnet_b1_focal": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_efficientnet_b1_focal",
+          "exists": true,
+          "files": {
+            "best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_efficientnet_b1_focal\\best.pt",
+              "size": 78914122,
+              "description": "Best model weights"
+            },
+            "last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_efficientnet_b1_focal\\last.pt",
+              "size": 78841273,
+              "description": "Last checkpoint"
+            },
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_efficientnet_b1_focal\\results.csv",
+              "size": 1328,
+              "description": "Training metrics"
+            },
+            "table9_metrics.json": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_efficientnet_b1_focal\\table9_metrics.json",
+              "size": 1002,
+              "description": "Classification metrics"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_efficientnet_b1_focal\\confusion_matrix.png",
+              "size": 26508,
+              "description": "Confusion matrix"
+            },
+            "training_curves.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_efficientnet_b1_focal\\training_curves.png",
+              "size": 93029,
+              "description": "Training curves"
+            }
+          }
+        },
+        "efficientnet_b2_focal": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_efficientnet_b2_focal",
+          "exists": true,
+          "files": {
+            "best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_efficientnet_b2_focal\\best.pt",
+              "size": 93194954,
+              "description": "Best model weights"
+            },
+            "last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_efficientnet_b2_focal\\last.pt",
+              "size": 93125241,
+              "description": "Last checkpoint"
+            },
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_efficientnet_b2_focal\\results.csv",
+              "size": 1124,
+              "description": "Training metrics"
+            },
+            "table9_metrics.json": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_efficientnet_b2_focal\\table9_metrics.json",
+              "size": 1030,
+              "description": "Classification metrics"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_efficientnet_b2_focal\\confusion_matrix.png",
+              "size": 25791,
+              "description": "Confusion matrix"
+            },
+            "training_curves.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_efficientnet_b2_focal\\training_curves.png",
+              "size": 105346,
+              "description": "Training curves"
+            }
+          }
+        },
+        "resnet50_focal": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_resnet50_focal",
+          "exists": true,
+          "files": {
+            "best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_resnet50_focal\\best.pt",
+              "size": 282653702,
+              "description": "Best model weights"
+            },
+            "last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_resnet50_focal\\last.pt",
+              "size": 282609726,
+              "description": "Last checkpoint"
+            },
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_resnet50_focal\\results.csv",
+              "size": 1464,
+              "description": "Training metrics"
+            },
+            "table9_metrics.json": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_resnet50_focal\\table9_metrics.json",
+              "size": 1018,
+              "description": "Classification metrics"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_resnet50_focal\\confusion_matrix.png",
+              "size": 26362,
+              "description": "Confusion matrix"
+            },
+            "training_curves.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_resnet50_focal\\training_curves.png",
+              "size": 109390,
+              "description": "Training curves"
+            }
+          }
+        },
+        "resnet101_focal": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_resnet101_focal",
+          "exists": true,
+          "files": {
+            "best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_resnet101_focal\\best.pt",
+              "size": 511005083,
+              "description": "Best model weights"
+            },
+            "last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_resnet101_focal\\last.pt",
+              "size": 510917509,
+              "description": "Last checkpoint"
+            },
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_resnet101_focal\\results.csv",
+              "size": 1362,
+              "description": "Training metrics"
+            },
+            "table9_metrics.json": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_resnet101_focal\\table9_metrics.json",
+              "size": 1001,
+              "description": "Classification metrics"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_resnet101_focal\\confusion_matrix.png",
+              "size": 26673,
+              "description": "Confusion matrix"
+            },
+            "training_curves.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\cls_resnet101_focal\\training_curves.png",
+              "size": 80228,
+              "description": "Training curves"
+            }
+          }
+        }
+      },
+      "crops": {
+        "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\crops_gt_crops\\crops",
+        "exists": true,
+        "splits": {
+          "train": {
+            "exists": true,
+            "image_count": 861
+          },
+          "val": {
+            "exists": true,
+            "image_count": 291
+          },
+          "test": {
+            "exists": true,
+            "image_count": 284
+          }
+        }
+      },
+      "analysis": {
+        "analysis_detection_yolo10": {
+          "exists": true,
+          "file_count": 3
+        },
+        "analysis_detection_yolo11": {
+          "exists": true,
+          "file_count": 3
+        },
+        "analysis_detection_yolo12": {
+          "exists": true,
+          "file_count": 3
+        },
+        "analysis_classification_densenet121_focal": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_classification_efficientnet_b0_focal": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_classification_efficientnet_b1_focal": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_classification_efficientnet_b2_focal": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_classification_resnet50_focal": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_classification_resnet101_focal": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_detection_comparison": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_dataset_statistics": {
+          "exists": true,
+          "file_count": 5
+        },
+        "analysis_option_a_summary": {
+          "exists": true,
+          "file_count": 2
+        }
+      },
+      "visualizations": {
+        "gt_detection": {
+          "exists": true,
+          "image_count": 36
+        },
+        "gt_classification": {
+          "exists": true,
+          "image_count": 36
+        },
+        "pred_detection_yolo10": {
+          "exists": true,
+          "image_count": 36
+        },
+        "pred_detection_yolo11": {
+          "exists": true,
+          "image_count": 36
+        },
+        "pred_detection_yolo12": {
+          "exists": true,
+          "image_count": 36
+        },
+        "pred_classification_densenet121_focal": {
+          "exists": true,
+          "image_count": 36
+        },
+        "pred_classification_efficientnet_b0_focal": {
+          "exists": true,
+          "image_count": 36
+        },
+        "pred_classification_efficientnet_b1_focal": {
+          "exists": true,
+          "image_count": 36
+        },
+        "pred_classification_efficientnet_b2_focal": {
+          "exists": true,
+          "image_count": 36
+        },
+        "pred_classification_resnet50_focal": {
+          "exists": true,
+          "image_count": 36
+        },
+        "pred_classification_resnet101_focal": {
+          "exists": true,
+          "image_count": 36
+        }
+      },
+      "summary_files": {
+        "master_summary.json": {
+          "exists": true,
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\master_summary.json",
+          "size": 296,
+          "description": "Master summary JSON"
+        },
+        "master_summary.xlsx": {
+          "exists": true,
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\master_summary.xlsx",
+          "size": 5376,
+          "description": "Master summary Excel"
+        },
+        "table9_classification_pivot.xlsx": {
+          "exists": true,
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\table9_classification_pivot.xlsx",
+          "size": 5876,
+          "description": "Classification pivot table"
+        },
+        "table9_focal_loss.csv": {
+          "exists": true,
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\table9_focal_loss.csv",
+          "size": 1076,
+          "description": "Focal loss metrics"
+        },
+        "experiment_info.yaml": {
+          "exists": true,
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_mp_idb_stages\\experiment_info.yaml",
+          "size": 151,
+          "description": "Experiment info"
+        }
+      },
+      "file_count": 1493,
+      "total_size_mb": 2316.265875816345
+    },
+    "md_2019_stages": {
+      "experiment_path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages",
+      "detection": {
+        "yolo10": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\det_yolo10",
+          "exists": true,
+          "files": {
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\det_yolo10\\results.csv",
+              "size": 12331,
+              "description": "Training metrics"
+            },
+            "args.yaml": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\det_yolo10\\args.yaml",
+              "size": 1814,
+              "description": "Training arguments"
+            },
+            "weights/best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\det_yolo10\\weights\\best.pt",
+              "size": 33473022,
+              "description": "Best model weights"
+            },
+            "weights/last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\det_yolo10\\weights\\last.pt",
+              "size": 33473022,
+              "description": "Last checkpoint"
+            },
+            "results.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\det_yolo10\\results.png",
+              "size": 236630,
+              "description": "Training curves"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\det_yolo10\\confusion_matrix.png",
+              "size": 123504,
+              "description": "Confusion matrix"
+            },
+            "BoxPR_curve.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\det_yolo10\\BoxPR_curve.png",
+              "size": 136688,
+              "description": "Precision-Recall curve"
+            }
+          },
+          "total_files": 21
+        },
+        "yolo11": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\det_yolo11",
+          "exists": true,
+          "files": {
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\det_yolo11\\results.csv",
+              "size": 12339,
+              "description": "Training metrics"
+            },
+            "args.yaml": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\det_yolo11\\args.yaml",
+              "size": 1813,
+              "description": "Training arguments"
+            },
+            "weights/best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\det_yolo11\\weights\\best.pt",
+              "size": 40512684,
+              "description": "Best model weights"
+            },
+            "weights/last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\det_yolo11\\weights\\last.pt",
+              "size": 40512684,
+              "description": "Last checkpoint"
+            },
+            "results.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\det_yolo11\\results.png",
+              "size": 267807,
+              "description": "Training curves"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\det_yolo11\\confusion_matrix.png",
+              "size": 125316,
+              "description": "Confusion matrix"
+            },
+            "BoxPR_curve.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\det_yolo11\\BoxPR_curve.png",
+              "size": 133931,
+              "description": "Precision-Recall curve"
+            }
+          },
+          "total_files": 21
+        },
+        "yolo12": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\det_yolo12",
+          "exists": true,
+          "files": {
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\det_yolo12\\results.csv",
+              "size": 12316,
+              "description": "Training metrics"
+            },
+            "args.yaml": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\det_yolo12\\args.yaml",
+              "size": 1813,
+              "description": "Training arguments"
+            },
+            "weights/best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\det_yolo12\\weights\\best.pt",
+              "size": 40766190,
+              "description": "Best model weights"
+            },
+            "weights/last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\det_yolo12\\weights\\last.pt",
+              "size": 40766190,
+              "description": "Last checkpoint"
+            },
+            "results.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\det_yolo12\\results.png",
+              "size": 245120,
+              "description": "Training curves"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\det_yolo12\\confusion_matrix.png",
+              "size": 119347,
+              "description": "Confusion matrix"
+            },
+            "BoxPR_curve.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\det_yolo12\\BoxPR_curve.png",
+              "size": 136383,
+              "description": "Precision-Recall curve"
+            }
+          },
+          "total_files": 21
+        }
+      },
+      "classification": {
+        "densenet121_focal": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_densenet121_focal",
+          "exists": true,
+          "files": {
+            "best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_densenet121_focal\\best.pt",
+              "size": 84408834,
+              "description": "Best model weights"
+            },
+            "last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_densenet121_focal\\last.pt",
+              "size": 84307225,
+              "description": "Last checkpoint"
+            },
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_densenet121_focal\\results.csv",
+              "size": 2552,
+              "description": "Training metrics"
+            },
+            "table9_metrics.json": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_densenet121_focal\\table9_metrics.json",
+              "size": 839,
+              "description": "Classification metrics"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_densenet121_focal\\confusion_matrix.png",
+              "size": 22034,
+              "description": "Confusion matrix"
+            },
+            "training_curves.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_densenet121_focal\\training_curves.png",
+              "size": 111535,
+              "description": "Training curves"
+            }
+          }
+        },
+        "efficientnet_b0_focal": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_efficientnet_b0_focal",
+          "exists": true,
+          "files": {
+            "best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_efficientnet_b0_focal\\best.pt",
+              "size": 48620415,
+              "description": "Best model weights"
+            },
+            "last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_efficientnet_b0_focal\\last.pt",
+              "size": 48568746,
+              "description": "Last checkpoint"
+            },
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_efficientnet_b0_focal\\results.csv",
+              "size": 2586,
+              "description": "Training metrics"
+            },
+            "table9_metrics.json": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_efficientnet_b0_focal\\table9_metrics.json",
+              "size": 827,
+              "description": "Classification metrics"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_efficientnet_b0_focal\\confusion_matrix.png",
+              "size": 23003,
+              "description": "Confusion matrix"
+            },
+            "training_curves.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_efficientnet_b0_focal\\training_curves.png",
+              "size": 113258,
+              "description": "Training curves"
+            }
+          }
+        },
+        "efficientnet_b1_focal": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_efficientnet_b1_focal",
+          "exists": true,
+          "files": {
+            "best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_efficientnet_b1_focal\\best.pt",
+              "size": 78898762,
+              "description": "Best model weights"
+            },
+            "last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_efficientnet_b1_focal\\last.pt",
+              "size": 78825913,
+              "description": "Last checkpoint"
+            },
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_efficientnet_b1_focal\\results.csv",
+              "size": 2586,
+              "description": "Training metrics"
+            },
+            "table9_metrics.json": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_efficientnet_b1_focal\\table9_metrics.json",
+              "size": 838,
+              "description": "Classification metrics"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_efficientnet_b1_focal\\confusion_matrix.png",
+              "size": 22849,
+              "description": "Confusion matrix"
+            },
+            "training_curves.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_efficientnet_b1_focal\\training_curves.png",
+              "size": 98091,
+              "description": "Training curves"
+            }
+          }
+        },
+        "efficientnet_b2_focal": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_efficientnet_b2_focal",
+          "exists": true,
+          "files": {
+            "best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_efficientnet_b2_focal\\best.pt",
+              "size": 93176065,
+              "description": "Best model weights"
+            },
+            "last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_efficientnet_b2_focal\\last.pt",
+              "size": 93108345,
+              "description": "Last checkpoint"
+            },
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_efficientnet_b2_focal\\results.csv",
+              "size": 2246,
+              "description": "Training metrics"
+            },
+            "table9_metrics.json": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_efficientnet_b2_focal\\table9_metrics.json",
+              "size": 839,
+              "description": "Classification metrics"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_efficientnet_b2_focal\\confusion_matrix.png",
+              "size": 22931,
+              "description": "Confusion matrix"
+            },
+            "training_curves.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_efficientnet_b2_focal\\training_curves.png",
+              "size": 110775,
+              "description": "Training curves"
+            }
+          }
+        },
+        "resnet50_focal": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_resnet50_focal",
+          "exists": true,
+          "files": {
+            "best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_resnet50_focal\\best.pt",
+              "size": 282629935,
+              "description": "Best model weights"
+            },
+            "last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_resnet50_focal\\last.pt",
+              "size": 282585086,
+              "description": "Last checkpoint"
+            },
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_resnet50_focal\\results.csv",
+              "size": 2586,
+              "description": "Training metrics"
+            },
+            "table9_metrics.json": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_resnet50_focal\\table9_metrics.json",
+              "size": 826,
+              "description": "Classification metrics"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_resnet50_focal\\confusion_matrix.png",
+              "size": 22149,
+              "description": "Confusion matrix"
+            },
+            "training_curves.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_resnet50_focal\\training_curves.png",
+              "size": 110441,
+              "description": "Training curves"
+            }
+          }
+        },
+        "resnet101_focal": {
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_resnet101_focal",
+          "exists": true,
+          "files": {
+            "best.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_resnet101_focal\\best.pt",
+              "size": 510978933,
+              "description": "Best model weights"
+            },
+            "last.pt": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_resnet101_focal\\last.pt",
+              "size": 510892869,
+              "description": "Last checkpoint"
+            },
+            "results.csv": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_resnet101_focal\\results.csv",
+              "size": 2588,
+              "description": "Training metrics"
+            },
+            "table9_metrics.json": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_resnet101_focal\\table9_metrics.json",
+              "size": 825,
+              "description": "Classification metrics"
+            },
+            "confusion_matrix.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_resnet101_focal\\confusion_matrix.png",
+              "size": 23113,
+              "description": "Confusion matrix"
+            },
+            "training_curves.png": {
+              "exists": true,
+              "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\cls_resnet101_focal\\training_curves.png",
+              "size": 80552,
+              "description": "Training curves"
+            }
+          }
+        }
+      },
+      "crops": {
+        "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\crops_gt_crops\\crops",
+        "exists": true,
+        "splits": {
+          "train": {
+            "exists": true,
+            "image_count": 1752
+          },
+          "val": {
+            "exists": true,
+            "image_count": 584
+          },
+          "test": {
+            "exists": true,
+            "image_count": 583
+          }
+        }
+      },
+      "analysis": {
+        "analysis_detection_yolo10": {
+          "exists": true,
+          "file_count": 3
+        },
+        "analysis_detection_yolo11": {
+          "exists": true,
+          "file_count": 3
+        },
+        "analysis_detection_yolo12": {
+          "exists": true,
+          "file_count": 3
+        },
+        "analysis_classification_densenet121_focal": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_classification_efficientnet_b0_focal": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_classification_efficientnet_b1_focal": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_classification_efficientnet_b2_focal": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_classification_resnet50_focal": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_classification_resnet101_focal": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_detection_comparison": {
+          "exists": true,
+          "file_count": 2
+        },
+        "analysis_dataset_statistics": {
+          "exists": true,
+          "file_count": 5
+        },
+        "analysis_option_a_summary": {
+          "exists": true,
+          "file_count": 2
+        }
+      },
+      "visualizations": {
+        "gt_detection": {
+          "exists": true,
+          "image_count": 164
+        },
+        "gt_classification": {
+          "exists": true,
+          "image_count": 164
+        },
+        "pred_detection_yolo10": {
+          "exists": true,
+          "image_count": 164
+        },
+        "pred_detection_yolo11": {
+          "exists": true,
+          "image_count": 164
+        },
+        "pred_detection_yolo12": {
+          "exists": true,
+          "image_count": 164
+        },
+        "pred_classification_densenet121_focal": {
+          "exists": true,
+          "image_count": 164
+        },
+        "pred_classification_efficientnet_b0_focal": {
+          "exists": true,
+          "image_count": 164
+        },
+        "pred_classification_efficientnet_b1_focal": {
+          "exists": true,
+          "image_count": 164
+        },
+        "pred_classification_efficientnet_b2_focal": {
+          "exists": true,
+          "image_count": 164
+        },
+        "pred_classification_resnet50_focal": {
+          "exists": true,
+          "image_count": 164
+        },
+        "pred_classification_resnet101_focal": {
+          "exists": true,
+          "image_count": 164
+        }
+      },
+      "summary_files": {
+        "master_summary.json": {
+          "exists": true,
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\master_summary.json",
+          "size": 298,
+          "description": "Master summary JSON"
+        },
+        "master_summary.xlsx": {
+          "exists": true,
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\master_summary.xlsx",
+          "size": 5377,
+          "description": "Master summary Excel"
+        },
+        "table9_classification_pivot.xlsx": {
+          "exists": true,
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\table9_classification_pivot.xlsx",
+          "size": 5756,
+          "description": "Classification pivot table"
+        },
+        "table9_focal_loss.csv": {
+          "exists": true,
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\table9_focal_loss.csv",
+          "size": 917,
+          "description": "Focal loss metrics"
+        },
+        "experiment_info.yaml": {
+          "exists": true,
+          "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\experiments\\experiment_md_2019_stages\\experiment_info.yaml",
+          "size": 152,
+          "description": "Experiment info"
+        }
+      },
+      "file_count": 2976,
+      "total_size_mb": 2316.334668159485
+    }
+  },
+  "consolidated_analysis": {
+    "classification_performance_all_datasets.xlsx": {
+      "exists": true,
+      "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\consolidated_analysis\\cross_dataset_comparison\\classification_performance_all_datasets.xlsx",
+      "size": 8024,
+      "description": "Classification comparison"
+    },
+    "detection_performance_all_datasets.xlsx": {
+      "exists": true,
+      "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\consolidated_analysis\\cross_dataset_comparison\\detection_performance_all_datasets.xlsx",
+      "size": 5550,
+      "description": "Detection comparison"
+    },
+    "dataset_statistics_all.csv": {
+      "exists": true,
+      "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\consolidated_analysis\\cross_dataset_comparison\\dataset_statistics_all.csv",
+      "size": 883,
+      "description": "Dataset statistics"
+    },
+    "comprehensive_summary.json": {
+      "exists": true,
+      "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\consolidated_analysis\\cross_dataset_comparison\\comprehensive_summary.json",
+      "size": 28351,
+      "description": "Comprehensive summary"
+    },
+    "README.md": {
+      "exists": true,
+      "path": "C:\\Users\\MyPC PRO\\Documents\\hello_world\\results\\optA_20251016_200330\\consolidated_analysis\\cross_dataset_comparison\\README.md",
+      "size": 4813,
+      "description": "Consolidated README"
+    }
+  },
+  "summary": {
+    "total_files": 6548,
+    "total_size_mb": 9265.132837295532,
+    "missing_files": [],
+    "issues": []
+  }
+}

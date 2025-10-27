@@ -49,15 +49,17 @@ def generate_detection_visualizations(
         output_dir = Path(output_base_dir) / f"pred_detection_{det_model_key}"
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        # Build command to generate detection visualization
+        # Build command to generate detection visualization WITH METADATA
         cmd = [
             sys.executable,
-            "scripts/visualization/generate_detection_only.py",
+            "scripts/visualization/generate_detection_only_with_metadata.py",  # NEW: with CSV metadata
             "--detection-model", str(det_model_path),
             "--test-images", str(test_images_dir),
             "--test-labels", str(test_labels_dir),
             "--output", str(output_dir),
-            "--det-conf-threshold", "0.25"
+            "--det-conf-threshold", "0.25",
+            "--iou-threshold", "0.5"
+            # Default: backup old folder to _backup_timestamp (no --no-backup or --keep-old)
         ]
 
         if max_images:
@@ -96,6 +98,7 @@ def generate_classification_visualizations(
     test_images_dir,
     test_labels_dir,
     output_base_dir,
+    num_classes,
     max_images=None
 ):
     """Generate classification visualizations for each classification model"""
@@ -131,15 +134,17 @@ def generate_classification_visualizations(
         output_dir = Path(output_base_dir) / f"pred_classification_{cls_model_name}"
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        # Build command to generate classification visualization
+        # Build command to generate classification visualization WITH METADATA
         cmd = [
             sys.executable,
-            "scripts/visualization/generate_classification_only.py",
+            "scripts/visualization/generate_classification_only_with_metadata.py",  # NEW: with CSV metadata
             "--classification-model", str(cls_model_path),
             "--test-images", str(test_images_dir),
             "--test-labels", str(test_labels_dir),
-            "--gt-crops", str(gt_crops_dir),
+            "--crops-dir", str(gt_crops_dir),  # Changed from --gt-crops to --crops-dir
             "--output", str(output_dir),
+            "--num-classes", str(num_classes)  # NEW: required parameter
+            # Default: backup old folder to _backup_timestamp (no --no-backup or --keep-old)
         ]
 
         if max_images:
@@ -275,6 +280,15 @@ def generate_all_separate_visualizations(
 
     test_images_dir, test_labels_dir = dataset_paths[dataset_name]
 
+    # Determine number of classes per dataset
+    num_classes_map = {
+        "iml_lifecycle": 4,        # ring, trophozoite, schizont, gametocyte
+        "mp_idb_species": 4,       # P_falciparum, P_vivax, P_malariae, P_ovale
+        "mp_idb_stages": 4,        # ring, trophozoite, schizont, gametocyte
+        "md_2019_stages": 3        # ring, schizont, trophozoite
+    }
+    num_classes = num_classes_map.get(dataset_name, 4)  # default to 4 if unknown
+
     # Find ground truth crops directory
     gt_crops_dir = Path(experiment_dir) / "crops_gt_crops"
     if not gt_crops_dir.exists():
@@ -310,18 +324,27 @@ def generate_all_separate_visualizations(
         test_images_dir=test_images_dir,
         test_labels_dir=test_labels_dir,
         output_base_dir=output_base,
+        num_classes=num_classes,  # NEW: pass num_classes
         max_images=max_images
     )
 
     # Summary
     print(f"\n{'='*80}")
-    print(f"[SUMMARY] VISUALIZATION GENERATION COMPLETE")
+    print(f"[SUMMARY] VISUALIZATION GENERATION COMPLETE (WITH CSV METADATA)")
     print(f"{'='*80}")
     print(f"   Detection: {det_success} success, {det_failed} failed")
     print(f"   Classification: {cls_success} success, {cls_failed} failed")
     print(f"   Ground truth: 2 folders (detection + classification)")
     print(f"   Total folders: {det_success + cls_success + 2}")
     print(f"   Location: {output_base}/")
+    print(f"\n   [NEW] CSV Metadata Files:")
+    print(f"      - detection_metadata.csv (in each pred_detection_* folder)")
+    print(f"      - classification_metadata_images.csv (in each pred_classification_* folder)")
+    print(f"      - classification_metadata_boxes.csv (in each pred_classification_* folder)")
+    print(f"\n   [USAGE] To find best images for paper:")
+    print(f"      1. Open CSV files with Excel or pandas")
+    print(f"      2. Sort by 'paper_score' (descending)")
+    print(f"      3. Images with score ≥9 are best for paper")
     print(f"\n   Structure:")
     print(f"      gt_detection/")
     print(f"      gt_classification/")

@@ -1,0 +1,126 @@
+DAFTAR GAMBAR DENGAN ERROR
+==========================
+Generated: 2025-10-27
+Purpose: List semua gambar yang ADA ERROR-nya (FP, FN, misclassification)
+        untuk dipilih sendiri dan di-copy ke paper folder
+
+Instruksi:
+1. Buka folder yang disebutkan di bawah
+2. Cari file dengan nama yang tertera
+3. Lihat gambarnya (harus ada kotak merah/kuning = error)
+4. Copy manual ke: luaran/templates/figures/qualitative_analysis/
+
+========================================
+COLUMN 1: SMALL ERROR (MP-IDB Species)
+========================================
+
+[Detection - Small Error]
+File: 1704282807-0010-R.png
+Path: results\optA_20251016_200330\experiments\experiment_mp_idb_species\visualizations\pred_detection_yolo11\1704282807-0010-R.png
+Error: GT:14 → Pred:15 (2 FP + 1 FN)
+Confidence: 0.746
+Model: YOLOv11
+
+[Classification - Small Error]
+File: 1703121298-0008-G.png
+Path: results\optA_20251016_200330\experiments\experiment_mp_idb_species\visualizations\pred_classification_efficientnet_b1_focal\1703121298-0008-G.png
+Error: 1 box, 0 correct, 1 wrong (100% error)
+Confidence: 0.782
+Model: EfficientNet-B1
+
+========================================
+COLUMN 2: MEDIUM ERROR (MP-IDB Stages)
+========================================
+
+[Detection - Medium Error]
+File: 1701151546-0012-R.png
+Path: results\optA_20251016_200330\experiments\experiment_mp_idb_stages\visualizations\pred_detection_yolo11\1701151546-0012-R.png
+Error: GT:22 → Pred:21 (0 FP + 1 FN)
+Confidence: 0.770
+Model: YOLOv11
+
+[Classification - Medium Error]
+File: 1701151546-0006-R_T.png
+Path: results\optA_20251016_200330\experiments\experiment_mp_idb_stages\visualizations\pred_classification_resnet50_focal\1701151546-0006-R_T.png
+Error: 19 boxes, 17 correct, 2 wrong (89.5% accuracy)
+Confidence: 0.819
+Model: ResNet50
+
+========================================
+COLUMN 3: LARGE ERROR (MD_2019)
+========================================
+
+[Detection - Large Error]
+File: Trip 064 Day 2 25-11-05 Image 7_8.png
+Path: results\optA_20251016_200330\experiments\experiment_md_2019_stages\visualizations\pred_detection_yolo11\Trip 064 Day 2 25-11-05 Image 7_8.png
+Error: GT:3 → Pred:1 (0 FP + 2 FN) - 66% miss rate!
+Confidence: 0.904
+Model: YOLOv11
+
+[Classification - Large Error]
+File: Trip 029 Day 1 22-11-05 Image 11 add_1.png
+Path: results\optA_20251016_200330\experiments\experiment_md_2019_stages\visualizations\pred_classification_efficientnet_b0_focal\Trip 029 Day 1 22-11-05 Image 11 add_1.png
+Error: 5 boxes, 2 correct, 3 wrong (40% accuracy)
+Confidence: 0.802
+Model: EfficientNet-B0
+
+========================================
+ALTERNATIF (Jika mau error lebih/kurang parah)
+========================================
+
+[Detection - Mixed Error dengan banyak parasit]
+File: 1704282807-0003-R.png
+Path: results\optA_20251016_200330\experiments\experiment_mp_idb_stages\visualizations\pred_detection_yolo11\1704282807-0003-R.png
+Error: GT:17 → Pred:22 (7 FP + 2 FN) - Mixed error!
+Confidence: 0.687
+
+[Detection - 1 FN only]
+File: Trip 064 Day 2 25-11-05 Image 5_11.png
+Path: results\optA_20251016_200330\experiments\experiment_md_2019_stages\visualizations\pred_detection_yolo11\Trip 064 Day 2 25-11-05 Image 5_11.png
+Error: GT:8 → Pred:7 (0 FP + 1 FN)
+Confidence: 0.828
+
+[Classification - Moderate error]
+File: Trip 064 Day 2 25-11-05 Image 5_11.png
+Path: results\optA_20251016_200330\experiments\experiment_md_2019_stages\visualizations\pred_classification_efficientnet_b0_focal\Trip 064 Day 2 25-11-05 Image 5_11.png
+Error: 8 boxes, 7 correct, 1 wrong (87.5% accuracy)
+Confidence: 0.744
+
+========================================
+CATATAN PENTING
+========================================
+
+1. Gambar detection: Single image dengan bounding boxes
+   - Hijau = correct match
+   - Merah = false positive
+   - Kuning = false negative
+
+2. Gambar classification: Grid of cropped parasites
+   - Hijau = correct classification
+   - Merah = wrong classification
+
+3. Pilih gambar yang:
+   - Ada error yang jelas terlihat (merah/kuning boxes)
+   - Tidak terlalu parah sampai model kelihatan jelek
+   - Bisa dijadikan diskusi untuk "Limitations and Future Work"
+
+4. Setelah pilih, copy manual ke folder:
+   luaran\templates\figures\qualitative_analysis\
+   (buat folder dulu jika belum ada)
+
+5. Rename file sesuai layout:
+   - c1_r1_*.png (Column 1 Row 1 - Detection)
+   - c1_r2_*.png (Column 1 Row 2 - Classification)
+   - c2_r1_*.png (Column 2 Row 1 - Detection)
+   - ... dst
+
+========================================
+SUMMARY
+========================================
+
+Total gambar recommended: 6 images (3 columns × 2 rows)
+- Column 1: Small error (minor FP/FN, 1 wrong)
+- Column 2: Medium error (1 FN on high-density, 2 wrong)
+- Column 3: Large error (66% FN, 60% wrong)
+
+Semua gambar HARUS ada error (no perfect green boxes).

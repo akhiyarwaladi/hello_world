@@ -8,14 +8,14 @@
     ],
     "classification_models": [
       "densenet121_focal",
-      "efficientnet_b1_focal",
       "efficientnet_b0_focal",
-      "resnet50_focal",
+      "efficientnet_b1_focal",
       "efficientnet_b2_focal",
-      "resnet101_focal"
+      "resnet101_focal",
+      "resnet50_focal"
     ],
     "dataset": "mp_idb_stages",
-    "timestamp": "2025-10-17 20:50:01",
+    "timestamp": "2025-10-27 02:13:30",
     "efficiency_gains": {
       "storage_reduction": "~70%",
       "training_time_reduction": "~60%",

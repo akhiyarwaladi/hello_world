@@ -1460,7 +1460,8 @@ def run_pipeline_for_dataset(args):
                     # Check if this is a valid classification model (has table9_metrics.json or best.pt)
                     if (cls_dir / "table9_metrics.json").exists() or (cls_dir / "best.pt").exists():
                         # Extract classification model name from directory name
-                        cls_model_name = cls_dir.name
+                        # Strip "cls_" prefix to match classification_configs keys
+                        cls_model_name = cls_dir.name[4:]  # Remove "cls_" prefix
                         classification_models_trained.append(cls_model_name)
                         print(f"   [FOUND] {cls_model_name}")
 
