@@ -4,7 +4,7 @@
 
 **Draft Version 2.3 - Updated with Selected Images (optA_20251016_200330)**
 
-**Date: January 27, 2025**
+**Date: October 27, 2025**
 **Image Selection:** Based on IMAGE_SELECTION_REPORT.md analysis
 
 ---
@@ -39,7 +39,7 @@ Email: [author2@email.com]
 
 ## ABSTRACT
 
-Malaria remains a critical global health challenge with 263 million cases and 597,000 deaths reported in 2023 [1], requiring accurate microscopic diagnosis [2]. Traditional manual microscopy by pathologists is time-consuming (20-30 minutes per slide) and faces workforce shortages [3]. Deep learning approaches show promise but face challenges from small datasets, severe class imbalance (up to 54:1 ratio), and computational inefficiency from training separate models for each detection-classification combination [4]. This study introduces a multi-model hybrid framework with shared classification that trains models once on ground truth crops and reuses them across all detectors. The framework systematically evaluates three YOLO Medium architectures (YOLOv10, YOLOv11, YOLOv12) for detection achieving 74.91-96.38% mAP@50, and six CNN architectures (DenseNet121, EfficientNet-B0/B1/B2, ResNet50/101) for classification on four datasets: IML Lifecycle (313 images), MP-IDB Species (209 images), MP-IDB Stages (209 images), and MD_2019 Stages (883 images). Results show dataset-dependent performance: EfficientNet-B1 achieves 91.51% (IML), 98.28% (MP-IDB Species), ResNet50 96.13% (MP-IDB Stages), and EfficientNet-B0 86.45% (MD_2019). Focal Loss optimization (α=0.25, γ=2.0) achieves 61-100% F1-scores on minority classes despite severe imbalance, demonstrating parameter-efficient architectures for resource-constrained settings.
+Malaria remains a critical global health challenge with 263 million cases and 597,000 deaths reported in 2023 [1], requiring accurate microscopic diagnosis [2]. Traditional manual microscopy by pathologists is time-consuming (20-30 minutes per slide) and faces workforce shortages [3]. Deep learning approaches show promise but face challenges from small datasets, severe class imbalance (up to 54:1 ratio), and computational inefficiency from training separate models for each detection-classification combination [4]. This study introduces a multi-model hybrid framework with shared classification that trains models once on ground truth crops and reuses them across all detectors. The framework systematically evaluates three YOLO Medium architectures (YOLOv10, YOLOv11, YOLOv12) for detection achieving 74.59-96.47% mAP@50, and six CNN architectures (DenseNet121, EfficientNet-B0/B1/B2, ResNet50/101) for classification on four datasets: IML Lifecycle (313 images), MP-IDB Species (209 images), MP-IDB Stages (209 images), and MD_2019 Stages (883 images). Results show dataset-dependent performance: EfficientNet-B1 achieves 91.51% (IML), 98.28% (MP-IDB Species), ResNet50 96.13% (MP-IDB Stages), and EfficientNet-B0 86.45% (MD_2019). Focal Loss optimization (α=0.25, γ=2.0) achieves 61-100% F1-scores on minority classes despite severe imbalance, demonstrating parameter-efficient architectures for resource-constrained settings.
 
 **Keywords**: Malaria detection, Deep learning, YOLOv11, EfficientNet, Shared classification, Focal loss, Class imbalance
 
