@@ -152,6 +152,7 @@ def generate_comprehensive_consolidated_analysis(results_dir: str):
                     "Dataset": dataset,
                     "Model": model_name.upper(),
                     "Epochs": metrics.get("epochs_trained", 0),
+                    "Best Epoch": metrics.get("best_epoch", metrics.get("epochs_trained", 0)),
                     "mAP@50": round(metrics.get("mAP50", 0), 4),
                     "mAP@50-95": round(metrics.get("mAP50_95", 0), 4),
                     "Precision": round(metrics.get("precision", 0), 4),

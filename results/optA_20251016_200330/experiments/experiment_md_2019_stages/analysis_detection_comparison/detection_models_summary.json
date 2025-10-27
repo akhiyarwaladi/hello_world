@@ -4,24 +4,27 @@
   "models_performance": {
     "yolo10": {
       "epochs_trained": 100,
-      "mAP50": 0.70841,
-      "mAP50_95": 0.57046,
-      "precision": 0.67894,
-      "recall": 0.7105
+      "best_epoch": 68,
+      "mAP50": 0.74692,
+      "mAP50_95": 0.59083,
+      "precision": 0.68376,
+      "recall": 0.70391
     },
     "yolo11": {
       "epochs_trained": 100,
-      "mAP50": 0.72911,
-      "mAP50_95": 0.57707,
-      "precision": 0.68583,
-      "recall": 0.75704
+      "best_epoch": 27,
+      "mAP50": 0.74911,
+      "mAP50_95": 0.54822,
+      "precision": 0.61001,
+      "recall": 0.77259
     },
     "yolo12": {
       "epochs_trained": 100,
-      "mAP50": 0.71122,
-      "mAP50_95": 0.56933,
-      "precision": 0.6592,
-      "recall": 0.75177
+      "best_epoch": 35,
+      "mAP50": 0.74589,
+      "mAP50_95": 0.53556,
+      "precision": 0.62496,
+      "recall": 0.77784
     }
   }
 }

@@ -1,0 +1,94 @@
+{
+  "iml_lifecycle": {
+    "YOLO10": {
+      "epoch": 55,
+      "mAP50": 0.96064,
+      "mAP50_95": 0.7843,
+      "precision": 0.91302,
+      "recall": 0.93309
+    },
+    "YOLO11": {
+      "epoch": 84,
+      "mAP50": 0.9638,
+      "mAP50_95": 0.79151,
+      "precision": 0.91913,
+      "recall": 0.93333
+    },
+    "YOLO12": {
+      "epoch": 43,
+      "mAP50": 0.96468,
+      "mAP50_95": 0.67336,
+      "precision": 0.8902,
+      "recall": 0.88889
+    }
+  },
+  "mp_idb_species": {
+    "YOLO10": {
+      "epoch": 93,
+      "mAP50": 0.92768,
+      "mAP50_95": 0.59335,
+      "precision": 0.8612,
+      "recall": 0.89855
+    },
+    "YOLO11": {
+      "epoch": 84,
+      "mAP50": 0.93241,
+      "mAP50_95": 0.61077,
+      "precision": 0.89037,
+      "recall": 0.89451
+    },
+    "YOLO12": {
+      "epoch": 89,
+      "mAP50": 0.93659,
+      "mAP50_95": 0.62289,
+      "precision": 0.88501,
+      "recall": 0.90725
+    }
+  },
+  "mp_idb_stages": {
+    "YOLO10": {
+      "epoch": 53,
+      "mAP50": 0.96001,
+      "mAP50_95": 0.54934,
+      "precision": 0.95001,
+      "recall": 0.90493
+    },
+    "YOLO11": {
+      "epoch": 24,
+      "mAP50": 0.95589,
+      "mAP50_95": 0.51427,
+      "precision": 0.9324,
+      "recall": 0.88889
+    },
+    "YOLO12": {
+      "epoch": 100,
+      "mAP50": 0.96275,
+      "mAP50_95": 0.61529,
+      "precision": 0.92913,
+      "recall": 0.92593
+    }
+  },
+  "md_2019_stages": {
+    "YOLO10": {
+      "epoch": 68,
+      "mAP50": 0.74692,
+      "mAP50_95": 0.59083,
+      "precision": 0.68376,
+      "recall": 0.70391
+    },
+    "YOLO11": {
+      "epoch": 27,
+      "mAP50": 0.74911,
+      "mAP50_95": 0.54822,
+      "precision": 0.61001,
+      "recall": 0.77259
+    },
+    "YOLO12": {
+      "epoch": 35,
+      "mAP50": 0.74589,
+      "mAP50_95": 0.53556,
+      "precision": 0.62496,
+      "recall": 0.77784
+    }
+  }
+}

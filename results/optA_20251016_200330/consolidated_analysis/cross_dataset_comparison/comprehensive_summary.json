@@ -1,7 +1,7 @@
 {
   "parent_experiment": "optA_20251016_200330",
   "total_datasets": 4,
-  "analysis_timestamp": "2025-10-27T02:24:56.578723",
+  "analysis_timestamp": "2025-10-27T17:36:32.519364",
   "datasets": {
     "iml_lifecycle": {
       "path": "results\\optA_20251016_200330\\experiments\\experiment_iml_lifecycle",
@@ -194,89 +194,101 @@
     "iml_lifecycle": {
       "yolo10": {
         "epochs_trained": 100,
-        "mAP50": 0.93808,
-        "mAP50_95": 0.7771,
-        "precision": 0.90216,
-        "recall": 0.92222
+        "best_epoch": 55,
+        "mAP50": 0.96064,
+        "mAP50_95": 0.7843,
+        "precision": 0.91302,
+        "recall": 0.93309
       },
       "yolo11": {
         "epochs_trained": 100,
-        "mAP50": 0.9499,
-        "mAP50_95": 0.77763,
-        "precision": 0.91908,
-        "recall": 0.91111
+        "best_epoch": 84,
+        "mAP50": 0.9638,
+        "mAP50_95": 0.79151,
+        "precision": 0.91913,
+        "recall": 0.93333
       },
       "yolo12": {
         "epochs_trained": 100,
-        "mAP50": 0.94405,
-        "mAP50_95": 0.78213,
-        "precision": 0.92196,
-        "recall": 0.86667
+        "best_epoch": 43,
+        "mAP50": 0.96468,
+        "mAP50_95": 0.67336,
+        "precision": 0.8902,
+        "recall": 0.88889
       }
     },
     "md_2019_stages": {
       "yolo10": {
         "epochs_trained": 100,
-        "mAP50": 0.70841,
-        "mAP50_95": 0.57046,
-        "precision": 0.67894,
-        "recall": 0.7105
+        "best_epoch": 68,
+        "mAP50": 0.74692,
+        "mAP50_95": 0.59083,
+        "precision": 0.68376,
+        "recall": 0.70391
       },
       "yolo11": {
         "epochs_trained": 100,
-        "mAP50": 0.72911,
-        "mAP50_95": 0.57707,
-        "precision": 0.68583,
-        "recall": 0.75704
+        "best_epoch": 27,
+        "mAP50": 0.74911,
+        "mAP50_95": 0.54822,
+        "precision": 0.61001,
+        "recall": 0.77259
       },
       "yolo12": {
         "epochs_trained": 100,
-        "mAP50": 0.71122,
-        "mAP50_95": 0.56933,
-        "precision": 0.6592,
-        "recall": 0.75177
+        "best_epoch": 35,
+        "mAP50": 0.74589,
+        "mAP50_95": 0.53556,
+        "precision": 0.62496,
+        "recall": 0.77784
       }
     },
     "mp_idb_species": {
       "yolo10": {
         "epochs_trained": 100,
-        "mAP50": 0.92437,
-        "mAP50_95": 0.6012,
-        "precision": 0.85668,
-        "recall": 0.90725
+        "best_epoch": 93,
+        "mAP50": 0.92768,
+        "mAP50_95": 0.59335,
+        "precision": 0.8612,
+        "recall": 0.89855
       },
       "yolo11": {
         "epochs_trained": 100,
-        "mAP50": 0.92574,
-        "mAP50_95": 0.62173,
-        "precision": 0.86518,
-        "recall": 0.91884
+        "best_epoch": 84,
+        "mAP50": 0.93241,
+        "mAP50_95": 0.61077,
+        "precision": 0.89037,
+        "recall": 0.89451
       },
       "yolo12": {
         "epochs_trained": 100,
-        "mAP50": 0.92721,
-        "mAP50_95": 0.62253,
-        "precision": 0.88987,
-        "recall": 0.89275
+        "best_epoch": 89,
+        "mAP50": 0.93659,
+        "mAP50_95": 0.62289,
+        "precision": 0.88501,
+        "recall": 0.90725
       }
     },
     "mp_idb_stages": {
       "yolo10": {
         "epochs_trained": 100,
-        "mAP50": 0.93779,
-        "mAP50_95": 0.44481,
-        "precision": 0.91572,
-        "recall": 0.93122
+        "best_epoch": 53,
+        "mAP50": 0.96001,
+        "mAP50_95": 0.54934,
+        "precision": 0.95001,
+        "recall": 0.90493
       },
       "yolo11": {
         "epochs_trained": 100,
-        "mAP50": 0.9448,
-        "mAP50_95": 0.6034,
-        "precision": 0.93146,
-        "recall": 0.8836
+        "best_epoch": 24,
+        "mAP50": 0.95589,
+        "mAP50_95": 0.51427,
+        "precision": 0.9324,
+        "recall": 0.88889
       },
       "yolo12": {
         "epochs_trained": 100,
+        "best_epoch": 100,
         "mAP50": 0.96275,
         "mAP50_95": 0.61529,
         "precision": 0.92913,

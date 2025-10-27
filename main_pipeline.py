@@ -1804,10 +1804,14 @@ Per-Class Performance:
                 if detection_results_csv.exists():
                     import pandas as pd
                     det_df = pd.read_csv(detection_results_csv)
-                    final_det = det_df.iloc[-1]
+                    # FIX: Use best epoch based on mAP@50 instead of last epoch
+                    best_idx = det_df['metrics/mAP50(B)'].idxmax()
+                    final_det = det_df.iloc[best_idx]
+                    best_epoch_num = int(final_det.get('epoch', len(det_df)))
 
                     detection_summary["models_performance"][model_key] = {
                         "epochs_trained": len(det_df),
+                        "best_epoch": best_epoch_num,
                         "mAP50": float(final_det.get('metrics/mAP50(B)', 0)),
                         "mAP50_95": float(final_det.get('metrics/mAP50-95(B)', 0)),
                         "precision": float(final_det.get('metrics/precision(B)', 0)),
