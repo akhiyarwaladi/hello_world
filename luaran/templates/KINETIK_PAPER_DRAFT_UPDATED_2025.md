@@ -181,7 +181,7 @@ Figure 3c: Heavy Overdetection on MP-IDB Stages - YOLOv11 showing 8 false positi
 The MP-IDB Stages overdetection with 8 FPs indicates systematic confusion in severely imbalanced data (54:1 ratio). This reflects background clutter from cellular debris and staining artifacts morphologically similar to ring-stage parasites, motivating future work on improved feature discrimination [24].
 
 path: luaran/templates/figures/qualitative_detection/det4_species_mixed.png
-Figure 3d: Mixed Errors on MP-IDB Species - YOLOv11 exhibiting 3 FP and 3 FN simultaneously (50% precision, 50% recall)
+Figure 3d: Mixed Errors on MP-IDB Species - YOLOv11 exhibiting 3 FP and 3 FN simultaneously (38 correct among 41 detections, 92.7% precision and recall)
 
 The MP-IDB Species mixed error case demonstrates bidirectional failure in crowded fields where the detector struggles to segment individual parasite boundaries, suggesting need for instance segmentation approaches providing pixel-level boundaries rather than bounding boxes.
 
