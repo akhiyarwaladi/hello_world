@@ -2,7 +2,7 @@
 
 **Journal Submission Draft - Kinetik: Game Technology, Information System, Computer Network, Computing, Electronics, and Control**
 
-**Draft Version 2.7 - Hallucination Corrections (Training Time, Storage, Model Weights Fixed)**
+**Draft Version 2.8 - Test Set Evaluation + Training Time Added to All Tables**
 
 **Date: October 28, 2025**
 **Image Selection:** Based on IMAGE_SELECTION_REPORT.md analysis
@@ -123,36 +123,36 @@ The framework uses PyTorch 2.8.0, Ultralytics YOLOv11 8.3.202 for detection, tim
 
 ### 3.1 Detection Performance
 
-YOLO comparison (v10/v11/v12 Medium, 20.1M parameters) reveals dataset-dependent patterns (Table 2). YOLO11 leads with 96.38% mAP@50 (IML) and 74.91% (MD_2019), while YOLO12 excels on severe imbalance (96.28% on MP-IDB Stages). YOLO10 provides competitive baseline (74.69-96.06% mAP@50), validating incremental improvements for medical imaging.
+YOLO comparison (v10/v11/v12 Medium, 20.1M parameters) evaluated on held-out test sets reveals dataset-dependent patterns (Table 2). YOLO11 achieves 94.99% mAP@50 on IML and 72.91% on MD_2019, while YOLO12 excels on severe imbalance (96.27% on MP-IDB Stages with 54:1 ratio). YOLO10 provides competitive baseline (70.84-93.81% mAP@50), validating incremental improvements for medical imaging. Training times range from 3.82 to 13.67 minutes per model on RTX 4090 GPU, demonstrating computational efficiency for clinical deployment.
 
 path: luaran/templates/tables/Table2_Detection_Performance.xlsx
-Table 2: YOLO Detection Performance Comparison Across Four Datasets (YOLOv10/v11/v12 Medium, 100 Epochs)
+Table 2: YOLO Detection Performance on Test Sets Across Four Datasets (YOLOv10/v11/v12 Medium, 100 Epochs, with Training Time)
 
-High recall rates (70.39-93.33%) minimize missed parasites critical for preventing delayed treatment [21]. mAP@50-95 variance (44.48-78.21%) reflects dataset complexity: IML achieves superior strict IoU (77.71-78.21%), while MP-IDB Stages shows wider variance (44.48-61.53%) due to 54:1 imbalance. Manually-annotated datasets achieve 92.77-96.47% mAP@50 exceeding 90% WHO threshold [13], while MD_2019 (74.59-74.91%) reflects realistic challenges from automatic extraction and multi-patient diversity [16], enabling significantly faster analysis compared to labor-intensive manual microscopy [3].
+High recall rates (70.39-93.12%) minimize missed parasites critical for preventing delayed treatment [21]. mAP@50-95 variance (44.48-78.21%) reflects dataset complexity: IML achieves superior strict IoU (77.71-78.21%), while MP-IDB Stages shows wider variance (44.48-61.53%) due to 54:1 imbalance. Manually-annotated datasets achieve 92.44-96.27% mAP@50 on test sets, exceeding 90% WHO threshold [13], while MD_2019 (70.84-72.91%) reflects realistic challenges from automatic extraction and multi-patient diversity [16], enabling significantly faster analysis compared to labor-intensive manual microscopy [3].
 
 ### 3.2 Classification Performance
 
-Six CNN architectures were systematically evaluated on ground truth crops extracted from raw annotations, revealing distinct dataset-dependent performance patterns that challenge conventional wisdom about model capacity requirements (complete metrics in Tables 3-6).
+Six CNN architectures were systematically evaluated on ground truth crops extracted from raw annotations using held-out test sets, revealing distinct dataset-dependent performance patterns that challenge conventional wisdom about model capacity requirements (complete metrics with training times in Tables 3-6). Training times range from 2.4 to 18.5 minutes per model on RTX 4090 GPU, demonstrating efficient convergence with Focal Loss optimization.
 
 path: luaran/templates/tables/Table3_IML_Classification.xlsx
-Table 3: Classification Performance on IML Lifecycle Dataset (4 Lifecycle Stages, Moderate 5.4:1 Class Imbalance)
+Table 3: Classification Performance on IML Lifecycle Test Set (4 Lifecycle Stages, Moderate 5.4:1 Class Imbalance, with Training Time)
 
-Three EfficientNet variants achieved 91.51% accuracy on IML Lifecycle despite differing parameters. EfficientNet-B1 (7.8M) delivered best balanced accuracy (91.96%) and trophozoite F1 (0.81) with 0.98 precision on gametocyte. DenseNet121 and EfficientNet-B2 achieved perfect scores (1.00) on schizont (4 samples), demonstrating effective imbalance handling. ResNet101 (44.5M) underperformed at 85.85% accuracy and 80.29% balanced accuracy with lower trophozoite precision (0.67 vs 0.83), representing 5.66-point deficit versus compact EfficientNet models.
+Three EfficientNet variants achieved 91.51% accuracy on IML Lifecycle test set despite differing parameters, with training times of 2.9-2.9 minutes. EfficientNet-B1 (7.8M) delivered best balanced accuracy (91.96%) and trophozoite F1 (0.81) with 0.98 precision on gametocyte. DenseNet121 and EfficientNet-B2 achieved perfect scores (1.00) on schizont (4 samples), demonstrating effective imbalance handling. ResNet101 (44.5M, 2.7 min training) underperformed at 85.85% accuracy and 80.29% balanced accuracy with lower trophozoite precision (0.67 vs 0.83), representing 5.66-point deficit versus compact EfficientNet models.
 
 path: luaran/templates/tables/Table4_Species_Classification.xlsx
-Table 4: Classification Performance on MP-IDB Species Dataset (4 Plasmodium Species, Extreme 45:1 Class Imbalance)
+Table 4: Classification Performance on MP-IDB Species Test Set (4 Plasmodium Species, Extreme 45:1 Class Imbalance, with Training Time)
 
-MP-IDB Species classification showed exceptional P_falciparum performance (0.99 F1, 0.99 precision) across architectures, but EfficientNet-B1 distinguished itself with 98.28% overall accuracy and 86.43% balanced accuracy through superior ultra-minority handling. EfficientNet-B1 achieved 0.86 F1 on P_ovale (7 samples, 0.86 precision) and 0.80 F1 on P_malariae (9 samples, 1.00 precision), demonstrating robust detection without over-prediction. ResNet50 achieved perfect precision (1.00) on P_ovale but lower recall (0.73 F1 vs 0.86) despite 3.3× more parameters, showing architectural efficiency matters more than raw capacity for extreme imbalance.
+MP-IDB Species test set classification showed exceptional P_falciparum performance (0.99 F1, 0.99 precision) across architectures with 2.0-7.8 minute training times. EfficientNet-B1 (2.7 min) distinguished itself with 98.28% overall accuracy and 86.43% balanced accuracy through superior ultra-minority handling. EfficientNet-B1 achieved 0.86 F1 on P_ovale (7 samples, 0.86 precision) and 0.80 F1 on P_malariae (9 samples, 1.00 precision), demonstrating robust detection without over-prediction. ResNet50 achieved perfect precision (1.00) on P_ovale but lower recall (0.73 F1 vs 0.86) despite 3.3× more parameters, showing architectural efficiency matters more than raw capacity for extreme imbalance.
 
 path: luaran/templates/tables/Table5_Stages_Classification.xlsx
-Table 5: Classification Performance on MP-IDB Stages Dataset (4 Lifecycle Stages, Severe 54:1 Class Imbalance)
+Table 5: Classification Performance on MP-IDB Stages Test Set (4 Lifecycle Stages, Severe 54:1 Class Imbalance, with Training Time)
 
-Severely imbalanced MP-IDB Stages revealed architectural preferences: ResNet50 achieved best performance (96.13% accuracy, 83.04% balanced accuracy), outperforming EfficientNet-B1 (95.42%, 78.64%). ResNet50 delivered 0.91 F1 on gametocyte (5 samples, 0.83 precision), 0.71 F1 on schizont (0.63 precision, 6 samples), and highest trophozoite F1 (0.61, 0.78 precision). This suggests 54:1 extreme imbalance benefits from ResNet's deeper feature hierarchies for distinguishing subtle morphological differences, where precision-recall trade-offs favor deeper architectures.
+Severely imbalanced MP-IDB Stages test set revealed architectural preferences with 2.2-6.4 minute training times. ResNet50 (2.4 min) achieved best performance (96.13% accuracy, 83.04% balanced accuracy), outperforming EfficientNet-B1 (95.42%, 78.64%, 2.3 min). ResNet50 delivered 0.91 F1 on gametocyte (5 samples, 0.83 precision), 0.71 F1 on schizont (0.63 precision, 6 samples), and highest trophozoite F1 (0.61, 0.78 precision). This suggests 54:1 extreme imbalance benefits from ResNet's deeper feature hierarchies for distinguishing subtle morphological differences, where precision-recall trade-offs favor deeper architectures.
 
 path: luaran/templates/tables/Table6_MD2019_Classification.xlsx
-Table 6: Classification Performance on MD_2019 Stages Dataset (3 Lifecycle Stages, 1,626 Parasite Instances from 883 Source Images, 16 Patients)
+Table 6: Classification Performance on MD_2019 Stages Test Set (3 Lifecycle Stages, 1,626 Parasite Instances from 883 Source Images, 16 Patients, with Training Time)
 
-MD_2019 classification (583 cells) showed EfficientNet-B0 best at 86.45% accuracy and 84.13% balanced accuracy. The compact 5.3M model outperformed larger architectures including ResNet101 (44.5M, 84.22%), demonstrating parameter efficiency on this larger dataset. Per-class metrics show strong precision-F1 balance: schizont 0.93/0.92 (286 samples), ring 0.86/0.89 (170 samples), trophozoite 0.72/0.71 (127 samples). Lower accuracy versus IML (91.51%) and MP-IDB Species (98.28%) reflects MD_2019's increased difficulty from natural bbox variation and morphological diversity across 16 patients, providing realistic generalization assessment [16].
+MD_2019 test set classification (583 cells) showed EfficientNet-B0 (8.4 min training) best at 86.45% accuracy and 84.13% balanced accuracy. The compact 5.3M model outperformed larger architectures including ResNet101 (44.5M, 18.5 min, 84.22%), demonstrating parameter efficiency on this larger dataset. Per-class metrics show strong precision-F1 balance: schizont 0.93/0.92 (286 samples), ring 0.86/0.89 (170 samples), trophozoite 0.72/0.71 (127 samples). Lower accuracy versus IML (91.51%) and MP-IDB Species (98.28%) reflects MD_2019's increased difficulty from natural bbox variation and morphological diversity across 16 patients, providing realistic generalization assessment [16].
 
 ### 3.3 Key Classification Findings
 
