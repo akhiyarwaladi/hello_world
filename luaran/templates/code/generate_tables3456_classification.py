@@ -1,14 +1,54 @@
 """
-Create Classification Tables (2-5) with 2-level headers
+Create Classification Tables (3-6) with 2-level headers + Training Time
 - Format: Decimal 2 digits (0.XX)
-- Structure: Per-class Precision + F1
-- Level 1: Model, Params, Accuracy, Bal.Acc, Class1, Class2, ...
+- Structure: Per-class Precision + F1 + Training Time
+- Level 1: Model, Params, Training Time, Accuracy, Bal.Acc, Class1, Class2, ...
 - Level 2: (under each class) Precision | F1
+- Training times extracted from actual results.txt files (NO HALLUCINATION)
 """
 import pandas as pd
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
+
+# ============================================================================
+# ACTUAL TRAINING TIMES FROM EXPERIMENTS (results/optA_20251016_200330/)
+# Extracted from results.txt: "Training Time: X.X min"
+# ============================================================================
+training_times = {
+    'iml_lifecycle': {
+        'densenet121': 3.9,
+        'efficientnet_b0': 2.4,
+        'efficientnet_b1': 2.9,
+        'efficientnet_b2': 2.9,
+        'resnet50': 2.5,
+        'resnet101': 2.7,
+    },
+    'mp_idb_species': {
+        'densenet121': 7.9,
+        'efficientnet_b0': 4.1,
+        'efficientnet_b1': 5.9,
+        'efficientnet_b2': 4.7,
+        'resnet50': 3.4,
+        'resnet101': 5.4,
+    },
+    'mp_idb_stages': {
+        'densenet121': 7.4,
+        'efficientnet_b0': 3.8,
+        'efficientnet_b1': 5.6,
+        'efficientnet_b2': 3.8,
+        'resnet50': 3.7,
+        'resnet101': 4.6,
+    },
+    'md_2019_stages': {
+        'densenet121': 15.4,
+        'efficientnet_b0': 8.7,
+        'efficientnet_b1': 10.9,
+        'efficientnet_b2': 10.4,
+        'resnet50': 11.1,
+        'resnet101': 15.2,
+    },
+}
 
 # Define styles
 header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
@@ -41,9 +81,9 @@ def create_classification_table(output_path, sheet_name, models_data, classes_in
     num_classes = len(classes_info)
 
     # Calculate column positions
-    # Base: Model(1), Params(2), Accuracy(3), Bal.Acc(4)
+    # Base: Model(1), Params(2), Training Time(3), Accuracy(4), Bal.Acc(5)
     # Per-class: 2 metrics each (Precision, F1)
-    base_cols = 4
+    base_cols = 5  # Changed from 4 to 5
     class_start_col = base_cols + 1
 
     # Row 1: Top-level headers
@@ -63,21 +103,29 @@ def create_classification_table(output_path, sheet_name, models_data, classes_in
     ws['B1'].alignment = center_align
     ws['B1'].border = border
 
-    # Accuracy (C1:C2)
+    # Training Time (C1:C2) - NEW COLUMN
     ws.merge_cells('C1:C2')
-    ws['C1'] = 'Accuracy'
+    ws['C1'] = 'Training\nTime (min)'
     ws['C1'].fill = header_fill
     ws['C1'].font = header_font
     ws['C1'].alignment = center_align
     ws['C1'].border = border
 
-    # Balanced Acc (D1:D2)
+    # Accuracy (D1:D2) - shifted from C
     ws.merge_cells('D1:D2')
-    ws['D1'] = 'Balanced Acc'
+    ws['D1'] = 'Accuracy'
     ws['D1'].fill = header_fill
     ws['D1'].font = header_font
     ws['D1'].alignment = center_align
     ws['D1'].border = border
+
+    # Balanced Acc (E1:E2) - shifted from D
+    ws.merge_cells('E1:E2')
+    ws['E1'] = 'Balanced Acc'
+    ws['E1'].fill = header_fill
+    ws['E1'].font = header_font
+    ws['E1'].alignment = center_align
+    ws['E1'].border = border
 
     # Class headers (each class gets 2 columns: Precision, F1)
     for i, (class_name, class_count) in enumerate(classes_info):
@@ -141,15 +189,22 @@ def create_classification_table(output_path, sheet_name, models_data, classes_in
         cell.alignment = center_align
         cell.border = border
 
-        # Accuracy (as decimal 0.XX)
+        # Training Time (NEW COLUMN 3)
         cell = ws.cell(row=row, column=3)
+        cell.value = model_data['training_time']
+        cell.number_format = '0.0'
+        cell.alignment = center_align
+        cell.border = border
+
+        # Accuracy (shifted to column 4)
+        cell = ws.cell(row=row, column=4)
         cell.value = model_data['accuracy'] / 100.0  # Convert from percentage to decimal
         cell.number_format = '0.00'
         cell.alignment = center_align
         cell.border = border
 
-        # Balanced Accuracy (as decimal 0.XX)
-        cell = ws.cell(row=row, column=4)
+        # Balanced Accuracy (shifted to column 5)
+        cell = ws.cell(row=row, column=5)
         cell.value = model_data['bal_acc'] / 100.0  # Convert from percentage to decimal
         cell.number_format = '0.00'
         cell.alignment = center_align
@@ -174,10 +229,11 @@ def create_classification_table(output_path, sheet_name, models_data, classes_in
             cell.border = border
 
     # Set column widths
-    ws.column_dimensions['A'].width = 18
-    ws.column_dimensions['B'].width = 11
-    ws.column_dimensions['C'].width = 11
-    ws.column_dimensions['D'].width = 13
+    ws.column_dimensions['A'].width = 18  # Model
+    ws.column_dimensions['B'].width = 11  # Params
+    ws.column_dimensions['C'].width = 13  # Training Time (NEW)
+    ws.column_dimensions['D'].width = 11  # Accuracy
+    ws.column_dimensions['E'].width = 13  # Balanced Acc
     for col in range(class_start_col, total_cols + 1):
         ws.column_dimensions[get_column_letter(col)].width = 11
 
@@ -199,6 +255,7 @@ def create_table2():
         {
             'model': 'EfficientNet-B1',
             'params': 7.8,
+            'training_time': training_times['iml_lifecycle']['efficientnet_b1'],
             'accuracy': 91.51,
             'bal_acc': 91.96,
             'per_class_metrics': [
@@ -211,6 +268,7 @@ def create_table2():
         {
             'model': 'EfficientNet-B0',
             'params': 5.3,
+            'training_time': training_times['iml_lifecycle']['efficientnet_b0'],
             'accuracy': 91.51,
             'bal_acc': 90.35,
             'per_class_metrics': [
@@ -223,6 +281,7 @@ def create_table2():
         {
             'model': 'EfficientNet-B2',
             'params': 9.2,
+            'training_time': training_times['iml_lifecycle']['efficientnet_b2'],
             'accuracy': 91.51,
             'bal_acc': 90.57,
             'per_class_metrics': [
@@ -235,6 +294,7 @@ def create_table2():
         {
             'model': 'DenseNet121',
             'params': 8.0,
+            'training_time': training_times['iml_lifecycle']['densenet121'],
             'accuracy': 89.62,
             'bal_acc': 88.75,
             'per_class_metrics': [
@@ -247,6 +307,7 @@ def create_table2():
         {
             'model': 'ResNet50',
             'params': 25.6,
+            'training_time': training_times['iml_lifecycle']['resnet50'],
             'accuracy': 87.74,
             'bal_acc': 87.86,
             'per_class_metrics': [
@@ -259,6 +320,7 @@ def create_table2():
         {
             'model': 'ResNet101',
             'params': 44.5,
+            'training_time': training_times['iml_lifecycle']['resnet101'],
             'accuracy': 85.85,
             'bal_acc': 80.29,
             'per_class_metrics': [
@@ -293,6 +355,7 @@ def create_table3():
         {
             'model': 'EfficientNet-B1',
             'params': 7.8,
+            'training_time': training_times['mp_idb_species']['efficientnet_b1'],
             'accuracy': 98.28,
             'bal_acc': 86.43,
             'per_class_metrics': [
@@ -305,6 +368,7 @@ def create_table3():
         {
             'model': 'DenseNet121',
             'params': 8.0,
+            'training_time': training_times['mp_idb_species']['densenet121'],
             'accuracy': 97.93,
             'bal_acc': 80.95,
             'per_class_metrics': [
@@ -317,6 +381,7 @@ def create_table3():
         {
             'model': 'EfficientNet-B2',
             'params': 9.2,
+            'training_time': training_times['mp_idb_species']['efficientnet_b2'],
             'accuracy': 97.59,
             'bal_acc': 79.29,
             'per_class_metrics': [
@@ -329,6 +394,7 @@ def create_table3():
         {
             'model': 'ResNet50',
             'params': 25.6,
+            'training_time': training_times['mp_idb_species']['resnet50'],
             'accuracy': 97.59,
             'bal_acc': 83.54,
             'per_class_metrics': [
@@ -341,6 +407,7 @@ def create_table3():
         {
             'model': 'ResNet101',
             'params': 44.5,
+            'training_time': training_times['mp_idb_species']['resnet101'],
             'accuracy': 97.93,
             'bal_acc': 83.63,
             'per_class_metrics': [
@@ -353,6 +420,7 @@ def create_table3():
         {
             'model': 'EfficientNet-B0',
             'params': 5.3,
+            'training_time': training_times['mp_idb_species']['efficientnet_b0'],
             'accuracy': 97.24,
             'bal_acc': 79.19,
             'per_class_metrics': [
@@ -387,6 +455,7 @@ def create_table4():
         {
             'model': 'ResNet50',
             'params': 25.6,
+            'training_time': training_times['mp_idb_stages']['resnet50'],
             'accuracy': 96.13,
             'bal_acc': 83.04,
             'per_class_metrics': [
@@ -399,6 +468,7 @@ def create_table4():
         {
             'model': 'EfficientNet-B1',
             'params': 7.8,
+            'training_time': training_times['mp_idb_stages']['efficientnet_b1'],
             'accuracy': 95.42,
             'bal_acc': 78.64,
             'per_class_metrics': [
@@ -411,6 +481,7 @@ def create_table4():
         {
             'model': 'DenseNet121',
             'params': 8.0,
+            'training_time': training_times['mp_idb_stages']['densenet121'],
             'accuracy': 94.37,
             'bal_acc': 66.99,
             'per_class_metrics': [
@@ -423,6 +494,7 @@ def create_table4():
         {
             'model': 'EfficientNet-B0',
             'params': 5.3,
+            'training_time': training_times['mp_idb_stages']['efficientnet_b0'],
             'accuracy': 94.72,
             'bal_acc': 70.31,
             'per_class_metrics': [
@@ -435,6 +507,7 @@ def create_table4():
         {
             'model': 'ResNet101',
             'params': 44.5,
+            'training_time': training_times['mp_idb_stages']['resnet101'],
             'accuracy': 95.07,
             'bal_acc': 70.57,
             'per_class_metrics': [
@@ -447,6 +520,7 @@ def create_table4():
         {
             'model': 'EfficientNet-B2',
             'params': 9.2,
+            'training_time': training_times['mp_idb_stages']['efficientnet_b2'],
             'accuracy': 92.25,
             'bal_acc': 77.91,
             'per_class_metrics': [
@@ -481,6 +555,7 @@ def create_table5():
         {
             'model': 'EfficientNet-B0',
             'params': 5.3,
+            'training_time': training_times['md_2019_stages']['efficientnet_b0'],
             'accuracy': 86.45,
             'bal_acc': 84.13,
             'per_class_metrics': [
@@ -492,6 +567,7 @@ def create_table5():
         {
             'model': 'EfficientNet-B1',
             'params': 7.8,
+            'training_time': training_times['md_2019_stages']['efficientnet_b1'],
             'accuracy': 85.25,
             'bal_acc': 83.20,
             'per_class_metrics': [
@@ -503,6 +579,7 @@ def create_table5():
         {
             'model': 'EfficientNet-B2',
             'params': 9.2,
+            'training_time': training_times['md_2019_stages']['efficientnet_b2'],
             'accuracy': 84.91,
             'bal_acc': 81.88,
             'per_class_metrics': [
@@ -514,6 +591,7 @@ def create_table5():
         {
             'model': 'DenseNet121',
             'params': 8.0,
+            'training_time': training_times['md_2019_stages']['densenet121'],
             'accuracy': 84.56,
             'bal_acc': 83.70,
             'per_class_metrics': [
@@ -525,6 +603,7 @@ def create_table5():
         {
             'model': 'ResNet50',
             'params': 25.6,
+            'training_time': training_times['md_2019_stages']['resnet50'],
             'accuracy': 84.39,
             'bal_acc': 82.46,
             'per_class_metrics': [
@@ -536,6 +615,7 @@ def create_table5():
         {
             'model': 'ResNet101',
             'params': 44.5,
+            'training_time': training_times['md_2019_stages']['resnet101'],
             'accuracy': 84.22,
             'bal_acc': 81.36,
             'per_class_metrics': [
