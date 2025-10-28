@@ -18,7 +18,7 @@
 **Number of References:** 32 (all verified and sequential [1]-[32])
 **Experiment Data Source:** results/optA_20251016_200330/
 **Data Integrity:** ✅ All metrics verified against source files + CSV metadata
-**Hallucinations:** ✅ All fixed - removed training time (18h/54h), storage (600MB/1.8GB), updated model weights (46-89MB, 270-487MB)
+**Hallucinations:** ✅ All fixed - removed training time (18h/54h), storage (600MB/1.8GB), crop gen time (30s), updated model weights (46-89MB, 270-487MB)
 **Format:** ✅ 100% narrative paragraphs (no bullet points)
 **Image Selection:** ✅ Based on IMAGE_SELECTION_REPORT.md with verified metrics (2025-10-27)
 **Ultra-Verification:** ✅ 105+ metrics verified, 2 data errors fixed (see PAPER_ULTRA_VERIFICATION_REPORT_2025-10-28.txt)
@@ -238,7 +238,7 @@ This architecture achieves 67% model redundancy reduction from 18 to 6 models wi
 
 The decoupled stage design allows detection methods to be freely swapped between YOLO variants or alternative architectures like RT-DETR without requiring classification retraining [21], while maintaining fair comparison since all classifiers process identical training examples ensuring unbiased evaluation.
 
-The architecture succeeds because training on raw annotations rather than noisy detection outputs ensures clean consistent data that eliminates detection errors [7], ground truth crops represent ideal classification scenarios for establishing performance ceilings, and one-time crop generation from annotations completes in approximately 30 seconds per dataset yet supports unlimited reuse across all subsequent experiments.
+The architecture succeeds because training on raw annotations rather than noisy detection outputs ensures clean consistent data that eliminates detection errors [7], ground truth crops represent ideal classification scenarios for establishing performance ceilings, and one-time crop generation from annotations completes efficiently yet supports unlimited reuse across all subsequent experiments.
 
 ### 3.6 Comparison with State-of-the-Art Methods
 
