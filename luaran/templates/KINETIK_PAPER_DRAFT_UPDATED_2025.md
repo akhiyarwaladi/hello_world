@@ -189,9 +189,9 @@ Figure 3d: Mixed Errors on MP-IDB Species - YOLOv11 exhibiting 3 FP and 3 FN sim
 The MP-IDB Species mixed error case demonstrates bidirectional failure in crowded fields where the detector struggles to segment individual parasite boundaries, suggesting need for instance segmentation approaches providing pixel-level boundaries rather than bounding boxes.
 
 path: luaran/templates/figures/qualitative_detection/det5_md2019_crowded_fp.png
-Figure 3e: Crowded Field on MD_2019 - YOLOv11 showing 2 FP in densely populated field
+Figure 3e: Crowded Field on MD_2019 - YOLOv11 showing false positive in densely populated field
 
-The MD_2019 crowded case represents realistic clinical difficulty where inter-patient variation in morphology and sample quality creates detection challenges. Performance degradation in complex multi-parasite scenarios aligns with the dataset's 74.91% mAP@50, motivating multi-center data collection [16].
+The MD_2019 crowded case represents realistic clinical difficulty where inter-patient variation in morphology and sample quality creates detection challenges. Performance degradation in complex multi-parasite scenarios aligns with the dataset's 72.91% test set mAP@50, motivating multi-center data collection [16].
 
 path: luaran/templates/figures/qualitative_detection/det6_md2019_fn.png
 Figure 3f: Multi-Patient FN on MD_2019 - YOLOv11 missing parasite with atypical morphology
@@ -221,9 +221,9 @@ Figure 4d: Species Confusion on MP-IDB Species - EfficientNet-B1 confusing P. vi
 The species misidentification represents clinically significant error where P. vivax and P. ovale require different treatments (primaquine for dormant liver stages). This reflects genuine morphological overlap challenging even to human microscopists, emphasizing need for few-shot learning with limited samples [24].
 
 path: luaran/templates/figures/qualitative_classification/cls5_md2019_heavy.png
-Figure 4e: Heavy Confusion on MD_2019 - EfficientNet-B0 misclassifying 6 schizonts as trophozoites
+Figure 4e: Heavy Confusion on MD_2019 - EfficientNet-B0 showing 6 classification errors with mixed stage confusion
 
-The MD_2019 schizont-to-trophozoite confusion reveals systematic error where transitional mature stages exhibit overlapping features. This demonstrates systematic bias where subtle cues distinguishing late trophozoites from early schizonts remain unlearned, motivating attention mechanisms focusing on diagnostically relevant regions [23].
+The MD_2019 heavy error case reveals systematic challenges in distinguishing transitional mature stages that exhibit overlapping morphological features. Multiple misclassifications across different stage combinations demonstrate where subtle distinguishing cues remain unlearned, motivating attention mechanisms focusing on diagnostically relevant regions [23].
 
 path: luaran/templates/figures/qualitative_classification/cls6_md2019_perfect.png
 Figure 4f: Perfect Classification on MD_2019 - EfficientNet-B0 achieving 100% accuracy on 10 parasites (patient Trip 067)
