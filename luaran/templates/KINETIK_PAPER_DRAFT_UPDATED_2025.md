@@ -2,7 +2,7 @@
 
 **Journal Submission Draft - Kinetik: Game Technology, Information System, Computer Network, Computing, Electronics, and Control**
 
-**Draft Version 2.9 - Fixed Training Time Values in Tables 3-6 Narratives**
+**Draft Version 3.0 - Full Consistency Verification (Tables vs Narratives)**
 
 **Date: October 28, 2025**
 **Image Selection:** Based on IMAGE_SELECTION_REPORT.md analysis
@@ -128,7 +128,7 @@ YOLO comparison (v10/v11/v12 Medium, 20.1M parameters) evaluated on held-out tes
 path: luaran/templates/tables/Table2_Detection_Performance.xlsx
 Table 2: YOLO Detection Performance on Test Sets Across Four Datasets (YOLOv10/v11/v12 Medium, 100 Epochs, with Training Time)
 
-High recall rates (70.39-93.12%) minimize missed parasites critical for preventing delayed treatment [21]. mAP@50-95 variance (44.48-78.21%) reflects dataset complexity: IML achieves superior strict IoU (77.71-78.21%), while MP-IDB Stages shows wider variance (44.48-61.53%) due to 54:1 imbalance. Manually-annotated datasets achieve 92.44-96.27% mAP@50 on test sets, exceeding 90% WHO threshold [13], while MD_2019 (70.84-72.91%) reflects realistic challenges from automatic extraction and multi-patient diversity [16], enabling significantly faster analysis compared to labor-intensive manual microscopy [3].
+High recall rates (71.05-93.12%) minimize missed parasites critical for preventing delayed treatment [21]. mAP@50-95 variance (44.48-78.21%) reflects dataset complexity: IML achieves superior strict IoU (77.71-78.21%), while MP-IDB Stages shows wider variance (44.48-61.53%) due to 54:1 imbalance. Manually-annotated datasets achieve 92.44-96.27% mAP@50 on test sets, exceeding 90% WHO threshold [13], while MD_2019 (70.84-72.91%) reflects realistic challenges from automatic extraction and multi-patient diversity [16], enabling significantly faster analysis compared to labor-intensive manual microscopy [3].
 
 ### 3.2 Classification Performance
 
@@ -147,7 +147,7 @@ MP-IDB Species test set classification showed exceptional P_falciparum performan
 path: luaran/templates/tables/Table5_Stages_Classification.xlsx
 Table 5: Classification Performance on MP-IDB Stages Test Set (4 Lifecycle Stages, Severe 54:1 Class Imbalance, with Training Time)
 
-Severely imbalanced MP-IDB Stages test set revealed architectural preferences with 3.7-7.4 minute training times. ResNet50 (25.6M, 3.7 min) achieved best performance (96.13% accuracy, 83.04% balanced accuracy), outperforming EfficientNet-B1 (95.42%, 78.64%, 5.6 min). ResNet50 delivered 0.91 F1 on gametocyte (5 samples, 0.83 precision), 0.71 F1 on schizont (0.63 precision, 6 samples), and highest trophozoite F1 (0.61, 0.78 precision). This suggests 54:1 extreme imbalance benefits from ResNet's deeper feature hierarchies for distinguishing subtle morphological differences, where precision-recall trade-offs favor deeper architectures.
+Severely imbalanced MP-IDB Stages test set revealed architectural preferences with 3.7-7.4 minute training times. ResNet50 (25.6M, 3.7 min) achieved best performance (96.13% accuracy, 83.04% balanced accuracy), outperforming EfficientNet-B1 (95.42%, 78.64%, 5.6 min). ResNet50 delivered 0.91 F1 on gametocyte (5 samples, 0.83 precision), 0.71 F1 on schizont (0.62 precision, 6 samples), and highest trophozoite F1 (0.61, 0.78 precision). This suggests 54:1 extreme imbalance benefits from ResNet's deeper feature hierarchies for distinguishing subtle morphological differences, where precision-recall trade-offs favor deeper architectures.
 
 path: luaran/templates/tables/Table6_MD2019_Classification.xlsx
 Table 6: Classification Performance on MD_2019 Stages Test Set (3 Lifecycle Stages, 1,626 Parasite Instances from 883 Source Images, 16 Patients, with Training Time)
