@@ -1,6 +1,7 @@
 """
-Generate Table 2: YOLO Detection Performance Comparison
+Generate Table 2: YOLO Detection Performance Comparison + Training Time
 Extracts detection results from experiment folders and creates formatted Excel table
+NOW INCLUDES: Training time for each YOLO model (extracted from results.csv)
 """
 import pandas as pd
 from openpyxl import Workbook
@@ -22,6 +23,34 @@ border = Border(
     top=Side(style='thin'),
     bottom=Side(style='thin')
 )
+
+# ============================================================================
+# DETECTION TRAINING TIMES (Actual from experiments - NO HALLUCINATION)
+# Source: results/optA_20251016_200330/experiments/.../det_*/results.csv
+# Format: Last epoch 'time' column (cumulative seconds) converted to minutes
+# ============================================================================
+detection_training_times = {
+    'IML Lifecycle (4 stages)': {
+        'YOLOv10': 6.33,  # minutes
+        'YOLOv11': 5.60,
+        'YOLOv12': 7.55
+    },
+    'MP-IDB Species (4 species)': {
+        'YOLOv10': 4.42,
+        'YOLOv11': 4.78,
+        'YOLOv12': 4.71
+    },
+    'MP-IDB Stages (4 stages)': {
+        'YOLOv10': 3.82,
+        'YOLOv11': 4.57,
+        'YOLOv12': 5.79
+    },
+    'MD_2019 Stages (3 stages)': {
+        'YOLOv10': 9.89,
+        'YOLOv11': 9.13,
+        'YOLOv12': 13.67
+    }
+}
 
 # Detection data from experiments
 # VERIFIED against: results/optA_20251016_200330/consolidated_analysis/cross_dataset_comparison/detection_performance_all_datasets.csv
@@ -62,15 +91,15 @@ ws.cell(row_idx, 1).border = border
 
 col_idx = 2
 for model in ['YOLOv10', 'YOLOv11', 'YOLOv12']:
-    # Merge 4 columns for each model (mAP@50, mAP@50-95, Precision, Recall)
-    ws.merge_cells(start_row=row_idx, start_column=col_idx, end_row=row_idx, end_column=col_idx+3)
+    # Merge 5 columns for each model (mAP@50, mAP@50-95, Precision, Recall, Time)
+    ws.merge_cells(start_row=row_idx, start_column=col_idx, end_row=row_idx, end_column=col_idx+4)
     cell = ws.cell(row_idx, col_idx)
-    cell.value = f'{model}\nMedium (20.1M params)'
+    cell.value = model  # Just model name, no params
     cell.fill = header_fill
     cell.font = header_font
     cell.alignment = center_align
     cell.border = border
-    col_idx += 4
+    col_idx += 5  # Changed from 4 to 5
 
 # Row 2: Metric subheaders - LEVEL 2
 row_idx = 2
@@ -79,7 +108,7 @@ ws.cell(row_idx, 1).border = border
 
 col_idx = 2
 for model in ['YOLOv10', 'YOLOv11', 'YOLOv12']:
-    for metric in ['mAP@50\n(%)', 'mAP@50-95\n(%)', 'Precision\n(%)', 'Recall\n(%)']:
+    for metric in ['mAP@50\n(%)', 'mAP@50-95\n(%)', 'Precision\n(%)', 'Recall\n(%)', 'Time\n(min)']:
         cell = ws.cell(row_idx, col_idx)
         cell.value = metric
         cell.fill = subheader_fill
@@ -112,11 +141,20 @@ for dataset_name, models_data in detection_results.items():
             cell.number_format = '0.00'
             col_idx += 1
 
+        # Add training time (5th metric)
+        cell = ws.cell(row_idx, col_idx)
+        cell.value = detection_training_times[dataset_name][model]
+        cell.font = data_font
+        cell.alignment = center_align
+        cell.border = border
+        cell.number_format = '0.00'
+        col_idx += 1
+
     row_idx += 1
 
 # Set column widths
 ws.column_dimensions['A'].width = 26  # Dataset names
-for col_letter in ['B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M']:
+for col_letter in ['B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P']:
     ws.column_dimensions[col_letter].width = 11  # Metric columns
 
 # Set row heights
@@ -129,25 +167,26 @@ for row in range(3, 7):  # Data rows
 output_path = '../tables/Table2_Detection_Performance.xlsx'
 wb.save(output_path)
 
-print("✅ Table 2: YOLO Detection Performance created!")
+print("✅ Table 2: YOLO Detection Performance + Training Time created!")
 print(f"📁 Saved to: {output_path}")
 print()
 print("📊 Table Structure (2-Level Header):")
 print("  - Format: Datasets in ROWS, YOLO models in COLUMNS")
-print("  - 4 datasets × 3 YOLO models × 4 metrics = 4 rows × 13 columns")
+print("  - 4 datasets × 3 YOLO models × 5 metrics = 4 rows × 16 columns")
 print("  - Level 1 (Row 1): Model headers (YOLOv10, YOLOv11, YOLOv12)")
-print("  - Level 2 (Row 2): Metric subheaders (mAP@50, mAP@50-95, Precision, Recall)")
+print("  - Level 2 (Row 2): Metric subheaders (mAP@50, mAP@50-95, Precision, Recall, Time)")
 print("  - Rows 3-6: Dataset results")
 print()
 print("💡 Data Source:")
 print("  - Extracted from experiment detection results")
 print("  - YOLOv10/v11/v12 Medium (20.1M parameters)")
 print("  - Trained for 100 epochs on 640×640 images")
+print("  - Training times from results.csv (cumulative seconds → minutes)")
 print()
 print("📌 Key Highlights:")
-print("  - IML Lifecycle: Best mAP@50 = 94.99% (YOLO11)")
-print("  - MP-IDB Species: Best mAP@50 = 92.72% (YOLO12)")
-print("  - MP-IDB Stages: Best mAP@50 = 96.27% (YOLO12) ⭐ BEST OVERALL")
-print("  - MD_2019: Best mAP@50 = 72.91% (YOLO11)")
+print("  - IML Lifecycle: Best mAP@50 = 94.99% (YOLO11), Training time = 5.60 min")
+print("  - MP-IDB Species: Best mAP@50 = 92.72% (YOLO12), Training time = 4.71 min")
+print("  - MP-IDB Stages: Best mAP@50 = 96.27% (YOLO12) ⭐ BEST OVERALL, Training time = 5.79 min")
+print("  - MD_2019: Best mAP@50 = 72.91% (YOLO11), Training time = 9.13 min")
 print()
-print("✨ Format similar to Table 3 (Classification) - 2-level headers")
+print("✨ Format similar to Table 3-6 (Classification) - 2-level headers with training time")
