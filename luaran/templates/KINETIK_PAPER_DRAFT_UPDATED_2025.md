@@ -168,67 +168,59 @@ Systematic evaluation across all four datasets reveals three critical insights t
 
 Transparent visualization of failure modes provides critical insights into system limitations and guides future improvements. We present color-coded detection errors (Figures 3a-f) and classification confusion patterns (Figures 4a-f) with balanced representation across all four datasets to honestly assess current capabilities while identifying systematic challenges. Detection visualizations employ color coding where green boxes indicate true positives, red boxes mark false positives, and yellow boxes highlight false negatives.
 
+#### Detection Error Patterns (Figures 3a-f)
+
 path: luaran/templates/figures/qualitative_detection/det1_iml_fp.png
 Figure 3a: False Positive on IML Lifecycle - YOLOv11 showing 1 FP among 3 correct detections (75% precision)
-
-The IML false positive case reveals occasional confusion between cellular debris and actual parasites, where background structures morphologically resemble ring forms. This represents typical performance on high-quality datasets with strong overall accuracy but occasional false alarms on ambiguous regions, demonstrating the fundamental challenge of distinguishing true parasites from morphologically similar blood components.
 
 path: luaran/templates/figures/qualitative_detection/det2_iml_fn.png
 Figure 3b: False Negative on IML Lifecycle - YOLOv11 missing single parasite (yellow box)
 
-The IML false negative demonstrates sensitivity limitations on subtle early-stage forms, likely a faint ring-stage parasite with weak staining intensity falling below the confidence threshold. This emphasizes the critical importance of high recall in clinical deployment, as missed diagnoses directly translate to untreated patients.
-
 path: luaran/templates/figures/qualitative_detection/det3_stages_heavy_fp.png
 Figure 3c: Heavy Overdetection on MP-IDB Stages - YOLOv11 showing 8 false positives
-
-The MP-IDB Stages overdetection with 8 FPs indicates systematic confusion in severely imbalanced data (54:1 ratio). This reflects background clutter from cellular debris and staining artifacts morphologically similar to ring-stage parasites, motivating future work on improved feature discrimination [23].
 
 path: luaran/templates/figures/qualitative_detection/det4_species_mixed.png
 Figure 3d: Mixed Errors on MP-IDB Species - YOLOv11 exhibiting 3 FP and 3 FN simultaneously (38 correct among 41 detections, 92.7% precision and recall)
 
-The MP-IDB Species mixed error case demonstrates bidirectional failure in crowded fields where the detector struggles to segment individual parasite boundaries, suggesting need for instance segmentation approaches providing pixel-level boundaries rather than bounding boxes.
-
 path: luaran/templates/figures/qualitative_detection/det5_md2019_crowded_fp.png
 Figure 3e: Crowded Field on MD_2019 - YOLOv11 showing false positive in densely populated field
-
-The MD_2019 crowded case represents realistic clinical difficulty where inter-patient variation in morphology and sample quality creates detection challenges. Performance degradation in complex multi-parasite scenarios aligns with the dataset's 72.91% test set mAP@50, motivating multi-center data collection [16].
 
 path: luaran/templates/figures/qualitative_detection/det6_md2019_fn.png
 Figure 3f: Multi-Patient FN on MD_2019 - YOLOv11 missing parasite with atypical morphology
 
-The MD_2019 false negative demonstrates generalization challenges where atypical morphology diverges from training data appearance. This gap between laboratory datasets and field samples emphasizes need for training data capturing full spectrum of parasite appearances across patients and geographic regions [5].
+The IML false positive case (Figure 3a) reveals occasional confusion between cellular debris and actual parasites, where background structures morphologically resemble ring forms. This represents typical performance on high-quality datasets with strong overall accuracy but occasional false alarms on ambiguous regions, demonstrating the fundamental challenge of distinguishing true parasites from morphologically similar blood components. The IML false negative (Figure 3b) demonstrates sensitivity limitations on subtle early-stage forms, likely a faint ring-stage parasite with weak staining intensity falling below the confidence threshold. This emphasizes the critical importance of high recall in clinical deployment, as missed diagnoses directly translate to untreated patients.
 
-Classification error analysis reveals systematic confusion patterns using best-performing models: EfficientNet-B1 for IML and MP-IDB Species, EfficientNet-B0 for MD_2019 (Figures 4a-f).
+The MP-IDB Stages overdetection (Figure 3c) with 8 FPs indicates systematic confusion in severely imbalanced data (54:1 ratio). This reflects background clutter from cellular debris and staining artifacts morphologically similar to ring-stage parasites, motivating future work on improved feature discrimination [23]. The MP-IDB Species mixed error case (Figure 3d) demonstrates bidirectional failure in crowded fields where the detector struggles to segment individual parasite boundaries, suggesting need for instance segmentation approaches providing pixel-level boundaries rather than bounding boxes.
+
+The MD_2019 crowded case (Figure 3e) represents realistic clinical difficulty where inter-patient variation in morphology and sample quality creates detection challenges. Performance degradation in complex multi-parasite scenarios aligns with the dataset's 72.91% test set mAP@50, motivating multi-center data collection [16]. The MD_2019 false negative (Figure 3f) demonstrates generalization challenges where atypical morphology diverges from training data appearance. This gap between laboratory datasets and field samples emphasizes need for training data capturing full spectrum of parasite appearances across patients and geographic regions [5].
+
+#### Classification Error Patterns (Figures 4a-f)
+
+Classification error analysis reveals systematic confusion patterns using best-performing models: EfficientNet-B1 for IML and MP-IDB Species, EfficientNet-B0 for MD_2019.
 
 path: luaran/templates/figures/qualitative_classification/cls1_iml_single.png
 Figure 4a: Single Error on IML Lifecycle - EfficientNet-B1 confusing trophozoite as ring (66.7% accuracy on 3 parasites)
 
-The IML single error case with 1 of 3 parasites misclassified demonstrates that even on high-quality datasets, borderline cases exist where parasites occupy morphological transition zones between discrete stage categories, highlighting inherent subjectivity in lifecycle stage assignment.
-
 path: luaran/templates/figures/qualitative_classification/cls2_iml_moderate.png
 Figure 4b: Moderate Error on IML Lifecycle - EfficientNet-B1 showing 1 misclassification among 3 parasites
-
-The IML moderate error demonstrates typical performance on moderately imbalanced data, where continuous parasite development creates ambiguous specimens. While achieving 91.51% overall accuracy, individual images with morphologically ambiguous cases require human expert verification in clinical deployment.
 
 path: luaran/templates/figures/qualitative_classification/cls3_stages_moderate.png
 Figure 4c: Stage Transition Confusion on MP-IDB Stages - EfficientNet-B1 misclassifying 4 trophozoites as rings
 
-The MP-IDB Stages confusion with 4 errors reflects classification challenges on severely imbalanced data (54:1 ratio), where discrete stage categories represent artificial discretization of smooth morphological progression. This suggests ordinal regression treating stages as ordered categories might better capture biological progression.
-
 path: luaran/templates/figures/qualitative_classification/cls4_species_confusion.png
 Figure 4d: Species Confusion on MP-IDB Species - EfficientNet-B1 confusing P. vivax with P. ovale
-
-The species misidentification represents clinically significant error where P. vivax and P. ovale require different treatments (primaquine for dormant liver stages). This reflects genuine morphological overlap challenging even to human microscopists, emphasizing need for few-shot learning with limited samples [24].
 
 path: luaran/templates/figures/qualitative_classification/cls5_md2019_heavy.png
 Figure 4e: Heavy Confusion on MD_2019 - EfficientNet-B0 showing 6 classification errors with mixed stage confusion
 
-The MD_2019 heavy error case reveals systematic challenges in distinguishing transitional mature stages that exhibit overlapping morphological features. Multiple misclassifications across different stage combinations demonstrate where subtle distinguishing cues remain unlearned, motivating attention mechanisms focusing on diagnostically relevant regions [23].
-
 path: luaran/templates/figures/qualitative_classification/cls6_md2019_perfect.png
 Figure 4f: Perfect Classification on MD_2019 - EfficientNet-B0 achieving 100% accuracy on 10 parasites (patient Trip 067)
 
-The perfect classification case demonstrates flawless performance on crowded fields when morphological features are distinct, providing balanced assessment showing classification failures result from specific morphological ambiguities rather than architectural inadequacy. This validates EfficientNet-B0's 5.3M parameter architecture possesses sufficient capacity for clinical deployment.
+The IML single error case (Figure 4a) with 1 of 3 parasites misclassified demonstrates that even on high-quality datasets, borderline cases exist where parasites occupy morphological transition zones between discrete stage categories, highlighting inherent subjectivity in lifecycle stage assignment. The IML moderate error (Figure 4b) demonstrates typical performance on moderately imbalanced data, where continuous parasite development creates ambiguous specimens. While achieving 91.51% overall accuracy, individual images with morphologically ambiguous cases require human expert verification in clinical deployment.
+
+The MP-IDB Stages confusion (Figure 4c) with 4 errors reflects classification challenges on severely imbalanced data (54:1 ratio), where discrete stage categories represent artificial discretization of smooth morphological progression. This suggests ordinal regression treating stages as ordered categories might better capture biological progression. The species misidentification (Figure 4d) represents clinically significant error where P. vivax and P. ovale require different treatments (primaquine for dormant liver stages). This reflects genuine morphological overlap challenging even to human microscopists, emphasizing need for few-shot learning with limited samples [24].
+
+The MD_2019 heavy error case (Figure 4e) reveals systematic challenges in distinguishing transitional mature stages that exhibit overlapping morphological features. Multiple misclassifications across different stage combinations demonstrate where subtle distinguishing cues remain unlearned, motivating attention mechanisms focusing on diagnostically relevant regions [23]. The perfect classification case (Figure 4f) demonstrates flawless performance on crowded fields when morphological features are distinct, providing balanced assessment showing classification failures result from specific morphological ambiguities rather than architectural inadequacy. This validates EfficientNet-B0's 5.3M parameter architecture possesses sufficient capacity for clinical deployment.
 
 ### 3.5 Shared Classification Architecture Benefits
 
