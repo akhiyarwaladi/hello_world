@@ -171,22 +171,13 @@ Transparent visualization of failure modes provides critical insights into syste
 #### Detection Error Patterns (Figures 3a-f)
 
 path: luaran/templates/figures/qualitative_detection/det1_iml_fp.png
-Figure 3a: False Positive on IML Lifecycle - YOLOv11 showing 1 FP among 3 correct detections (75% precision)
-
 path: luaran/templates/figures/qualitative_detection/det2_iml_fn.png
-Figure 3b: False Negative on IML Lifecycle - YOLOv11 missing single parasite (yellow box)
-
 path: luaran/templates/figures/qualitative_detection/det3_stages_heavy_fp.png
-Figure 3c: Heavy Overdetection on MP-IDB Stages - YOLOv11 showing 8 false positives
-
 path: luaran/templates/figures/qualitative_detection/det4_species_mixed.png
-Figure 3d: Mixed Errors on MP-IDB Species - YOLOv11 exhibiting 3 FP and 3 FN simultaneously (38 correct among 41 detections, 92.7% precision and recall)
-
 path: luaran/templates/figures/qualitative_detection/det5_md2019_crowded_fp.png
-Figure 3e: Crowded Field on MD_2019 - YOLOv11 showing false positive in densely populated field
-
 path: luaran/templates/figures/qualitative_detection/det6_md2019_fn.png
-Figure 3f: Multi-Patient FN on MD_2019 - YOLOv11 missing parasite with atypical morphology
+
+Figure 3: Detection error patterns across four datasets using YOLOv11: (a) False positive on IML Lifecycle - cellular debris confusion, (b) False negative on IML Lifecycle - missed faint parasite, (c) Heavy overdetection on MP-IDB Stages - 8 false positives from severe imbalance, (d) Mixed errors on MP-IDB Species - 3 FP and 3 FN in crowded field, (e) Crowded field on MD_2019 - inter-patient variation challenge, (f) False negative on MD_2019 - atypical morphology.
 
 The IML false positive case (Figure 3a) reveals occasional confusion between cellular debris and actual parasites, where background structures morphologically resemble ring forms. This represents typical performance on high-quality datasets with strong overall accuracy but occasional false alarms on ambiguous regions, demonstrating the fundamental challenge of distinguishing true parasites from morphologically similar blood components. The IML false negative (Figure 3b) demonstrates sensitivity limitations on subtle early-stage forms, likely a faint ring-stage parasite with weak staining intensity falling below the confidence threshold. This emphasizes the critical importance of high recall in clinical deployment, as missed diagnoses directly translate to untreated patients.
 
@@ -199,22 +190,13 @@ The MD_2019 crowded case (Figure 3e) represents realistic clinical difficulty wh
 Classification error analysis reveals systematic confusion patterns using best-performing models: EfficientNet-B1 for IML and MP-IDB Species, EfficientNet-B0 for MD_2019.
 
 path: luaran/templates/figures/qualitative_classification/cls1_iml_single.png
-Figure 4a: Single Error on IML Lifecycle - EfficientNet-B1 confusing trophozoite as ring (66.7% accuracy on 3 parasites)
-
 path: luaran/templates/figures/qualitative_classification/cls2_iml_moderate.png
-Figure 4b: Moderate Error on IML Lifecycle - EfficientNet-B1 showing 1 misclassification among 3 parasites
-
 path: luaran/templates/figures/qualitative_classification/cls3_stages_moderate.png
-Figure 4c: Stage Transition Confusion on MP-IDB Stages - EfficientNet-B1 misclassifying 4 trophozoites as rings
-
 path: luaran/templates/figures/qualitative_classification/cls4_species_confusion.png
-Figure 4d: Species Confusion on MP-IDB Species - EfficientNet-B1 confusing P. vivax with P. ovale
-
 path: luaran/templates/figures/qualitative_classification/cls5_md2019_heavy.png
-Figure 4e: Heavy Confusion on MD_2019 - EfficientNet-B0 showing 6 classification errors with mixed stage confusion
-
 path: luaran/templates/figures/qualitative_classification/cls6_md2019_perfect.png
-Figure 4f: Perfect Classification on MD_2019 - EfficientNet-B0 achieving 100% accuracy on 10 parasites (patient Trip 067)
+
+Figure 4: Classification error patterns using best-performing models: (a) Single error on IML Lifecycle - trophozoite misclassified as ring, (b) Moderate error on IML Lifecycle - ambiguous morphology, (c) Stage confusion on MP-IDB Stages - 4 trophozoites misclassified as rings, (d) Species confusion on MP-IDB Species - P. vivax vs P. ovale overlap, (e) Heavy confusion on MD_2019 - 6 errors across multiple stages, (f) Perfect classification on MD_2019 - 100% accuracy on 10 parasites.
 
 The IML single error case (Figure 4a) with 1 of 3 parasites misclassified demonstrates that even on high-quality datasets, borderline cases exist where parasites occupy morphological transition zones between discrete stage categories, highlighting inherent subjectivity in lifecycle stage assignment. The IML moderate error (Figure 4b) demonstrates typical performance on moderately imbalanced data, where continuous parasite development creates ambiguous specimens. While achieving 91.51% overall accuracy, individual images with morphologically ambiguous cases require human expert verification in clinical deployment.
 
