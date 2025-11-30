@@ -1,0 +1,193 @@
+<mxfile host="app.diagrams.net" modified="2025-11-30T00:00:00.000Z" agent="Claude" version="22.0.0">
+  <diagram name="Pipeline Architecture" id="malaria-pipeline">
+    <mxGraphModel dx="1200" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="500" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Stage Labels -->
+        <mxCell id="stage1_label" value="Detection Stage" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=#1565C0;" vertex="1" parent="1">
+          <mxGeometry x="120" y="30" width="200" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="stage2_label" value="Crop Generation" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=#2E7D32;" vertex="1" parent="1">
+          <mxGeometry x="480" y="30" width="180" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="stage3_label" value="Classification Stage" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=#7B1FA2;" vertex="1" parent="1">
+          <mxGeometry x="820" y="30" width="200" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- Input Box -->
+        <mxCell id="input_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="130" height="180" as="geometry"/>
+        </mxCell>
+        <mxCell id="input_title" value="Input" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#1565C0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="90" width="130" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="input_text1" value="Blood Smear&#xa;Images" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="40" y="125" width="130" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="input_text2" value="640×640 px" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="40" y="220" width="130" height="25" as="geometry"/>
+        </mxCell>
+
+        <!-- YOLO Detection Models -->
+        <mxCell id="yolo_group" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="220" y="80" width="150" height="230" as="geometry"/>
+        </mxCell>
+        <mxCell id="yolo_title" value="YOLO Detection" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#1565C0;" vertex="1" parent="1">
+          <mxGeometry x="220" y="90" width="150" height="25" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="yolo10" value="YOLOv10m" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1976D2;strokeColor=#0D47A1;fontColor=#FFFFFF;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="125" width="110" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="yolo11" value="YOLOv11m" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1976D2;strokeColor=#0D47A1;fontColor=#FFFFFF;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="180" width="110" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="yolo12" value="YOLOv12m" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1976D2;strokeColor=#0D47A1;fontColor=#FFFFFF;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="235" width="110" height="45" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="yolo_epochs" value="100 epochs" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="220" y="285" width="150" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- Ground Truth Crop Generation -->
+        <mxCell id="crop_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="440" y="80" width="170" height="230" as="geometry"/>
+        </mxCell>
+        <mxCell id="crop_title" value="Ground Truth&#xa;Crop Generation" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#2E7D32;" vertex="1" parent="1">
+          <mxGeometry x="440" y="90" width="170" height="45" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="crop_text1" value="Extract Parasites&#xa;from Expert&#xa;Annotations" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="440" y="145" width="170" height="55" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="crop_size" value="224×224 px" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="440" y="205" width="170" height="25" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="shared_badge" value="SHARED CROPS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4CAF50;strokeColor=#2E7D32;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="465" y="240" width="120" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="crop_note" value="(Generated Once)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="440" y="275" width="170" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- CNN Classification Models -->
+        <mxCell id="cnn_group" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="680" y="80" width="280" height="300" as="geometry"/>
+        </mxCell>
+        <mxCell id="cnn_title" value="CNN Classification" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#7B1FA2;" vertex="1" parent="1">
+          <mxGeometry x="680" y="90" width="280" height="25" as="geometry"/>
+        </mxCell>
+
+        <!-- Row 1 -->
+        <mxCell id="densenet" value="DenseNet121&#xa;8.0M params" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9C27B0;strokeColor=#6A1B9A;fontColor=#FFFFFF;fontSize=12;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="700" y="125" width="115" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="effnet_b0" value="EfficientNet-B0&#xa;5.3M params" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9C27B0;strokeColor=#6A1B9A;fontColor=#FFFFFF;fontSize=12;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="825" y="125" width="115" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Row 2 -->
+        <mxCell id="effnet_b1" value="EfficientNet-B1&#xa;7.8M params" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9C27B0;strokeColor=#6A1B9A;fontColor=#FFFFFF;fontSize=12;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="700" y="185" width="115" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="effnet_b2" value="EfficientNet-B2&#xa;9.2M params" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9C27B0;strokeColor=#6A1B9A;fontColor=#FFFFFF;fontSize=12;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="825" y="185" width="115" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Row 3 -->
+        <mxCell id="resnet50" value="ResNet50&#xa;25.6M params" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9C27B0;strokeColor=#6A1B9A;fontColor=#FFFFFF;fontSize=12;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="700" y="245" width="115" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="resnet101" value="ResNet101&#xa;44.5M params" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9C27B0;strokeColor=#6A1B9A;fontColor=#FFFFFF;fontSize=12;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="825" y="245" width="115" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Focal Loss Badge -->
+        <mxCell id="focal_badge" value="Focal Loss (α=0.25, γ=2.0)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9800;strokeColor=#F57C00;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="720" y="310" width="200" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cnn_epochs" value="75 epochs" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="680" y="345" width="280" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- Output Box -->
+        <mxCell id="output_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEBEE;strokeColor=#C62828;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="80" width="150" height="230" as="geometry"/>
+        </mxCell>
+        <mxCell id="output_title" value="Output" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#C62828;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="90" width="150" height="25" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="output_species" value="Species&#xa;Classification" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EF5350;strokeColor=#C62828;fontColor=#FFFFFF;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="130" width="110" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="species_detail" value="4 Plasmodium&#xa;Species" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="185" width="110" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="output_stages" value="Lifecycle Stage&#xa;Classification" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EF5350;strokeColor=#C62828;fontColor=#FFFFFF;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="220" width="110" height="55" as="geometry"/>
+        </mxCell>
+        <mxCell id="stages_detail" value="4 Lifecycle&#xa;Stages" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="275" width="110" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrows with better styling -->
+        <mxCell id="arrow1" value="" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#1565C0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="input_box" target="yolo_group">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="170" y="170" as="sourcePoint"/>
+            <mxPoint x="220" y="195" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="arrow2" value="" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#2E7D32;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="yolo_group" target="crop_box">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="370" y="195" as="sourcePoint"/>
+            <mxPoint x="440" y="195" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="arrow3" value="" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#7B1FA2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="crop_box" target="cnn_group">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="610" y="195" as="sourcePoint"/>
+            <mxPoint x="680" y="230" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="arrow4" value="" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#C62828;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="cnn_group" target="output_box">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="960" y="230" as="sourcePoint"/>
+            <mxPoint x="1030" y="195" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Sub-labels -->
+        <mxCell id="label_a" value="(a)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=2;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="85" y="260" width="40" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="label_b" value="(b)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=2;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="275" y="310" width="40" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="label_c" value="(c)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=2;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="505" y="300" width="40" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="label_d" value="(d)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=2;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="800" y="370" width="40" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="label_e" value="(e)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=2;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="1085" y="310" width="40" height="20" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,136 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Pipeline Architecture" id="pipeline">
+    <mxGraphModel dx="1100" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="450" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- INPUT -->
+        <mxCell id="input_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="120" width="120" height="160" as="geometry"/>
+        </mxCell>
+        <mxCell id="input_label" value="Input" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#1976D2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="130" width="120" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="input_dataset" value="MP-IDB&#xa;Dataset" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1976D2;strokeColor=#0D47A1;fontColor=#FFFFFF;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="55" y="165" width="90" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="input_info" value="418 Images&#xa;640×640 px" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="40" y="225" width="120" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- DETECTION -->
+        <mxCell id="det_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1976D2;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="220" y="80" width="140" height="240" as="geometry"/>
+        </mxCell>
+        <mxCell id="det_label" value="Detection" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#1976D2;" vertex="1" parent="1">
+          <mxGeometry x="220" y="90" width="140" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="yolo10" value="YOLOv10m" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1976D2;strokeColor=#0D47A1;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="235" y="125" width="110" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="yolo11" value="YOLOv11m" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1976D2;strokeColor=#0D47A1;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="235" y="175" width="110" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="yolo12" value="YOLOv12m" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1976D2;strokeColor=#0D47A1;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="235" y="225" width="110" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="det_epoch" value="100 epochs" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="220" y="275" width="140" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- CROP GENERATION -->
+        <mxCell id="crop_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#388E3C;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="420" y="100" width="150" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="crop_label" value="Crop Generation" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#388E3C;" vertex="1" parent="1">
+          <mxGeometry x="420" y="110" width="150" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="crop_desc" value="Ground Truth&#xa;Extraction" style="text;html=1;align=center;verticalAlign=middle;fontSize=12;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="420" y="145" width="150" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="crop_size" value="224×224 px" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="420" y="185" width="150" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="shared_badge" value="SHARED" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4CAF50;strokeColor=#2E7D32;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="455" y="215" width="80" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="crop_note" value="(Generated Once)" style="text;html=1;align=center;verticalAlign=middle;fontSize=10;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="420" y="255" width="150" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- CLASSIFICATION -->
+        <mxCell id="cls_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="630" y="60" width="260" height="300" as="geometry"/>
+        </mxCell>
+        <mxCell id="cls_label" value="Classification" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#7B1FA2;" vertex="1" parent="1">
+          <mxGeometry x="630" y="70" width="260" height="25" as="geometry"/>
+        </mxCell>
+
+        <!-- CNN Models - Row 1 -->
+        <mxCell id="densenet" value="DenseNet121&#xa;(8.0M)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9C27B0;strokeColor=#6A1B9A;fontColor=#FFFFFF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="645" y="105" width="110" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="effnet_b0" value="EfficientNet-B0&#xa;(5.3M)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9C27B0;strokeColor=#6A1B9A;fontColor=#FFFFFF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="765" y="105" width="110" height="45" as="geometry"/>
+        </mxCell>
+
+        <!-- CNN Models - Row 2 -->
+        <mxCell id="effnet_b1" value="EfficientNet-B1&#xa;(7.8M)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9C27B0;strokeColor=#6A1B9A;fontColor=#FFFFFF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="645" y="160" width="110" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="effnet_b2" value="EfficientNet-B2&#xa;(9.2M)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9C27B0;strokeColor=#6A1B9A;fontColor=#FFFFFF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="765" y="160" width="110" height="45" as="geometry"/>
+        </mxCell>
+
+        <!-- CNN Models - Row 3 -->
+        <mxCell id="resnet50" value="ResNet50&#xa;(25.6M)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9C27B0;strokeColor=#6A1B9A;fontColor=#FFFFFF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="645" y="215" width="110" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="resnet101" value="ResNet101&#xa;(44.5M)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9C27B0;strokeColor=#6A1B9A;fontColor=#FFFFFF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="765" y="215" width="110" height="45" as="geometry"/>
+        </mxCell>
+
+        <!-- Focal Loss -->
+        <mxCell id="focal_loss" value="Focal Loss (α=0.25, γ=2.0)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9800;strokeColor=#EF6C00;fontColor=#FFFFFF;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="675" y="275" width="180" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="cls_epoch" value="75 epochs" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="630" y="315" width="260" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- OUTPUT -->
+        <mxCell id="output_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEBEE;strokeColor=#D32F2F;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="950" y="100" width="130" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="output_label" value="Output" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#D32F2F;" vertex="1" parent="1">
+          <mxGeometry x="950" y="110" width="130" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="output_species" value="Species&#xa;Classification" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E53935;strokeColor=#C62828;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="965" y="145" width="100" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="output_stages" value="Lifecycle&#xa;Stages" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E53935;strokeColor=#C62828;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="965" y="210" width="100" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="output_info" value="4 classes each" style="text;html=1;align=center;verticalAlign=middle;fontSize=10;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="950" y="270" width="130" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- ARROWS -->
+        <mxCell id="arrow1" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#1976D2;entryX=0;entryY=0.5;exitX=1;exitY=0.5;" edge="1" parent="1" source="input_box" target="det_box">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="arrow2" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#388E3C;entryX=0;entryY=0.5;exitX=1;exitY=0.5;" edge="1" parent="1" source="det_box" target="crop_box">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="arrow3" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#7B1FA2;entryX=0;entryY=0.5;exitX=1;exitY=0.5;" edge="1" parent="1" source="crop_box" target="cls_box">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="arrow4" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#D32F2F;entryX=0;entryY=0.5;exitX=1;exitY=0.5;" edge="1" parent="1" source="cls_box" target="output_box">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
