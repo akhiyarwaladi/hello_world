@@ -690,8 +690,8 @@ def run_pipeline_for_dataset(args):
             "script": "scripts/training/12_train_pytorch_classification.py",
             "model": model,
             "loss": "focal",
-            "focal_alpha": 0.5,   # TUNED: Stronger minority class focus (from 0.25)
-            "focal_gamma": 2.5,   # TUNED: More aggressive focusing (from 2.0)
+            "focal_alpha": 0.25,  # PROVEN: Standard medical imaging (Oct 16 experiment)
+            "focal_gamma": 2.0,   # PROVEN: Balanced focusing (Oct 16 experiment)
             "epochs": args.epochs_cls,  # Use command-line parameter (default: 75)
             "batch": 64,         # Optimized for RTX 4090 (24GB) with 224px images
             "lr": 0.0005,        # Lower LR for focal loss stability

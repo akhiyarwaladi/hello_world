@@ -4,7 +4,6 @@ Enhanced detection visualization with CSV metadata export
 Helps select best images for paper by showing prediction accuracy
 """
 
-import os
 import sys
 import argparse
 from pathlib import Path
@@ -12,56 +11,27 @@ import cv2
 import pandas as pd
 from ultralytics import YOLO
 import numpy as np
-import shutil
-from datetime import datetime
+
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+
+from utils.visualization_utils import (
+    draw_boxes, yolo_to_absolute, load_gt_annotations,
+    calculate_iou, clean_output_directory, COLORS
+)
 
 
-def yolo_to_absolute(box_yolo, img_width, img_height):
-    """Convert YOLO format (class, x_center, y_center, w, h) to absolute coordinates"""
-    if len(box_yolo) < 5:
-        return None
-    x_center, y_center, w, h = box_yolo[1:5]
-    x1 = int((x_center - w / 2) * img_width)
-    y1 = int((y_center - h / 2) * img_height)
-    x2 = int((x_center + w / 2) * img_width)
-    y2 = int((y_center + h / 2) * img_height)
-    return [x1, y1, x2, y2]
-
-
-def load_gt_annotations(label_file, img_width, img_height):
-    """Load ground truth annotations from YOLO format"""
-    annotations = []
-    if not Path(label_file).exists():
-        return annotations
-
-    with open(label_file, 'r') as f:
-        for line in f:
-            parts = line.strip().split()
-            if len(parts) >= 5:
-                class_id = int(parts[0])
-                box_yolo = [class_id] + [float(x) for x in parts[1:5]]
-                box_abs = yolo_to_absolute(box_yolo, img_width, img_height)
-                if box_abs:
-                    annotations.append({
-                        'class_id': class_id,
-                        'box': box_abs
-                    })
-    return annotations
-
-
-def calculate_iou(box1, box2):
-    """Calculate IoU between two boxes [x1, y1, x2, y2]"""
-    x1 = max(box1[0], box2[0])
-    y1 = max(box1[1], box2[1])
-    x2 = min(box1[2], box2[2])
-    y2 = min(box1[3], box2[3])
-
-    intersection = max(0, x2 - x1) * max(0, y2 - y1)
-    area1 = (box1[2] - box1[0]) * (box1[3] - box1[1])
-    area2 = (box2[2] - box2[0]) * (box2[3] - box2[1])
-    union = area1 + area2 - intersection
-
-    return intersection / union if union > 0 else 0
+def load_gt_annotations_absolute(label_file, img_width, img_height):
+    """Load ground truth annotations and convert to absolute coordinates"""
+    annotations = load_gt_annotations(label_file)
+    result = []
+    for ann in annotations:
+        box_abs = yolo_to_absolute(ann['box'], img_width, img_height)
+        result.append({
+            'class_id': ann['class_id'],
+            'box': box_abs
+        })
+    return result
 
 
 def match_predictions_to_gt(pred_boxes, gt_boxes, iou_threshold=0.5):
@@ -99,92 +69,6 @@ def match_predictions_to_gt(pred_boxes, gt_boxes, iou_threshold=0.5):
     return matched_pairs, false_positives, false_negatives
 
 
-def clean_output_directory(output_dir, backup=True):
-    """
-    Clean output directory before generation
-
-    Args:
-        output_dir: Output directory path
-        backup: If True, rename old folder to _backup_timestamp instead of deleting
-
-    Returns:
-        True if cleaned successfully
-    """
-    output_path = Path(output_dir)
-
-    if not output_path.exists():
-        return True  # Nothing to clean
-
-    # Check if folder has content
-    files = list(output_path.glob("*"))
-    if not files:
-        return True  # Empty folder, nothing to clean
-
-    if backup:
-        # Rename to backup with timestamp
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        backup_path = output_path.parent / f"{output_path.name}_backup_{timestamp}"
-
-        try:
-            shutil.move(str(output_path), str(backup_path))
-            print(f"   [BACKUP] Old folder renamed to: {backup_path.name}")
-            return True
-        except Exception as e:
-            print(f"   [WARNING] Could not backup folder: {e}")
-            # Try to delete old files instead
-            pass
-
-    # If backup failed or backup=False, delete old PNG and CSV files
-    try:
-        png_files = list(output_path.glob("*.png")) + list(output_path.glob("*.PNG"))
-        csv_files = list(output_path.glob("*.csv"))
-
-        deleted = 0
-        for f in png_files + csv_files:
-            f.unlink()
-            deleted += 1
-
-        if deleted > 0:
-            print(f"   [CLEAN] Deleted {deleted} old files from {output_path.name}")
-
-        return True
-    except Exception as e:
-        print(f"   [WARNING] Could not clean folder: {e}")
-        return False
-
-
-def draw_boxes(image, boxes, labels, colors, thickness=4, font_scale=0.9):
-    """Draw bounding boxes with labels"""
-    img_copy = image.copy()
-
-    for box, label, color in zip(boxes, labels, colors):
-        x1, y1, x2, y2 = [int(c) for c in box]
-
-        # Draw rectangle
-        cv2.rectangle(img_copy, (x1, y1), (x2, y2), color, thickness)
-
-        # Draw label
-        if label:
-            (text_width, text_height), baseline = cv2.getTextSize(
-                label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, 2
-            )
-
-            text_y_top = y1 - text_height - baseline - 8
-            text_y_bottom = y1
-
-            if text_y_top < 0:
-                text_y_top = y1
-                text_y_bottom = y1 + text_height + baseline + 8
-                text_pos_y = y1 + text_height + baseline
-            else:
-                text_pos_y = y1 - baseline - 5
-
-            cv2.rectangle(img_copy, (x1 - 8, text_y_top), (x1 + text_width + 8, text_y_bottom), color, -1)
-            cv2.putText(img_copy, label, (x1, text_pos_y), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), 2)
-
-    return img_copy
-
-
 def generate_detection_visualization_with_metadata(
     image_path,
     label_path,
@@ -202,8 +86,8 @@ def generate_detection_visualization_with_metadata(
     image_name = Path(image_path).stem
     img_height, img_width = image.shape[:2]
 
-    # Load ground truth
-    gt_boxes = load_gt_annotations(label_path, img_width, img_height)
+    # Load ground truth (converted to absolute coordinates)
+    gt_boxes = load_gt_annotations_absolute(label_path, img_width, img_height)
 
     # Run detection
     results = detection_model(str(image_path), conf=conf_threshold, verbose=False)[0]
@@ -268,20 +152,20 @@ def generate_detection_visualization_with_metadata(
         paper_score = 2   # Not ideal
 
     # Draw boxes with color coding: Green (TP), Red (FP), Yellow (FN)
-    # True Positives (matched predictions) - GREEN (darker for white text visibility)
+    # True Positives (matched predictions) - GREEN
     tp_coords = [pred_boxes[pair['pred_idx']]['box'] for pair in matched_pairs]
     tp_labels = [f"TP {pred_boxes[pair['pred_idx']]['confidence']:.2f}" for pair in matched_pairs]
-    tp_colors = [(0, 180, 0)] * len(matched_pairs)  # Dark green (readable white text)
+    tp_colors = [COLORS['green']] * len(matched_pairs)
 
-    # False Positives (unmatched predictions) - RED (darker for white text visibility)
+    # False Positives (unmatched predictions) - RED
     fp_coords = [pred_boxes[idx]['box'] for idx in false_positives]
     fp_labels = [f"FP {pred_boxes[idx]['confidence']:.2f}" for idx in false_positives]
-    fp_colors = [(0, 0, 200)] * len(false_positives)  # Dark red (readable white text)
+    fp_colors = [COLORS['red']] * len(false_positives)
 
-    # False Negatives (unmatched GT) - YELLOW/ORANGE (darker for white text visibility)
+    # False Negatives (unmatched GT) - YELLOW
     fn_coords = [gt_boxes[idx]['box'] for idx in false_negatives]
     fn_labels = ["FN (missed)"] * len(false_negatives)
-    fn_colors = [(0, 180, 180)] * len(false_negatives)  # Dark yellow/cyan (readable white text)
+    fn_colors = [COLORS['yellow']] * len(false_negatives)
 
     # Combine all boxes
     all_coords = tp_coords + fp_coords + fn_coords

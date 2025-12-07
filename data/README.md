@@ -44,7 +44,7 @@ python run_multiple_models_pipeline_OPTION_A.py
 # Pipeline automatically:
 # 1. Downloads raw datasets if missing
 # 2. Converts to YOLO format in data/processed/[dataset]/
-# 3. Creates stratified train/val/test splits (70%/20%/10%)
+# 3. Creates stratified train/val/test splits (60%/20%/20%)
 ```
 
 ### Stage 2: Detection Training (YOLO Models)

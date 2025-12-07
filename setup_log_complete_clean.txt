@@ -1,0 +1,83 @@
+
+[95m================================================================================[0m
+[95m[1m                        MASTER DATA PREPARATION PIPELINE                        [0m
+[95m================================================================================[0m
+
+Datasets: IML, SPECIES, STAGES, MD
+Split ratios: 60% / 20% / 20%
+Quick mode: No
+Auto-confirm: Yes
+[93mClean mode: COMPLETE (including raw data)[0m
+[92m✓ Auto-confirm mode: Proceeding without prompts[0m
+
+[95m================================================================================[0m
+[95m[1m                             CHECKING PREREQUISITES                             [0m
+[95m================================================================================[0m
+
+[92m✓ Python: Python 3.13.10[0m
+[92m✓ PyTorch: 2.8.0+cu128[0m
+[92m✓ Ultralytics: 8.3.202[0m
+[92m✓ Kaggle API: Configured ✓[0m
+
+[95m================================================================================[0m
+[95m[1m                                 CLEANUP CHECK                                  [0m
+[95m================================================================================[0m
+
+[93m⚠ Found 12 existing processed folders:[0m
+  • data\processed\lifecycle
+  • data\ground_truth_crops_224\lifecycle
+  • data\raw\malaria_lifecycle
+  • data\processed\species
+  • data\ground_truth_crops_224\species
+  • data\raw\kaggle_dataset
+  • data\ground_truth_crops_224\stages
+  • data\raw\kaggle_dataset
+  • data\processed\stages
+  • data\processed\md_2019_stages
+  • data\ground_truth_crops_224\md_2019_stages
+  • data\raw\md_2019
+[96mℹ COMPLETE CLEANUP mode enabled (including raw data), removing...[0m
+[92m✓ Removed: data\processed\lifecycle[0m
+[92m✓ Removed: data\ground_truth_crops_224\lifecycle[0m
+[91m✗ Failed to remove data\raw\malaria_lifecycle: [WinError 5] Access is denied: 'data\\raw\\malaria_lifecycle\\.git\\objects\\pack\\pack-9a01e47cf106b8bc12f97314b70e2afc0913b8b0.idx'[0m
+[92m✓ Removed: data\processed\species[0m
+[92m✓ Removed: data\ground_truth_crops_224\species[0m
+[92m✓ Removed: data\raw\kaggle_dataset[0m
+[92m✓ Removed: data\ground_truth_crops_224\stages[0m
+[91m✗ Failed to remove data\raw\kaggle_dataset: [WinError 2] The system cannot find the file specified: 'data\\raw\\kaggle_dataset'[0m
+[92m✓ Removed: data\processed\stages[0m
+[92m✓ Removed: data\processed\md_2019_stages[0m
+[92m✓ Removed: data\ground_truth_crops_224\md_2019_stages[0m
+[92m✓ Removed: data\raw\md_2019[0m
+
+[1m[STEP 1/3] DOWNLOAD RAW DATASETS[0m
+[96mℹ Existing raw data:[0m
+  [✓] IML
+  [✗] SPECIES
+  [✗] STAGES
+  [✗] MD
+
+[94m► Download kaggle_mp_idb[0m
+  Command: python scripts/data_setup/01_download_datasets.py --dataset kaggle_mp_idb
+  [STATS] Total datasets available: 2
+  [INFO] Downloaded datasets: kaggle_dataset, malaria_lifecycle
+  
+  [INFO] Next Steps:
+     See README.md for complete pipeline instructions
+[92m✓ Download kaggle_mp_idb - Complete[0m
+[93m⚠ MD-2019 dataset not found![0m
+[96mℹ Manual download required:[0m
+[96mℹ   URL: https://prod-dcd-datasets-cache-zipfiles.s3.eu-west-1.amazonaws.com/5bf2kmwvfn-1.zip[0m
+[96mℹ   Extract to: data/raw/md_2019/[0m
+
+[93mContinue without MD-2019? (y/n): [0mTraceback (most recent call last):
+  File "C:\Users\MyPC PRO\Documents\hello_world\setup_all_data.py", line 583, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "C:\Users\MyPC PRO\Documents\hello_world\setup_all_data.py", line 557, in main
+    if not step1_download_datasets(datasets, args.quick):
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MyPC PRO\Documents\hello_world\setup_all_data.py", line 286, in step1_download_datasets
+    response = input(f"\n{Colors.YELLOW}Continue without MD-2019? (y/n): {Colors.END}").strip().lower()
+               ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+EOFError: EOF when reading a line

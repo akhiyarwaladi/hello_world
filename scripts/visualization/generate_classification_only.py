@@ -4,40 +4,21 @@ Generate ONLY predicted classification visualizations (GT boxes with predicted c
 Uses GT boxes to evaluate pure classification performance
 """
 
-import os
 import sys
 import argparse
 from pathlib import Path
 import cv2
+import numpy as np
 import pandas as pd
 import torch
-from PIL import Image
 from torchvision import transforms, models
 
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-def yolo_to_absolute(box_yolo, img_width, img_height):
-    """Convert YOLO format to absolute coordinates"""
-    x_center, y_center, w, h = box_yolo[1:]
-    x1 = int((x_center - w / 2) * img_width)
-    y1 = int((y_center - h / 2) * img_height)
-    x2 = int((x_center + w / 2) * img_width)
-    y2 = int((y_center + h / 2) * img_height)
-    return [x1, y1, x2, y2]
-
-
-def load_gt_annotations(label_file):
-    """Load ground truth annotations"""
-    annotations = []
-    if not Path(label_file).exists():
-        return annotations
-
-    with open(label_file, 'r') as f:
-        for line in f:
-            parts = line.strip().split()
-            if len(parts) >= 5:
-                box = [int(parts[0])] + [float(x) for x in parts[1:5]]
-                annotations.append(box)
-    return annotations
+from utils.visualization_utils import (
+    draw_boxes, yolo_to_absolute, load_gt_annotations, crop_and_classify, COLORS
+)
 
 
 def load_gt_class_mapping(crops_dir, image_name):
@@ -89,57 +70,6 @@ def load_gt_class_mapping(crops_dir, image_name):
     return mapping
 
 
-def crop_and_classify(image, box_abs, classification_model, transform, class_names, device):
-    """Crop and classify detected region"""
-    if isinstance(image, np.ndarray):
-        image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-
-    x1, y1, x2, y2 = box_abs
-    crop = image.crop((x1, y1, x2, y2))
-    crop_resized = crop.resize((224, 224))
-
-    img_tensor = transform(crop_resized).unsqueeze(0).to(device)
-
-    with torch.no_grad():
-        outputs = classification_model(img_tensor)
-        probabilities = torch.softmax(outputs, dim=1)
-        confidence, predicted_idx = torch.max(probabilities, 1)
-
-    return class_names[predicted_idx.item()], confidence.item()
-
-
-def draw_boxes(image, boxes, labels, colors, thickness=4, font_scale=0.9):
-    """Draw bounding boxes with labels"""
-    img_copy = image.copy()
-
-    for box, label, color in zip(boxes, labels, colors):
-        x1, y1, x2, y2 = [int(c) for c in box]
-
-        # Draw rectangle
-        cv2.rectangle(img_copy, (x1, y1), (x2, y2), color, thickness)
-
-        # Draw label
-        if label:
-            (text_width, text_height), baseline = cv2.getTextSize(
-                label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, 2
-            )
-
-            text_y_top = y1 - text_height - baseline - 8
-            text_y_bottom = y1
-
-            if text_y_top < 0:
-                text_y_top = y1
-                text_y_bottom = y1 + text_height + baseline + 8
-                text_pos_y = y1 + text_height + baseline
-            else:
-                text_pos_y = y1 - baseline - 5
-
-            cv2.rectangle(img_copy, (x1 - 8, text_y_top), (x1 + text_width + 8, text_y_bottom), color, -1)
-            cv2.putText(img_copy, label, (x1, text_pos_y), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), 2)
-
-    return img_copy
-
-
 def generate_classification_visualization(
     image_path,
     label_file,
@@ -155,9 +85,9 @@ def generate_classification_visualization(
     img_height, img_width = image.shape[:2]
     image_name = Path(image_path).stem
 
-    # Load GT boxes
+    # Load GT boxes (utils returns list of dicts with 'class_id' and 'box' keys)
     gt_annotations = load_gt_annotations(label_file)
-    gt_boxes = [yolo_to_absolute(ann, img_width, img_height) for ann in gt_annotations]
+    gt_boxes = [yolo_to_absolute(ann['box'], img_width, img_height) for ann in gt_annotations]
 
     # Load GT class mapping for comparison
     gt_class_mapping = load_gt_class_mapping(gt_crops_dir, image_name)
@@ -166,12 +96,10 @@ def generate_classification_visualization(
     pred_labels = []
     pred_colors = []
 
-    img_pil = Image.open(image_path)
-
     for idx, box_abs in enumerate(gt_boxes):
-        # Run classification on GT box
+        # Run classification on GT box (utils version takes np.ndarray BGR)
         pred_class, cls_conf = crop_and_classify(
-            img_pil, box_abs, classification_model,
+            image, box_abs, classification_model,
             transform, class_names, device
         )
 
@@ -180,9 +108,9 @@ def generate_classification_visualization(
 
         # Color code: Medium green if correct, Red if wrong
         if pred_class == gt_class:
-            color = (0, 180, 0)  # Medium green - correct (clear, not too bright)
+            color = COLORS['green']  # Medium green - correct
         else:
-            color = (0, 0, 255)  # Red - wrong
+            color = COLORS['red']  # Red - wrong
 
         pred_labels.append(pred_class)
         pred_colors.append(color)
@@ -297,5 +225,4 @@ def main():
 
 
 if __name__ == "__main__":
-    import numpy as np
     exit(main())

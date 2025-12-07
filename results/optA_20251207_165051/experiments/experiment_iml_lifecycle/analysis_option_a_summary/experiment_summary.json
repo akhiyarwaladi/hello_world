@@ -1,0 +1,20 @@
+{
+  "experiment_info": {
+    "architecture": "Option A - Shared Classification",
+    "detection_models": [
+      "yolo11"
+    ],
+    "classification_models": [
+      "densenet121_focal"
+    ],
+    "dataset": "iml_lifecycle",
+    "timestamp": "2025-12-07 17:03:11",
+    "efficiency_gains": {
+      "storage_reduction": "~70%",
+      "training_time_reduction": "~60%",
+      "architecture": "Shared ground truth crops and classification models"
+    }
+  },
+  "detection_results": {},
+  "classification_results": {}
+}

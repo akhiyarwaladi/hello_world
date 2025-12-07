@@ -14,62 +14,22 @@ pure classification performance, matching training methodology.
 Default: Process ALL test images
 """
 
-import os
 import sys
 import argparse
 from pathlib import Path
 import numpy as np
 import cv2
 import torch
-from PIL import Image
 from torchvision import transforms, models
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-
-def calculate_iou(box1, box2):
-    """Calculate IoU between two boxes [x1, y1, x2, y2]"""
-    x1_inter = max(box1[0], box2[0])
-    y1_inter = max(box1[1], box2[1])
-    x2_inter = min(box1[2], box2[2])
-    y2_inter = min(box1[3], box2[3])
-
-    if x2_inter < x1_inter or y2_inter < y1_inter:
-        return 0.0
-
-    inter_area = (x2_inter - x1_inter) * (y2_inter - y1_inter)
-    box1_area = (box1[2] - box1[0]) * (box1[3] - box1[1])
-    box2_area = (box2[2] - box2[0]) * (box2[3] - box2[1])
-    union_area = box1_area + box2_area - inter_area
-
-    return inter_area / union_area if union_area > 0 else 0.0
-
-
-def yolo_to_absolute(box_yolo, img_width, img_height):
-    """Convert YOLO format to absolute coordinates"""
-    x_center, y_center, w, h = box_yolo[1:]
-    x1 = int((x_center - w / 2) * img_width)
-    y1 = int((y_center - h / 2) * img_height)
-    x2 = int((x_center + w / 2) * img_width)
-    y2 = int((y_center + h / 2) * img_height)
-    return [x1, y1, x2, y2]
-
-
-def load_gt_annotations(label_file):
-    """Load ground truth detection boxes from YOLO format"""
-    annotations = []
-    if not Path(label_file).exists():
-        return annotations
-
-    with open(label_file, 'r') as f:
-        for line in f:
-            parts = line.strip().split()
-            if len(parts) >= 5:
-                box = [int(parts[0])] + [float(x) for x in parts[1:5]]
-                annotations.append(box)
-    return annotations
+from utils.visualization_utils import (
+    draw_boxes, yolo_to_absolute, load_gt_annotations,
+    crop_and_classify, calculate_iou, COLORS
+)
 
 
 def load_gt_class_mapping(crops_dir, image_name):
@@ -122,94 +82,10 @@ def load_gt_class_mapping(crops_dir, image_name):
     return mapping
 
 
-def draw_boxes(image, boxes, labels=None, colors=None, thickness=4, font_scale=0.9):
-    """Draw bounding boxes with optional labels"""
-    img_copy = image.copy()
-    img_height, img_width = image.shape[:2]
-
-    if colors is None:
-        colors = [(255, 0, 0)] * len(boxes)  # Default blue
-
-    if labels is None:
-        labels = [''] * len(boxes)
-
-    for box, label, color in zip(boxes, labels, colors):
-        x1, y1, x2, y2 = [int(c) for c in box]
-
-        # Draw rectangle
-        cv2.rectangle(img_copy, (x1, y1), (x2, y2), color, thickness)
-
-        # Draw label if provided
-        if label and label.strip():  # Check if label is not empty
-            (text_width, text_height), baseline = cv2.getTextSize(
-                label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, 2
-            )
-
-            # Background for text (larger padding)
-            padding = 8
-
-            # Calculate text position (above box if space available, otherwise below)
-            text_y_top = y1 - text_height - baseline - padding
-            text_y_bottom = y1
-
-            # If text would go above image, place it below the box top instead
-            if text_y_top < 0:
-                text_y_top = y1
-                text_y_bottom = y1 + text_height + baseline + padding
-                text_pos_y = y1 + text_height + baseline
-            else:
-                text_pos_y = y1 - baseline - 5
-
-            # Ensure text doesn't go beyond right edge
-            text_x_right = min(x1 + text_width + padding, img_width)
-            text_x_left = max(x1 - padding, 0)
-
-            # Draw background rectangle
-            cv2.rectangle(
-                img_copy,
-                (text_x_left, text_y_top),
-                (text_x_right, text_y_bottom),
-                color,
-                -1  # Filled
-            )
-
-            # Text (white, medium thickness)
-            cv2.putText(
-                img_copy,
-                label,
-                (max(x1, 0), text_pos_y),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                font_scale,
-                (255, 255, 255),  # White
-                2  # Reduced thickness
-            )
-
-    return img_copy
-
-
 def run_detection(image_path, detection_model, conf_threshold=0.25):
     """Run YOLO detection"""
     results = detection_model(str(image_path), conf=conf_threshold, verbose=False)
     return results[0]
-
-
-def crop_and_classify(image, box_abs, classification_model, transform, class_names, device):
-    """Crop and classify detected region"""
-    if isinstance(image, np.ndarray):
-        image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-
-    x1, y1, x2, y2 = box_abs
-    crop = image.crop((x1, y1, x2, y2))
-    crop_resized = crop.resize((224, 224))
-
-    img_tensor = transform(crop_resized).unsqueeze(0).to(device)
-
-    with torch.no_grad():
-        outputs = classification_model(img_tensor)
-        probabilities = torch.softmax(outputs, dim=1)
-        confidence, predicted_idx = torch.max(probabilities, 1)
-
-    return class_names[predicted_idx.item()], confidence.item()
 
 
 def generate_gt_detection(image_path, label_file, output_dir):
@@ -218,14 +94,14 @@ def generate_gt_detection(image_path, label_file, output_dir):
     img_height, img_width = image.shape[:2]
     image_name = Path(image_path).stem
 
-    # Load GT boxes
+    # Load GT boxes (utils returns list of dicts with 'box' key)
     gt_annotations = load_gt_annotations(label_file)
-    gt_boxes = [yolo_to_absolute(ann, img_width, img_height) for ann in gt_annotations]
+    gt_boxes = [yolo_to_absolute(ann['box'], img_width, img_height) for ann in gt_annotations]
 
     # Draw blue boxes with 'parasite' labels (generic)
-    colors = [(255, 0, 0)] * len(gt_boxes)  # Blue
-    labels = ['parasite'] * len(gt_boxes)  # All boxes labeled as 'parasite'
-    img_with_boxes = draw_boxes(image, gt_boxes, labels=labels, colors=colors)
+    colors = [COLORS['blue']] * len(gt_boxes)
+    labels = ['parasite'] * len(gt_boxes)
+    img_with_boxes = draw_boxes(image, gt_boxes, labels, colors)
 
     # Save
     output_path = Path(output_dir) / "gt_detection"
@@ -253,9 +129,9 @@ def generate_pred_detection(image_path, detection_model, output_dir, conf_thresh
             pred_boxes.append([int(c) for c in box_coords])
             pred_labels.append("parasite")
 
-    # Draw medium green boxes with confidence labels
-    colors = [(0, 180, 0)] * len(pred_boxes)  # Medium green (clear, not too bright)
-    img_with_boxes = draw_boxes(image, pred_boxes, labels=pred_labels, colors=colors)
+    # Draw medium green boxes with labels
+    colors = [COLORS['green']] * len(pred_boxes)
+    img_with_boxes = draw_boxes(image, pred_boxes, pred_labels, colors)
 
     # Save
     output_path = Path(output_dir) / "pred_detection"
@@ -272,9 +148,9 @@ def generate_gt_classification(image_path, label_file, gt_crops_dir, output_dir)
     img_height, img_width = image.shape[:2]
     image_name = Path(image_path).stem
 
-    # Load GT boxes and class mapping
+    # Load GT boxes and class mapping (utils returns list of dicts with 'box' key)
     gt_annotations = load_gt_annotations(label_file)
-    gt_boxes = [yolo_to_absolute(ann, img_width, img_height) for ann in gt_annotations]
+    gt_boxes = [yolo_to_absolute(ann['box'], img_width, img_height) for ann in gt_annotations]
     gt_class_mapping = load_gt_class_mapping(gt_crops_dir, image_name)
 
     # Create labels
@@ -289,8 +165,8 @@ def generate_gt_classification(image_path, label_file, gt_crops_dir, output_dir)
     print(f"   GT labels: {labels}")
 
     # Draw blue boxes with labels
-    colors = [(255, 0, 0)] * len(gt_boxes)  # Blue
-    img_with_boxes = draw_boxes(image, gt_boxes, labels=labels, colors=colors)
+    colors = [COLORS['blue']] * len(gt_boxes)
+    img_with_boxes = draw_boxes(image, gt_boxes, labels, colors)
 
     # Save
     output_path = Path(output_dir) / "gt_classification"
@@ -320,9 +196,9 @@ def generate_pred_classification(
     img_height, img_width = image.shape[:2]
     image_name = Path(image_path).stem
 
-    # Load GT boxes (same as gt_classification!)
+    # Load GT boxes (utils returns list of dicts with 'box' key)
     gt_annotations = load_gt_annotations(label_file)
-    gt_boxes = [yolo_to_absolute(ann, img_width, img_height) for ann in gt_annotations]
+    gt_boxes = [yolo_to_absolute(ann['box'], img_width, img_height) for ann in gt_annotations]
 
     # Load GT class mapping for comparison
     gt_class_mapping = load_gt_class_mapping(gt_crops_dir, image_name)
@@ -331,12 +207,10 @@ def generate_pred_classification(
     pred_labels = []
     pred_colors = []
 
-    img_pil = Image.open(image_path)
-
     for idx, box_abs in enumerate(gt_boxes):
-        # Run classification on GT box
+        # Run classification on GT box (utils takes np.ndarray BGR)
         pred_class, cls_conf = crop_and_classify(
-            img_pil, box_abs, classification_model,
+            image, box_abs, classification_model,
             transform, class_names, device
         )
 
@@ -345,10 +219,10 @@ def generate_pred_classification(
 
         # Color code: Medium green if correct, Red if wrong
         if pred_class == gt_class:
-            color = (0, 180, 0)  # Medium green - correct (clear, not too bright)
+            color = COLORS['green']
             label = pred_class
         else:
-            color = (0, 0, 255)  # Red - wrong
+            color = COLORS['red']
             label = pred_class
 
         pred_labels.append(label)
@@ -358,7 +232,7 @@ def generate_pred_classification(
 
     # Draw GT boxes with predicted classification labels
     print(f"   Drawing {len(gt_boxes)} GT boxes with predicted labels")
-    img_with_boxes = draw_boxes(image, gt_boxes, labels=pred_labels, colors=pred_colors)
+    img_with_boxes = draw_boxes(image, gt_boxes, pred_labels, pred_colors)
 
     # Save
     output_path = Path(output_dir) / "pred_classification"

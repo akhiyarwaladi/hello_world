@@ -1,0 +1,14 @@
+{
+  "experiment_name": "optA_20251207_134518_iml_lifecycle",
+  "dataset": "iml_lifecycle",
+  "models_performance": {
+    "yolo11": {
+      "epochs_trained": 5,
+      "best_epoch": 5,
+      "mAP50": 0.83869,
+      "mAP50_95": 0.48494,
+      "precision": 0.84444,
+      "recall": 0.78351
+    }
+  }
+}

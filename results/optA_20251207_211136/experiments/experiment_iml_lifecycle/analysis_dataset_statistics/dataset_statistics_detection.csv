@@ -1,0 +1,5 @@
+Dataset,Original_Train,Original_Val,Original_Test,Original_Total,Augmented_Train,Augmented_Val,Augmented_Test,Augmented_Total,Multiplier
+iml_lifecycle,372,128,126,626,1632,128,126,1886,4.4x
+md_2019_stages,936,312,378,1626,4106,312,378,4796,4.4x
+mp_idb_species,250,84,84,418,1096,84,84,1264,4.4x
+mp_idb_stages,250,84,84,418,1096,84,84,1264,4.4x

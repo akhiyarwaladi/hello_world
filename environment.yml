@@ -1,0 +1,102 @@
+# Conda Environment for Malaria Detection Pipeline
+# Created: 2025-12-07
+# Usage: conda env create -f environment.yml
+# Activate: conda activate malaria_detection
+
+name: malaria_detection
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+
+dependencies:
+  # Python version
+  - python=3.11
+
+  # Essential tools
+  - pip
+  - setuptools
+  - wheel
+
+  # Install remaining packages via pip
+  - pip:
+    # ==================================================
+    # DEEP LEARNING - PyTorch with CUDA 12.8
+    # ==================================================
+    - --extra-index-url https://download.pytorch.org/whl/cu128
+    - torch==2.8.0
+    - torchvision==0.23.0
+
+    # ==================================================
+    # OBJECT DETECTION - YOLO Models
+    # ==================================================
+    - ultralytics==8.3.202
+    - ultralytics-thop==2.0.17
+
+    # ==================================================
+    # COMPUTER VISION & IMAGE PROCESSING
+    # ==================================================
+    - opencv-python==4.12.0.88
+    - opencv-python-headless==4.12.0.88
+    - pillow>=11.0.0
+    - albumentations>=2.0.0
+    - scikit-image>=0.22.0
+    - imageio>=2.34.0
+    - imgviz>=1.7.0
+
+    # ==================================================
+    # DATA SCIENCE & NUMERICAL COMPUTING
+    # ==================================================
+    - numpy>=2.0.0
+    - pandas>=2.2.0
+    - scipy>=1.13.0
+    - scikit-learn>=1.5.0
+    - polars>=1.0.0
+
+    # ==================================================
+    # VISUALIZATION
+    # ==================================================
+    - matplotlib>=3.9.0
+    - seaborn>=0.13.0
+
+    # ==================================================
+    # DATA LOADING & ANNOTATION
+    # ==================================================
+    - kaggle>=1.6.0
+    - gdown>=5.2.0
+    - labelme>=5.4.0
+
+    # ==================================================
+    # CONFIGURATION & DATA FORMATS
+    # ==================================================
+    - pyyaml>=6.0.0
+    - lxml>=5.0.0
+
+    # ==================================================
+    # EXCEL FILE HANDLING
+    # ==================================================
+    - openpyxl>=3.1.0
+    - xlsxwriter>=3.1.0
+
+    # ==================================================
+    # INFERENCE & MODEL SERVING
+    # ==================================================
+    - onnxruntime>=1.18.0
+
+    # ==================================================
+    # UTILITIES
+    # ==================================================
+    - tqdm>=4.66.0
+    - psutil>=6.0.0
+    - loguru>=0.7.0
+    - coloredlogs>=15.0.0
+    - natsort>=8.4.0
+    - pydantic>=2.5.0
+    - requests>=2.31.0
+    - beautifulsoup4>=4.12.0
+
+    # ==================================================
+    # GUI (Optional - for labelme)
+    # ==================================================
+    - PyQt5>=5.15.0

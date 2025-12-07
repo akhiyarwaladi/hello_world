@@ -4,7 +4,6 @@ Enhanced classification visualization with CSV metadata export
 Shows which predictions are correct/incorrect with confidence scores
 """
 
-import os
 import sys
 import argparse
 from pathlib import Path
@@ -13,35 +12,15 @@ import pandas as pd
 import torch
 import torch.nn as nn
 import numpy as np
-from PIL import Image
 from torchvision import transforms, models
-import shutil
-from datetime import datetime
 
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-def yolo_to_absolute(box_yolo, img_width, img_height):
-    """Convert YOLO format to absolute coordinates"""
-    x_center, y_center, w, h = box_yolo[1:]
-    x1 = int((x_center - w / 2) * img_width)
-    y1 = int((y_center - h / 2) * img_height)
-    x2 = int((x_center + w / 2) * img_width)
-    y2 = int((y_center + h / 2) * img_height)
-    return [x1, y1, x2, y2]
-
-
-def load_gt_annotations(label_file):
-    """Load ground truth annotations"""
-    annotations = []
-    if not Path(label_file).exists():
-        return annotations
-
-    with open(label_file, 'r') as f:
-        for line in f:
-            parts = line.strip().split()
-            if len(parts) >= 5:
-                box = [int(parts[0])] + [float(x) for x in parts[1:5]]
-                annotations.append(box)
-    return annotations
+from utils.visualization_utils import (
+    draw_boxes, yolo_to_absolute, load_gt_annotations,
+    crop_and_classify, clean_output_directory, COLORS
+)
 
 
 def get_model(model_name, num_classes=4, pretrained=False):
@@ -135,111 +114,6 @@ def load_gt_class_mapping(crops_dir, image_name):
     return mapping
 
 
-def crop_and_classify(image, box_abs, classification_model, transform, class_names, device):
-    """Crop and classify detected region"""
-    if isinstance(image, np.ndarray):
-        image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-
-    x1, y1, x2, y2 = box_abs
-    crop = image.crop((x1, y1, x2, y2))
-    crop_resized = crop.resize((224, 224))
-
-    img_tensor = transform(crop_resized).unsqueeze(0).to(device)
-
-    with torch.no_grad():
-        outputs = classification_model(img_tensor)
-        probabilities = torch.softmax(outputs, dim=1)
-        confidence, predicted_idx = torch.max(probabilities, 1)
-
-    return class_names[predicted_idx.item()], confidence.item()
-
-
-def clean_output_directory(output_dir, backup=True):
-    """
-    Clean output directory before generation
-
-    Args:
-        output_dir: Output directory path
-        backup: If True, rename old folder to _backup_timestamp instead of deleting
-
-    Returns:
-        True if cleaned successfully
-    """
-    output_path = Path(output_dir)
-
-    if not output_path.exists():
-        return True  # Nothing to clean
-
-    # Check if folder has content
-    files = list(output_path.glob("*"))
-    if not files:
-        return True  # Empty folder, nothing to clean
-
-    if backup:
-        # Rename to backup with timestamp
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        backup_path = output_path.parent / f"{output_path.name}_backup_{timestamp}"
-
-        try:
-            shutil.move(str(output_path), str(backup_path))
-            print(f"   [BACKUP] Old folder renamed to: {backup_path.name}")
-            return True
-        except Exception as e:
-            print(f"   [WARNING] Could not backup folder: {e}")
-            # Try to delete old files instead
-            pass
-
-    # If backup failed or backup=False, delete old PNG and CSV files
-    try:
-        png_files = list(output_path.glob("*.png")) + list(output_path.glob("*.PNG"))
-        csv_files = list(output_path.glob("*.csv"))
-
-        deleted = 0
-        for f in png_files + csv_files:
-            f.unlink()
-            deleted += 1
-
-        if deleted > 0:
-            print(f"   [CLEAN] Deleted {deleted} old files from {output_path.name}")
-
-        return True
-    except Exception as e:
-        print(f"   [WARNING] Could not clean folder: {e}")
-        return False
-
-
-def draw_boxes(image, boxes, labels, colors, thickness=4, font_scale=0.9):
-    """Draw bounding boxes with labels"""
-    img_copy = image.copy()
-
-    for box, label, color in zip(boxes, labels, colors):
-        x1, y1, x2, y2 = [int(c) for c in box]
-
-        # Draw rectangle
-        cv2.rectangle(img_copy, (x1, y1), (x2, y2), color, thickness)
-
-        # Draw label
-        if label:
-            (text_width, text_height), baseline = cv2.getTextSize(
-                label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, 2
-            )
-
-            text_y_top = y1 - text_height - baseline - 8
-            text_y_bottom = y1
-
-            if text_y_top < 0:
-                text_y_top = y1
-                text_y_bottom = y1 + text_height + baseline + 8
-                text_pos_y = y1 + text_height + baseline
-            else:
-                text_pos_y = y1 - baseline - 5
-
-            cv2.rectangle(img_copy, (x1 - 8, text_y_top), (x1 + text_width + 8, text_y_bottom), color, -1)
-            cv2.putText(img_copy, label, (x1, text_pos_y), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), 2)
-
-    return img_copy
-
-
 def generate_classification_visualization_with_metadata(
     image_path,
     label_path,
@@ -259,8 +133,8 @@ def generate_classification_visualization_with_metadata(
     image_name = Path(image_path).stem
     img_height, img_width = image.shape[:2]
 
-    # Load ground truth boxes
-    gt_boxes = load_gt_annotations(label_path)
+    # Load ground truth boxes (utils returns list of dicts with 'class_id' and 'box' keys)
+    gt_annotations = load_gt_annotations(label_path)
 
     # Load GT class mapping from crops metadata
     gt_class_mapping = load_gt_class_mapping(crops_dir, image_name)
@@ -271,14 +145,14 @@ def generate_classification_visualization_with_metadata(
     pred_labels = []
     colors = []
 
-    for crop_idx, box_data in enumerate(gt_boxes):
-        gt_class_id = int(box_data[0])
-        box_abs = yolo_to_absolute(box_data, img_width, img_height)
+    for crop_idx, ann in enumerate(gt_annotations):
+        gt_class_id = ann['class_id']
+        box_abs = yolo_to_absolute(ann['box'], img_width, img_height)
 
         # Get GT class name from mapping
         gt_class_name = gt_class_mapping.get(crop_idx, class_names[gt_class_id] if gt_class_id < len(class_names) else f"class_{gt_class_id}")
 
-        # Classify
+        # Classify (utils takes np.ndarray BGR)
         predicted_class, confidence = crop_and_classify(
             image, box_abs, classification_model, transform, class_names, device
         )
@@ -302,9 +176,9 @@ def generate_classification_visualization_with_metadata(
 
         # Color: green if correct, red if wrong
         if is_correct:
-            colors.append((0, 180, 0))  # Green
+            colors.append(COLORS['green'])
         else:
-            colors.append((0, 0, 200))  # Red
+            colors.append(COLORS['red'])
 
     # Calculate statistics
     n_total = len(box_metadata)

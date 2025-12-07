@@ -1,0 +1,103 @@
+
+[95m================================================================================[0m
+[95m[1m                        MASTER DATA PREPARATION PIPELINE                        [0m
+[95m================================================================================[0m
+
+Datasets: IML
+Split ratios: 60% / 20% / 20%
+Quick mode: No
+Auto-confirm: Yes
+[93mClean mode: COMPLETE (including raw data)[0m
+[92m✓ Auto-confirm mode: Proceeding without prompts[0m
+
+[95m================================================================================[0m
+[95m[1m                             CHECKING PREREQUISITES                             [0m
+[95m================================================================================[0m
+
+[92m✓ Python: Python 3.13.10[0m
+[92m✓ PyTorch: 2.8.0+cu128[0m
+[92m✓ Ultralytics: 8.3.202[0m
+[92m✓ Kaggle API: Configured ✓[0m
+
+[95m================================================================================[0m
+[95m[1m                                 CLEANUP CHECK                                  [0m
+[95m================================================================================[0m
+
+[93m⚠ Found 1 existing processed folders:[0m
+  • data\raw\malaria_lifecycle
+[96mℹ COMPLETE CLEANUP mode enabled (including raw data), removing...[0m
+[92m✓ Removed: data\raw\malaria_lifecycle[0m
+
+[1m[STEP 1/3] DOWNLOAD RAW DATASETS[0m
+[96mℹ Existing raw data:[0m
+  [✗] IML
+  [✓] SPECIES
+  [✓] STAGES
+  [✗] MD
+
+[94m► Download malaria_lifecycle[0m
+  Command: python scripts/data_setup/01_download_datasets.py --dataset malaria_lifecycle
+  [STATS] Total datasets available: 2
+  [INFO] Downloaded datasets: kaggle_dataset, malaria_lifecycle
+  
+  [INFO] Next Steps:
+     See README.md for complete pipeline instructions
+[92m✓ Download malaria_lifecycle - Complete[0m
+
+[1m[STEP 2/3] SETUP DETECTION DATASETS (YOLO FORMAT)[0m
+[96mℹ Split ratios: 60% / 20% / 20%[0m
+
+[94m► Setup IML Lifecycle[0m
+  Command: python scripts/data_setup/08_setup_lifecycle_for_pipeline.py --train-ratio 0.6 --val-ratio 0.2 --test-ratio 0.2
+     0: parasite (excluding red blood cells from detection training)
+  \n[PARASITE ANNOTATIONS] 529 parasite objects (red blood cells excluded)
+  \n[READY] Lifecycle single-class detection dataset ready for pipeline!
+  [USAGE] Use --dataset iml_lifecycle flag in pipeline commands
+  [EXAMPLE] python run_multiple_models_pipeline.py --dataset iml_lifecycle --include yolo11 --epochs-det 10 --epochs-cls 10
+[92m✓ Setup IML Lifecycle - Complete[0m
+
+[1m[STEP 3/3] GENERATE GROUND TRUTH CROPS (224x224)[0m
+[96mℹ Split ratios: 60% / 20% / 20%[0m
+
+[94m► Generate crops for IML Lifecycle[0m
+  Command: python scripts/training/generate_ground_truth_crops.py --dataset data/processed/lifecycle --output data/ground_truth_crops_224/lifecycle --type iml_lifecycle --train-ratio 0.6 --val-ratio 0.2 --test-ratio 0.2
+    Class 1: 261 crops (49.3%)
+    Class 2: 77 crops (14.6%)
+    Class 3: 27 crops (5.1%)
+  
+  [SUCCESS] Ground truth crops generated at: data/ground_truth_crops_224/lifecycle
+[92m✓ Generate crops for IML Lifecycle - Complete[0m
+
+[95m================================================================================[0m
+[95m[1m                                VERIFYING SETUP                                 [0m
+[95m================================================================================[0m
+
+
+[1mIML:[0m
+[92m✓ Detection dataset: data\processed\lifecycle\data.yaml[0m
+[92m✓ Ground truth crops: data\ground_truth_crops_224\lifecycle\crops[0m
+
+[95m================================================================================[0m
+[95m[1m                                SETUP COMPLETE!                                 [0m
+[95m================================================================================[0m
+
+[92m[1m✓ All preprocessing complete![0m
+
+[1mDatasets ready:[0m
+  ✓ IML
+
+[1mTotal time:[0m 0.4 minutes
+
+[1mDirectory structure:[0m
+  data/
+  ├── raw/                      # Downloaded raw data
+  ├── processed/                # YOLO detection datasets (60/20/20)
+  └── ground_truth_crops_224/   # Classification crops (224x224)
+
+[1mNext steps:[0m
+  1. Quick test (5 minutes):
+     python main_pipeline.py --dataset iml_lifecycle --include yolo11 \
+            --classification-models densenet121 --epochs-det 5 --epochs-cls 5
+
+  2. Full experiment:
+     python main_pipeline.py --dataset all

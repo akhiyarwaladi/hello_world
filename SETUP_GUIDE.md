@@ -1,69 +1,141 @@
 # Environment Setup Guide - Malaria Detection Pipeline
 
-## Quick Start (Recommended)
+## Quick Start - NEW ENVIRONMENT (Recommended untuk Transfer ke PC Lain)
 
-### Option 1: Automated Setup (Easiest)
+### Option 1: Automated Setup dengan Script Baru (RECOMMENDED)
 
-Open **Anaconda Prompt** and run:
+Script ini akan membuat environment conda BARU dengan semua dependencies:
 
 ```bash
+# Buka Anaconda Prompt
 cd "C:\Users\MyPC PRO\Documents\hello_world"
-conda activate base
-python setup_environment.py
+python setup_new_environment.py
 ```
 
-This will automatically install all dependencies including:
-- PyTorch 2.8.0 with CUDA 12.8
-- Ultralytics (YOLO 10, 11, 12)
-- All computer vision and data science packages
+Atau dengan nama environment custom:
+```bash
+python setup_new_environment.py --name my_malaria_env
+```
+
+Script ini akan:
+1. Membuat conda environment baru: `malaria_detection`
+2. Install PyTorch 2.8.0 dengan CUDA 12.8
+3. Install Ultralytics (YOLO 10, 11, 12)
+4. Install semua dependencies dari requirements.txt
+5. Verifikasi instalasi
+6. Membuat script aktivasi (activate_env.bat)
+
+**Estimated time:** 10-15 menit
+**Disk space:** ~10GB
 
 ---
 
-## Manual Setup (Alternative)
+### Option 2: Manual Setup dengan Conda Environment Baru
 
-If automated setup fails, follow these steps:
+Langkah-langkah manual jika script otomatis gagal:
 
-### Step 1: Activate Conda Base Environment
-
-Open **Anaconda Prompt** and activate base:
+#### Step 1: Buat Conda Environment Baru
 
 ```bash
-conda activate base
-cd "C:\Users\MyPC PRO\Documents\hello_world"
+# Buka Anaconda Prompt
+conda create -n malaria_detection python=3.11 -y
+conda activate malaria_detection
 ```
 
-### Step 2: Install PyTorch with CUDA
+#### Step 2: Install PyTorch dengan CUDA 12.8
 
 ```bash
 pip install torch==2.8.0 torchvision==0.23.0 --index-url https://download.pytorch.org/whl/cu128
 ```
 
-Verify CUDA:
+Verifikasi CUDA:
 ```bash
 python -c "import torch; print(f'CUDA Available: {torch.cuda.is_available()}')"
 ```
-
 Expected output: `CUDA Available: True`
 
-### Step 3: Install Ultralytics (YOLO)
+#### Step 3: Install Ultralytics (YOLO)
 
 ```bash
 pip install ultralytics==8.3.202
 ```
 
-### Step 4: Install Remaining Dependencies
+#### Step 4: Install Dependencies
 
 ```bash
+cd "C:\path\to\hello_world"
 pip install -r requirements.txt
 ```
 
-This will install:
-- **Computer Vision**: opencv-python, albumentations, scikit-image
-- **Data Science**: pandas, numpy, scipy, scikit-learn, seaborn
-- **Deep Learning**: torch, torchvision, onnxruntime
-- **Object Detection**: ultralytics (YOLO 10, 11, 12)
-- **Data Processing**: labelme, kaggle, gdown
-- **Others**: tqdm, psutil, PyYAML, pillow
+Atau gunakan minimal requirements (lebih cepat):
+```bash
+pip install -r requirements_minimal.txt
+```
+
+---
+
+## Transfer ke PC Lain
+
+### Cara Transfer Project:
+
+1. **Copy folder project** ke PC baru (zip dulu jika perlu)
+2. **Install Anaconda** di PC baru jika belum ada
+3. **Jalankan setup script:**
+   ```bash
+   cd "path/to/hello_world"
+   python setup_new_environment.py
+   ```
+4. **Aktifkan environment:**
+   ```bash
+   conda activate malaria_detection
+   ```
+5. **Test pipeline:**
+   ```bash
+   python main_pipeline.py --dataset iml_lifecycle --include yolo11 --classification-models densenet121 --epochs-det 5 --epochs-cls 5
+   ```
+
+### File yang HARUS di-copy:
+- Semua file Python (*.py)
+- requirements.txt dan requirements_minimal.txt
+- environment.yml
+- setup_new_environment.py
+- Folder scripts/, utils/, config/
+- Folder data/ (jika sudah ada dataset)
+
+---
+
+## Option 3: Menggunakan Base Environment (NOT RECOMMENDED)
+
+Jika ingin install di base environment (tidak disarankan):
+
+```bash
+conda activate base
+cd "C:\Users\MyPC PRO\Documents\hello_world"
+python setup_environment.py
+```
+
+**WARNING:** Ini bisa menyebabkan konflik package. Lebih baik gunakan environment terpisah.
+
+---
+
+## Dependencies yang Diinstall
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| torch | 2.8.0 | Deep learning framework |
+| torchvision | 0.23.0 | Vision utilities |
+| ultralytics | 8.3.202 | YOLO 10, 11, 12 models |
+| opencv-python | 4.12.0.88 | Image processing |
+| pandas | 2.3.2 | Data analysis |
+| numpy | 2.2.6 | Numerical computing |
+| scikit-learn | 1.7.2 | Machine learning metrics |
+| albumentations | 2.0.8 | Data augmentation |
+| matplotlib | 3.10.6 | Visualization |
+| seaborn | 0.13.2 | Statistical plots |
+| openpyxl | 3.1.0+ | Excel file writing |
+| xlsxwriter | 3.1.0+ | Excel file writing (backup) |
+
+Full list: Lihat `requirements.txt` (~100 packages)
 
 ---
 

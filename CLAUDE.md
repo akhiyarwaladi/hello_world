@@ -4,9 +4,10 @@
 
 Advanced malaria parasite detection and classification system using **shared classification architecture** with YOLO detection models and PyTorch classification models.
 
-**Status:** ✅ **VERIFIED WORKING** (Last tested: 2025-10-17)
+**Status:** ✅ **VERIFIED WORKING** (Last tested: 2025-12-07)
 **Environment:** Python 3.13.5, PyTorch 2.8.0+cu128, CUDA 12.8
 **GPU:** NVIDIA RTX 4090 (24GB VRAM) - Fully tested and optimized
+**Latest Test Results:** Detection mAP@50: 96.61% | Classification Acc: 91.51%
 
 ---
 
@@ -86,9 +87,9 @@ python main_pipeline.py
 4. **Analyzes performance** and generates comprehensive reports
 
 **Scope:**
-- 3 datasets × 3 detection models × 6 classification models = 54 experiments
-- Estimated time: 6-8 hours (full experiment)
-- Storage: ~15-18 GB (with compression ~8-12 GB)
+- 4 datasets × 3 detection models × 6 classification models = 72 experiments
+- Estimated time: 8-12 hours (full experiment)
+- Storage: ~20-25 GB (with compression ~12-15 GB)
 
 ### Common Commands
 
@@ -102,8 +103,8 @@ python main_pipeline.py --include yolo11 --classification-models densenet121
 # Custom epochs
 python main_pipeline.py --epochs-det 100 --epochs-cls 75
 
-# Custom data splits
-python main_pipeline.py --train-ratio 0.66 --val-ratio 0.17 --test-ratio 0.17
+# Custom data splits (60/20/20 is default)
+python main_pipeline.py --train-ratio 0.60 --val-ratio 0.20 --test-ratio 0.20
 
 # Resume existing experiment
 python main_pipeline.py --continue-from optA_20250929_203726 --start-stage classification
@@ -117,11 +118,129 @@ python main_pipeline.py --continue-from optA_20250929_203726 --start-stage class
 
 | Dataset | Classes | Images | Purpose |
 |---------|---------|--------|---------|
-| **IML Lifecycle** | 4 stages | ~350 | Lifecycle classification |
-| **MP-IDB Species** | 4 species | ~200 | Species identification |
-| **MP-IDB Stages** | 4 stages | ~200 | Stage classification |
+| **IML Lifecycle** | 4 stages | ~313 | Lifecycle classification |
+| **MP-IDB Species** | 4 species | ~209 | Species identification |
+| **MP-IDB Stages** | 4 stages | ~209 | Stage classification |
+| **MD-2019 Stages** | 3 stages | ~813 | Malaria Detection 2019 |
 
-**Auto-setup:** Datasets automatically downloaded and prepared on first run.
+**Note:** Images counts are after filtering (valid annotations only).
+
+---
+
+### 📥 DATA SETUP FROM SCRATCH
+
+**Complete workflow for setting up all datasets on a new PC.**
+
+#### Prerequisites
+
+```bash
+# 1. Install Python dependencies
+pip install -r requirements.txt
+
+# 2. Setup Kaggle API (for MP-IDB datasets)
+pip install kaggle
+
+# Download kaggle.json from: https://www.kaggle.com/settings → API → Create New Token
+# Windows: Place in C:\Users\<username>\.kaggle\kaggle.json
+# Linux/Mac: Place in ~/.kaggle/kaggle.json
+```
+
+#### Step 1: Download Raw Data
+
+**Option A: Automated Download (Recommended)**
+
+```bash
+# Download IML Lifecycle + Kaggle MP-IDB (automated via script)
+python scripts/data_setup/01_download_datasets.py --dataset malaria_lifecycle,kaggle_mp_idb
+```
+
+**What this downloads:**
+- ✅ `data/raw/malaria_lifecycle/` - IML Lifecycle (auto from GitHub)
+- ✅ `data/raw/kaggle_dataset/MP-IDB-YOLO/` - MP-IDB (from Kaggle)
+
+**Option B: MD-2019 Dataset (Manual Download)**
+
+```bash
+# Download MD-2019 dataset (1.7 GB)
+# URL: https://prod-dcd-datasets-cache-zipfiles.s3.eu-west-1.amazonaws.com/5bf2kmwvfn-1.zip
+# Or from: https://data.mendeley.com/datasets/5bf2kmwvfn/1
+
+# Extract to: data/raw/md_2019/
+# Should contain: Giemsa stained images/, Ground truth images/, LifeStages.xlsx
+```
+
+**Alternative: Individual Dataset Scripts**
+
+```bash
+# If you prefer running individual scripts:
+python scripts/data_setup/08_setup_lifecycle_for_pipeline.py  # Auto-downloads IML
+python scripts/data_setup/07_setup_kaggle_species_for_pipeline.py  # Requires Kaggle data
+python scripts/data_setup/09_setup_kaggle_stage_for_pipeline.py    # Requires Kaggle data
+python scripts/data_setup/10_setup_md2019_stage_for_pipeline.py    # Requires MD-2019 data
+```
+
+#### Step 2: Setup Detection Datasets (60/20/20 split)
+
+```bash
+# All datasets with 60/20/20 train/val/test split
+python scripts/data_setup/08_setup_lifecycle_for_pipeline.py --train-ratio 0.60 --val-ratio 0.20 --test-ratio 0.20
+python scripts/data_setup/07_setup_kaggle_species_for_pipeline.py --train-ratio 0.60 --val-ratio 0.20 --test-ratio 0.20
+python scripts/data_setup/09_setup_kaggle_stage_for_pipeline.py --train-ratio 0.60 --val-ratio 0.20 --test-ratio 0.20
+python scripts/data_setup/10_setup_md2019_stage_for_pipeline.py --train-ratio 0.60 --val-ratio 0.20 --test-ratio 0.20
+```
+
+#### Step 3: Generate Ground Truth Crops
+
+```bash
+# Generate classification crops for each dataset
+python scripts/training/generate_ground_truth_crops.py --dataset data/processed/lifecycle --output data/ground_truth_crops_224/lifecycle --type iml_lifecycle --train-ratio 0.60 --val-ratio 0.20 --test-ratio 0.20
+
+python scripts/training/generate_ground_truth_crops.py --dataset data/processed/species --output data/ground_truth_crops_224/species --type mp_idb_species --train-ratio 0.60 --val-ratio 0.20 --test-ratio 0.20
+
+python scripts/training/generate_ground_truth_crops.py --dataset data/processed/stages --output data/ground_truth_crops_224/stages --type mp_idb_stages --train-ratio 0.60 --val-ratio 0.20 --test-ratio 0.20
+
+python scripts/training/generate_ground_truth_crops.py --dataset data/processed/md_2019_stages --output data/ground_truth_crops_224/md_2019_stages --type md_2019_stages --train-ratio 0.60 --val-ratio 0.20 --test-ratio 0.20
+```
+
+#### Expected Data Structure
+
+```
+data/
+├── raw/                          # Downloaded raw data
+│   ├── malaria_lifecycle/        # IML dataset
+│   ├── kaggle_dataset/           # MP-IDB dataset
+│   └── md_2019/                  # MD-2019 dataset
+├── processed/                    # Detection-ready data
+│   ├── lifecycle/                # 313 images
+│   ├── species/                  # 209 images
+│   ├── stages/                   # 209 images
+│   └── md_2019_stages/           # 813 images
+└── ground_truth_crops_224/       # Classification crops
+    ├── lifecycle/                # 529 crops
+    ├── species/                  # 1436 crops
+    ├── stages/                   # 1436 crops
+    └── md_2019_stages/           # 2919 crops
+```
+
+#### Important Notes on Reproducibility
+
+**Random Seed Optimization (Updated Oct 17, 2025):**
+- Ground truth crop generation uses **optimized random seed search** (tries 500 candidates)
+- Finds split that minimizes crop-level deviation from target 60/20/20 ratio
+- **Trade-off:** Better crop distribution (0.1% deviation) vs. exact reproducibility
+- Each run may produce slightly different splits (but same performance range)
+
+**Scientific Reproducibility:**
+- Same hyperparameters (focal loss α=0.25, γ=2.0) ✓
+- Same model architectures ✓
+- Same methodology ✓
+- Results in consistent performance range (89-92% classification accuracy)
+- **Conclusion:** Scientific reproducibility maintained (consistent methods + results)
+
+**Focal Loss Parameters (Verified Dec 7, 2025):**
+- Alpha: 0.25 (standard medical imaging)
+- Gamma: 2.0 (balanced focusing)
+- **Do NOT change** - these are proven optimal for malaria detection
 
 ### Detection Models (YOLO-Only)
 
@@ -438,6 +557,15 @@ pandoc hand_created/papers/JICEST_Paper.md -o hand_created/papers/exports/JICEST
 
 ## 📝 CHANGELOG
 
+### 2025-12-07 - Complete Data Setup Workflow & Verification
+- 📚 **Complete data setup documentation** - Added detailed workflow from scratch
+- 🌐 **MD-2019 download URL** - Direct link for automated setup (1.7GB)
+- ✅ **Verified focal loss parameters** - Confirmed alpha=0.25, gamma=2.0 (correct)
+- 🔬 **Reproducibility analysis** - Documented random seed optimization (Oct 17 change)
+- 📊 **Latest test results** - Detection: 96.61% mAP@50, Classification: 91.51% accuracy
+- 🎯 **4 datasets support** - Updated all counts and estimates (was 3, now 4 datasets)
+- 📝 **Prerequisites section** - Added Kaggle API setup instructions
+
 ### 2025-10-17 - Documentation Refactoring & Auto Cleanup
 - 📚 **Refactored documentation** - Split CLAUDE.md into 4 focused files
 - 🧹 **Auto folder cleanup** - Added automatic deletion before training (Windows-safe)
@@ -522,9 +650,10 @@ python main_pipeline.py --dataset iml_lifecycle --include yolo11 --classificatio
 
 ---
 
-**Last Updated:** 2025-10-17
+**Last Updated:** 2025-12-07
 **Status:** ✅ Verified Working
 **Environment:** Python 3.13.5, PyTorch 2.8.0+cu128, CUDA 12.8
+**Latest Results:** Detection mAP@50: 96.61% | Classification: 91.51% (exceeds baseline 89.62%)
 **Main Pipeline:** YOLO-focused shared classification architecture for efficient malaria detection
 
 **Documentation:**

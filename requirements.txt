@@ -49,6 +49,8 @@ numpy==2.2.6
 # nvidia-nvtx-cu12==12.8.90
 onnxruntime==1.22.1
 opencv-python==4.12.0.88
+openpyxl>=3.1.0
+xlsxwriter>=3.1.0
 opencv-python-headless==4.12.0.88
 osam==0.2.5
 packaging==25.0

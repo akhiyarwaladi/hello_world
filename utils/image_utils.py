@@ -575,3 +575,80 @@ def calculate_dataset_statistics(image_dir: Path) -> Dict[str, Any]:
                 stats['quality_metrics'][f'{metric}_max'] = max(values)
     
     return stats
+
+def draw_boxes(image: np.ndarray,
+               boxes,
+               labels,
+               colors,
+               thickness: int = 4,
+               font_scale: float = 0.9) -> np.ndarray:
+    """
+    Draw bounding boxes with labels on an image
+
+    Args:
+        image: Input image (BGR format)
+        boxes: List of bounding boxes [[x1,y1,x2,y2], ...]
+        labels: List of labels for each box
+        colors: List of colors (BGR) for each box
+        thickness: Line thickness for boxes
+        font_scale: Font scale for labels
+
+    Returns:
+        Image with drawn boxes
+    """
+    import cv2
+
+    img_copy = image.copy()
+
+    for box, label, color in zip(boxes, labels, colors):
+        x1, y1, x2, y2 = [int(c) for c in box]
+
+        # Draw rectangle
+        cv2.rectangle(img_copy, (x1, y1), (x2, y2), color, thickness)
+
+        # Draw label if provided
+        if label:
+            (text_width, text_height), baseline = cv2.getTextSize(
+                label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, 2
+            )
+
+            text_y_top = y1 - text_height - baseline - 8
+            text_y_bottom = y1
+
+            if text_y_top < 0:
+                text_y_top = y1
+                text_y_bottom = y1 + text_height + baseline + 8
+                text_pos_y = y1 + text_height + baseline
+            else:
+                text_pos_y = y1 - baseline - 5
+
+            cv2.rectangle(img_copy, (x1 - 8, text_y_top),
+                         (x1 + text_width + 8, text_y_bottom), color, -1)
+            cv2.putText(img_copy, label, (x1, text_pos_y),
+                       cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), 2)
+
+    return img_copy
+
+
+def yolo_to_absolute(box,
+                     img_width: int,
+                     img_height: int):
+    """
+    Convert YOLO format (x_center, y_center, width, height) to absolute coordinates
+
+    Args:
+        box: YOLO format box [x_center, y_center, width, height] (normalized 0-1)
+        img_width: Image width in pixels
+        img_height: Image height in pixels
+
+    Returns:
+        Absolute coordinates [x1, y1, x2, y2]
+    """
+    x_center, y_center, w, h = box
+
+    x1 = int((x_center - w/2) * img_width)
+    y1 = int((y_center - h/2) * img_height)
+    x2 = int((x_center + w/2) * img_width)
+    y2 = int((y_center + h/2) * img_height)
+
+    return [x1, y1, x2, y2]
