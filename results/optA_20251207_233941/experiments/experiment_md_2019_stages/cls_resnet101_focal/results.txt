@@ -1,0 +1,16 @@
+Model: resnet101
+Best Val Acc: 85.79%
+Test Acc: 85.25%
+Balanced Acc: 83.48%
+Training Time: 15.6 min
+
+Classification Report:
+              precision    recall  f1-score   support
+
+        ring       0.86      0.93      0.89       170
+    schizont       0.93      0.87      0.90       286
+ trophozoite       0.69      0.70      0.70       127
+
+    accuracy                           0.85       583
+   macro avg       0.82      0.83      0.83       583
+weighted avg       0.85      0.85      0.85       583

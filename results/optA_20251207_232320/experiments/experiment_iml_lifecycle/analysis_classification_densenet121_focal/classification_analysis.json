@@ -1,0 +1,32 @@
+{
+  "model_name": "densenet121_focal",
+  "overall_accuracy": 0.2358490566037736,
+  "overall_balanced_accuracy": 0.28511404561824727,
+  "test_accuracy": 0.2358490566037736,
+  "class_performance": {
+    "gametocyte": {
+      "precision": 0.6666666666666666,
+      "recall": 0.08163265306122448,
+      "f1_score": 0.14545454545454545,
+      "support": 49.0
+    },
+    "ring": {
+      "precision": 0.6666666666666666,
+      "recall": 0.058823529411764705,
+      "f1_score": 0.10810810810810811,
+      "support": 34.0
+    },
+    "schizont": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1_score": 0.0,
+      "support": 4.0
+    },
+    "trophozoite": {
+      "precision": 0.1958762886597938,
+      "recall": 1.0,
+      "f1_score": 0.3275862068965517,
+      "support": 19.0
+    }
+  }
+}

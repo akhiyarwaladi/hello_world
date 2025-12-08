@@ -1,0 +1,39 @@
+{
+  "overall_accuracy": 0.9295774647887324,
+  "overall_balanced_accuracy": 0.6677284427284427,
+  "test_accuracy": 0.9295774647887324,
+  "per_class_metrics": {
+    "class_0": {
+      "class_name": "gametocyte",
+      "class_index": 0,
+      "precision": 1.0,
+      "recall": 0.4,
+      "f1_score": 0.5714285714285714,
+      "support": 5.0
+    },
+    "class_1": {
+      "class_name": "ring",
+      "class_index": 1,
+      "precision": 0.9803149606299213,
+      "recall": 0.9613899613899614,
+      "f1_score": 0.9707602339181286,
+      "support": 259.0
+    },
+    "class_2": {
+      "class_name": "schizont",
+      "class_index": 2,
+      "precision": 0.5,
+      "recall": 0.6666666666666666,
+      "f1_score": 0.5714285714285714,
+      "support": 6.0
+    },
+    "class_3": {
+      "class_name": "trophozoite",
+      "class_index": 3,
+      "precision": 0.45,
+      "recall": 0.6428571428571429,
+      "f1_score": 0.5294117647058824,
+      "support": 14.0
+    }
+  }
+}

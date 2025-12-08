@@ -1,0 +1,32 @@
+{
+  "model_name": "efficientnet_b2_focal",
+  "overall_accuracy": 0.9150943396226415,
+  "overall_balanced_accuracy": 0.9196073166108549,
+  "test_accuracy": 0.9150943396226415,
+  "class_performance": {
+    "gametocyte": {
+      "precision": 0.9574468085106383,
+      "recall": 0.9183673469387755,
+      "f1_score": 0.9375,
+      "support": 49.0
+    },
+    "ring": {
+      "precision": 0.9428571428571428,
+      "recall": 0.9705882352941176,
+      "f1_score": 0.9565217391304348,
+      "support": 34.0
+    },
+    "schizont": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "support": 4.0
+    },
+    "trophozoite": {
+      "precision": 0.75,
+      "recall": 0.7894736842105263,
+      "f1_score": 0.7692307692307693,
+      "support": 19.0
+    }
+  }
+}

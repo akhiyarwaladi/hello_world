@@ -1,0 +1,31 @@
+{
+  "overall_accuracy": 0.8524871355060034,
+  "overall_balanced_accuracy": 0.8347750134688532,
+  "test_accuracy": 0.8524871355060034,
+  "per_class_metrics": {
+    "class_0": {
+      "class_name": "ring",
+      "class_index": 0,
+      "precision": 0.8586956521739131,
+      "recall": 0.9294117647058824,
+      "f1_score": 0.8926553672316384,
+      "support": 170.0
+    },
+    "class_1": {
+      "class_name": "schizont",
+      "class_index": 1,
+      "precision": 0.9259259259259259,
+      "recall": 0.8741258741258742,
+      "f1_score": 0.8992805755395683,
+      "support": 286.0
+    },
+    "class_2": {
+      "class_name": "trophozoite",
+      "class_index": 2,
+      "precision": 0.689922480620155,
+      "recall": 0.7007874015748031,
+      "f1_score": 0.6953125,
+      "support": 127.0
+    }
+  }
+}

@@ -1,0 +1,30 @@
+Classification Analysis: resnet101_focal
+===============================================
+
+Overall Performance:
+- Accuracy: 0.9862
+- Balanced Accuracy: 0.8810
+- Test Accuracy: 0.9862
+
+Per-Class Performance:
+
+P_falciparum:
+  - Precision: 0.9885
+  - Recall: 1.0000
+  - F1-Score: 0.9942
+  - Support: 259
+P_malariae:
+  - Precision: 1.0000
+  - Recall: 0.6667
+  - F1-Score: 0.8000
+  - Support: 9
+P_ovale:
+  - Precision: 1.0000
+  - Recall: 0.8571
+  - F1-Score: 0.9231
+  - Support: 7
+P_vivax:
+  - Precision: 0.9375
+  - Recall: 1.0000
+  - F1-Score: 0.9677
+  - Support: 15

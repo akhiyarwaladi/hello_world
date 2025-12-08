@@ -1,0 +1,30 @@
+{
+  "experiment_name": "optA_20251207_233941_mp_idb_stages",
+  "dataset": "mp_idb_stages",
+  "models_performance": {
+    "yolo10": {
+      "epochs_trained": 100,
+      "best_epoch": 96,
+      "mAP50": 0.91859,
+      "mAP50_95": 0.52722,
+      "precision": 0.90222,
+      "recall": 0.89639
+    },
+    "yolo11": {
+      "epochs_trained": 100,
+      "best_epoch": 67,
+      "mAP50": 0.93353,
+      "mAP50_95": 0.4778,
+      "precision": 0.8926,
+      "recall": 0.90857
+    },
+    "yolo12": {
+      "epochs_trained": 100,
+      "best_epoch": 95,
+      "mAP50": 0.95624,
+      "mAP50_95": 0.58908,
+      "precision": 0.92159,
+      "recall": 0.91429
+    }
+  }
+}
