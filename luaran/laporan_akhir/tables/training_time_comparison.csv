@@ -1,7 +1,0 @@
-Model,Parameter,Waktu_IML,Waktu_MD_2019,Rata_rata,Per_Epoch
-EfficientNet-B0,5.3M,2.3 jam,3.8 jam,3.05 jam,2.44 menit
-EfficientNet-B1,7.8M,2.5 jam,4.2 jam,3.35 jam,2.68 menit
-EfficientNet-B2,9.2M,2.7 jam,4.5 jam,3.60 jam,2.88 menit
-DenseNet121,8.0M,2.9 jam,4.8 jam,3.85 jam,3.08 menit
-ResNet50,25.6M,2.8 jam,4.9 jam,3.85 jam,3.08 menit
-ResNet101,44.5M,3.4 jam,5.8 jam,4.60 jam,3.68 menit
