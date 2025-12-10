@@ -17,21 +17,21 @@ visualization_outputs/
 │   ├── accuracy_*.png                    # 4 datasets (accuracy over epochs)
 │   └── loss_*.png                        # 4 datasets (loss over epochs)
 │
-├── test_visualizations/                  # Detection & classification examples
-│   ├── full/                             # ALL test images (best models only)
-│   │   ├── detection/                    # Detection results with bounding boxes
-│   │   │   ├── yolo11_iml_lifecycle/     # 63 images
-│   │   │   ├── yolo11_md_2019_stages/    # 189 images
-│   │   │   ├── yolo11_mp_idb_species/    # 42 images
-│   │   │   └── yolo11_mp_idb_stages/     # 42 images
-│   │   └── classification/               # Classification results with predictions
-│   │       ├── efficientnet_b0_md_2019_stages/    # 189 images (best: 91.0%)
-│   │       ├── efficientnet_b1_iml_lifecycle/     # 63 images (best: 91.51%)
-│   │       ├── efficientnet_b1_mp_idb_species/    # 42 images
-│   │       └── resnet50_mp_idb_stages/            # 42 images (best: 89.0%)
-│   └── selected_cases/                   # Top 20 error cases (for publication)
-│       ├── detection/                    # 10 worst detection errors
-│       └── classification/               # 10 worst classification errors
+├── selected_cases/                       # Curated error examples (for publication)
+│   ├── detection/                        # Detection error cases
+│   │   ├── 01_fp_simple.png              # Simple false positive
+│   │   ├── 02_fn_pure.png                # Pure false negative
+│   │   ├── 03_fp_heavy.png               # Heavy overdetection
+│   │   ├── 04_mixed_errors.png           # Mixed FP+FN
+│   │   ├── 05_crowded_field.png          # Crowded field errors
+│   │   └── 06_fn_atypical.png            # Atypical morphology FN
+│   └── classification/                   # Classification error cases
+│       ├── 01_single_error.png           # Single misclassification
+│       ├── 02_moderate_error.png         # Moderate errors
+│       ├── 03_stage_transition.png       # Stage transition confusion
+│       ├── 04_species_confusion.png      # Species misidentification
+│       ├── 05_heavy_error.png            # Heavy misclassification
+│       └── 06_perfect_crowded.png        # Perfect accuracy (crowded)
 │
 └── metadata/                             # CSV reports and statistics
     ├── selected_detection_errors.csv     # Detection error analysis (544 cases)

@@ -18,10 +18,9 @@ Output Structure:
     │   ├── accuracy_mp_idb_species.png
     │   └── accuracy_mp_idb_stages.png
     │
-    ├── test_visualizations/
-    │   └── selected_cases/            # Top error cases only (not all images)
-    │       ├── detection/
-    │       └── classification/
+    ├── selected_cases/                # Curated error examples (for publication)
+    │   ├── detection/                 # Detection error cases
+    │   └── classification/            # Classification error cases
     │
     ├── metadata/
     │   ├── selected_detection_errors.csv
@@ -90,11 +89,11 @@ class CentralizedVisualizationGenerator:
         self.cm_dir = self.output_dir / "confusion_matrices"
         self.cm_individual_dir = self.cm_dir / "individual"
         self.curves_dir = self.output_dir / "training_curves"
-        self.test_viz_dir = self.output_dir / "test_visualizations" / "selected_cases"
+        self.selected_cases_dir = self.output_dir / "selected_cases"
         self.metadata_dir = self.output_dir / "metadata"
 
         for d in [self.cm_dir, self.cm_individual_dir, self.curves_dir,
-                  self.test_viz_dir / "detection", self.test_viz_dir / "classification",
+                  self.selected_cases_dir / "detection", self.selected_cases_dir / "classification",
                   self.metadata_dir]:
             d.mkdir(parents=True, exist_ok=True)
 
@@ -228,15 +227,15 @@ class CentralizedVisualizationGenerator:
         print("[3/4] SELECTING & COPYING ERROR CASES")
         print("="*80)
 
-        # Clean test visualizations folder before regenerating
-        print("\n[3.0] Cleaning test visualizations folder...")
-        if self.test_viz_dir.exists():
+        # Clean selected cases folder before regenerating
+        print("\n[3.0] Cleaning selected cases folder...")
+        if self.selected_cases_dir.exists():
             import shutil
-            shutil.rmtree(self.test_viz_dir)
+            shutil.rmtree(self.selected_cases_dir)
         # Recreate folder structure
-        (self.test_viz_dir / "detection").mkdir(parents=True, exist_ok=True)
-        (self.test_viz_dir / "classification").mkdir(parents=True, exist_ok=True)
-        print("   ✓ Cleaned old test visualizations")
+        (self.selected_cases_dir / "detection").mkdir(parents=True, exist_ok=True)
+        (self.selected_cases_dir / "classification").mkdir(parents=True, exist_ok=True)
+        print("   ✓ Cleaned old selected cases")
 
         experiments = self.discover_experiments()
 
@@ -268,7 +267,7 @@ class CentralizedVisualizationGenerator:
                 if src.exists():
                     category = row['error_category'].replace(' ', '_').replace('(', '').replace(')', '').lower()
                     dest_name = f"{category}_{row['dataset']}_{row['image_name']}.png"
-                    dest_path = self.test_viz_dir / "detection" / dest_name
+                    dest_path = self.selected_cases_dir / "detection" / dest_name
                     shutil.copy2(src, dest_path)
 
             print(f"   ✓ Selected {len(detection_df)} detection cases, copied top {self.top_n}")
@@ -306,7 +305,7 @@ class CentralizedVisualizationGenerator:
                 if src.exists():
                     category = row['error_category'].replace(' ', '_').replace('(', '').replace(')', '').replace('>', '').lower()
                     dest_name = f"{category}_{row['dataset']}_{row['image_name']}.png"
-                    dest_path = self.test_viz_dir / "classification" / dest_name
+                    dest_path = self.selected_cases_dir / "classification" / dest_name
                     shutil.copy2(src, dest_path)
 
             print(f"   ✓ Selected {len(classification_df)} classification cases, copied top {self.top_n}")
@@ -370,10 +369,9 @@ training_curves/             {self.results.get('training_curves', 0)} accuracy c
 ├── accuracy_mp_idb_species.png
 └── accuracy_mp_idb_stages.png
 
-test_visualizations/
-└── selected_cases/          Top {self.top_n} error cases each type
-    ├── detection/           Detection errors (FP, FN, Mixed)
-    └── classification/      Classification errors
+selected_cases/              Top {self.top_n} error cases each type
+├── detection/               Detection errors (FP, FN, Mixed)
+└── classification/          Classification errors
 
 metadata/                    Analysis data & reports
 ├── selected_detection_errors.csv      ({self.results.get('detection_cases', 0)} cases)
@@ -388,7 +386,7 @@ metadata/                    Analysis data & reports
 📊 FIGURES:
    → confusion_matrices/consolidated_2x2.png    (Publication figure)
    → training_curves/*.png                      (4 accuracy curves)
-   → test_visualizations/selected_cases/        (Error examples)
+   → selected_cases/                            (Error examples)
 
 📋 DATA/ANALYSIS:
    → metadata/selected_*_errors.csv             (Sortable in Excel)
@@ -401,7 +399,7 @@ metadata/                    Analysis data & reports
 1. UNTUK PAPER:
    - Ambil: confusion_matrices/consolidated_2x2.png
    - Ambil: training_curves/*.png (pilih yang perlu)
-   - Ambil: test_visualizations/selected_cases/ (error examples)
+   - Ambil: selected_cases/ (error examples)
 
 2. UNTUK ANALISIS:
    - Buka: metadata/selected_detection_errors.csv di Excel

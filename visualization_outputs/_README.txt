@@ -3,7 +3,7 @@
 ║              CENTRALIZED VISUALIZATION OUTPUTS - ONE FOLDER!                 ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
-Generated: 2025-12-10 19:42:28
+Generated: 2025-12-11 01:19:26
 Source Experiment: results\optA_20251207_233941
 Output Directory: C:\Users\MyPC PRO\Documents\hello_world\visualization_outputs
 
@@ -15,20 +15,19 @@ confusion_matrices/
 ├── individual/              24 per-model confusion matrices
 └── consolidated_2x2.png     Publication 2x2 grid (best models)
 
-training_curves/             0 accuracy curves
+training_curves/             8 accuracy curves
 ├── accuracy_iml_lifecycle.png
 ├── accuracy_md_2019_stages.png
 ├── accuracy_mp_idb_species.png
 └── accuracy_mp_idb_stages.png
 
-test_visualizations/
-└── selected_cases/          Top 20 error cases each type
-    ├── detection/           Detection errors (FP, FN, Mixed)
-    └── classification/      Classification errors
+selected_cases/              Top 20 error cases each type
+├── detection/               Detection errors (FP, FN, Mixed)
+└── classification/          Classification errors
 
 metadata/                    Analysis data & reports
-├── selected_detection_errors.csv      (0 cases)
-├── selected_classification_errors.csv (0 cases)
+├── selected_detection_errors.csv      (544 cases)
+├── selected_classification_errors.csv (1388 cases)
 ├── selected_error_images.csv          (combined)
 └── visualization_report.md            (human-readable)
 
@@ -39,7 +38,7 @@ metadata/                    Analysis data & reports
 📊 FIGURES:
    → confusion_matrices/consolidated_2x2.png    (Publication figure)
    → training_curves/*.png                      (4 accuracy curves)
-   → test_visualizations/selected_cases/        (Error examples)
+   → selected_cases/                            (Error examples)
 
 📋 DATA/ANALYSIS:
    → metadata/selected_*_errors.csv             (Sortable in Excel)
@@ -52,7 +51,7 @@ metadata/                    Analysis data & reports
 1. UNTUK PAPER:
    - Ambil: confusion_matrices/consolidated_2x2.png
    - Ambil: training_curves/*.png (pilih yang perlu)
-   - Ambil: test_visualizations/selected_cases/ (error examples)
+   - Ambil: selected_cases/ (error examples)
 
 2. UNTUK ANALISIS:
    - Buka: metadata/selected_detection_errors.csv di Excel
