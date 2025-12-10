@@ -7,8 +7,7 @@ visualization_outputs/
 ├── STRUCTURE.txt                         # This file - folder structure reference
 │
 ├── confusion_matrices/                   # Classification performance matrices
-│   ├── consolidated_2x2.png              # 2x2 grid comparing all 4 datasets
-│   └── individual/                       # Individual matrices per model
+│   └── individual/                       # Individual matrices per model (24 total)
 │       ├── iml_lifecycle_*.png           # 6 models (densenet121, efficientnet_b0/b1/b2, resnet50/101)
 │       ├── md_2019_stages_*.png          # 6 models
 │       ├── mp_idb_species_*.png          # 6 models

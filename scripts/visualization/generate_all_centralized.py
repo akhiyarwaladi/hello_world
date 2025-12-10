@@ -56,7 +56,8 @@ sys.path.insert(0, str(project_root))
 from scripts.visualization.selectors import DetectionErrorSelector, ClassificationErrorSelector
 from scripts.visualization.reporters import CSVReporter, MarkdownReporter, JSONReporter
 from scripts.visualization.generate_training_curves import TrainingCurvesGenerator
-from scripts.visualization.generate_consolidated_confusion_matrices import ConsolidatedConfusionMatrixGenerator
+# REMOVED: Consolidated confusion matrix no longer needed
+# from scripts.visualization.generate_consolidated_confusion_matrices import ConsolidatedConfusionMatrixGenerator
 
 
 class CentralizedVisualizationGenerator:
@@ -188,31 +189,10 @@ class CentralizedVisualizationGenerator:
 
         print(f"   ✓ Collected {count} individual confusion matrices")
 
-        # Step 2: Generate consolidated 2x2 grid DIRECTLY to centralized folder
-        print("\n[1.2] Generating consolidated 2x2 grid...")
-        try:
-            generator = ConsolidatedConfusionMatrixGenerator(
-                experiment_dir=self.experiments_dir,
-                output_dir=self.cm_dir,  # Direct to centralized folder!
-                dpi=400
-            )
-
-            # Modify output filename
-            results = generator.generate_all()
-
-            # Rename to simpler name
-            src = self.cm_dir / "confusion_matrices.png"
-            dest = self.cm_dir / "consolidated_2x2.png"
-            if src.exists():
-                shutil.move(src, dest)
-                print(f"   ✓ Generated: consolidated_2x2.png")
-                self.results['confusion_matrices'] = count + 1
-            else:
-                self.results['confusion_matrices'] = count
-
-        except Exception as e:
-            print(f"   [WARNING] Could not generate consolidated CM: {e}")
-            self.results['confusion_matrices'] = count
+        # REMOVED: Consolidated 2x2 grid generation (not needed)
+        # User only wants individual confusion matrices
+        self.results['confusion_matrices'] = count
+        print(f"\n[1.2] Skipped: Consolidated confusion matrix (individual matrices only)")
 
     def generate_training_curves(self):
         """Generate training curves DIRECTLY to centralized folder."""

@@ -117,17 +117,18 @@ def plot_publication_quality_confusion_matrix(
     title = f'{dataset_display} - {model_display}\nTest Accuracy: {accuracy:.2f}%'
     plt.title(title, fontsize=18, fontweight='bold', pad=20)
 
-    # Labels with NO rotation (rotation=0)
+    # Labels - Y-axis rotated 90° to save space
     plt.xlabel('Predicted Class', fontsize=16, fontweight='bold', labelpad=10)
     plt.ylabel('True Class', fontsize=16, fontweight='bold', labelpad=10)
 
-    # CRITICAL: NO 45-degree rotation! Keep labels horizontal (rotation=0)
+    # X-axis labels: horizontal (rotation=0)
     plt.xticks(rotation=0, fontsize=14, ha='center')
-    plt.yticks(rotation=0, fontsize=14, va='center')
+    # Y-axis labels: rotated 90° for space efficiency
+    plt.yticks(rotation=90, fontsize=14, va='center')
 
-    # Adjust layout with reduced top/bottom margins
-    # Reduced top margin from 0.95 to 0.92 and bottom from 0.10 to 0.08
-    plt.subplots_adjust(left=0.12, right=0.88, top=0.92, bottom=0.08)
+    # Adjust layout - optimized margins to minimize whitespace
+    # Reduced left, right, top, bottom margins for tighter layout
+    plt.subplots_adjust(left=0.08, right=0.92, top=0.94, bottom=0.06)
 
     # Save with high DPI
     plt.savefig(save_path, dpi=dpi, facecolor='white')
