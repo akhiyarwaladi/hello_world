@@ -247,9 +247,15 @@ def generate_all_separate_visualizations(
     dataset_name,
     detection_models_trained,
     classification_models_trained,
-    max_images=None
+    max_images=None,
+    centralized_output=None
 ):
-    """Generate all visualizations separately per model (not combinations)"""
+    """Generate all visualizations separately per model (not combinations)
+
+    Args:
+        centralized_output: If provided, also generate to centralized folder
+                           (e.g., 'visualization_outputs/test_visualizations/full')
+    """
 
     print(f"\n{'='*80}")
     print(f"[VISUALIZE] GENERATING SEPARATE MODEL VISUALIZATIONS")
@@ -265,6 +271,9 @@ def generate_all_separate_visualizations(
         print(f"   Max images per model: {max_images}")
     else:
         print(f"   Processing: ALL test images")
+
+    if centralized_output:
+        print(f"   Centralized output: {centralized_output} (generating to BOTH locations)")
 
     # Determine test images/labels paths based on dataset
     dataset_paths = {
@@ -327,6 +336,54 @@ def generate_all_separate_visualizations(
         num_classes=num_classes,  # NEW: pass num_classes
         max_images=max_images
     )
+
+    # 4. Copy to centralized location if requested
+    if centralized_output:
+        print(f"\n{'='*80}")
+        print(f"[CENTRALIZED] COPYING TO CENTRALIZED LOCATION")
+        print(f"{'='*80}")
+
+        centralized_base = Path(centralized_output)
+        centralized_det = centralized_base / "detection"
+        centralized_cls = centralized_base / "classification"
+        centralized_det.mkdir(parents=True, exist_ok=True)
+        centralized_cls.mkdir(parents=True, exist_ok=True)
+
+        import shutil
+
+        # Copy detection visualizations
+        print(f"\n   [COPY] Detection visualizations...")
+        det_copied = 0
+        for det_model_info in detection_models_trained:
+            det_model_key = det_model_info['model_key']
+            src_dir = output_base / f"pred_detection_{det_model_key}"
+            dest_dir = centralized_det / f"{det_model_key}_{dataset_name}"
+
+            if src_dir.exists():
+                dest_dir.mkdir(parents=True, exist_ok=True)
+                for png_file in src_dir.glob("*.png"):
+                    shutil.copy2(png_file, dest_dir / png_file.name)
+                    det_copied += 1
+                print(f"      ✓ {det_model_key}_{dataset_name}")
+
+        # Copy classification visualizations
+        print(f"\n   [COPY] Classification visualizations...")
+        cls_copied = 0
+        for cls_model_name in classification_models_trained.keys():
+            src_dir = output_base / f"pred_classification_{cls_model_name}"
+            dest_dir = centralized_cls / f"{cls_model_name}_{dataset_name}"
+
+            if src_dir.exists():
+                dest_dir.mkdir(parents=True, exist_ok=True)
+                for png_file in src_dir.glob("*.png"):
+                    shutil.copy2(png_file, dest_dir / png_file.name)
+                    cls_copied += 1
+                print(f"      ✓ {cls_model_name}_{dataset_name}")
+
+        print(f"\n   ✅ Centralized copy complete: {det_copied + cls_copied} files")
+        print(f"      Detection: {det_copied} files")
+        print(f"      Classification: {cls_copied} files")
+        print(f"      Location: {centralized_base}")
 
     # Summary
     print(f"\n{'='*80}")

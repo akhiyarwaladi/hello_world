@@ -1891,7 +1891,8 @@ Per-Class Performance:
                 dataset_name=args.dataset,
                 detection_models_trained=detection_models_trained,
                 classification_models_trained=classification_models_trained,
-                max_images=None  # Process ALL test images (set to 5 for quick test)
+                max_images=None,  # Process ALL test images (set to 5 for quick test)
+                centralized_output="visualization_outputs/test_visualizations/full"  # NEW: Auto-copy to centralized folder
             )
 
             if viz_success:

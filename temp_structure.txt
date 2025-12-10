@@ -1,0 +1,32 @@
+results/optA_20251207_233941/
+└── experiments/
+    ├── experiment_iml_lifecycle/
+    │   ├── cls_efficientnet_b1_focal/
+    │   │   ├── confusion_matrix.png          ← PER-MODEL CONFUSION MATRIX
+    │   │   ├── training_curves.png
+    │   │   └── results.csv
+    │   ├── det_yolo11/
+    │   │   ├── confusion_matrix.png          ← DETECTION CONFUSION MATRIX
+    │   │   └── confusion_matrix_normalized.png
+    │   └── visualizations/                    ← TEST IMAGE VISUALIZATIONS
+    │       ├── pred_detection_yolo11/
+    │       │   ├── PA171697.png              ← Bounding box images
+    │       │   ├── PA171698.png
+    │       │   └── detection_metadata.csv    ← Metadata untuk selection
+    │       └── pred_classification_efficientnet_b1_focal/
+    │           ├── PA171697.png
+    │           └── classification_metadata_images.csv
+    │
+    ├── experiment_md_2019_stages/            ← Same structure
+    ├── experiment_mp_idb_species/            ← Same structure
+    └── experiment_mp_idb_stages/             ← Same structure
+
+luaran/auto_generated/figures/
+├── performance/
+│   └── confusion_matrices.png                ← CONSOLIDATED 2x2 GRID
+├── training_curves/
+│   ├── accuracy_iml_lifecycle.png
+│   ├── accuracy_md_2019_stages.png
+│   ├── accuracy_mp_idb_species.png
+│   └── accuracy_mp_idb_stages.png
+└── ... other figures

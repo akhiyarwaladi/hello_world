@@ -11,6 +11,33 @@ Advanced malaria parasite detection and classification system using **shared cla
 
 ---
 
+## 📝 LESSONS LEARNED
+
+### Critical Development Guidelines
+
+**JANGAN MEMBUAT SCRIPT BARU JIKA IMPLEMENTASI SEBELUMNYA MASIH ADA**
+- ⚠️ **CRITICAL:** Always check for existing scripts with similar functionality FIRST
+- NEVER create duplicate files - extend/modify existing ones instead
+- ALWAYS improve existing files rather than creating new versions
+- Keep codebase clean and organized - avoid script proliferation
+- Reuse before recreate - modify existing code to handle new cases
+- **Example:** Instead of creating `generate_detection_training_curves.py`, should have extended `generate_training_curves.py` to handle both classification AND detection models in one unified script
+
+**Benefits of Extending Existing Code:**
+- ✅ Single source of truth - easier maintenance
+- ✅ Consistent styling and patterns
+- ✅ Reduced duplication - DRY principle
+- ✅ Easier to understand and navigate
+- ✅ Less cognitive load - fewer files to track
+
+**When to Create New Script (ONLY):**
+- Completely different purpose/domain
+- Zero overlap in functionality
+- Would create messy coupling if combined
+- Clear separation of concerns justifies it
+
+---
+
 ## 📚 DOCUMENTATION INDEX
 
 **Quick Links:**
