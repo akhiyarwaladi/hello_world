@@ -80,57 +80,73 @@ def plot_publication_quality_confusion_matrix(
     # Calculate percentages for dual annotations
     cm_percent = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis] * 100
 
-    # Create dual annotations: "count\n(percentage%)"
-    annotations = []
-    for i in range(cm.shape[0]):
-        row = []
-        for j in range(cm.shape[1]):
-            count = cm[i, j]
-            percent = cm_percent[i, j]
-            if count > 0:
-                row.append(f'{int(count)}\n({percent:.1f}%)')
-            else:
-                row.append('0\n(0.0%)')
-        annotations.append(row)
+    # Create figure with FIXED size for consistency across all confusion matrices
+    # Reduced width to 8 to minimize right white space
+    fig, ax = plt.subplots(figsize=(8, 8))  # Square, compact
 
-    # Create figure (SQUARE for consistent sizing)
-    fig = plt.figure(figsize=(10, 10))
-
-    # Plot heatmap with dataset-specific colors
-    ax = sns.heatmap(
+    # Plot heatmap with dataset-specific colors (NO annot, we'll add manually)
+    sns.heatmap(
         cm,
-        annot=annotations,
-        fmt='',
+        annot=False,  # We'll add manual annotations
         cmap=cmap,
         xticklabels=class_names,
         yticklabels=class_names,
-        cbar_kws={'label': 'Count'},
+        cbar_kws={
+            'label': '',     # No label (removed "Count")
+            'shrink': 0.82,  # Optimized colorbar size
+            'aspect': 20,    # Ultra-thin colorbar
+            'pad': 0.01      # Ultra-minimal gap
+        },
         linewidths=1.0,
         linecolor='white',
         square=True,
-        annot_kws={'size': 20, 'weight': 'bold'}  # INCREASED from 13 to 20
+        ax=ax
     )
+
+    # Manual annotations with different font sizes for count and percentage
+    for i in range(cm.shape[0]):
+        for j in range(cm.shape[1]):
+            count = cm[i, j]
+            percent = cm_percent[i, j]
+
+            # Format percentage: remove .0 for whole numbers
+            percent_str = f'{percent:.1f}%'
+            if percent_str.endswith('.0%'):
+                percent_str = percent_str[:-3] + '%'
+
+            # Plot count (larger, bold)
+            ax.text(j + 0.5, i + 0.4, f'{int(count)}',
+                   ha='center', va='center',
+                   fontsize=22, fontweight='bold',
+                   color='white' if cm[i, j] > cm.max() / 2 else 'black')
+
+            # Plot percentage (smaller, regular)
+            ax.text(j + 0.5, i + 0.65, f'({percent_str})',
+                   ha='center', va='center',
+                   fontsize=16, fontweight='normal',
+                   color='white' if cm[i, j] > cm.max() / 2 else 'black')
 
     # Title with model and accuracy
     dataset_display = dataset_name.replace('_', ' ').title()
     model_display = model_name.replace('_', ' ').title()
     title = f'{dataset_display} - {model_display}\nTest Accuracy: {accuracy:.2f}%'
-    plt.title(title, fontsize=18, fontweight='bold', pad=20)
+    ax.set_title(title, fontsize=18, fontweight='bold', pad=12)
 
     # Labels - Y-axis rotated 90° to save space
-    plt.xlabel('Predicted Class', fontsize=16, fontweight='bold', labelpad=10)
-    plt.ylabel('True Class', fontsize=16, fontweight='bold', labelpad=10)
+    ax.set_xlabel('Predicted Class', fontsize=16, fontweight='bold', labelpad=6)
+    ax.set_ylabel('True Class', fontsize=16, fontweight='bold', labelpad=6)
 
-    # X-axis labels: horizontal (rotation=0)
-    plt.xticks(rotation=0, fontsize=14, ha='center')
-    # Y-axis labels: rotated 90° for space efficiency
-    plt.yticks(rotation=90, fontsize=14, va='center')
+    # X-axis labels: horizontal (rotation=0), moderate font
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=0, fontsize=14, ha='center', fontweight='bold')
+    # Y-axis labels: rotated 90° for space efficiency, moderate font
+    ax.set_yticklabels(ax.get_yticklabels(), rotation=90, fontsize=14, va='center', fontweight='bold')
 
-    # Adjust layout - optimized margins to minimize whitespace
-    # Reduced left, right, top, bottom margins for tighter layout
-    plt.subplots_adjust(left=0.08, right=0.92, top=0.94, bottom=0.06)
+    # FIXED margins for consistent sizing (no bbox_inches='tight')
+    # Ultra-minimal: more space bottom (for xlabel), zero right
+    # Right: 1.0, Top: 0.92, Bottom: 0.09 (increased for xlabel), Left: 0.10
+    plt.subplots_adjust(left=0.10, bottom=0.09, right=1.0, top=0.92)
 
-    # Save with high DPI
+    # Save with FIXED size (no bbox_inches='tight' to ensure consistent dimensions)
     plt.savefig(save_path, dpi=dpi, facecolor='white')
     plt.close()
 

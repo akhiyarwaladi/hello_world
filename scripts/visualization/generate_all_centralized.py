@@ -426,28 +426,63 @@ python scripts/visualization/generate_all_centralized.py
 
         print(f"   ✓ Created: _README.txt")
 
-    def run(self):
-        """Run complete centralized generation."""
+    def run(
+        self,
+        generate_confusion: bool = True,
+        generate_curves: bool = True,
+        generate_bbox: bool = True
+    ):
+        """
+        Run centralized generation with selective options.
+
+        Args:
+            generate_confusion: Generate confusion matrices
+            generate_curves: Generate training curves
+            generate_bbox: Generate bbox predictions (error cases)
+        """
         print("\n" + "="*80)
         print("CENTRALIZED VISUALIZATION GENERATION")
         print("="*80)
         print(f"Experiment: {self.experiment_root}")
         print(f"Output: {self.output_dir.absolute()}")
         print(f"Top N per category: {self.top_n}")
+        print()
+        print("Generation mode:")
+        print(f"  Confusion matrices: {'✓' if generate_confusion else '✗'}")
+        print(f"  Training curves: {'✓' if generate_curves else '✗'}")
+        print(f"  Bbox predictions: {'✓' if generate_bbox else '✗'}")
         print("="*80)
 
-        self.generate_confusion_matrices()
-        self.generate_training_curves()
-        self.select_and_copy_error_cases()
+        # Selective generation
+        if generate_confusion:
+            self.generate_confusion_matrices()
+        else:
+            print("\n[SKIPPED] Confusion matrices generation")
+
+        if generate_curves:
+            self.generate_training_curves()
+        else:
+            print("\n[SKIPPED] Training curves generation")
+
+        if generate_bbox:
+            self.select_and_copy_error_cases()
+        else:
+            print("\n[SKIPPED] Bbox predictions generation")
+
+        # Always create README
         self.create_readme()
 
+        # Summary
         print("\n" + "="*80)
         print("✅ GENERATION COMPLETE - EVERYTHING IN ONE PLACE!")
         print("="*80)
-        print(f"📊 Confusion matrices: {self.results.get('confusion_matrices', 0)}")
-        print(f"📈 Training curves: {self.results.get('training_curves', 0)}")
-        print(f"🔍 Detection cases: {self.results.get('detection_cases', 0)}")
-        print(f"🔬 Classification cases: {self.results.get('classification_cases', 0)}")
+        if generate_confusion:
+            print(f"📊 Confusion matrices: {self.results.get('confusion_matrices', 0)}")
+        if generate_curves:
+            print(f"📈 Training curves: {self.results.get('training_curves', 0)}")
+        if generate_bbox:
+            print(f"🔍 Detection cases: {self.results.get('detection_cases', 0)}")
+            print(f"🔬 Classification cases: {self.results.get('classification_cases', 0)}")
         print(f"\n📁 LOCATION: {self.output_dir.absolute()}")
         print(f"📄 READ: {(self.output_dir / '_README.txt').absolute()}")
         print("="*80)
@@ -456,7 +491,25 @@ python scripts/visualization/generate_all_centralized.py
 def main():
     """CLI interface."""
     parser = argparse.ArgumentParser(
-        description='Generate ALL visualizations to ONE centralized folder'
+        description='Generate ALL visualizations to ONE centralized folder',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Generate everything (default)
+  python generate_all_centralized.py
+
+  # Generate only confusion matrices
+  python generate_all_centralized.py --confusion-matrices-only
+
+  # Generate only training curves
+  python generate_all_centralized.py --training-curves-only
+
+  # Generate only bbox predictions
+  python generate_all_centralized.py --bbox-predictions-only
+
+  # Generate confusion matrices + training curves
+  python generate_all_centralized.py --confusion-matrices --training-curves
+        """
     )
     parser.add_argument('--experiment', type=str, default=None,
                        help='Experiment directory (default: auto-detect latest)')
@@ -465,7 +518,40 @@ def main():
     parser.add_argument('--top-n', type=int, default=20,
                        help='Number of cases per category (default: 20)')
 
+    # Selective generation flags
+    parser.add_argument('--confusion-matrices', action='store_true',
+                       help='Generate only confusion matrices')
+    parser.add_argument('--training-curves', action='store_true',
+                       help='Generate only training curves')
+    parser.add_argument('--bbox-predictions', action='store_true',
+                       help='Generate only bbox predictions (error cases)')
+
+    # Convenience shortcuts (mutually exclusive with individual flags)
+    parser.add_argument('--confusion-matrices-only', action='store_true',
+                       help='Shortcut: generate ONLY confusion matrices')
+    parser.add_argument('--training-curves-only', action='store_true',
+                       help='Shortcut: generate ONLY training curves')
+    parser.add_argument('--bbox-predictions-only', action='store_true',
+                       help='Shortcut: generate ONLY bbox predictions')
+
     args = parser.parse_args()
+
+    # Determine what to generate
+    generate_all = not any([
+        args.confusion_matrices, args.training_curves, args.bbox_predictions,
+        args.confusion_matrices_only, args.training_curves_only, args.bbox_predictions_only
+    ])
+
+    # Handle shortcuts
+    if args.confusion_matrices_only:
+        args.confusion_matrices = True
+        generate_all = False
+    if args.training_curves_only:
+        args.training_curves = True
+        generate_all = False
+    if args.bbox_predictions_only:
+        args.bbox_predictions = True
+        generate_all = False
 
     # Auto-detect
     if args.experiment is None:
@@ -484,6 +570,17 @@ def main():
             print("[ERROR] results/ not found")
             return 1
 
+    # Print selective generation info
+    if not generate_all:
+        print("\n[SELECTIVE GENERATION MODE]")
+        if args.confusion_matrices:
+            print("  ✓ Confusion matrices")
+        if args.training_curves:
+            print("  ✓ Training curves")
+        if args.bbox_predictions:
+            print("  ✓ Bbox predictions")
+        print()
+
     # Generate
     generator = CentralizedVisualizationGenerator(
         experiment_root=Path(args.experiment),
@@ -491,7 +588,11 @@ def main():
         top_n=args.top_n
     )
 
-    generator.run()
+    generator.run(
+        generate_confusion=generate_all or args.confusion_matrices,
+        generate_curves=generate_all or args.training_curves,
+        generate_bbox=generate_all or args.bbox_predictions
+    )
     return 0
 
 

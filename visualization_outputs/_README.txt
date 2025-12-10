@@ -3,7 +3,7 @@
 ║              CENTRALIZED VISUALIZATION OUTPUTS - ONE FOLDER!                 ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
-Generated: 2025-12-10 16:05:31
+Generated: 2025-12-10 19:42:28
 Source Experiment: results\optA_20251207_233941
 Output Directory: C:\Users\MyPC PRO\Documents\hello_world\visualization_outputs
 
@@ -12,10 +12,10 @@ Output Directory: C:\Users\MyPC PRO\Documents\hello_world\visualization_outputs
 📂 FOLDER STRUCTURE (EVERYTHING IN ONE PLACE!):
 
 confusion_matrices/
-├── individual/              25 per-model confusion matrices
+├── individual/              24 per-model confusion matrices
 └── consolidated_2x2.png     Publication 2x2 grid (best models)
 
-training_curves/             8 accuracy curves
+training_curves/             0 accuracy curves
 ├── accuracy_iml_lifecycle.png
 ├── accuracy_md_2019_stages.png
 ├── accuracy_mp_idb_species.png
@@ -27,8 +27,8 @@ test_visualizations/
     └── classification/      Classification errors
 
 metadata/                    Analysis data & reports
-├── selected_detection_errors.csv      (544 cases)
-├── selected_classification_errors.csv (1388 cases)
+├── selected_detection_errors.csv      (0 cases)
+├── selected_classification_errors.csv (0 cases)
 ├── selected_error_images.csv          (combined)
 └── visualization_report.md            (human-readable)
 
