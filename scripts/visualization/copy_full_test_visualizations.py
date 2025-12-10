@@ -127,8 +127,8 @@ def copy_full_test_visualizations(
             print(f"  ⚠️  {dataset}: source folder not found")
             continue
 
-        # Create output folder: best_yolo11_iml_lifecycle/
-        dest_dir = full_det_dir / f"best_{best_detection_model}_{dataset}"
+        # Create output folder with standardized naming: yolo11_iml_lifecycle/
+        dest_dir = full_det_dir / f"{best_detection_model}_{dataset}"
         dest_dir.mkdir(parents=True, exist_ok=True)
 
         # Copy all PNG files
@@ -175,8 +175,8 @@ def copy_full_test_visualizations(
             print(f"  ⚠️  {dataset}: source folder not found")
             continue
 
-        # Create output folder: best_efficientnet_b1_iml_lifecycle/
-        dest_dir = full_cls_dir / f"best_{best_cls_model}_{dataset}"
+        # Create output folder with standardized naming: efficientnet_b1_iml_lifecycle/
+        dest_dir = full_cls_dir / f"{best_cls_model}_{dataset}"
         dest_dir.mkdir(parents=True, exist_ok=True)
 
         # Copy all PNG files

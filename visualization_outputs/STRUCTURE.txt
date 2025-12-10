@@ -1,0 +1,87 @@
+================================================================================
+VISUALIZATION OUTPUTS - STANDARDIZED STRUCTURE
+================================================================================
+
+visualization_outputs/
+├── _README.txt                           # Overview and usage guide
+├── STRUCTURE.txt                         # This file - folder structure reference
+│
+├── confusion_matrices/                   # Classification performance matrices
+│   ├── consolidated_2x2.png              # 2x2 grid comparing all 4 datasets
+│   └── individual/                       # Individual matrices per model
+│       ├── iml_lifecycle_*.png           # 6 models (densenet121, efficientnet_b0/b1/b2, resnet50/101)
+│       ├── md_2019_stages_*.png          # 6 models
+│       ├── mp_idb_species_*.png          # 6 models
+│       └── mp_idb_stages_*.png           # 6 models
+│
+├── training_curves/                      # Training progress visualizations
+│   ├── accuracy_*.png                    # 4 datasets (accuracy over epochs)
+│   └── loss_*.png                        # 4 datasets (loss over epochs)
+│
+├── test_visualizations/                  # Detection & classification examples
+│   ├── full/                             # ALL test images (best models only)
+│   │   ├── detection/                    # Detection results with bounding boxes
+│   │   │   ├── yolo11_iml_lifecycle/     # 63 images
+│   │   │   ├── yolo11_md_2019_stages/    # 189 images
+│   │   │   ├── yolo11_mp_idb_species/    # 42 images
+│   │   │   └── yolo11_mp_idb_stages/     # 42 images
+│   │   └── classification/               # Classification results with predictions
+│   │       ├── efficientnet_b0_md_2019_stages/    # 189 images (best: 91.0%)
+│   │       ├── efficientnet_b1_iml_lifecycle/     # 63 images (best: 91.51%)
+│   │       ├── efficientnet_b1_mp_idb_species/    # 42 images
+│   │       └── resnet50_mp_idb_stages/            # 42 images (best: 89.0%)
+│   └── selected_cases/                   # Top 20 error cases (for publication)
+│       ├── detection/                    # 10 worst detection errors
+│       └── classification/               # 10 worst classification errors
+│
+└── metadata/                             # CSV reports and statistics
+    ├── selected_detection_errors.csv     # Detection error analysis (544 cases)
+    ├── selected_classification_errors.csv # Classification error analysis (1388 cases)
+    ├── selected_error_images.csv         # Combined error report (1932 cases)
+    └── visualization_report.md           # Human-readable summary
+
+================================================================================
+NAMING CONVENTIONS
+================================================================================
+
+Confusion Matrices (individual/):
+  Format: {dataset}_{model}.png
+  Example: iml_lifecycle_efficientnet_b1.png
+
+Training Curves:
+  Format: {metric}_{dataset}.png
+  Example: accuracy_iml_lifecycle.png
+
+Test Visualizations (full/):
+  Format: {model}_{dataset}/
+  Example: yolo11_iml_lifecycle/
+           efficientnet_b1_iml_lifecycle/
+
+Selected Cases:
+  Simple: detection/ and classification/ folders
+  Files numbered by error severity (highest first)
+
+================================================================================
+KEY FEATURES
+================================================================================
+
+✅ Standardized naming across all visualizations
+✅ Best models only (70% file reduction)
+✅ Consistent folder structure
+✅ Publication-ready quality (400 DPI, optimized sizing)
+✅ Easy navigation with clear hierarchy
+
+================================================================================
+REGENERATION
+================================================================================
+
+To regenerate all visualizations:
+  python scripts/visualization/generate_all_centralized.py
+
+To regenerate full test visualizations only:
+  python scripts/visualization/copy_full_test_visualizations.py
+
+To regenerate confusion matrices only:
+  python scripts/visualization/regenerate_publication_quality_confusion_matrices.py
+
+================================================================================
