@@ -108,7 +108,7 @@ def plot_publication_quality_confusion_matrix(
         linewidths=1.0,
         linecolor='white',
         square=True,
-        annot_kws={'size': 13, 'weight': 'bold'}
+        annot_kws={'size': 20, 'weight': 'bold'}  # INCREASED from 13 to 20
     )
 
     # Title with model and accuracy
@@ -125,8 +125,9 @@ def plot_publication_quality_confusion_matrix(
     plt.xticks(rotation=0, fontsize=14, ha='center')
     plt.yticks(rotation=0, fontsize=14, va='center')
 
-    # Adjust layout for large labels
-    plt.tight_layout()
+    # Adjust layout with reduced top/bottom margins
+    # Reduced top margin from 0.95 to 0.92 and bottom from 0.10 to 0.08
+    plt.subplots_adjust(left=0.12, right=0.88, top=0.92, bottom=0.08)
 
     # Save with high DPI
     plt.savefig(save_path, dpi=dpi, facecolor='white')

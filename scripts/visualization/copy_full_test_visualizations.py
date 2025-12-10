@@ -94,67 +94,101 @@ def copy_full_test_visualizations(
     total_det_copied = 0
     total_cls_copied = 0
 
-    # Copy detection visualizations
-    print("\n[1/2] COPYING DETECTION VISUALIZATIONS")
+    # Best models configuration (based on performance analysis)
+    # Detection: YOLO11 is best overall across all datasets
+    best_detection_model = "yolo11"
+
+    # Classification: Best model per dataset (from verified results)
+    best_classification_models = {
+        'iml_lifecycle': 'efficientnet_b1',      # 91.51% accuracy
+        'mp_idb_species': 'efficientnet_b1',     # Best for species
+        'mp_idb_stages': 'resnet50',             # 89.0% accuracy
+        'md_2019_stages': 'efficientnet_b0'      # 91.0% accuracy
+    }
+
+    # Copy detection visualizations (BEST MODEL ONLY)
+    print("\n[1/2] COPYING DETECTION VISUALIZATIONS (BEST MODEL ONLY)")
     print("-"*80)
+    print(f"   Best detection model: {best_detection_model.upper()}")
+    print()
 
     for exp in experiments:
         dataset = exp['dataset']
         viz_dir = exp['viz_dir']
 
-        for det_model in exp['detection_models']:
-            src_dir = viz_dir / f"pred_detection_{det_model}"
+        # Only copy best detection model
+        if best_detection_model not in exp['detection_models']:
+            print(f"  ⚠️  {dataset}: {best_detection_model} not found, skipping")
+            continue
 
-            if not src_dir.exists():
-                continue
+        src_dir = viz_dir / f"pred_detection_{best_detection_model}"
 
-            # Create output folder: yolo11_iml_lifecycle/
-            dest_dir = full_det_dir / f"{det_model}_{dataset}"
-            dest_dir.mkdir(parents=True, exist_ok=True)
+        if not src_dir.exists():
+            print(f"  ⚠️  {dataset}: source folder not found")
+            continue
 
-            # Copy all PNG files
-            copied = 0
-            for png_file in src_dir.glob("*.png"):
-                dest_path = dest_dir / png_file.name
-                shutil.copy2(png_file, dest_path)
-                copied += 1
+        # Create output folder: best_yolo11_iml_lifecycle/
+        dest_dir = full_det_dir / f"best_{best_detection_model}_{dataset}"
+        dest_dir.mkdir(parents=True, exist_ok=True)
 
-            if copied > 0:
-                print(f"  ✓ {det_model}_{dataset}: {copied} files")
-                total_det_copied += copied
+        # Copy all PNG files
+        copied = 0
+        for png_file in src_dir.glob("*.png"):
+            dest_path = dest_dir / png_file.name
+            shutil.copy2(png_file, dest_path)
+            copied += 1
 
-    # Copy classification visualizations
-    print("\n[2/2] COPYING CLASSIFICATION VISUALIZATIONS")
+        if copied > 0:
+            print(f"  ✓ {dataset}: {copied} files ({best_detection_model})")
+            total_det_copied += copied
+
+    # Copy classification visualizations (BEST MODEL ONLY PER DATASET)
+    print("\n[2/2] COPYING CLASSIFICATION VISUALIZATIONS (BEST MODEL PER DATASET)")
     print("-"*80)
+    print(f"   Best models:")
+    for ds, model in best_classification_models.items():
+        print(f"     - {ds}: {model}")
+    print()
 
     for exp in experiments:
         dataset = exp['dataset']
         viz_dir = exp['viz_dir']
 
-        for cls_model in exp['classification_models']:
-            src_dir = viz_dir / f"pred_classification_{cls_model}_focal"
+        # Get best model for this dataset
+        best_cls_model = best_classification_models.get(dataset)
 
-            # Try without _focal suffix if not found
-            if not src_dir.exists():
-                src_dir = viz_dir / f"pred_classification_{cls_model}"
+        if not best_cls_model:
+            print(f"  ⚠️  {dataset}: no best model configured, skipping")
+            continue
 
-            if not src_dir.exists():
-                continue
+        if best_cls_model not in exp['classification_models']:
+            print(f"  ⚠️  {dataset}: {best_cls_model} not found, skipping")
+            continue
 
-            # Create output folder: densenet121_iml_lifecycle/
-            dest_dir = full_cls_dir / f"{cls_model}_{dataset}"
-            dest_dir.mkdir(parents=True, exist_ok=True)
+        src_dir = viz_dir / f"pred_classification_{best_cls_model}_focal"
 
-            # Copy all PNG files
-            copied = 0
-            for png_file in src_dir.glob("*.png"):
-                dest_path = dest_dir / png_file.name
-                shutil.copy2(png_file, dest_path)
-                copied += 1
+        # Try without _focal suffix if not found
+        if not src_dir.exists():
+            src_dir = viz_dir / f"pred_classification_{best_cls_model}"
 
-            if copied > 0:
-                print(f"  ✓ {cls_model}_{dataset}: {copied} files")
-                total_cls_copied += copied
+        if not src_dir.exists():
+            print(f"  ⚠️  {dataset}: source folder not found")
+            continue
+
+        # Create output folder: best_efficientnet_b1_iml_lifecycle/
+        dest_dir = full_cls_dir / f"best_{best_cls_model}_{dataset}"
+        dest_dir.mkdir(parents=True, exist_ok=True)
+
+        # Copy all PNG files
+        copied = 0
+        for png_file in src_dir.glob("*.png"):
+            dest_path = dest_dir / png_file.name
+            shutil.copy2(png_file, dest_path)
+            copied += 1
+
+        if copied > 0:
+            print(f"  ✓ {dataset}: {copied} files ({best_cls_model})")
+            total_cls_copied += copied
 
     print("\n" + "="*80)
     print("✅ COPY COMPLETE")
