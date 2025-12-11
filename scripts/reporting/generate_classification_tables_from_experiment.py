@@ -208,12 +208,12 @@ def apply_professional_styling(ws, num_classes):
             else:
                 cell.alignment = Alignment(horizontal='center', vertical='center')
 
-            # Number formatting
+            # Number formatting (2 decimal places for all)
             if isinstance(cell.value, (int, float)) and col > 1:
                 if col in [2, 3]:  # Parameters and Training Time
                     cell.number_format = '0.0'
-                else:  # All metrics
-                    cell.number_format = '0.0000'
+                else:  # All metrics (2 decimals only)
+                    cell.number_format = '0.00'
 
     # Auto-adjust column widths
     ws.column_dimensions['A'].width = 20  # Model
