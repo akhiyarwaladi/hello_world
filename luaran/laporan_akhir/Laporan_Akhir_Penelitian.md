@@ -25,11 +25,13 @@ Lihat: `luaran\laporan_akhir\tables\Table2_Detection_Performance.xlsx`
 
 Tabel menampilkan hasil evaluasi komprehensif tiga model deteksi YOLO (YOLOv10, YOLOv11, YOLOv12) pada keempat dataset dengan metrik standar object detection [10]. Pada dataset IML Lifecycle, YOLOv11 [5] mencapai mAP@50 tertinggi 96,61% dengan recall optimal 95,88%, mengindikasikan kemampuan deteksi parasit maksimal namun dengan trade-off presisi sedikit lebih rendah 86,17%. YOLOv12 memberikan trade-off seimbang dengan mAP@50: 96,16%, presisi 89,38%, dan mAP@50-95: 78,01% yang terbaik, mendemonstrasikan lokalisasi bounding box lebih presisi [11]. Pada dataset MP-IDB Species [2], YOLOv11 kembali superior dengan mAP@50: 96,56% dan recall 95,29%, sementara YOLOv12 mencapai presisi tertinggi 94,38%. Pada dataset MP-IDB Stages yang paling menantang (ketidakseimbangan ekstrem), YOLOv12 unggul signifikan dengan mAP@50: 95,62% dan presisi 92,16%, mengindikasikan handling kelas minoritas lebih baik [12]. Pada dataset MD-2019 Stages [3] (terbesar, multi-patient), YOLOv12 mencapai mAP@50: 93,46% dan mAP@50-95 tertinggi 77,54%, menunjukkan robustness superior pada variasi morfologi tinggi. Kolom "Best Epoch" menunjukkan variasi konvergensi model: dataset sederhana (IML) konvergen cepat (epoch 18-47), sementara dataset kompleks (MP-IDB Stages, Species) memerlukan training lebih panjang (epoch 67-96).
 
-**Gambar 1: Contoh Hasil Deteksi YOLO11 pada Dataset MP-IDB Species**
+**Gambar 1a-b: Contoh Hasil Deteksi YOLO11 pada Dataset MP-IDB Species dan MD-2019 Stages**
 
-![Detection Example YOLO11](../../visualization_outputs/report_examples/detection_yolo11_1409171742-0009-R.png)
+![Detection Example 1 - MP-IDB Species](../../visualization_outputs/report_examples/detection_yolo11_1409171742-0009-R.png)
 
-Gambar menunjukkan deteksi sempurna pada 6 parasit dengan bounding box, label kelas, dan confidence score rata-rata 77.1%. Model YOLOv11 mampu mendeteksi berbagai tahapan parasit [13] (Ring, Trophozoite, Schizont) dengan presisi tinggi tanpa false positive maupun false negative.
+![Detection Example 2 - MD-2019 Stages](../../visualization_outputs/report_examples/detection_yolo11_md2019_Trip067.png)
+
+Gambar menunjukkan deteksi sempurna YOLO11 pada dua dataset berbeda. **Gambar 1a (MP-IDB Species)**: 6 parasit terdeteksi dengan confidence rata-rata 77.1%, menunjukkan kemampuan deteksi multi-tahapan (Ring, Trophozoite, Schizont) tanpa kesalahan [13]. **Gambar 1b (MD-2019 Stages)**: 6 parasit terdeteksi dengan confidence rata-rata 81.6% pada kondisi multi-patient, mendemonstrasikan robustness model terhadap variasi pewarnaan dan morfologi heterogen [17].
 
 **Temuan Kunci Hasil Deteksi:**
 
@@ -63,20 +65,41 @@ Lihat:
 
 **Tabel 6 (MD-2019 Stages):** Dataset multi-patient terbesar [3] menunjukkan akurasi lebih rendah (83,53-86,62%) dibanding dataset lain, mengindikasikan tantangan variasi morfologi antar pasien, heterogenitas pewarnaan [25], dan kondisi pencitraan yang diverse. EfficientNet-B0 [7] mencapai performa optimal (86,62% accuracy, 85,51% balanced accuracy) dengan gap minimal 1,11 poin persentase, mendemonstrasikan generalisasi excellent pada data heterogen. Model ringan EfficientNet-B0 (5,3 juta parameter) superior dibanding model berat ResNet101 (44,5 juta parameter) yang hanya 85,25% accuracy, mengonfirmasi arsitektur efficient lebih robust untuk real-world medical imaging [30] dengan variasi tinggi dan menghindari overfitting pada pola-pola spesifik training data.
 
-**Gambar 2-5: Confusion Matrices - Performa Klasifikasi pada 4 Dataset**
+**Gambar 2-9: Confusion Matrices - Top 2 Model per Dataset (8 Total)**
 
-![Confusion Matrix IML Lifecycle](../../visualization_outputs/confusion_matrices/individual/iml_lifecycle_efficientnet_b2.png)
-![Confusion Matrix MP-IDB Species](../../visualization_outputs/confusion_matrices/individual/mp_idb_species_resnet101.png)
-![Confusion Matrix MP-IDB Stages](../../visualization_outputs/confusion_matrices/individual/mp_idb_stages_resnet101.png)
-![Confusion Matrix MD-2019 Stages](../../visualization_outputs/confusion_matrices/individual/md_2019_stages_efficientnet_b0.png)
+**IML Lifecycle:**
+![IML - DenseNet121 (93.79%)](../../visualization_outputs/confusion_matrices/individual/iml_lifecycle_densenet121.png)
+![IML - EfficientNet-B2 (91.96%)](../../visualization_outputs/confusion_matrices/individual/iml_lifecycle_efficientnet_b2.png)
 
-Confusion matrices menampilkan performa klasifikasi model terbaik pada keempat dataset. Pada **IML Lifecycle** [1], EfficientNet-B2 mencapai akurasi 91,51% dengan balanced accuracy 91,96%, mengindikasikan handling kelas minoritas sangat baik dengan kebingungan utama antara Trophozoite dan Ring [21] karena morfologi overlap pada fase transisi. Pada **MP-IDB Species**, ResNet101 mencapai akurasi tertinggi 98,62% untuk identifikasi 4 spesies Plasmodium [2], dengan P. falciparum (259 sampel) mencapai F1-score 99,42% dan spesies langka P. ovale (7 sampel) serta P. malariae (16 sampel) mencapai presisi sempurna 100%, mendemonstrasikan efektivitas Focal Loss [9] untuk kelas ultra-minority dengan morfologi distinctive seperti enlarged RBC dan Schuffner's dots [26]. Pada **MP-IDB Stages** dengan ketidakseimbangan ekstrem (rasio 54:1 Ring vs Gametocyte), ResNet101 mencapai akurasi 95,07% dengan balanced accuracy 76,99%, dimana kelas Ring dominan (259 sampel) mencapai F1-score 98,47% dan kelas Gametocyte ultra-minority (5 sampel) mencapai skor sempurna 100% berkat morfologi crescent yang distinctive [31], namun Trophozoite sering misclassified sebagai Ring (36% error) akibat bias model terhadap kelas mayoritas. Pada **MD-2019 Stages** multi-patient dengan variasi morfologi tinggi, EfficientNet-B0 mencapai akurasi 86,62% dengan balanced accuracy 85,51% dan gap minimal 1,11 poin persentase, mendemonstrasikan generalisasi excellent pada data heterogen meskipun akurasi lebih rendah akibat heterogenitas pewarnaan Giemsa [25] dan kondisi pencitraan, dengan kebingungan utama antara Trophozoite dan Ring/Schizont pada fase transisi (24% error rate). Diagonal matrices menunjukkan klasifikasi benar yang dominan pada semua dataset, sementara off-diagonal mengindikasikan pola kesalahan konsisten pada transisi morfologi antar tahap siklus hidup [13].
+**MP-IDB Species:**
+![Species - ResNet101 (88.10%)](../../visualization_outputs/confusion_matrices/individual/mp_idb_species_resnet101.png)
+![Species - EfficientNet-B1 (86.43%)](../../visualization_outputs/confusion_matrices/individual/mp_idb_species_efficientnet_b1.png)
 
-**Gambar 6: Contoh Hasil Klasifikasi - Dataset IML Lifecycle (EfficientNet-B1)**
+**MP-IDB Stages:**
+![Stages - ResNet101 (76.99%)](../../visualization_outputs/confusion_matrices/individual/mp_idb_stages_resnet101.png)
+![Stages - EfficientNet-B0 (73.78%)](../../visualization_outputs/confusion_matrices/individual/mp_idb_stages_efficientnet_b0.png)
 
-![Classification Example](../../visualization_outputs/report_examples/classification_efficientnet_b1_PA171852.png)
+**MD-2019 Stages:**
+![MD2019 - EfficientNet-B0 (85.51%)](../../visualization_outputs/confusion_matrices/individual/md_2019_stages_efficientnet_b0.png)
+![MD2019 - EfficientNet-B1 (83.91%)](../../visualization_outputs/confusion_matrices/individual/md_2019_stages_efficientnet_b1.png)
 
-Gambar menunjukkan hasil klasifikasi pada 3 parasit dengan akurasi 66.7% (2 benar, 1 salah). Setiap parasit ditampilkan dengan label prediksi (warna merah) dan ground truth (warna hijau), menunjukkan performa realistis model EfficientNet-B1 [7] dengan kemampuan klasifikasi yang baik namun sesekali terjadi kesalahan pada kasus morfologi ambigu [32].
+Confusion matrices menampilkan performa 2 model terbaik per dataset berdasarkan balanced accuracy, memberikan pandangan komprehensif tentang pola klasifikasi dan kesalahan sistematis pada berbagai karakteristik dataset.
+
+**IML Lifecycle** menunjukkan performa excellent dengan DenseNet121 mencapai balanced accuracy 93.79% dan EfficientNet-B2 91.96%. Kedua model menampilkan diagonal dominan yang kuat, mengindikasikan klasifikasi benar tinggi untuk semua 4 tahapan lifecycle. Kebingungan utama terjadi antara Trophozoite dan Ring (8-12% misclassification) karena morfologi overlap pada fase transisi [21], di mana parasit berevolusi dari bentuk cincin sederhana ke bentuk ameboid kompleks.
+
+**MP-IDB Species** mencapai akurasi tinggi dengan ResNet101 (88.10%) dan EfficientNet-B1 (86.43%) dalam mengidentifikasi 4 spesies Plasmodium [2]. P. falciparum sebagai kelas dominan mencapai F1-score 99.42% berkat morfologi khas multiple rings dan banana-shaped gametocytes [26]. Spesies langka P. ovale dan P. malariae mencapai presisi sempurna 100% berkat karakteristik distinctive seperti fimbriated edges (P. ovale) dan band forms (P. malariae) [27], meskipun jumlah sampel terbatas.
+
+**MP-IDB Stages** menghadapi ketidakseimbangan ekstrem (rasio 54:1) dengan ResNet101 (76.99%) dan EfficientNet-B0 (73.78%) sebagai model terbaik. Ring sebagai kelas dominan mencapai F1-score 98.47%, sementara Gametocyte ultra-minority (hanya 9 sampel) mencapai performa sempurna 100% berkat bentuk crescent yang sangat khas [31]. Namun, Trophozoite mengalami misclassification rate 36% karena model bias terhadap kelas mayoritas Ring yang morfologinya mirip pada tahap awal.
+
+**MD-2019 Stages** menunjukkan generalisasi terbaik dengan EfficientNet-B0 (85.51%) dan EfficientNet-B1 (83.91%) pada data multi-patient heterogen. Gap minimal antara akurasi dan balanced accuracy (<1.5%) mengindikasikan performa konsisten across classes. Kebingungan utama terjadi pada transisi Trophozoite-Ring dan Trophozoite-Schizont (24% error rate) karena variasi morfologi tinggi antar pasien dan tahap perkembangan parasit yang kontinu [13]. Diagonal matrices yang kuat pada semua dataset mengonfirmasi efektivitas Focal Loss dan weighted sampling dalam menangani ketidakseimbangan kelas.
+
+**Gambar 6a-b: Contoh Hasil Klasifikasi pada Dataset IML Lifecycle dan MD-2019 Stages**
+
+![Classification Example 1 - IML Lifecycle (EfficientNet-B1)](../../visualization_outputs/report_examples/classification_efficientnet_b1_PA171852.png)
+
+![Classification Example 2 - MD-2019 Stages (EfficientNet-B0)](../../visualization_outputs/report_examples/classification_efficientnet_b0_md2019_Trip804.png)
+
+Gambar menunjukkan hasil klasifikasi pada dua dataset berbeda. **Gambar 6a (IML Lifecycle)**: EfficientNet-B1 mengklasifikasi 3 parasit dengan akurasi 66.7% (2 benar, 1 salah), menunjukkan tantangan morfologi overlap pada fase transisi Ring-Trophozoite [32]. **Gambar 6b (MD-2019 Stages)**: EfficientNet-B0 mencapai klasifikasi sempurna 100% pada 5 parasit multi-patient dengan confidence rata-rata 94.9%, mendemonstrasikan generalisasi excellent model ringan pada data heterogen [34]. Setiap parasit ditampilkan dengan label prediksi (warna merah) dan ground truth (warna hijau) untuk transparansi evaluasi.
 
 **Temuan Kunci Hasil Klasifikasi:**
 
@@ -124,25 +147,37 @@ Tahap deteksi [4] [5] memerlukan 12,3-15,2 milidetik. Tahap ekstraksi citra terp
 
 ### C.4 Analisis Pola Kesalahan
 
-**Gambar 9: Kasus Kesalahan Deteksi Terseleksi**
+**Gambar 9: Kasus Kesalahan Deteksi Terseleksi (Semua Dataset)**
 
-![Detection Error 1 - Simple FP](../../visualization_outputs/selected_cases/detection/01_simple_fp_Trip%20065%20Day%202%2001-12-05%20Image%207_2.png)
+![Gambar 9a: IML Lifecycle - Positif Palsu (3 FP pada debris)](../../visualization_outputs/selected_cases/detection/01_fp_iml_lifecycle_PA171785.png)
 
-![Detection Error 2 - Heavy FP](../../visualization_outputs/selected_cases/detection/03_heavy_fp_1701151546-0015-R_T.png)
+![Gambar 9b: MD-2019 Stages - Positif Palsu Sederhana (7 GT, 1 FP)](../../visualization_outputs/selected_cases/detection/02_fp_md_2019_stages_Trip%20065%20Day%202%2001-12-05%20Image%207_2.png)
 
-![Detection Error 3 - Atypical FN](../../visualization_outputs/selected_cases/detection/06_atypical_fn_Trip%20073%20Day%202%2001-12-05%20Image%201_10.png)
+![Gambar 9c: MD-2019 Stages - Negatif Palsu (14 GT, 4 FN, 28.6% miss rate)](../../visualization_outputs/selected_cases/detection/03_fn_md_2019_stages_Trip%20073%20Day%202%2001-12-05%20Image%201_10.png)
 
-Gambar menunjukkan tiga pola kesalahan deteksi pada MD-2019 [3] dan MP-IDB Species: (1) **Simple overdetection** (Trip 065 Day 2 01-12-05 Image 7_2: 7 GT, 1 FP, confidence 88.1%), model mendeteksi semua 7 parasit namun menambahkan 1 false positive pada debris/artefak, (2) **Heavy mixed error** (1701151546-0015-R_T: 37 GT, 11 FP + 9 FN) pada field padat dengan 28 deteksi benar, 11 overdetection, dan 9 parasit terlewat, menunjukkan kesulitan pada crowded field dengan morfologi bervariasi [32], (3) **Pure false negatives** (Trip 073 Day 2 01-12-05 Image 1_10: 14 GT, 4 FN) dimana model melewatkan 4 dari 14 parasit (28.6%) tanpa false positive, mengindikasikan parasit dengan morfologi atipikal atau kontras rendah [25] pada dataset multi-pasien MD-2019. Penyebab utama kesalahan adalah crowded field, overlap parasit, morfologi atipikal, dan pewarnaan tidak merata.
+![Gambar 9d: MP-IDB Species - Kesalahan Campuran FP/FN](../../visualization_outputs/selected_cases/detection/04_mixed_mp_idb_species_1701151546-0015-R_T.png)
 
-**Gambar 10: Kasus Kesalahan Klasifikasi Terseleksi**
+![Gambar 9e: MP-IDB Species - Positif Palsu Berat (8 FP)](../../visualization_outputs/selected_cases/detection/05_fp_mp_idb_species_1307210661-0001-R.png)
 
-![Classification Error 1 - Single Error 66.7%](../../visualization_outputs/selected_cases/classification/01_single_error_66pct_Trip%20804%20Day%201%2002-12-05%20Image%203_11.png)
+![Gambar 9f: MP-IDB Stages - Bidang Padat dengan Kesalahan Campuran](../../visualization_outputs/selected_cases/detection/06_mixed_mp_idb_stages_1704282807-0012-R_T.png)
 
-![Classification Error 2 - Heavy Stage Confusion 9.8%](../../visualization_outputs/selected_cases/classification/03_stage_transition_10pct_1704282807-0019-R_G.png)
+Gambar menunjukkan enam pola kesalahan deteksi dari semua 4 dataset (IML Lifecycle, MD-2019 Stages, MP-IDB Species, MP-IDB Stages) yang mencerminkan spektrum tantangan deteksi: (1) **IML Lifecycle - Positif palsu** (3 FP) model mendeteksi parasit palsu pada debris dan artefak pewarnaan, (2) **MD-2019 - Positif palsu sederhana** (7 GT, 1 FP) model mendeteksi semua parasit namun menambahkan 1 positif palsu, (3) **MD-2019 - Negatif palsu** (14 GT, 4 FN, 28.6% miss rate) model melewatkan 4 dari 14 parasit dengan morfologi atipikal atau kontras rendah [25], (4) **MP-IDB Species - Kesalahan campuran** yang menunjukkan kesulitan simultan dalam mendeteksi parasit sejati dan menghindari alarm palsu, (5) **MP-IDB Species - Positif palsu berat** (8 FP) dengan banyak deteksi berlebihan pada debris, (6) **MP-IDB Stages - Bidang padat campuran** pada bidang dengan kepadatan tinggi dan overlap parasit, menunjukkan kesulitan deteksi pada kondisi padat [32]. Penyebab utama kesalahan konsisten across datasets adalah bidang padat, overlap parasit, morfologi atipikal, pewarnaan tidak merata, dan artefak yang menyerupai parasit.
 
-![Classification Error 3 - Perfect Crowded 100%](../../visualization_outputs/selected_cases/classification/06_perfect_crowded_100pct_1704282807-0020-R_T_S.png)
+**Gambar 10: Kasus Kesalahan Klasifikasi Terseleksi (Semua Dataset)**
 
-Gambar menunjukkan spektrum performa klasifikasi dari error hingga perfect: (1) **Single error 66.7%** (Trip 804 Day 1 02-12-05 Image 3_11: 2/3 benar, confidence 99.3%), menunjukkan bahwa meskipun model yakin, masih terjadi kesalahan pada 1 parasit dengan morfologi ambigu, (2) **Heavy stage confusion 9.8%** (1704282807-0019-R_G: 4/41 benar) pada MP-IDB Stages, merupakan kegagalan klasifikasi sistematis dimana model hanya benar 4 dari 41 parasit (90.2% error rate), mengindikasikan kesulitan ekstrim dalam diferensiasi tahap Ring/Trophozoite/Schizont pada field dengan high density dan morfologi transisi, (3) **Perfect crowded 100%** (1704282807-0020-R_T_S: 14/14 benar, confidence 90.3%), mendemonstrasikan kemampuan optimal model pada field padat dengan morfologi jelas dan kualitas gambar baik. Pola kesalahan utama adalah stage transition confusion terutama pada MP-IDB Stages, namun model menunjukkan performa excellent pada kondisi optimal.
+![Gambar 10a: IML Lifecycle - Kegagalan Total 0% (Semua parasit salah terklasifikasi)](../../visualization_outputs/selected_cases/classification/01_iml_lifecycle_0pct_PA171854.png)
+
+![Gambar 10b: IML Lifecycle - Klasifikasi Sempurna 100%](../../visualization_outputs/selected_cases/classification/02_iml_lifecycle_100pct_PA172021.png)
+
+![Gambar 10c: MD-2019 Stages - Kesalahan Tunggal 66% (2/3 benar)](../../visualization_outputs/selected_cases/classification/03_md_2019_stages_66pct_Trip%20804%20Day%201%2002-12-05%20Image%203_11.png)
+
+![Gambar 10d: MP-IDB Species - Kesalahan Berat 24% (Mayoritas salah)](../../visualization_outputs/selected_cases/classification/04_mp_idb_species_24pct_1701151546-0015-R_T.png)
+
+![Gambar 10e: MP-IDB Species - Kesalahan Moderate 66%](../../visualization_outputs/selected_cases/classification/05_mp_idb_species_66pct_1409171742-0009-R.png)
+
+![Gambar 10f: MP-IDB Stages - Klasifikasi Sempurna 100%](../../visualization_outputs/selected_cases/classification/06_mp_idb_stages_100pct_1408290968-0002-R.png)
+
+Gambar menunjukkan spektrum performa klasifikasi dari semua 4 dataset (IML Lifecycle, MD-2019 Stages, MP-IDB Species, MP-IDB Stages), mulai dari kegagalan total hingga akurasi sempurna: (1) **IML Lifecycle - Kegagalan total 0%** dimana semua parasit terklasifikasi salah, kemungkinan disebabkan oleh kualitas pewarnaan buruk atau kondisi pencitraan non-optimal, (2) **IML Lifecycle - Sempurna 100%** mendemonstrasikan kemampuan optimal model pada kondisi pewarnaan baik, (3) **MD-2019 - Kesalahan tunggal 66%** (2/3 benar) menunjukkan bahwa meskipun model yakin, masih terjadi kesalahan pada 1 parasit dengan morfologi ambigu, (4) **MP-IDB Species - Kesalahan berat 24%** dimana mayoritas parasit terklasifikasi salah, mengindikasikan kesulitan dalam diferensiasi spesies Plasmodium yang secara morfologi sangat mirip seperti P. vivax dan P. ovale [26], (5) **MP-IDB Species - Kesalahan moderate 66%** dimana sekitar sepertiga parasit terklasifikasi salah, (6) **MP-IDB Stages - Sempurna 100%** mendemonstrasikan performa optimal pada diferensiasi tahap lifecycle dengan morfologi jelas. Pola kesalahan utama konsisten across datasets adalah kebingungan transisi tahap dan diferensiasi spesies pada morfologi serupa, namun model menunjukkan performa sangat baik pada kondisi optimal dengan pewarnaan baik dan morfologi jelas.
 
 **Pola Kesalahan Klasifikasi Umum:**
 

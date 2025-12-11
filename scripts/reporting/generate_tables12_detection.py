@@ -25,7 +25,7 @@ COLORS = {
     'border': 'CBD5E0',
 }
 
-def apply_professional_styling(ws):
+def apply_professional_styling(ws, table_type='detection'):
     """Apply professional styling to worksheet"""
     thin_border = Border(
         left=Side(style='thin', color=COLORS['border']),
@@ -64,7 +64,15 @@ def apply_professional_styling(ws):
 
             # Number formatting
             if isinstance(cell.value, (int, float)) and col > 1:
-                cell.number_format = '0.00'
+                # For statistics table, use integer format for count columns
+                if table_type == 'statistics':
+                    # Check if value is actually an integer (no decimals)
+                    if isinstance(cell.value, int) or (isinstance(cell.value, float) and cell.value.is_integer()):
+                        cell.number_format = '0'  # Integer format (no decimals)
+                    else:
+                        cell.number_format = '0.00'  # Decimal format
+                else:
+                    cell.number_format = '0.00'
 
     # Auto-adjust column widths
     for col in range(1, ws.max_column + 1):
@@ -97,11 +105,20 @@ def generate_dataset_statistics(experiment_folder, output_folder):
     if len(df) < original_rows:
         print(f"  ⚠ Removed {original_rows - len(df)} duplicate rows ({original_rows} → {len(df)})")
 
+    # Map dataset keys to display names (same as Table 2)
+    dataset_names = {
+        'iml_lifecycle': 'IML Lifecycle',
+        'mp_idb_species': 'MP-IDB Species',
+        'mp_idb_stages': 'MP-IDB Stages',
+        'md_2019_stages': 'MD-2019 Stages'
+    }
+    df['Dataset'] = df['Dataset'].map(dataset_names)
+
     output_file = output_folder / 'Table1_Dataset_Statistics.xlsx'
 
     with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
         df.to_excel(writer, sheet_name='Dataset Statistics', index=False)
-        apply_professional_styling(writer.sheets['Dataset Statistics'])
+        apply_professional_styling(writer.sheets['Dataset Statistics'], table_type='statistics')
 
     print(f"  ✓ Created: {output_file.name}")
 
