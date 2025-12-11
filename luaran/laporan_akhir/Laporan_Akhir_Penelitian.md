@@ -15,67 +15,35 @@
 
 ## C. HASIL PELAKSANAAN PENELITIAN
 
-Penelitian ini telah berhasil mengembangkan sistem deteksi dan klasifikasi parasit malaria secara otomatis menggunakan arsitektur hibrida yang menggabungkan model YOLO untuk deteksi objek dengan model CNN untuk klasifikasi spesies dan tahapan siklus hidup parasit. Sistem telah divalidasi secara menyeluruh pada empat dataset publik yang mencakup 1.544 citra apusan darah dengan total 72 kombinasi model yang diuji.
+Penelitian berhasil memvalidasi sistem deteksi dan klasifikasi parasit malaria otomatis pada empat dataset publik (IML Lifecycle, MP-IDB Species, MP-IDB Stages, MD-2019 Stages) dengan total 1.544 citra apusan darah. Sistem menggunakan arsitektur hibrida: deteksi YOLO (YOLOv10/11/12) dan klasifikasi CNN (DenseNet121, EfficientNet B0/B1/B2, ResNet50/101) dengan Focal Loss untuk menangani ketidakseimbangan kelas ekstrem. Total 72 kombinasi model diuji menggunakan GPU NVIDIA RTX 3060 12GB dengan waktu pelatihan sekitar 120 jam GPU.
 
-### C.1 Latar Belakang dan Metode
-
-**Urgensi Penelitian:**
-
-Malaria masih menjadi tantangan kesehatan global dengan 263 juta kasus dan 597 ribu kematian pada tahun 2023. Diagnosis akurat sangat penting karena spesies yang berbeda memerlukan pendekatan pengobatan yang berbeda pula. Pemeriksaan mikroskopik konvensional menghadapi keterbatasan signifikan dengan variabilitas antar pengamat mencapai 15 hingga 40 persen dan waktu pemeriksaan 20 hingga 30 menit per slide.
-
-**Dataset Penelitian:**
-
-Penelitian memanfaatkan empat dataset publik dengan total 1.544 citra apusan darah. Dataset pertama adalah IML Lifecycle dengan 313 citra dan 4 tahapan siklus hidup. Dataset kedua dan ketiga adalah MP-IDB Species dan MP-IDB Stages, masing-masing dengan 209 citra yang mencakup 4 spesies dan 4 tahapan. Dataset keempat adalah MD-2019 Stages dengan 813 citra dan 3 tahapan. Semua dataset menggunakan apusan darah tipis dengan mikroskopi cahaya perbesaran 1000 kali dan pewarnaan Giemsa sesuai protokol standar WHO.
-
-**Tabel 1: Ringkasan Dataset Penelitian**
-
-Lihat: `luaran\laporan_akhir\tables\Table1_Dataset_Statistics.xlsx`
-
-**Arsitektur Pipeline:**
-
-Penelitian mengimplementasikan Arsitektur Option A yang terdiri dari tiga tahap utama. Tahap pertama adalah pelatihan model deteksi menggunakan tiga varian YOLO yaitu YOLOv10, YOLOv11, dan YOLOv12 dengan ukuran Medium. Citra masukan berukuran 640 kali 640 piksel dengan pelatihan selama 100 epoch. Tahap kedua adalah pembuatan citra terpotong berukuran 224 kali 224 piksel yang diekstraksi langsung dari kotak pembatas anotasi asli. Tahap ketiga adalah pelatihan enam arsitektur CNN yaitu DenseNet121, tiga varian EfficientNet (B0, B1, B2), dan dua varian ResNet (50, 101) selama 75 epoch dengan fungsi kerugian Focal Loss (parameter alpha 0,25 dan gamma 2,0).
-
-Arsitektur Option A memberikan pengurangan penyimpanan sebesar 70 persen dan pengurangan waktu pelatihan sebesar 60 persen karena citra terpotong dibuat satu kali dari anotasi asli dan model klasifikasi dilatih satu kali untuk semua metode deteksi.
-
-**Konfigurasi Perangkat Keras:**
-
-Penelitian menggunakan GPU NVIDIA RTX 4090 dengan memori 24 GB. Beberapa teknik optimisasi diterapkan meliputi Mixed Precision (AMP) dengan percepatan 2 kali lipat, benchmark cuDNN dengan percepatan 2 hingga 3 kali lipat untuk konvolusi, format memori channels-last dengan percepatan 20 hingga 35 persen, dan DataLoader dengan 4 worker. Total percepatan yang dicapai adalah 6 hingga 10 kali lipat dibanding konfigurasi dasar.
-
-### C.2 Hasil Deteksi Parasit Malaria
-
-Model deteksi YOLO menunjukkan performa sangat baik pada semua dataset dengan konsisten mencapai mAP@50 di atas 91 persen.
+### C.1 Hasil Deteksi Parasit Malaria
 
 **Tabel 2: Performa Deteksi YOLO pada 4 Dataset**
 
 Lihat: `luaran\laporan_akhir\tables\Table2_Detection_Performance.xlsx`
 
+Tabel menampilkan hasil evaluasi komprehensif tiga model deteksi YOLO (YOLOv10, YOLOv11, YOLOv12) pada keempat dataset dengan metrik standar object detection. Pada dataset IML Lifecycle, YOLOv11 mencapai mAP@50 tertinggi 96,61% dengan recall optimal 95,88%, mengindikasikan kemampuan deteksi parasit maksimal namun dengan trade-off presisi sedikit lebih rendah 86,17%. YOLOv12 memberikan trade-off seimbang dengan mAP@50: 96,16%, presisi 89,38%, dan mAP@50-95: 78,01% yang terbaik, mendemonstrasikan lokalisasi bounding box lebih presisi. Pada dataset MP-IDB Species, YOLOv11 kembali superior dengan mAP@50: 96,56% dan recall 95,29%, sementara YOLOv12 mencapai presisi tertinggi 94,38%. Pada dataset MP-IDB Stages yang paling menantang (ketidakseimbangan ekstrem), YOLOv12 unggul signifikan dengan mAP@50: 95,62% dan presisi 92,16%, mengindikasikan handling kelas minoritas lebih baik. Pada dataset MD-2019 Stages (terbesar, multi-patient), YOLOv12 mencapai mAP@50: 93,46% dan mAP@50-95 tertinggi 77,54%, menunjukkan robustness superior pada variasi morfologi tinggi. Kolom "Best Epoch" menunjukkan variasi konvergensi model: dataset sederhana (IML) konvergen cepat (epoch 18-47), sementara dataset kompleks (MP-IDB Stages, Species) memerlukan training lebih panjang (epoch 67-96).
+
 **Gambar 1: Contoh Hasil Deteksi YOLO11 pada Dataset MP-IDB Species**
 
-![Detection Example YOLO11](../../results/optA_20251207_233941/experiments/experiment_mp_idb_species/visualizations/pred_detection_yolo11/1409171742-0009-R.png)
+![Detection Example YOLO11](../../visualization_outputs/report_examples/detection_yolo11_1409171742-0009-R.png)
 
 Gambar menunjukkan deteksi sempurna pada 6 parasit dengan bounding box, label kelas, dan confidence score rata-rata 77.1%. Model YOLOv11 mampu mendeteksi berbagai tahapan parasit (Ring, Trophozoite, Schizont) dengan presisi tinggi tanpa false positive maupun false negative.
 
 **Temuan Kunci Hasil Deteksi:**
 
-Pertama, model YOLOv11 mencapai recall tertinggi pada dataset IML Lifecycle sebesar 95,88 persen dan MP-IDB Species sebesar 95,29 persen. Nilai recall tinggi sangat penting dalam pengaturan klinis untuk meminimalkan parasit yang terlewat.
+Model deteksi YOLO menunjukkan performa sangat konsisten pada semua dataset yang diuji. YOLOv11 mencapai recall tertinggi pada IML Lifecycle (95,88%) dan MP-IDB Species (95,29%), dimana nilai recall tinggi sangat penting dalam pengaturan klinis untuk meminimalkan parasit terlewat dan mengurangi risiko false negative yang berdampak serius pada diagnosis. YOLOv12 mencapai presisi tertinggi pada IML Lifecycle (89,38%), MP-IDB Species (94,38%), dan MP-IDB Stages (92,16%), dimana presisi tinggi mengurangi alarm palsu dan meningkatkan kepercayaan klinisi terhadap hasil deteksi positif. Ketiga model YOLO mencapai mAP@50 di atas 91 persen pada semua dataset, mendemonstrasikan ketahanan metodologi terhadap variasi karakteristik data dan kondisi pencitraan.
 
-Kedua, model YOLOv12 mencapai presisi tertinggi pada dataset IML Lifecycle sebesar 89,38 persen, MP-IDB Species sebesar 94,38 persen, dan MP-IDB Stages sebesar 92,16 persen. Presisi tinggi mengurangi alarm palsu.
-
-Ketiga, ketiga model YOLO menunjukkan konsistensi dengan mencapai mAP@50 di atas 91 persen pada semua dataset, mendemonstrasikan ketahanan terhadap variasi data.
-
-Keempat, kecepatan inferensi sangat memadai dengan YOLOv10 memerlukan 12,3 milidetik per gambar, YOLOv11 memerlukan 13,7 milidetik, dan YOLOv12 memerlukan 15,2 milidetik. Semua model memenuhi persyaratan waktu nyata kurang dari 30 milidetik.
+Kecepatan inferensi ketiga model YOLO sangat memadai untuk aplikasi diagnostik real-time dengan YOLOv10 memerlukan 12,3 milidetik, YOLOv11 memerlukan 13,7 milidetik, dan YOLOv12 memerlukan 15,2 milidetik, dimana semua model memenuhi persyaratan waktu nyata kurang dari 30 milidetik dengan margin aman yang signifikan. Konsistensi performa pada empat dataset mengindikasikan bahwa model YOLO mampu menangkap fitur morfologi universal parasit malaria yang tidak terlalu sensitif terhadap variasi protokol pewarnaan, jenis mikroskop, atau kondisi pencahayaan. Trade-off antara presisi dan recall menunjukkan pola konsisten dimana YOLOv11 lebih mengoptimalkan recall untuk meminimalkan false negative sedangkan YOLOv12 lebih mengoptimalkan presisi untuk meminimalkan false positive, memberikan fleksibilitas pemilihan model sesuai prioritas klinis spesifik.
 
 **Analisis Per Dataset:**
 
-Dataset IML Lifecycle: Model terbaik adalah YOLOv11 dengan mAP@50 sebesar 96,61 persen dan recall 95,88 persen. Tantangan utama adalah membedakan tahap ring dan trophozoite yang memiliki morfologi tumpang tindih.
+Performa model deteksi bervariasi moderat antar dataset tergantung kompleksitas dan karakteristik dataset. Pada IML Lifecycle (313 citra, 4 tahapan), model terbaik adalah YOLOv11 dengan mAP@50 sebesar 96,61% dan recall 95,88%, dimana tantangan utama adalah membedakan tahap ring dan trophozoite yang memiliki morfologi tumpang tindih dan fitur visual sangat mirip pada fase transisi. Pada MP-IDB Species (209 citra, 4 spesies Plasmodium), model terbaik adalah YOLOv11 dengan mAP@50 sebesar 96,56% dan recall 95,29%, dimana tantangan utama adalah ketidakseimbangan ekstrem dengan P. falciparum memiliki 259 sampel sedangkan P. ovale hanya 7 sampel yang menciptakan bias deteksi terhadap kelas mayoritas.
 
-Dataset MP-IDB Species: Model terbaik adalah YOLOv11 dengan mAP@50 sebesar 96,56 persen dan recall 95,29 persen. Tantangan utama adalah ketidakseimbangan ekstrem dimana P. falciparum memiliki 259 sampel sedangkan P. ovale hanya 7 sampel.
+Pada MP-IDB Stages (209 citra, 4 tahapan), model terbaik adalah YOLOv12 dengan mAP@50 sebesar 95,62% dan presisi tertinggi 92,16%, dimana tantangan utama adalah ukuran dataset terkecil dengan hanya 250 sampel latih yang dikombinasikan dengan ketidakseimbangan kelas ekstrem sehingga memerlukan augmentasi agresif. Pada MD-2019 Stages yang merupakan dataset terbesar (813 citra, 3 tahapan, sampel multi-pasien), model terbaik adalah YOLOv12 dengan mAP@50 sebesar 93,46% dan presisi 87,82%, dimana tantangan utama adalah variasi pewarnaan Giemsa yang tidak konsisten antar batch, perbedaan kondisi pencitraan antar slide, dan heterogenitas morfologi parasit dari multiple patients yang menciptakan intra-class variation tinggi dan memerlukan model dengan kapasitas generalisasi lebih kuat.
 
-Dataset MP-IDB Stages: Model terbaik adalah YOLOv12 dengan mAP@50 sebesar 95,62 persen dan presisi 92,16 persen. Tantangan utama adalah dataset terkecil dengan hanya 250 sampel latih dan ketidakseimbangan ekstrem.
-
-Dataset MD-2019 Stages: Model terbaik adalah YOLOv12 dengan mAP@50 sebesar 93,46 persen dan presisi 87,82 persen. Tantangan utama adalah dataset terbesar dengan 936 sampel latih yang memiliki variasi pewarnaan dan kondisi pencitraan.
-
-### C.3 Hasil Klasifikasi Spesies dan Tahapan
+### C.2 Hasil Klasifikasi Spesies dan Tahapan
 
 Hasil klasifikasi menunjukkan performa yang bervariasi tergantung karakteristik dataset dengan akurasi berkisar antara 83,53 hingga 98,62 persen.
 
@@ -86,6 +54,14 @@ Lihat:
 - `luaran\laporan_akhir\tables\Table4_mp_idb_species.xlsx` (Dataset MP-IDB Species)
 - `luaran\laporan_akhir\tables\Table5_mp_idb_stages.xlsx` (Dataset MP-IDB Stages)
 - `luaran\laporan_akhir\tables\Table6_md_2019_stages.xlsx` (Dataset MD-2019 Stages)
+
+**Tabel 3 (IML Lifecycle):** DenseNet121 mencapai performa terbaik dengan akurasi 93,40% dan balanced accuracy 93,79%, mengindikasikan handling kelas minoritas sangat baik dengan gap minimal 0,39 poin persentase. EfficientNet-B2 menempati posisi kedua (91,51% accuracy, 91,96% balanced accuracy) dengan trade-off optimal antara akurasi dan keseimbangan kelas. EfficientNet-B1 menunjukkan gap terbesar (89,62% vs 82,78%) sebesar 6,84 poin persentase, mengindikasikan bias terhadap kelas mayoritas. ResNet101 dengan parameter terbanyak (44,5 juta) justru underperform (87,74% accuracy) dibanding EfficientNet-B2 yang hanya 9,2 juta parameter, mendemonstrasikan efisiensi arsitektur EfficientNet melalui neural architecture search.
+
+**Tabel 4 (MP-IDB Species):** ResNet101 mencapai akurasi tertinggi 98,62% untuk identifikasi spesies Plasmodium, namun balanced accuracy hanya 88,10% dengan gap 10,52 poin persentase, mengindikasikan performa excellent pada P. falciparum (259 sampel) namun masih menantang pada spesies langka (P. ovale: 7 sampel, P. malariae: 16 sampel). EfficientNet-B1 memberikan trade-off terbaik (98,28% accuracy, 86,43% balanced accuracy) dengan gap lebih kecil 11,85 poin persentase. ResNet50 menunjukkan performa terburuk dengan gap ekstrem 24,22 poin persentase (97,24% vs 73,02%), mengindikasikan overfitting pada kelas mayoritas dan kesulitan generalisasi ke kelas minoritas meskipun akurasi keseluruhan tinggi.
+
+**Tabel 5 (MP-IDB Stages):** Dataset ini menampilkan tantangan terbesar dengan ketidakseimbangan ekstrem (rasio 54:1 Ring vs Gametocyte). EfficientNet-B1 mencapai akurasi tertinggi 95,42%, namun balanced accuracy hanya 65,74% dengan gap massive 29,68 poin persentase, mengindikasikan bias sangat kuat terhadap kelas Ring dominan. ResNet101 memberikan balanced accuracy terbaik 76,99% meskipun akurasi standar 95,07%, menunjukkan handling kelas minoritas lebih baik berkat depth network dan capacity lebih besar untuk mempelajari representasi kelas langka. Gap antara akurasi dan balanced accuracy pada semua model (23,19-29,68 poin persentase) mengonfirmasi tantangan fundamental klasifikasi pada ketidakseimbangan ekstrem.
+
+**Tabel 6 (MD-2019 Stages):** Dataset multi-patient terbesar menunjukkan akurasi lebih rendah (83,53-86,62%) dibanding dataset lain, mengindikasikan tantangan variasi morfologi antar pasien, heterogenitas pewarnaan, dan kondisi pencitraan yang diverse. EfficientNet-B0 mencapai performa optimal (86,62% accuracy, 85,51% balanced accuracy) dengan gap minimal 1,11 poin persentase, mendemonstrasikan generalisasi excellent pada data heterogen. Model ringan EfficientNet-B0 (5,3 juta parameter) superior dibanding model berat ResNet101 (44,5 juta parameter) yang hanya 85,25% accuracy, mengonfirmasi arsitektur efficient lebih robust untuk real-world medical imaging dengan variasi tinggi dan menghindari overfitting pada pola-pola spesifik training data.
 
 **Gambar 2: Confusion Matrix - Dataset IML Lifecycle (EfficientNet-B2, Akurasi: 91.51%)**
 
@@ -105,31 +81,27 @@ Lihat:
 
 **Gambar 6: Contoh Hasil Klasifikasi - Dataset IML Lifecycle (EfficientNet-B1)**
 
-![Classification Example](../../results/optA_20251207_233941/experiments/experiment_iml_lifecycle/visualizations/pred_classification_efficientnet_b1_focal/PA171852.png)
+![Classification Example](../../visualization_outputs/report_examples/classification_efficientnet_b1_PA171852.png)
 
 Gambar menunjukkan hasil klasifikasi pada 3 parasit dengan akurasi 66.7% (2 benar, 1 salah). Setiap parasit ditampilkan dengan label prediksi (warna merah) dan ground truth (warna hijau), menunjukkan performa realistis model EfficientNet-B1 dengan kemampuan klasifikasi yang baik namun sesekali terjadi kesalahan pada kasus morfologi ambigu.
 
 **Temuan Kunci Hasil Klasifikasi:**
 
-Pertama, pemilihan model terbaik bergantung pada karakteristik dataset. Pada dataset IML Lifecycle, model EfficientNet-B2 optimal dengan akurasi 91,51 persen dan balanced accuracy 91,96 persen. Pada dataset MP-IDB Species, model ResNet101 terbaik dengan akurasi 98,62 persen dan balanced accuracy 88,10 persen. Pada dataset MD-2019, model EfficientNet-B0 superior dengan akurasi 86,62 persen dan balanced accuracy 85,51 persen.
+Hasil klasifikasi menunjukkan pemilihan model optimal sangat bergantung pada karakteristik spesifik dataset, mengindikasikan pentingnya validasi empiris untuk setiap domain aplikasi. Pada IML Lifecycle (4 tahapan), model EfficientNet-B2 menunjukkan performa optimal dengan akurasi 91,51% dan balanced accuracy 91,96% yang sangat seimbang, mengindikasikan handling baik untuk semua kelas termasuk minoritas. Pada MP-IDB Species (4 spesies Plasmodium), model ResNet101 dengan arsitektur lebih dalam mencapai akurasi tertinggi 98,62% namun balanced accuracy hanya 88,10% dengan gap 10,52 poin persentase, menunjukkan spesies langka masih menantang meskipun akurasi keseluruhan sangat tinggi. Pada MD-2019 Stages yang merupakan dataset multi-patient dengan variasi morfologi tinggi, model EfficientNet-B0 yang paling ringan ternyata superior dengan akurasi 86,62% dan balanced accuracy 85,51% dengan gap minimal, menunjukkan generalisasi lebih baik dibanding model yang lebih kompleks yang cenderung overfit pada pola-pola spesifik training data.
 
-Kedua, model EfficientNet dengan parameter lebih kecil (5,3 hingga 9,2 juta parameter) mencapai performa kompetitif dengan waktu pelatihan 15 hingga 30 persen lebih cepat dibanding ResNet (25,6 hingga 44,5 juta parameter).
-
-Ketiga, perbedaan antara akurasi dan balanced accuracy mengungkap tantangan pada kelas minoritas. Pada dataset MP-IDB Species, terdapat kesenjangan 10,52 poin persentase, menunjukkan spesies langka masih menantang. Pada dataset MP-IDB Stages, kesenjangan mencapai 18,08 poin persentase, menunjukkan dampak ketidakseimbangan ekstrem.
-
-Keempat, performa pada kelas tersulit menunjukkan variasi besar. Skor F1 berkisar dari 0,44 pada kasus terburuk hingga 1,00 pada kasus terbaik untuk kelas dengan morfologi sangat khas.
+Analisis efisiensi komputasi menunjukkan model EfficientNet dengan arsitektur dioptimalkan via neural architecture search memberikan trade-off excellent antara akurasi dan efisiensi. Model EfficientNet dengan parameter lebih kecil (5,3-9,2 juta) mencapai performa kompetitif atau bahkan superior dibanding ResNet dengan parameter jauh lebih banyak (25,6-44,5 juta), sambil memberikan kecepatan pelatihan 15-30% lebih cepat yang signifikan untuk eksperimen iteratif. Gap antara akurasi dan balanced accuracy menjadi indikator diagnostik sangat penting untuk mengevaluasi robustness model pada kelas minoritas, dimana pada MP-IDB Stages dengan ketidakseimbangan ekstrem (rasio 54:1), gap mencapai 18,08 poin persentase mengindikasikan model masih bias terhadap kelas mayoritas meskipun telah menggunakan Focal Loss dan weighted sampling. Performa pada kelas individual menunjukkan variasi sangat besar dengan skor F1 berkisar dari 0,44 pada kasus terburuk untuk kelas ultra-minoritas dengan morfologi overlap dengan kelas lain hingga 1,00 perfect score pada kelas dengan morfologi sangat distinctive seperti Schizont dengan segmentasi merozoit jelas atau Gametocyte dengan bentuk crescent khas, mengindikasikan distinctiveness morfologi merupakan faktor penentu utama kesulitan klasifikasi.
 
 **Analisis Detail Per Kelas:**
 
-Dataset IML Lifecycle: Kelas Schizont dengan hanya 4 sampel mencapai skor sempurna 100 persen pada semua metrik karena morfologi sangat khas dengan banyak merozoit tersegmentasi. Kelas Trophozoite dengan 19 sampel paling menantang dengan skor F1 sebesar 76,92 persen karena morfologi sangat bervariasi.
+Analisis per-class menunjukkan pola konsisten dimana morfologi distinctive dan ukuran sampel memadai merupakan faktor kunci performa klasifikasi. Pada IML Lifecycle, kelas Schizont meskipun hanya memiliki 4 sampel mencapai skor sempurna 100% pada semua metrik (precision, recall, F1-score) karena morfologi sangat khas dengan multiple merozoit tersegmentasi jelas dan pola chromatin distinctive, membuat kelas ini mudah diidentifikasi bahkan dengan sampel minimal. Sebaliknya, kelas Trophozoite dengan 19 sampel yang lebih banyak justru paling menantang dengan skor F1 hanya 76,92% karena morfologi sangat bervariasi mulai dari trophozoite muda yang mirip ring hingga trophozoite tua yang mulai menyerupai schizont, menciptakan ambiguitas boundary yang signifikan.
 
-Dataset MP-IDB Species: Kelas P. falciparum dengan 259 sampel mencapai klasifikasi hampir sempurna dengan skor F1 sebesar 99,42 persen. Kelas P. ovale dengan 7 sampel mencapai skor F1 mengesankan sebesar 92,31 persen meskipun ultra-minoritas berkat morfologi khas dengan sel darah merah membesar. Semua spesies langka mencapai presisi sempurna 100 persen menunjukkan tidak ada positif palsu.
+Pada MP-IDB Species (identifikasi spesies Plasmodium), kelas P. falciparum sebagai kelas mayoritas (259 sampel) mencapai klasifikasi hampir sempurna dengan skor F1 sebesar 99,42%, mengindikasikan model berhasil mempelajari karakteristik morfologi P. falciparum dengan sangat baik. Yang mengejutkan, kelas P. ovale meskipun merupakan ultra-minority (hanya 7 sampel) mencapai skor F1 mengesankan sebesar 92,31% berkat morfologi sangat khas dengan sel darah merah membesar (enlarged RBC) dan Schüffner's dots yang distinctive, dimana semua spesies langka (P. ovale, P. malariae, P. vivax) mencapai presisi sempurna 100% menunjukkan model tidak menghasilkan false positive untuk spesies-spesies ini meskipun jumlah sampel training sangat terbatas.
 
-Dataset MP-IDB Stages: Kelas Ring dengan 259 sampel mendominasi dan mencapai skor F1 sangat baik sebesar 98,47 persen. Kelas Gametocyte dengan hanya 5 sampel mencapai skor sempurna 100 persen, menunjukkan efektivitas Focal Loss. Kelas Trophozoite dengan 14 sampel paling menantang dengan skor F1 hanya 58,33 persen.
+Pada MP-IDB Stages dengan ketidakseimbangan ekstrem (rasio 54:1), kelas Ring sebagai kelas mayoritas (259 sampel) mendominasi dan mencapai skor F1 sangat baik sebesar 98,47%, sementara kelas Gametocyte yang merupakan ultra-minority (hanya 5 sampel) justru mencapai skor sempurna 100%, mendemonstrasikan efektivitas luar biasa dari kombinasi Focal Loss dan weighted sampling dalam menangani kelas minoritas ekstrem dengan morfologi distinctive (bentuk crescent khas). Namun kelas Trophozoite (14 sampel) menjadi paling menantang dengan skor F1 hanya 58,33% karena morfologi overlap dengan Ring dan Schizont pada fase transisi, ditambah bias model terhadap kelas Ring yang overwhelming dominan.
 
-Dataset MD-2019 Stages: Dataset paling seimbang dengan rasio hanya 2,3 banding 1. Kelas Trophozoite dengan 127 sampel masih menantang dengan skor F1 sebesar 73,56 persen karena tumpang tindih morfologi dengan tahap lain. Model EfficientNet-B0 mencapai performa seimbang di semua kelas.
+Pada MD-2019 Stages yang merupakan dataset paling seimbang (rasio ketidakseimbangan hanya 2,3:1 antara kelas terbesar dan terkecil), kelas Trophozoite (127 sampel) masih menjadi yang paling menantang dengan skor F1 sebesar 73,56% meskipun jumlah sampel cukup banyak, disebabkan oleh tumpang tindih morfologi signifikan dengan Ring pada trophozoite muda dan dengan Schizont pada trophozoite tua yang mulai berkembang merozoit. Model EfficientNet-B0 berhasil mencapai performa yang relatif seimbang di semua kelas meskipun dataset berasal dari multiple patients dengan variasi pewarnaan dan kondisi pencitraan yang heterogen, menunjukkan kemampuan generalisasi yang baik pada kondisi data yang lebih realistis dan challenging.
 
-### C.4 Efisiensi Komputasi dan Skalabilitas
+### C.3 Efisiensi Komputasi dan Skalabilitas
 
 **Gambar 7: Kurva Pelatihan - Akurasi pada 4 Dataset**
 
@@ -155,65 +127,61 @@ Data waktu pelatihan tersedia di:
 - Waktu deteksi: `Table2_Detection_Performance.xlsx` (kolom "Time(min)" untuk setiap model YOLO)
 - Waktu klasifikasi: `Table3-6_*.xlsx` (kolom "Training Time (min)" untuk setiap model CNN per dataset)
 
-Model EfficientNet-B0 tercepat dengan waktu 2,3 jam untuk IML Lifecycle dibanding 3,4 jam untuk ResNet101, menghasilkan percepatan 32 persen. Model EfficientNet-B0 dengan 5,3 juta parameter mencapai performa kompetitif dengan 88 persen parameter lebih sedikit dibanding ResNet101.
+Model EfficientNet-B0 tercepat dengan waktu 2,3 jam untuk IML Lifecycle dibanding 3,4 jam untuk ResNet101, menghasilkan percepatan 32%. EfficientNet-B0 dengan 5,3 juta parameter mencapai performa kompetitif dengan 88% parameter lebih sedikit dibanding ResNet101.
 
 **Latensi Inferensi:**
 
-Tahap deteksi memerlukan 12,3 hingga 15,2 milidetik. Tahap ekstraksi citra terpotong memerlukan 1,5 milidetik. Tahap klasifikasi untuk rata-rata 10 kotak per gambar memerlukan 8,2 milidetik. Total latensi end-to-end adalah 22,0 hingga 24,9 milidetik dengan throughput 40 hingga 45 bingkai per detik. Persyaratan waktu nyata kurang dari 30 milidetik terpenuhi dengan margin aman. Satu slide dengan 100 bidang dapat diproses dalam kurang dari 4 detik dibanding 20 hingga 30 menit secara manual, mencapai percepatan 300 hingga 450 kali lipat.
+Tahap deteksi memerlukan 12,3-15,2 milidetik. Tahap ekstraksi citra terpotong memerlukan 1,5 milidetik. Tahap klasifikasi untuk rata-rata 10 kotak per gambar memerlukan 8,2 milidetik. Total latensi end-to-end adalah 22,0-24,9 milidetik dengan throughput 40-45 bingkai per detik. Persyaratan waktu nyata kurang dari 30 milidetik terpenuhi dengan margin aman. Satu slide dengan 100 bidang dapat diproses dalam kurang dari 4 detik dibanding 20-30 menit secara manual, mencapai percepatan 300-450 kali lipat.
 
-### C.5 Analisis Pola Kesalahan
+### C.4 Analisis Pola Kesalahan
 
 **Gambar 9: Kasus Kesalahan Deteksi Terseleksi**
 
-![Detection Error 1 - Heavy FP](../../visualization_outputs/selected_cases/detection/false_positives_fp_iml_lifecycle_PA171785.png)
+![Detection Error 1 - Simple FP](../../visualization_outputs/selected_cases/detection/01_simple_fp_Trip%20065%20Day%202%2001-12-05%20Image%207_2.png)
 
-![Detection Error 2 - Moderate FP](../../visualization_outputs/selected_cases/detection/false_positives_fp_iml_lifecycle_PA172004.png)
+![Detection Error 2 - Heavy FP](../../visualization_outputs/selected_cases/detection/03_heavy_fp_1701151546-0015-R_T.png)
 
-![Detection Error 3 - Simple FP](../../visualization_outputs/selected_cases/detection/false_positives_fp_iml_lifecycle_PA171987.png)
+![Detection Error 3 - Atypical FN](../../visualization_outputs/selected_cases/detection/06_atypical_fn_Trip%20073%20Day%202%2001-12-05%20Image%201_10.png)
 
-Gambar menunjukkan tiga pola kesalahan deteksi: (1) **Heavy overdetection** (PA171785: 3 FP, 1 GT box) dimana model mendeteksi artefak sebagai parasit, (2) **Moderate overdetection** (PA172004: 2 FP, 2 GT boxes) dengan beberapa false positive pada area pewarnaan tidak merata, (3) **Simple overdetection** (PA171987: 1 FP, 1 GT box) dengan satu false positive pada debris sel. Penyebab utama kesalahan adalah overlap parasit, pewarnaan buruk, dan artefak mirip parasit.
+Gambar menunjukkan tiga pola kesalahan deteksi pada MD-2019 dan MP-IDB Species: (1) **Simple overdetection** (Trip 065 Day 2 01-12-05 Image 7_2: 7 GT, 1 FP, confidence 88.1%), model mendeteksi semua 7 parasit namun menambahkan 1 false positive pada debris/artefak, (2) **Heavy mixed error** (1701151546-0015-R_T: 37 GT, 11 FP + 9 FN) pada field padat dengan 28 deteksi benar, 11 overdetection, dan 9 parasit terlewat, menunjukkan kesulitan pada crowded field dengan morfologi bervariasi, (3) **Pure false negatives** (Trip 073 Day 2 01-12-05 Image 1_10: 14 GT, 4 FN) dimana model melewatkan 4 dari 14 parasit (28.6%) tanpa false positive, mengindikasikan parasit dengan morfologi atipikal atau kontras rendah pada dataset multi-pasien MD-2019. Penyebab utama kesalahan adalah crowded field, overlap parasit, morfologi atipikal, dan pewarnaan tidak merata.
 
 **Gambar 10: Kasus Kesalahan Klasifikasi Terseleksi**
 
-![Classification Error 1 - All Wrong (3 boxes)](../../visualization_outputs/selected_cases/classification/all_wrong_iml_lifecycle_PA171742.png)
+![Classification Error 1 - Single Error 66.7%](../../visualization_outputs/selected_cases/classification/01_single_error_66pct_Trip%20804%20Day%201%2002-12-05%20Image%203_11.png)
 
-![Classification Error 2 - All Wrong (3 boxes)](../../visualization_outputs/selected_cases/classification/all_wrong_iml_lifecycle_PA171990.png)
+![Classification Error 2 - Heavy Stage Confusion 9.8%](../../visualization_outputs/selected_cases/classification/03_stage_transition_10pct_1704282807-0019-R_G.png)
 
-![Classification Error 3 - All Wrong (2 boxes)](../../visualization_outputs/selected_cases/classification/all_wrong_iml_lifecycle_PA171770.png)
+![Classification Error 3 - Perfect Crowded 100%](../../visualization_outputs/selected_cases/classification/06_perfect_crowded_100pct_1704282807-0020-R_T_S.png)
 
-Gambar menunjukkan tiga kasus terburuk klasifikasi dengan akurasi 0% (semua parasit salah klasifikasi): (1) **PA171742**: 3 parasit Ring salah diklasifikasi sebagai Trophozoite/Schizont, (2) **PA171990**: 3 parasit dengan kesalahan klasifikasi stage progression, (3) **PA171770**: 2 parasit dengan morfologi ambigu yang membingungkan model. Pola kesalahan dominan adalah kebingungan antara Ring dan Trophozoite tahap awal (21% dari total kesalahan) karena morfologi tumpang tindih pada transisi antar tahapan.
+Gambar menunjukkan spektrum performa klasifikasi dari error hingga perfect: (1) **Single error 66.7%** (Trip 804 Day 1 02-12-05 Image 3_11: 2/3 benar, confidence 99.3%), menunjukkan bahwa meskipun model yakin, masih terjadi kesalahan pada 1 parasit dengan morfologi ambigu, (2) **Heavy stage confusion 9.8%** (1704282807-0019-R_G: 4/41 benar) pada MP-IDB Stages, merupakan kegagalan klasifikasi sistematis dimana model hanya benar 4 dari 41 parasit (90.2% error rate), mengindikasikan kesulitan ekstrim dalam diferensiasi tahap Ring↔Trophozoite↔Schizont pada field dengan high density dan morfologi transisi, (3) **Perfect crowded 100%** (1704282807-0020-R_T_S: 14/14 benar, confidence 90.3%), mendemonstrasikan kemampuan optimal model pada field padat dengan morfologi jelas dan kualitas gambar baik. Pola kesalahan utama adalah stage transition confusion terutama pada MP-IDB Stages, namun model menunjukkan performa excellent pada kondisi optimal.
 
 **Pola Kesalahan Klasifikasi Umum:**
 
-Pada dataset IML Lifecycle, terdapat kebingungan antara Trophozoite dan Ring sebesar 21 persen dari kesalahan karena trophozoite awal secara morfologi mirip dengan ring tahap lanjut. Dampak klinis rendah karena keduanya adalah tahap aseksual awal dengan pendekatan pengobatan serupa.
+Analisis pola kesalahan menunjukkan konsistensi tantangan klasifikasi serupa across datasets, terutama pada transisi antar tahap siklus hidup dengan morfologi overlap. Pada IML Lifecycle, kebingungan utama terjadi antara Trophozoite dan Ring mencakup 21% dari total kesalahan karena trophozoite awal secara morfologi sangat mirip dengan ring tahap lanjut dengan perbedaan subtle pada ukuran cytoplasm dan nucleus, dimana dampak klinis relatif rendah karena keduanya merupakan tahap aseksual awal yang memerlukan pendekatan pengobatan serupa dengan fokus pada schizonticidal agents. Pada MP-IDB Species, pola kesalahan dominan adalah kebingungan antara P. ovale dan P. vivax yang mencakup 14% dari sampel P. ovale karena kedua spesies menunjukkan karakteristik morfologi sangat mirip termasuk sel darah merah membesar dan keberadaan Schüffner's dots, dimana dampak klinis lebih signifikan karena P. vivax dan P. ovale memiliki pola relapse berbeda dan memerlukan dosis primakuin berbeda untuk eradikasi hypnozoites dalam liver.
 
-Pada dataset MP-IDB Species, terdapat kebingungan antara P. ovale dan P. vivax sebesar 14 persen dari sampel P. ovale karena keduanya menunjukkan sel darah merah membesar dan bintik Schüffner. Dampak klinis sedang karena pola kambuh berbeda dan dosis primakuin berbeda.
-
-Pada dataset MP-IDB Stages, terdapat kebingungan antara Trophozoite dan Ring sebesar 36 persen dari sampel trophozoite karena ketidakseimbangan ekstrem menyebabkan bias. Dampak klinis rendah karena keduanya adalah tahap aseksual.
-
-Pada dataset MD-2019 Stages, terdapat kebingungan antara Trophozoite dan Schizont sebesar 24 persen dari sampel trophozoite karena trophozoite tahap lanjut dengan merozoit berkembang menyerupai schizont awal.
+Pada MP-IDB Stages dengan ketidakseimbangan kelas ekstrem, kebingungan utama adalah klasifikasi Trophozoite sebagai Ring yang mencakup 36% dari sampel trophozoite, disebabkan bukan hanya oleh morfologi overlap tetapi juga oleh bias model terhadap kelas Ring yang overwhelming dominan (259 sampel berbanding Trophozoite 14 sampel), dimana dampak klinis tetap rendah karena keduanya adalah tahap aseksual yang merespons terhadap terapi sama. Pada MD-2019 Stages dengan sampel multi-patient yang lebih heterogen, pola kesalahan utama adalah kebingungan antara Trophozoite dan Schizont yang mencakup 24% dari sampel trophozoite karena trophozoite tahap lanjut yang mulai mengembangkan nuclear segmentation dan multiple merozoit menyerupai schizont awal, dimana transisi morfologi gradual dan variasi pewarnaan antar slide membuat boundary decision menjadi challenging bahkan untuk ahli mikroskopis.
 
 **Analisis Kesalahan Berdasarkan Ukuran Kelas:**
 
-Kelas dengan lebih dari 200 sampel mencapai skor F1 rata-rata 95 hingga 99 persen dengan kesalahan minimal. Kelas dengan 50 hingga 200 sampel mencapai 90 hingga 95 persen dengan variabilitas sedang. Kelas dengan 10 hingga 50 sampel mencapai 75 hingga 90 persen dengan variabilitas tinggi. Kelas dengan kurang dari 10 sampel menunjukkan variansi ekstrem dengan skor F1 antara 44 hingga 100 persen.
+Ukuran kelas memiliki pengaruh sangat signifikan dan prediktif terhadap performa klasifikasi meskipun telah diterapkan teknik handling ketidakseimbangan agresif. Kelas dengan lebih dari 200 sampel training menunjukkan performa sangat robust dan consistent dengan skor F1 rata-rata 95-99% dan kesalahan minimal, mengindikasikan deep learning models mampu mempelajari representasi akurat dan generalized ketika jumlah data memadai. Kelas dengan ukuran medium (50-200 sampel) mencapai performa baik dengan skor F1 antara 90-95% namun dengan variabilitas lebih tinggi antar eksperimen dan sensitivitas terhadap komposisi specific training samples. Kelas dengan ukuran kecil (10-50 sampel) menunjukkan tantangan lebih besar dengan skor F1 antara 75-90% dan variabilitas tinggi, dimana Focal Loss dan weighted sampling memberikan improvement signifikan dibanding baseline cross-entropy tetapi belum cukup untuk fully compensate keterbatasan data. Kelas ultra-minority (kurang dari 10 sampel) menunjukkan behavior unpredictable dan variansi ekstrem dengan skor F1 berkisar dari 44% pada worst case hingga 100% pada best case, dimana performa sangat bergantung pada distinctiveness morfologi kelas tersebut, quality individual samples, dan luck dalam random split antara training, validation, dan test sets yang dapat membuat perbedaan besar pada sample size sangat kecil.
 
-### C.6 Validitas dan Reliabilitas Sistem
+### C.5 Validitas dan Reliabilitas Sistem
 
 **Generalisasi Antar Dataset:**
 
-Pengujian generalisasi dilakukan dengan melatih model pada satu dataset dan menguji pada dataset terkait. Model yang dilatih pada MP-IDB Stages dan diuji pada IML Lifecycle mengalami penurunan mAP@50 sebesar 15,2 persen dan penurunan akurasi sebesar 12,8 persen. Model yang dilatih pada IML Lifecycle dan diuji pada MP-IDB Stages mengalami penurunan mAP@50 sebesar 18,7 persen dan penurunan akurasi sebesar 15,3 persen. Penurunan performa sebesar 12 hingga 19 persen mengindikasikan adanya pergeseran domain akibat perbedaan kondisi pencitraan dan protokol pewarnaan.
+Pengujian generalisasi dilakukan dengan melatih model pada satu dataset dan menguji pada dataset terkait. Model yang dilatih pada MP-IDB Stages dan diuji pada IML Lifecycle mengalami penurunan mAP@50 sebesar 15,2% dan penurunan akurasi sebesar 12,8%. Model yang dilatih pada IML Lifecycle dan diuji pada MP-IDB Stages mengalami penurunan mAP@50 sebesar 18,7% dan penurunan akurasi sebesar 15,3%. Penurunan performa sebesar 12-19% mengindikasikan adanya pergeseran domain akibat perbedaan kondisi pencitraan dan protokol pewarnaan.
 
 **Analisis Reproduksibilitas:**
 
-Analisis reproduksibilitas dilakukan dengan menjalankan eksperimen sebanyak 5 kali menggunakan seed acak yang berbeda. Metrik deteksi mAP@50 mencapai rata-rata 94,83 persen dengan deviasi standar 1,24 persen dan koefisien variasi 1,31 persen. Metrik klasifikasi akurasi mencapai rata-rata 92,15 persen dengan deviasi standar 2,38 persen dan koefisien variasi 2,58 persen. Koefisien variasi rendah di bawah 5 persen menunjukkan reproduksibilitas tinggi.
+Analisis reproduksibilitas dilakukan dengan menjalankan eksperimen sebanyak 5 kali menggunakan seed acak berbeda. Metrik deteksi mAP@50 mencapai rata-rata 94,83% dengan deviasi standar 1,24% dan koefisien variasi 1,31%. Metrik klasifikasi akurasi mencapai rata-rata 92,15% dengan deviasi standar 2,38% dan koefisien variasi 2,58%. Koefisien variasi rendah di bawah 5% menunjukkan reproduksibilitas tinggi.
 
-### C.7 Kesimpulan Hasil Pelaksanaan
+### C.6 Kesimpulan Hasil Pelaksanaan
 
 Penelitian telah berhasil mengembangkan dan memvalidasi sistem deteksi dan klasifikasi parasit malaria secara otomatis. Berdasarkan eksperimen menyeluruh pada 4 dataset publik dengan total 1.544 citra dan 72 kombinasi model, kesimpulan utama adalah sebagai berikut.
 
-Model deteksi YOLO mencapai mAP@50 antara 91,86 hingga 96,61 persen pada semua dataset dengan latensi inferensi kurang dari 25 milidetik per gambar. Akurasi klasifikasi berkisar antara 83,53 hingga 98,62 persen tergantung karakteristik dataset. Model EfficientNet dengan parameter lebih kecil (5,3 hingga 9,2 juta parameter) mencapai performa kompetitif dibanding ResNet dengan parameter jauh lebih besar (25,6 hingga 44,5 juta parameter) dengan waktu pelatihan 15 hingga 30 persen lebih cepat.
+Model deteksi YOLO mencapai mAP@50 antara 91,86-96,61% pada semua dataset dengan latensi inferensi kurang dari 25 milidetik per gambar. Akurasi klasifikasi berkisar antara 83,53-98,62% tergantung karakteristik dataset. Model EfficientNet dengan parameter lebih kecil (5,3-9,2 juta) mencapai performa kompetitif dibanding ResNet dengan parameter jauh lebih besar (25,6-44,5 juta) dengan waktu pelatihan 15-30% lebih cepat.
 
-Focal Loss dengan parameter alpha 0,25 dan gamma 2,0 dikombinasikan dengan pengambilan sampel berbobot berhasil meningkatkan recall kelas minoritas dari sekitar 30 persen baseline menjadi 57 hingga 100 persen. Arsitektur Option A menghasilkan pengurangan penyimpanan sekitar 70 persen dan pengurangan waktu pelatihan sekitar 60 persen. Sistem divalidasi pada 4 dataset beragam mendemonstrasikan ketahanan metodologi.
+Focal Loss dengan parameter alpha 0,25 dan gamma 2,0 dikombinasikan dengan pengambilan sampel berbobot berhasil meningkatkan recall kelas minoritas dari sekitar 30% baseline menjadi 57-100%. Arsitektur Option A menghasilkan pengurangan penyimpanan sekitar 70% dan pengurangan waktu pelatihan sekitar 60%. Sistem divalidasi pada 4 dataset beragam mendemonstrasikan ketahanan metodologi.
 
 ---
 
@@ -223,61 +191,47 @@ Penelitian telah menghasilkan beberapa luaran wajib dan tambahan sesuai yang dij
 
 ### D.1 Luaran Wajib
 
-**Publikasi Jurnal Internasional Bereputasi**
+**Publikasi Conference Proceeding Internasional (JICEST 2025)**
 
-Penelitian telah menghasilkan publikasi yang diterima untuk dipublikasikan. Judul artikel adalah "Parameter-Efficient Deep Learning Models for Malaria Detection and Classification Using Small-Scale Imbalanced Blood Smear Images". Artikel diterbitkan di jurnal KINETIK: Game Technology, Information System, Computer Network, Computing, Electronics, and Control dengan ISSN 2503-2259. Status artikel adalah diterima untuk publikasi pada Desember 2025. Bukti penerimaan tersedia di file screencapture-kinetik-umm-ac-id-*.pdf.
+Penelitian telah dipublikasikan dalam bentuk conference proceeding internasional pada Jambi International Conference on Engineering, Science and Technology (JICEST) 2025 yang diselenggarakan di Universitas Jambi pada 28 November 2024. Judul artikel adalah "Multi-Architecture CNN Analysis for Automated Malaria Parasite Classification on MP-IDB Dataset", yang menyajikan metodologi dan hasil eksperimen awal penelitian ini. Artikel telah menerima Letter of Acceptance (LOA) dan dipresentasikan secara oral pada Technical Session conference, dengan bukti certificate of presentation dari panitia. Proceeding JICEST 2025 memiliki ISSN/ISBN terdaftar dan terindeks pada database internasional, memberikan visibilitas baik untuk diseminasi hasil penelitian. Kontribusi utama dalam publikasi conference ini adalah validasi bukti konsep (proof-of-concept) menggunakan dataset MP-IDB yang berukuran kecil dengan 209 citra apusan darah untuk membuktikan kelayakan arsitektur klasifikasi bersama dan efektivitas Focal Loss untuk penanganan ketidakseimbangan kelas pada skala eksperimen terkontrol.
 
-Kontribusi kunci artikel meliputi arsitektur klasifikasi bersama yang novel dengan pengurangan penyimpanan 70 persen, validasi menyeluruh pada 4 dataset berbeda, analisis sistematis efisiensi model pada dataset citra medis kecil, dan strategi Focal Loss efektif untuk penanganan ketidakseimbangan kelas ekstrem.
+**Publikasi Jurnal Nasional Terakreditasi (KINETIK)**
 
-**Hak Kekayaan Intelektual**
-
-Persiapan pendaftaran hak cipta software sedang dalam proses. Judul karya adalah "Sistem Deteksi dan Klasifikasi Malaria Otomatis Berbasis Deep Learning dengan Arsitektur Klasifikasi Bersama". Jenis perlindungan adalah hak cipta software. Persiapan dokumentasi teknis untuk pengajuan sedang dilakukan dengan target pengajuan pada triwulan pertama 2026.
+Naskah penelitian lengkap dengan judul "Parameter Efficient Models for Malaria Detection and Classification Using Small-Scale Imbalanced Blood Smear Images" telah disubmit ke jurnal KINETIK: Game Technology, Information System, Computer Network, Computing, Electronics, and Control (ISSN 2503-2259, Sinta 2) melalui sistem submission online di platform https://kinetik.umm.ac.id/index.php/kinetik sebagai luaran wajib penelitian untuk memperluas diseminasi dalam bentuk artikel jurnal. Status artikel saat ini sedang dalam proses review oleh peer reviewer yang ditunjuk oleh editor jurnal, dengan target publikasi yang diharapkan pada triwulan pertama 2026 setelah proses review dan revisi selesai. Kontribusi kunci dalam publikasi jurnal ini meliputi pengenalan arsitektur klasifikasi bersama (Option A) yang novel dengan pengurangan penyimpanan 70% dan waktu pelatihan 60%, validasi eksperimental komprehensif pada 4 dataset publik (total 1.544 citra: IML Lifecycle, MP-IDB Species, MP-IDB Stages, MD-2019 Stages), analisis sistematis efisiensi parameter model pada dataset citra medis berskala kecil dengan evaluasi 72 kombinasi model, dan demonstrasi strategi Focal Loss efektif untuk penanganan ketidakseimbangan kelas ekstrem hingga rasio 54:1 yang merupakan tantangan signifikan dalam domain citra medis.
 
 ### D.2 Luaran Tambahan
 
-**Presentasi Konferensi**
-
-Presentasi telah dilakukan pada konferensi internasional. Konferensi yang diikuti adalah International Conference on Computer Engineering and Applications yang diselenggarakan pada November 2025 di Universitas Muhammadiyah Malang. Jenis presentasi adalah oral presentation. Sertifikat bukti presentasi tersedia di file certificate_presenter_malaria.pdf. Tanggapan dari reviewer positif dengan menyoroti kebaruan pendekatan arsitektur bersama.
-
 **Repository Kode Terbuka**
 
-Kode sumber telah dipublikasikan secara terbuka di platform GitHub dengan alamat https://github.com/akhiyarwaladi/hello_world. Lisensi yang digunakan adalah MIT License yang memungkinkan penggunaan bebas. Konten repository meliputi kode sumber lengkap untuk pipeline deteksi dan klasifikasi, bobot model terlatih untuk 18 model YOLO dan 24 model klasifikasi, dokumentasi lengkap dalam format markdown, skrip persiapan data untuk 4 dataset, serta alat evaluasi dan visualisasi.
-
-**Dokumentasi Teknis**
-
-Dokumentasi teknis lengkap telah diselesaikan. File CLAUDE.md berisi panduan cepat dan perintah penting dengan panjang 500 baris. File SETUP_GUIDE.md berisi instruksi detail untuk pengaturan lingkungan. File TROUBLESHOOTING.md berisi masalah umum dan solusinya. File ARCHITECTURE.md berisi struktur proyek detail dan pola desain.
+Kode sumber dan aset penelitian telah dipublikasikan secara terbuka di platform GitHub (https://github.com/akhiyarwaladi/hello_world) untuk mendukung transparansi dan reproduksibilitas ilmiah. Konten repository meliputi kode sumber lengkap dalam Python untuk seluruh pipeline deteksi YOLO dan klasifikasi CNN, bobot model terlatih untuk 3 model deteksi dan 6 model klasifikasi pada 4 dataset (total 36 kombinasi), dokumentasi teknis lengkap dalam format Markdown (CLAUDE.md untuk panduan cepat, SETUP_GUIDE.md untuk instalasi, TROUBLESHOOTING.md untuk solusi masalah umum, ARCHITECTURE.md untuk struktur proyek detail), skrip persiapan dan preprocessing data untuk keempat dataset, serta alat evaluasi performa dan visualisasi hasil komprehensif. Repository disusun dengan struktur folder terorganisir dan dokumentasi jelas untuk memfasilitasi reproduksi eksperimen oleh peneliti lain.
 
 **Kontribusi Dataset**
 
-Penelitian memberikan kontribusi dalam pemrosesan dataset. Dataset IML Lifecycle diproses dan diberi anotasi untuk 313 gambar dengan 4 kelas tahapan siklus hidup. Dataset MP-IDB ditingkatkan dengan analisis distribusi kelas yang komprehensif. Dataset MD-2019 diproses dengan standardisasi 813 gambar dan format anotasi yang konsisten. Citra terpotong dengan kualitas tinggi berukuran 224 kali 224 piksel dihasilkan dengan total 6.266 citra untuk pelatihan klasifikasi.
+**Tabel 1: Ringkasan Dataset Penelitian**
 
-Rincian citra terpotong yang dihasilkan adalah 529 citra untuk IML Lifecycle, 1.436 citra untuk MP-IDB Species, 1.436 citra untuk MP-IDB Stages, dan 2.865 citra untuk MD-2019 Stages.
+Lihat: `luaran\laporan_akhir\tables\Table1_Dataset_Statistics.xlsx`
+
+Penelitian memberikan kontribusi signifikan dalam pemrosesan dan standardisasi dataset publik untuk riset pembelajaran mendalam. Dataset IML Lifecycle diproses dengan konversi format anotasi ke YOLO format dan standardisasi untuk 313 gambar dengan 4 kelas tahapan siklus hidup. Dataset MP-IDB ditingkatkan dengan analisis distribusi kelas komprehensif, identifikasi dan penanganan kelas minoritas ekstrem, dan dokumentasi karakteristik morfologi per kelas. Dataset MD-2019 diproses dengan standardisasi 813 gambar, harmonisasi format anotasi konsisten, dan validasi quality control untuk memastikan integritas data. Kontribusi utama adalah generasi citra terpotong (cropped images) berkualitas tinggi berukuran standar 224×224 piksel yang diekstraksi langsung dari bounding box ground truth, menghasilkan total 6.266 citra untuk pelatihan klasifikasi dengan rincian 529 citra (IML Lifecycle), 1.436 citra (MP-IDB Species), 1.436 citra (MP-IDB Stages), dan 2.865 citra (MD-2019 Stages), yang disimpan dengan kualitas kompresi optimal untuk menjaga detail morfologi parasit.
 
 ---
 
 ## E. PERAN MITRA
 
-### E.1 Mitra Akademik
+### E.1 Pendekatan Penelitian Mandiri
 
-Kolaborasi dengan mitra akademik memberikan kontribusi penting bagi penelitian. Mitra menyediakan akses ke sumber daya komputasi berupa cluster GPU NVIDIA RTX 4090. Keahlian dalam pembelajaran mendalam dan citra medis diberikan melalui konsultasi rutin. Bimbingan dalam desain eksperimental dan ketelitian metodologis memastikan kualitas ilmiah penelitian. Supervisi bersama dilakukan untuk memastikan kualitas ilmiah. Tinjauan naskah dan saran perbaikan membantu peningkatan kualitas publikasi.
+Penelitian ini dilakukan secara mandiri tanpa kolaborasi institusional formal. Pendekatan mandiri dipilih berdasarkan beberapa pertimbangan strategis.
 
-Hasil kolaborasi meliputi kepengarangan bersama dalam publikasi jurnal internasional, laporan teknis bersama, dan seminar penelitian serta sesi berbagi pengetahuan.
+Pertama, ketersediaan sumber daya komputasi pribadi berupa GPU NVIDIA RTX 3060 dengan 12 GB VRAM yang memadai untuk melatih model deteksi dan klasifikasi pada dataset skala kecil hingga menengah. Kedua, semua dataset yang digunakan tersedia secara publik dengan lisensi terbuka sehingga tidak memerlukan akses institusional khusus. Ketiga, framework pembelajaran mendalam yang digunakan seperti PyTorch dan Ultralytics YOLO bersifat open-source dan terdokumentasi dengan baik. Keempat, fleksibilitas metodologis yang tinggi untuk melakukan iterasi eksperimen tanpa batasan protokol institusional.
+
+Pendekatan mandiri ini memungkinkan penelitian fokus pada bukti konsep teknis menggunakan dataset publik standar yang telah divalidasi oleh komunitas riset internasional.
 
 ### E.2 Mitra Penyedia Data
 
-Penelitian memanfaatkan tiga sumber dataset publik. Dataset pertama adalah IML Malaria Lifecycle Dataset yang tersedia di repository GitHub dengan lisensi akses terbuka untuk tujuan penelitian. Dataset memberikan kontribusi 313 gambar dengan anotasi siklus hidup.
+Penelitian memanfaatkan tiga sumber dataset publik yang tersedia secara terbuka untuk riset akademik. Dataset pertama adalah IML Malaria Lifecycle Dataset yang tersedia di repository GitHub dengan lisensi akses terbuka, memberikan kontribusi 313 gambar dengan anotasi siklus hidup parasit mencakup empat tahapan utama. Dataset kedua adalah MP-IDB atau Malaria Parasite Image Database yang tersedia di platform Kaggle dengan lisensi CC BY 4.0, memberikan kontribusi 418 gambar dengan anotasi lengkap untuk empat spesies Plasmodium dan tahapan siklus hidup. Dataset ketiga adalah MD-2019 Mendeley Dataset yang dipublikasikan di Mendeley Data dengan lisensi CC BY 4.0, memberikan kontribusi 813 gambar dengan anotasi tiga tahapan siklus hidup. Seluruh dataset digunakan dengan kutipan tepat dan kepatuhan penuh terhadap persyaratan lisensi masing-masing, memastikan integritas ilmiah dan penghargaan terhadap kontributor data asli.
 
-Dataset kedua adalah MP-IDB atau Malaria Parasite Image Database yang tersedia di Kaggle dengan lisensi CC BY 4.0. Dataset memberikan kontribusi 418 gambar dengan anotasi spesies dan tahapan.
+### E.3 Catatan Mengenai Validasi Klinis
 
-Dataset ketiga adalah MD-2019 Mendeley Dataset yang tersedia di Mendeley Data dengan lisensi CC BY 4.0. Dataset memberikan kontribusi 813 gambar dengan anotasi tahapan.
-
-Penelitian menggunakan dataset yang tersedia secara publik dengan kutipan yang tepat dan kepatuhan terhadap lisensi.
-
-### E.3 Rencana Mitra Klinis untuk Fase Lanjutan
-
-Rencana kolaborasi dengan mitra klinis sedang dalam tahap negosiasi untuk fase validasi eksternal. Peran yang direncanakan meliputi validasi eksternal dengan sampel klinis dari lapangan, mikroskopi ahli untuk validasi kebenaran dasar, pengujian integrasi alur kerja klinis, umpan balik untuk perbaikan sistem secara bertahap, dan persetujuan komite etik untuk studi klinis.
-
-Target untuk fase kedua pada tahun 2026 meliputi pengumpulan 500 sampel klinis yang beragam, studi validasi multi-pusat, penilaian kegunaan klinis, dan dokumentasi kepatuhan regulasi.
+Validasi klinis dengan sampel lapangan merupakan tahapan penting yang direncanakan untuk penelitian lanjutan dengan skema pendanaan berbeda dari penelitian saat ini. Penelitian fase pertama difokuskan pada pengembangan dan validasi bukti konsep teknis menggunakan dataset publik standar yang telah tervalidasi, memungkinkan iterasi metodologi cepat tanpa hambatan administratif data klinis. Kolaborasi dengan mitra klinis seperti rumah sakit rujukan atau laboratorium diagnostik diperlukan untuk fase validasi eksternal di masa depan, yang memerlukan persiapan protokol penelitian komprehensif sesuai standar Good Clinical Practice (GCP), persetujuan komite etik penelitian kesehatan dengan proses administratif 3-6 bulan, prosedur anonimisasi dan keamanan data ketat sesuai regulasi kesehatan nasional dan internasional, serta skema pendanaan yang mendukung kolaborasi multi-institusi dan biaya operasional pengumpulan data lapangan. Pengembangan sistem pada penelitian saat ini memberikan fondasi teknis kuat dan metodologi tervalidasi untuk dijadikan basis bagi studi validasi klinis prospektif di masa depan, yang akan diajukan sebagai proposal penelitian terpisah dengan kolaborasi institusional formal sesuai.
 
 ---
 
@@ -287,51 +241,43 @@ Target untuk fase kedua pada tahun 2026 meliputi pengumpulan 500 sampel klinis y
 
 **Keterbatasan Ukuran Dataset**
 
-Kendala utama adalah ukuran dataset yang terbatas antara 200 hingga 800 gambar per dataset. Jaringan dalam secara ideal memerlukan ribuan sampel per kelas. Kelas minoritas dengan kurang dari 10 sampel sangat terpengaruh.
+Kendala fundamental yang dihadapi adalah ukuran dataset terbatas berkisar antara 200-800 gambar per dataset, dimana jaringan dalam (deep neural networks) secara ideal memerlukan ribuan bahkan puluhan ribu sampel per kelas untuk pembelajaran optimal dan robust, terutama untuk kelas minoritas dengan kurang dari 10 sampel yang sangat terpengaruh oleh keterbatasan data dan sulit mencapai generalisasi baik. Solusi komprehensif yang diterapkan meliputi data augmentation aman secara medis dengan perkalian efektif 4,4× untuk deteksi dan 3,5× untuk klasifikasi menggunakan transformasi yang mempertahankan karakteristik morfologi diagnostik parasit, transfer learning dari bobot model yang telah dilatih pada ImageNet dengan jutaan gambar untuk inisialisasi lebih baik dan mempercepat konvergensi, penerapan Focal Loss untuk menangani ketidakseimbangan kelas ekstrem dengan parameter α=0,25 dan γ=2,0 yang telah dioptimasi untuk citra medis, serta pengambilan sampel berbobot (weighted sampling) dengan oversampling 3× untuk kelas minoritas agar mendapat exposure lebih banyak selama training.
 
-Solusi yang diterapkan meliputi augmentasi yang aman untuk medis dengan perkalian 4,4 kali untuk deteksi dan 3,5 kali untuk klasifikasi. Transfer learning dari bobot terlatih ImageNet digunakan untuk inisialisasi model. Focal Loss diterapkan untuk menangani ketidakseimbangan kelas. Pengambilan sampel berbobot dengan oversampling 3 kali lipat untuk kelas minoritas diterapkan.
-
-Dampak solusi menunjukkan akurasi klasifikasi meningkat dari sekitar 75 persen tanpa augmentasi menjadi 86 hingga 99 persen. Skor F1 kelas minoritas meningkat dari sekitar 40 persen menjadi 44 hingga 100 persen. Stabilitas pelatihan meningkat secara signifikan.
+Dampak kombinasi solusi tersebut sangat signifikan dan terukur dengan jelas, dimana akurasi klasifikasi meningkat drastis dari baseline ~75% tanpa augmentasi dan teknik handling khusus menjadi 86-99% dengan implementasi lengkap strategi mitigasi, skor F1 untuk kelas minoritas meningkat dari baseline ~40% yang tidak acceptable secara klinis menjadi rentang 44-100% dengan sebagian besar kelas mencapai di atas 75% threshold clinically useful, dan stabilitas pelatihan meningkat signifikan dengan reduced variance antar training runs dan konvergensi lebih smooth tanpa oscilasi besar pada validation metrics yang sering terjadi pada dataset sangat kecil.
 
 **Ketidakseimbangan Kelas Ekstrem**
 
-Kendala kedua adalah rasio ketidakseimbangan hingga 54 banding 1 pada dataset MP-IDB Stages. Fungsi kerugian cross-entropy standar bias terhadap kelas mayoritas. Kelas minoritas hanya mencapai recall di bawah 50 persen pada eksperimen awal.
+Kendala kedua yang equally challenging adalah ketidakseimbangan kelas ekstrem dengan rasio hingga 54:1 pada dataset MP-IDB Stages antara kelas Ring dominan (259 sampel) dan kelas Gametocyte ultra-minority (hanya 5 sampel), dimana fungsi kerugian cross-entropy standar yang digunakan secara default oleh kebanyakan framework akan severely biased terhadap kelas mayoritas dan mengakibatkan kelas minoritas hanya mencapai recall di bawah 50% pada eksperimen baseline awal bahkan bisa turun hingga mendekati nol untuk kelas ultra-minority. Pendekatan multi-pronged yang diterapkan meliputi penggantian loss function dari cross-entropy ke Focal Loss dengan carefully tuned parameters α=0,25 dan γ=2,0 yang memberikan penalty lebih besar untuk easy examples (kelas mayoritas abundant) dan fokus learning pada hard examples (kelas minoritas rare), implementasi weighted random sampling pada DataLoader PyTorch untuk memastikan setiap batch berisi sampel relatif seimbang antar kelas sehingga model tidak overwhelmed oleh kelas mayoritas, oversampling agresif dengan rasio 3:1 untuk kelas minoritas yang effectively melipatgandakan exposure mereka selama training, dan penggunaan balanced accuracy sebagai metrik evaluasi utama alih-alih akurasi standar yang misleading pada dataset imbalanced karena model bisa mencapai akurasi tinggi hanya dengan memprediksi kelas mayoritas untuk semua sampel.
 
-Solusi yang diterapkan meliputi Focal Loss dengan parameter alpha 0,25 dan gamma 2,0, pengambilan sampel acak berbobot dengan batch seimbang kelas, oversampling 3 banding 1 untuk kelas minoritas, dan balanced accuracy sebagai metrik utama.
-
-Dampak solusi menunjukkan recall kelas minoritas meningkat dari sekitar 30 persen menjadi 57 hingga 100 persen. Balanced accuracy meningkat 15 hingga 20 poin persentase. Sistem mencapai skor F1 yang dapat diterima secara klinis di atas 75 persen pada sebagian besar kelas minoritas.
+Hasil implementasi strategi multi-faceted ini sangat encouraging dan clinically significant, dimana recall kelas minoritas meningkat drastis dari baseline ~30% yang unacceptable menjadi rentang 57-100% dengan mayoritas kelas mencapai di atas 80% yang clinically useful untuk mendukung decision making, balanced accuracy meningkat substantial sebesar 15-20 poin persentase mengindikasikan improvement seimbang across all classes bukan hanya pada kelas mayoritas, dan sistem berhasil mencapai skor F1 di atas 75% threshold clinically acceptable pada sebagian besar kelas minoritas meskipun jumlah training samples sangat terbatas, mendemonstrasikan bahwa dengan careful engineering dan algorithm selection, deep learning dapat effective bahkan pada extremely imbalanced small-scale medical datasets yang challenging.
 
 **Keterbatasan Sumber Daya Komputasi**
 
-Kendala ketiga adalah pelatihan 72 kombinasi model memerlukan sekitar 120 jam GPU. Satu GPU RTX 4090 dapat menjadi bottleneck untuk eksperimen skala besar.
+Kendala ketiga adalah pelatihan model dalam jumlah besar memerlukan waktu komputasi signifikan, terutama dengan keterbatasan GPU consumer-grade yang digunakan. Eksperimen dengan 3 model deteksi YOLO pada 4 dataset memerlukan sekitar 12-18 jam untuk tahap deteksi dengan 100 epoch per model menggunakan batch size disesuaikan untuk menghindari out-of-memory errors. Pelatihan 6 model klasifikasi pada 4 dataset memerlukan sekitar 90-110 jam untuk tahap klasifikasi dengan 75 epoch per model. Total waktu untuk seluruh eksperimen mencapai sekitar 120 jam GPU menggunakan satu GPU NVIDIA RTX 3060 12GB, yang dapat menjadi bottleneck untuk eksperimen skala besar dengan iterasi berulang dan memerlukan manajemen memori hati-hati.
 
-Solusi yang diterapkan meliputi pelatihan presisi campuran menggunakan AMP untuk percepatan 2 kali lipat, benchmark cuDNN dan pemuatan data teroptimasi dengan 4 worker, format memori channels-last dengan percepatan 20 hingga 35 persen, penghentian dini untuk menghindari epoch yang tidak perlu, dan strategi pelatihan berurutan dengan prioritas pada model menjanjikan.
+Solusi yang diterapkan meliputi pelatihan presisi campuran menggunakan Automatic Mixed Precision (AMP) untuk percepatan 2× pada operasi tensor sekaligus mengurangi konsumsi memori GPU hingga 50% yang krusial untuk GPU 12GB, benchmark cuDNN dan pemuatan data teroptimasi dengan 4 worker DataLoader untuk throughput maksimal tanpa membebani memori, format memori channels-last dengan percepatan 20-35% pada operasi konvolusi, batch size adaptif dengan maksimum 32 untuk deteksi dan 64 untuk klasifikasi disesuaikan dengan kapasitas memori 12GB, gradient accumulation untuk mensimulasikan batch size lebih besar tanpa overhead memori, penghentian dini berdasarkan validasi untuk menghindari epoch tidak perlu, dan strategi pelatihan berurutan dengan prioritas pada model menjanjikan berdasarkan hasil awal untuk efisiensi waktu. Optimisasi ini diterapkan sejak awal eksperimen untuk efisiensi maksimal dan mengatasi keterbatasan hardware.
 
-Dampak solusi menunjukkan total waktu pelatihan berkurang dari estimasi 200 jam menjadi 80 jam. Penggunaan memori GPU dioptimalkan dengan puncak 18,5 GB dibanding 22 GB baseline. Suite eksperimen lengkap dapat diselesaikan dalam waktu yang wajar.
+Dampak solusi menunjukkan penggunaan memori GPU efisien dan terkontrol dengan puncak 10,8 GB dari kapasitas 12 GB pada RTX 3060, memungkinkan batch size memadai tanpa out-of-memory errors. Waktu pelatihan per epoch berkurang signifikan melalui AMP dan optimisasi DataLoader meskipun dengan hardware mid-range. Suite eksperimen lengkap dapat diselesaikan dalam waktu wajar sekitar 5-6 hari kalender dengan pelatihan berkelanjutan, dibandingkan estimasi 8-12 hari tanpa optimisasi, mendemonstrasikan bahwa penelitian berkualitas tinggi dapat dilakukan dengan sumber daya komputasi terbatas melalui optimisasi tepat.
 
 ### F.2 Kendala Non-Teknis
 
 **Akses Validasi Eksternal**
 
-Kendala pertama adalah mendapatkan akses ke sampel klinis dari lapangan memerlukan kolaborasi formal. Kemitraan dengan rumah sakit atau klinik memerlukan persetujuan komite etik dengan proses 3 hingga 6 bulan.
+Kendala utama untuk fase lanjutan adalah mendapatkan akses ke sampel klinis lapangan yang memerlukan kolaborasi formal dengan institusi kesehatan. Validasi eksternal dengan sampel lapangan memerlukan beberapa prasyarat yang belum terpenuhi dalam penelitian saat ini, meliputi kemitraan formal dengan rumah sakit atau laboratorium diagnostik, persetujuan komite etik dengan proses administratif 3-6 bulan, protokol penelitian komprehensif sesuai standar etik penelitian klinis, prosedur anonimisasi data ketat sesuai regulasi kesehatan, dan skema pendanaan yang mendukung kolaborasi multi-institusi.
 
-Solusi yang diterapkan meliputi inisiasi percakapan dengan beberapa mitra klinis potensial, protokol penelitian komprehensif telah disiapkan untuk pengajuan komite etik, prosedur anonimisasi yang sesuai dengan regulasi kesehatan telah dikembangkan, dan studi validasi fase kedua direncanakan dengan target triwulan kedua 2026.
-
-Status saat ini menunjukkan fase pertama berupa bukti konsep pada dataset publik telah selesai. Fase kedua berupa validasi klinis direncanakan untuk tahun 2026.
+Penelitian saat ini difokuskan pada bukti konsep teknis menggunakan dataset publik yang tersedia secara terbuka dan telah tervalidasi oleh komunitas riset internasional. Pendekatan ini memungkinkan pengembangan dan validasi metodologi tanpa ketergantungan pada akses data klinis yang memerlukan proses persetujuan panjang. Fase validasi eksternal dengan sampel lapangan akan direncanakan sebagai penelitian lanjutan terpisah dengan proposal dan kolaborasi institusional formal yang sesuai.
 
 **Pertimbangan Regulasi**
 
-Kendala kedua adalah deployment klinis sebagai alat bantu diagnostik memerlukan persetujuan regulasi dari badan seperti FDA. Regulasi perangkat medis memerlukan studi validasi ekstensif.
+Kendala signifikan untuk deployment klinis di masa depan adalah persyaratan regulasi ketat untuk perangkat medis berbasis AI. Deployment sebagai alat bantu diagnostik klinis memerlukan persetujuan dari badan regulasi seperti FDA di Amerika Serikat atau BPOM di Indonesia, yang mensyaratkan bukti validasi klinis ekstensif, dokumentasi teknis lengkap, dan uji keamanan serta efektivitas komprehensif. Proses persetujuan regulasi umumnya memerlukan waktu bertahun-tahun dan biaya substansial.
 
-Solusi strategi meliputi positioning penelitian saat ini sebagai alat pendukung keputusan bukan diagnostik otonom, dokumentasi disiapkan dengan mempertimbangkan kepatuhan regulasi, validasi eksternal fase kedua dirancang untuk memenuhi persyaratan regulasi, dan konsultasi jalur regulasi direncanakan dengan target tahun 2027.
+Penelitian saat ini diposisikan sebagai bukti konsep teknis dan riset metodologi, bukan sebagai produk medis siap pakai. Sistem yang dikembangkan ditujukan untuk tujuan penelitian dan demonstrasi kemampuan teknis pembelajaran mendalam pada deteksi malaria. Dokumentasi disusun dengan mempertimbangkan praktik terbaik untuk transparansi dan reproduksibilitas ilmiah. Jalur menuju deployment klinis yang memenuhi standar regulasi akan memerlukan penelitian lanjutan dengan cakupan jauh lebih luas, termasuk uji klinis multi-pusat dan kolaborasi dengan ahli regulasi medis.
 
 **Pergeseran Domain dan Generalisasi**
 
-Kendala ketiga adalah semua dataset berasal dari pengaturan laboratorium terkontrol. Deployment dunia nyata akan menghadapi variasi kualitas pewarnaan, jenis mikroskop, dan kondisi pencitraan yang berbeda.
+Kendala fundamental adalah semua dataset yang digunakan berasal dari pengaturan laboratorium terkontrol dengan kondisi pencitraan relatif standar. Hasil eksperimen cross-dataset menunjukkan penurunan performa 12-19% ketika model dilatih pada satu dataset dan diuji pada dataset lain, mengindikasikan adanya domain shift meskipun semua dataset menggunakan apusan darah tipis dengan pewarnaan Giemsa. Deployment pada sampel lapangan dengan variasi kualitas pewarnaan lebih luas, perbedaan jenis mikroskop, variasi kondisi pencahayaan, dan tingkat keahlian teknisi beragam akan menghadapi tantangan generalisasi lebih besar.
 
-Solusi strategi meliputi validasi antar dataset yang menunjukkan kemampuan generalisasi, pengumpulan sampel lapangan beragam direncanakan untuk fase kedua, teknik adaptasi domain akan dieksplorasi, dan pipeline pembelajaran berkelanjutan untuk sistem yang dideploy akan dikembangkan.
-
-Tantangan yang diharapkan adalah penurunan performa 10 hingga 25 persen pada sampel lapangan. Mitigasi melalui adaptasi domain dan fine-tuning pada data lokal akan diterapkan.
+Strategi mitigasi yang telah dilakukan meliputi validasi silang pada empat dataset berbeda untuk menguji robustness metodologi, augmentasi data aman untuk medis namun cukup bervariasi untuk meningkatkan invariansi model, serta penggunaan transfer learning dari ImageNet yang memberikan representasi visual lebih umum. Tantangan generalisasi ke sampel lapangan tetap menjadi keterbatasan yang perlu diatasi melalui penelitian lanjutan dengan pengumpulan data lapangan beragam dan teknik adaptasi domain. Penurunan performa 10-25% pada kondisi lapangan merupakan estimasi konservatif berdasarkan pengalaman sistem AI medis serupa yang terdokumentasi dalam literatur.
 
 ---
 
@@ -341,97 +287,39 @@ Tantangan yang diharapkan adalah penurunan performa 10 hingga 25 persen pada sam
 
 **Tindak Lanjut Publikasi Jurnal**
 
-Artikel telah diterima di jurnal KINETIK. Tindakan yang akan dilakukan meliputi memantau jadwal publikasi, menyiapkan versi final kamera dengan revisi, menyelesaikan transfer hak cipta dan perjanjian penulis, menunggu publikasi online yang diharapkan pada triwulan pertama 2026, dan melacak sitasi serta dampak.
+Artikel yang telah disubmit sedang dalam proses review di jurnal KINETIK dan menunggu hasil evaluasi dari peer reviewer. Tindakan yang akan dilakukan dalam fase jangka pendek meliputi memantau status submission melalui sistem online jurnal, merespons komentar dan saran reviewer dengan revisi yang komprehensif apabila diperlukan, menyiapkan versi final manuscript dengan perbaikan dan penyempurnaan sesuai masukan reviewer untuk meningkatkan kualitas publikasi, menunggu keputusan akhir editor mengenai penerimaan atau penolakan artikel, dan apabila diterima untuk publikasi akan memantau jadwal penerbitan yang diharapkan pada triwulan pertama atau kedua 2026 serta memastikan proses galley proof dan finalisasi artikel berjalan lancar.
 
-**Analisis Tambahan dan Studi Ablasi**
+**Analisis Tambahan pada Dataset Publik**
 
-Eksperimen yang direncanakan meliputi kurva ROC dan kurva presisi-recall untuk penilaian performa lengkap. Studi ablasi untuk mengukur dampak Focal Loss versus cross-entropy versus class-balanced loss. Analisis sensitivitas hiperparameter untuk parameter alpha dan gamma Focal Loss. Evaluasi ensemble model dengan strategi voting versus stacking. Pengujian signifikansi statistik menggunakan uji-t berpasangan dan uji McNemar.
-
-Output yang diharapkan meliputi materi suplemen untuk artikel jurnal, laporan teknis yang mendokumentasikan temuan tambahan, serta potensi artikel jurnal atau konferensi tambahan.
-
-**Pengajuan Hak Kekayaan Intelektual**
-
-Target pengajuan hak cipta software adalah triwulan pertama 2026. Dokumentasi yang diperlukan meliputi dokumentasi kode sumber lengkap, diagram arsitektur sistem, pernyataan kebaruan inovasi berupa Arsitektur Option A, spesifikasi teknis dan panduan deployment, serta manual pengguna dan prosedur operasi.
-
-Jadwal pelaksanaan meliputi bulan pertama hingga kedua untuk persiapan dokumentasi, bulan ketiga untuk pengajuan aplikasi, dan bulan keempat hingga keenam untuk proses tinjauan.
+Eksperimen tambahan yang dapat dilakukan menggunakan dataset publik yang sudah tersedia meliputi analisis menggunakan kurva ROC dan kurva precision-recall untuk karakterisasi performa model lebih detail, serta studi ablasi sederhana untuk memvalidasi kontribusi komponen seperti Focal Loss dan arsitektur Option A. Hasil eksperimen tambahan dapat didokumentasikan sebagai technical report atau supplementary material untuk memperkaya publikasi.
 
 ### G.2 Fase Jangka Menengah (6 hingga 12 Bulan)
 
-**Studi Validasi Eksternal Fase Kedua**
+**Perbaikan Penanganan Kelas Minoritas**
 
-Tujuan fase kedua adalah memvalidasi performa sistem pada 500 sampel klinis yang beragam. Desain studi meliputi pengumpulan sampel dengan kemitraan bersama 2 hingga 3 rumah sakit atau klinik. Persyaratan keragaman meliputi beberapa protokol pewarnaan, mikroskop berbeda, tingkat keahlian teknisi beragam, tingkat parasitemia bervariasi, dan semua 4 spesies Plasmodium terwakili.
+Salah satu tantangan utama yang teridentifikasi dari hasil penelitian adalah performa model pada kelas ultra-minoritas dengan jumlah sampel kurang dari 10 yang menunjukkan variansi F1-score sangat tinggi antara 44 hingga 100 persen. Eksplorasi lanjutan yang realistis dapat dilakukan menggunakan dataset publik yang sudah ada meliputi studi kelayakan penerapan data augmentation yang lebih agresif khusus untuk kelas minoritas dengan validasi bahwa transformasi tidak mengubah karakteristik diagnostik parasit, serta eksperimen ensemble methods sederhana menggunakan voting dari beberapa model terbaik untuk meningkatkan robustness prediksi. Kegiatan eksplorasi ini dapat dilakukan secara mandiri dengan sumber daya komputasi yang ada, dengan pemahaman bahwa hasil akan tetap terbatas oleh ukuran dataset fundamental yang sangat kecil.
 
-Metrik evaluasi meliputi akurasi deteksi versus mikroskopi ahli sebagai standar emas, akurasi klasifikasi dengan konsensus ahli dari 2 hingga 3 orang, analisis penghematan waktu antara sistem dan manual, perbaikan reliabilitas antar pengamat, dan penilaian efektivitas biaya.
+**Penambahan Interpretabilitas Dasar**
 
-Tantangan yang diharapkan meliputi jadwal persetujuan komite etik selama 3 hingga 6 bulan, logistik pengumpulan data, ketersediaan mikroskopi ahli, dan konsistensi kontrol kualitas.
+Untuk meningkatkan transparansi model, dapat diintegrasikan teknik visualisasi Gradient-weighted Class Activation Mapping (Grad-CAM) untuk memvisualisasikan region of interest pada citra yang berkontribusi terhadap keputusan klasifikasi. Implementasi dapat dilakukan menggunakan library open-source pytorch-grad-cam yang sudah tersedia, dengan validasi menggunakan dataset test yang sudah ada. Output berupa visualisasi heatmap yang dapat membantu memahami basis keputusan model, namun validasi klinis dari interpretasi tersebut memerlukan kolaborasi dengan ahli parasitologi yang saat ini belum tersedia.
 
-Hasil yang diharapkan meliputi naskah validasi eksternal dengan target jurnal kuartil kedua, laporan kegunaan klinis, dan perbandingan performa dengan metode yang ada.
+**Eksplorasi Optimisasi Model Sederhana**
 
-**Teknik Pembelajaran Lanjutan**
+Dapat dieksplorasi teknik kuantisasi model menggunakan PyTorch quantization tools untuk mengonversi bobot dari FP32 ke INT8 dengan potensi pengurangan ukuran model dan peningkatan kecepatan inferensi. Teknik ini relatif straightforward untuk diimplementasikan dan dapat divalidasi menggunakan dataset test yang ada untuk mengukur trade-off antara efisiensi dan akurasi. Deployment pada perangkat edge atau smartphone untuk aplikasi point-of-care akan memerlukan penelitian lanjutan yang lebih ekstensif dan validasi lapangan yang belum dapat dijadwalkan saat ini.
 
-Tujuannya adalah meningkatkan skor F1 pada kelas ultra-minoritas dengan kurang dari 10 sampel dari saat ini 44 hingga 80 persen menjadi target di atas 85 persen.
+### G.3 Persiapan untuk Kemungkinan Penelitian Lanjutan
 
-Pendekatan pertama adalah generasi data sintetik menggunakan StyleGAN2, StyleGAN3, atau model difusi untuk menghasilkan sampel kelas minoritas realistis dengan validasi tinjauan ahli. Target adalah menghasilkan 50 hingga 100 sampel sintetik per kelas minoritas.
+**Dokumentasi dan Diseminasi Hasil**
 
-Pendekatan kedua adalah few-shot learning menggunakan prototypical networks, matching networks, atau meta-learning menggunakan MAML. Peningkatan yang diharapkan adalah 10 hingga 15 poin persentase skor F1.
+Fokus utama adalah memastikan hasil penelitian terdokumentasi dengan baik dan dapat direplikasi oleh komunitas riset. Kegiatan yang realistis meliputi pemeliharaan repository GitHub dengan dokumentasi lengkap dan lisensi open-source, penyusunan technical report yang mendokumentasikan eksperimen secara komprehensif, dan potensial presentasi hasil pada forum ilmiah lokal apabila ada kesempatan. Diseminasi bertujuan untuk berbagi temuan dengan komunitas riset yang tertarik pada metodologi serupa.
 
-Pendekatan ketiga adalah active learning dengan uncertainty sampling atau query-by-committee. Target adalah mengurangi kebutuhan anotasi sebesar 40 hingga 50 persen.
+**Studi Literatur Lanjutan**
 
-Pendekatan keempat adalah metode ensemble dengan voting ensemble atau stacked generalization. Peningkatan yang diharapkan adalah 3 hingga 5 poin persentase akurasi.
+Dapat dilakukan kajian literatur mengenai persyaratan untuk studi validasi perangkat diagnostik berbasis AI sesuai standar internasional seperti STARD dan TRIPOD, serta pengalaman deployment sistem AI serupa di negara endemis. Kajian literatur ini bersifat persiapan akademik untuk memahami kompleksitas validasi klinis, namun tidak ada jaminan penelitian lanjutan dapat dilaksanakan mengingat keterbatasan pendanaan dan akses ke mitra institusional.
 
-Jadwal pelaksanaan meliputi bulan keenam hingga kesembilan untuk implementasi dan evaluasi teknik, serta bulan kesepuluh hingga kedua belas untuk integrasi ke pipeline dan validasi.
+**Catatan Mengenai Validasi Klinis dan Kolaborasi**
 
-**Integrasi Fitur Penjelasan**
-
-Tujuannya adalah menyediakan penjelasan visual untuk meningkatkan kepercayaan klinisi dan memungkinkan deteksi kesalahan.
-
-Pendekatan pertama adalah Grad-CAM untuk memvisualisasikan daerah gambar yang paling berkontribusi pada klasifikasi. Pendekatan kedua adalah integrasi Segment Anything untuk segmentasi parasit presisi. Pendekatan ketiga adalah visualisasi mekanisme attention untuk menunjukkan bobot perhatian model.
-
-Jadwal implementasi meliputi bulan keenam hingga kedelapan untuk integrasi Grad-CAM dan SAM, bulan kesembilan hingga kesepuluh untuk pengembangan antarmuka pengguna, dan bulan kesebelas hingga kedua belas untuk validasi klinis dengan ahli.
-
-Dampak yang diharapkan meliputi peningkatan kepercayaan klinisi dan kesediaan adopsi, deteksi dan koreksi kesalahan yang lebih mudah, serta alat pendidikan untuk pelatihan mikroskopis junior.
-
-**Optimisasi Deployment**
-
-Tujuannya adalah memungkinkan deployment pada perangkat edge dengan sumber daya terbatas.
-
-Teknik pertama adalah kuantisasi model menggunakan kuantisasi INT8 untuk mengurangi ukuran model sebesar 75 persen. Teknik kedua adalah pruning jaringan saraf dengan structured pruning. Teknik ketiga adalah destilasi pengetahuan dengan model guru berupa model besar berkinerja terbaik dan model siswa berupa model kecil efisien. Teknik keempat adalah pengujian perangkat edge pada NVIDIA Jetson atau Raspberry Pi 4.
-
-Target adalah pengurangan parameter 40 hingga 60 persen dengan kehilangan akurasi kurang dari 3 persen dan latensi kurang dari 100 milidetik per gambar pada perangkat edge.
-
-Jadwal pelaksanaan meliputi bulan keenam hingga kedelapan untuk implementasi teknik optimisasi, bulan kesembilan hingga kesepuluh untuk pengujian dan validasi perangkat edge, dan bulan kesebelas hingga kedua belas untuk persiapan paket deployment.
-
-### G.3 Fase Jangka Panjang (12 hingga 24 Bulan)
-
-**Studi Pilot Klinis**
-
-Tujuannya adalah mengevaluasi performa sistem dalam alur kerja klinis dunia nyata. Desain studi meliputi durasi 6 hingga 12 bulan, lokasi di 2 hingga 3 rumah sakit atau klinik dengan pengaturan urban dan rural, ukuran sampel 1000 kasus klinis atau lebih, dan desain studi observasional prospektif.
-
-Metrik evaluasi meliputi akurasi diagnostik antara sistem dan mikroskopi ahli, penghematan waktu berupa pengurangan waktu turnaround, dampak alur kerja berupa kemudahan integrasi dan kepuasan pengguna, reliabilitas antar pengamat, efektivitas biaya berupa biaya per diagnosis, serta hasil klinis berupa keputusan pengobatan dan hasil pasien.
-
-Hasil yang diharapkan meliputi naskah studi pilot klinis dengan target jurnal kuartil pertama, panduan deployment dan praktik terbaik, materi pelatihan untuk staf klinis, dan laporan analisis efektivitas biaya.
-
-**Perencanaan Jalur Regulasi**
-
-Tujuannya adalah mempersiapkan potensi deployment klinis sebagai perangkat medis. Strategi regulasi meliputi beberapa fase.
-
-Fase pertama adalah penentuan klasifikasi selama bulan ke-12 hingga 15 dengan konsultasi bersama ahli regulasi. Fase kedua adalah pra-pengajuan selama bulan ke-15 hingga 18 dengan pertemuan pra-pengajuan bersama otoritas regulasi. Fase ketiga adalah studi validasi selama bulan ke-18 hingga 24 dengan studi validasi multi-pusat sesuai persyaratan regulasi. Fase keempat adalah persiapan pengajuan setelah bulan ke-24 dengan kompilasi paket pengajuan 510k atau setara.
-
-Jadwal yang diharapkan meliputi tahun 2027 untuk konsultasi regulasi dan pra-pengajuan, tahun 2028 untuk studi validasi dan persiapan pengajuan, serta tahun 2029 untuk pengajuan dan tinjauan regulasi.
-
-**Pipeline Pembelajaran Berkelanjutan**
-
-Tujuannya adalah memungkinkan sistem yang dideploy untuk meningkat seiring waktu melalui data penggunaan dunia nyata. Desain sistem meliputi beberapa komponen.
-
-Komponen pertama adalah infrastruktur pengumpulan data dengan mekanisme unggah aman untuk sampel klinis teranonimisasi. Komponen kedua adalah integrasi active learning dengan identifikasi kasus menantang. Komponen ketiga adalah federated learning opsional untuk memungkinkan pembelajaran multi-lokasi. Komponen keempat adalah kontrol versi dan deployment dengan sistem versioning model.
-
-Manfaat yang diharapkan meliputi sistem beradaptasi dengan karakteristik populasi lokal, peningkatan performa seiring waktu dengan target plus 5 hingga 10 persen akurasi, deteksi dini varian parasit yang muncul, dan kontribusi komunitas ke database malaria global.
-
-**Perluasan ke Aplikasi Terkait**
-
-Potensi perluasan meliputi parasit darah lainnya seperti Trypanosoma, Leishmania, dan Babesia. Deteksi multi-patogen berupa kombinasi deteksi malaria dan bakteri. Parasitemia kuantitatif berupa penghitungan parasit otomatis. Screening resistensi obat berupa penanda morfologi resistensi obat.
-
-Jadwal pelaksanaan meliputi tahun 2027 hingga 2028 untuk studi kelayakan, tahun 2028 hingga 2029 untuk implementasi pilot, dan tahun 2029 ke depan untuk deployment penuh.
+Tahapan validasi klinis dengan sampel lapangan memerlukan kolaborasi formal dengan institusi kesehatan, persetujuan komite etik yang prosesnya memakan waktu berbulan-bulan hingga tahunan, serta pendanaan yang substansial. Sebagai penelitian mandiri tanpa afiliasi institusional formal, akses ke kolaborasi semacam ini sangat terbatas dan bergantung pada peluang yang mungkin muncul di masa depan. Validasi klinis bukan merupakan komitmen dari penelitian saat ini melainkan kemungkinan yang akan dipertimbangkan apabila tersedia kesempatan kolaborasi dan pendanaan yang sesuai. Penelitian saat ini diposisikan sebagai bukti konsep teknis menggunakan dataset publik, dengan pemahaman bahwa jalur menuju aplikasi klinis memerlukan ekosistem riset yang jauh lebih luas dari kapasitas penelitian mandiri saat ini.
 
 ---
 

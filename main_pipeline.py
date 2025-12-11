@@ -1776,9 +1776,21 @@ Per-Class Performance:
         print(f"\n[DATASET_STATS] Creating Dataset Statistics Analysis")
         try:
             dataset_stats_path = results_manager.create_analysis_path("dataset_statistics")
+
+            # FIX: Pass specific dataset to analyzer to prevent duplicates
+            # Dataset path mapping
+            dataset_path_map = {
+                "iml_lifecycle": "data/processed/lifecycle",
+                "mp_idb_species": "data/processed/species",
+                "mp_idb_stages": "data/processed/stages",
+                "md_2019_stages": "data/processed/md_2019_stages"
+            }
+
             dataset_stats_cmd = [
                 "python", "scripts/analysis/dataset_statistics_analyzer.py",
-                "--output", str(dataset_stats_path)
+                "--output", str(dataset_stats_path),
+                "--dataset", args.dataset,
+                "--dataset-path", dataset_path_map.get(args.dataset, "")
             ]
             run_command(dataset_stats_cmd, "Dataset Statistics Analysis (Augmentation Effects)")
         except Exception as e:

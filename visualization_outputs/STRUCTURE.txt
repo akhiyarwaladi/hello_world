@@ -1,86 +1,209 @@
-================================================================================
-VISUALIZATION OUTPUTS - STANDARDIZED STRUCTURE
-================================================================================
+===================================================================================
+VISUALIZATION_OUTPUTS FOLDER STRUCTURE
+===================================================================================
+Last Updated: 2025-12-11
+Purpose: Centralized visualization storage for publication and reporting
+
+Total Folders: 6
+Total Images: ~700 images (confusion matrices, training curves, selected cases,
+                          report examples, full best model visualizations)
+
+===================================================================================
+FOLDER HIERARCHY
+===================================================================================
 
 visualization_outputs/
-├── _README.txt                           # Overview and usage guide
-├── STRUCTURE.txt                         # This file - folder structure reference
+├── confusion_matrices/individual/          [24 images]
+│   └── {dataset}_{model}.png
 │
-├── confusion_matrices/                   # Classification performance matrices
-│   └── individual/                       # Individual matrices per model (24 total)
-│       ├── iml_lifecycle_*.png           # 6 models (densenet121, efficientnet_b0/b1/b2, resnet50/101)
-│       ├── md_2019_stages_*.png          # 6 models
-│       ├── mp_idb_species_*.png          # 6 models
-│       └── mp_idb_stages_*.png           # 6 models
+├── training_curves/                        [8 images]
+│   ├── accuracy_{dataset}.png
+│   └── loss_{dataset}.png
 │
-├── training_curves/                      # Training progress visualizations
-│   ├── accuracy_*.png                    # 4 datasets (accuracy over epochs)
-│   └── loss_*.png                        # 4 datasets (loss over epochs)
+├── selected_cases/                         [12 images - FINAL CURATED]
+│   ├── detection/                          [6 images]
+│   │   ├── 01_simple_fp_*.png             - 1 FP among correct detections
+│   │   ├── 02_pure_fn_*.png               - Only missing parasites
+│   │   ├── 03_heavy_fp_*.png              - 5+ false positives
+│   │   ├── 04_mixed_fp_fn_*.png           - Both FP and FN
+│   │   ├── 05_crowded_field_*.png         - 10+ GT boxes, few errors
+│   │   └── 06_atypical_fn_*.png           - Missing atypical morphology
+│   │
+│   └── classification/                     [6 images]
+│       ├── 01_single_error_66pct_*.png    - 2/3 correct
+│       ├── 02_moderate_error_50pct_*.png  - 3/6 correct
+│       ├── 03_stage_transition_10pct_*.png - Heavy stage confusion
+│       ├── 04_species_confusion_0pct_*.png - All wrong species
+│       ├── 05_heavy_error_0pct_*.png      - Systematic error
+│       └── 06_perfect_crowded_100pct_*.png - 14/14 perfect
 │
-├── selected_cases/                       # Curated error examples (for publication)
-│   ├── detection/                        # Detection error cases
-│   │   ├── 01_fp_simple.png              # Simple false positive
-│   │   ├── 02_fn_pure.png                # Pure false negative
-│   │   ├── 03_fp_heavy.png               # Heavy overdetection
-│   │   ├── 04_mixed_errors.png           # Mixed FP+FN
-│   │   ├── 05_crowded_field.png          # Crowded field errors
-│   │   └── 06_fn_atypical.png            # Atypical morphology FN
-│   └── classification/                   # Classification error cases
-│       ├── 01_single_error.png           # Single misclassification
-│       ├── 02_moderate_error.png         # Moderate errors
-│       ├── 03_stage_transition.png       # Stage transition confusion
-│       ├── 04_species_confusion.png      # Species misidentification
-│       ├── 05_heavy_error.png            # Heavy misclassification
-│       └── 06_perfect_crowded.png        # Perfect accuracy (crowded)
+├── report_examples/                        [2 images]
+│   ├── detection_yolo11_1409171742-0009-R.png
+│   └── classification_efficientnet_b1_PA171852.png
 │
-└── metadata/                             # CSV reports and statistics
-    ├── selected_detection_errors.csv     # Detection error analysis (544 cases)
-    ├── selected_classification_errors.csv # Classification error analysis (1388 cases)
-    ├── selected_error_images.csv         # Combined error report (1932 cases)
-    └── visualization_report.md           # Human-readable summary
+├── full/                                   [672 images]
+│   ├── detection/                          [336 images - 4 datasets × 84 avg]
+│   │   ├── yolo11_iml_lifecycle/          [63 images]
+│   │   ├── yolo11_mp_idb_species/         [42 images]
+│   │   ├── yolo11_mp_idb_stages/          [42 images]
+│   │   └── yolo11_md_2019_stages/         [189 images]
+│   │
+│   └── classification/                     [336 images]
+│       ├── efficientnet_b1_focal_iml_lifecycle/      [63 images]
+│       ├── efficientnet_b1_focal_mp_idb_species/     [42 images]
+│       ├── efficientnet_b1_focal_mp_idb_stages/      [42 images]
+│       └── efficientnet_b1_focal_md_2019_stages/     [189 images]
+│
+└── metadata/                               [4 files]
+    ├── selected_detection_errors.csv      [544 error cases]
+    ├── selected_classification_errors.csv [1388 error cases]
+    ├── combined_errors.csv                [Combined dataset]
+    └── ERROR_ANALYSIS_REPORT.md           [Analysis summary]
 
-================================================================================
-NAMING CONVENTIONS
-================================================================================
+===================================================================================
+FOLDER PURPOSES
+===================================================================================
 
-Confusion Matrices (individual/):
-  Format: {dataset}_{model}.png
-  Example: iml_lifecycle_efficientnet_b1.png
+[confusion_matrices/]
+- Publication-quality confusion matrices
+- Individual matrices per dataset-model combination
+- Covers top-performing models (EfficientNet-B0/B1/B2, ResNet50/101)
 
-Training Curves:
-  Format: {metric}_{dataset}.png
-  Example: accuracy_iml_lifecycle.png
+[training_curves/]
+- Training progress visualization
+- Accuracy and loss curves per dataset
+- Shows convergence behavior and overfitting analysis
 
-Test Visualizations (full/):
-  Format: {model}_{dataset}/
-  Example: yolo11_iml_lifecycle/
-           efficientnet_b1_iml_lifecycle/
+[selected_cases/]
+- FINAL CURATED CASES for publication (6 detection + 6 classification)
+- Based on FIGURE_METADATA_MAPPING.md criteria
+- Represents 6 error types each: Simple FP, Pure FN, Heavy FP, Mixed,
+  Crowded field, Atypical FN (detection); Single error 66.7%, Moderate 50%,
+  Stage transition, Species confusion, Heavy error, Perfect crowded (classification)
 
-Selected Cases:
-  Simple: detection/ and classification/ folders
-  Files numbered by error severity (highest first)
+[report_examples/]
+- Specific example images referenced in Laporan_Akhir_Penelitian.md
+- Detection example: 1409171742-0009-R (6 parasites, 77.1% conf)
+- Classification example: PA171852 (66.7% accuracy, realistic performance)
 
-================================================================================
-KEY FEATURES
-================================================================================
+[full/]
+- Complete test set visualizations for best models only
+- YOLO11 (detection) - 96.61% mAP@50
+- EfficientNet-B1 Focal (classification) - 90% accuracy
+- 672 total images = 336 detection + 336 classification
 
-✅ Standardized naming across all visualizations
-✅ Best models only (70% file reduction)
-✅ Consistent folder structure
-✅ Publication-ready quality (400 DPI, optimized sizing)
-✅ Easy navigation with clear hierarchy
+[metadata/]
+- CSV files with comprehensive metadata for all error cases
+- Includes: image names, GT boxes, predictions, accuracy, confidence, status
+- Used for selecting publication figures and analysis
 
-================================================================================
-REGENERATION
-================================================================================
+===================================================================================
+GENERATION SCRIPTS
+===================================================================================
 
-To regenerate all visualizations:
+Main generator:
+  scripts/visualization/generate_all_centralized.py
+  - Generates confusion matrices, training curves, selected error cases
+  - Auto-detects latest experiment folder
+  - Output: visualization_outputs/
+
+Supporting scripts:
+  scripts/visualization/copy_best_visualizations.py
+  - Copies best model visualizations (YOLO11 + EfficientNet-B1) to full/
+
+  scripts/visualization/generate_all_centralized.py --bbox-predictions-only
+  - Regenerates only selected error cases
+
+Usage:
+  # Generate everything
   python scripts/visualization/generate_all_centralized.py
 
-To regenerate full test visualizations only:
-  python scripts/visualization/copy_full_test_visualizations.py
+  # Regenerate confusion matrices only
+  python scripts/visualization/generate_all_centralized.py --confusion-matrices-only
 
-To regenerate confusion matrices only:
-  python scripts/visualization/regenerate_publication_quality_confusion_matrices.py
+  # Copy full best model visualizations
+  python scripts/visualization/copy_best_visualizations.py
 
-================================================================================
+===================================================================================
+REPORT INTEGRATION
+===================================================================================
+
+All images in luaran/laporan_akhir/Laporan_Akhir_Penelitian.md reference
+visualization_outputs/ folder ONLY (not results/ folder).
+
+Total images in report: 20
+- 2 from report_examples/ (Gambar 1 detection, Gambar 6 classification)
+- 4 from confusion_matrices/individual/ (Gambar 2-5)
+- 8 from training_curves/ (Gambar 7-8, 4 datasets × 2 curves)
+- 6 from selected_cases/ (Gambar 9-10, 3+3 error examples)
+
+All paths use relative format: ../../visualization_outputs/...
+
+===================================================================================
+SELECTED CASES DETAILS (FINAL)
+===================================================================================
+
+See: SELECTED_CASES_FINAL.md for comprehensive metadata and interpretation
+
+Detection (6 types):
+1. Simple FP: Trip 065 Day 2 01-12-05 Image 7_2 (MD-2019, 7 GT, 1 FP)
+2. Pure FN: Trip 067 Day 2 01-12-05 Image 1_3 (MD-2019, 10 GT, 4 FN)
+3. Heavy FP: 1701151546-0015-R_T (MP-IDB Species, 37 GT, 11 FP)
+4. Mixed: 1701151546-0015-R_T (same as #3, 11 FP + 9 FN)
+5. Crowded: 1704282807-0012-R_T (MP-IDB Stages, 27 GT, 1 FP, perfect)
+6. Atypical FN: Trip 073 Day 2 01-12-05 Image 1_10 (MD-2019, 14 GT, 4 FN)
+
+Classification (6 types):
+1. Single error 66.7%: Trip 804 Day 1 02-12-05 Image 3_11 (MD-2019, 2/3)
+2. Moderate 50%: 1409171742-0009-R (MP-IDB Species, 3/6)
+3. Stage trans 9.8%: 1704282807-0019-R_G (MP-IDB Stages, 4/41)
+4. Species conf 0%: 1701151546-0015-R_T (MP-IDB Species, 0/37)
+5. Heavy error 0%: 1701151546-0015-R_T (same as #4)
+6. Perfect 100%: 1704282807-0020-R_T_S (MP-IDB Species, 14/14)
+
+===================================================================================
+SIZE & STORAGE
+===================================================================================
+
+Estimated sizes:
+- confusion_matrices/: ~30 MB (24 × 1.2 MB)
+- training_curves/: ~10 MB (8 × 1.2 MB)
+- selected_cases/: ~15 MB (12 × 1.2 MB)
+- report_examples/: ~2.5 MB (2 × 1.2 MB)
+- full/: ~800 MB (672 × 1.2 MB)
+- metadata/: ~1 MB (CSV files)
+- Total: ~860 MB
+
+Original experiment folder: ~3.5 GB (all 9 models)
+Visualization outputs: ~860 MB (best 2 models only)
+Storage savings: ~75%
+
+===================================================================================
+MAINTENANCE
+===================================================================================
+
+When to regenerate:
+1. After new training run → run generate_all_centralized.py
+2. New selected cases needed → modify selectors, regenerate
+3. Report examples changed → copy new images to report_examples/
+
+Cleanup:
+- Automatically cleans old files before regeneration
+- Safe to delete and regenerate entire visualization_outputs/ folder
+- Source images remain in experiment folder (results/optA_*/experiments/)
+
+===================================================================================
+NOTES
+===================================================================================
+
+- All visualizations use consistent styling (publication-quality)
+- Confusion matrices: dataset-specific colormaps, no rotation, clear labels
+- Training curves: dual y-axis, epoch-based, legend positioned optimally
+- Selected cases: comprehensive error coverage, based on metadata analysis
+- Full visualizations: BEST models only (YOLO11 + EfficientNet-B1)
+
+Last verified: 2025-12-11
+Status: ✅ Complete and documented
+Report integration: ✅ All 20 images in visualization_outputs/
+
+===================================================================================

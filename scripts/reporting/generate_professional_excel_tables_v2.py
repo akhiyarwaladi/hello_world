@@ -16,12 +16,13 @@ from openpyxl.utils import get_column_letter
 from pathlib import Path
 import sys
 
-# Professional color scheme
+# Professional color scheme - Eye-friendly palette
 COLORS = {
-    'header_bg': 'E67E22',        # Professional Orange
-    'header_text': 'FFFFFF',       # White
-    'alt_row': 'FFFAE6',          # Very light orange/yellow
-    'border': 'BDC3C7',           # Light grey
+    'header_bg': '3C7A8C',        # Medium teal-blue (professional, slightly darker)
+    'header_text': 'FFFFFF',      # White text
+    'alt_row': 'F0F4F8',          # Very light cool grey-blue
+    'border': 'CBD5E0',           # Medium grey border
+    'highlight': 'D6EAF8',        # Light blue for special cells (optional)
 }
 
 def apply_professional_styling(ws):
@@ -137,8 +138,15 @@ def generate_classification_tables(experiment_folder, output_folder):
             f'{col.replace("_", " ").title()} (%)' for col in result_df.columns
         ]
 
-        # Save individual dataset file
-        output_file = output_folder / f'classification_{dataset_key}.xlsx'
+        # Save individual dataset file with numbered naming
+        table_numbers = {
+            'iml_lifecycle': '3',
+            'mp_idb_species': '4',
+            'mp_idb_stages': '5',
+            'md_2019_stages': '6'
+        }
+        table_num = table_numbers.get(dataset_key, 'X')
+        output_file = output_folder / f'Table{table_num}_{dataset_key}.xlsx'
 
         with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
             result_df.to_excel(writer, sheet_name=dataset_name, index=False)
@@ -192,16 +200,11 @@ def generate_detection_tables(experiment_folder, output_folder):
         dataset_df = dataset_df[['Model', 'mAP@50', 'mAP@50-95', 'Precision', 'Recall', 'Best Epoch']]
         dataset_df.columns = ['Model', 'mAP@50 (%)', 'mAP@50-95 (%)', 'Precision (%)', 'Recall (%)', 'Best Epoch']
 
-        output_file = output_folder / f'detection_{dataset_key}.xlsx'
+        # Individual files not needed for detection (only consolidated)
+        # output_file = output_folder / f'detection_{dataset_key}.xlsx'
 
-        with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
-            dataset_df.to_excel(writer, sheet_name=dataset_name, index=False)
-            apply_professional_styling(writer.sheets[dataset_name])
-
-        print(f"  ✓ Created: {output_file.name}")
-
-    # Consolidated file
-    output_file_all = output_folder / 'detection_all_datasets.xlsx'
+    # Consolidated file - Table 2
+    output_file_all = output_folder / 'Table2_Detection_Performance.xlsx'
 
     with pd.ExcelWriter(output_file_all, engine='openpyxl') as writer:
         for dataset_key, dataset_name in datasets.items():
@@ -230,7 +233,10 @@ def generate_dataset_statistics(experiment_folder, output_folder):
 
     df = pd.read_csv(csv_file)
 
-    output_file = output_folder / 'dataset_statistics.xlsx'
+    # Note: Duplicates fixed at root cause in main_pipeline.py (dataset_statistics_analyzer call)
+    # Each experiment folder now only analyzes its own dataset
+
+    output_file = output_folder / 'Table1_Dataset_Statistics.xlsx'
 
     with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
         df.to_excel(writer, sheet_name='Dataset Statistics', index=False)

@@ -36,6 +36,49 @@ Advanced malaria parasite detection and classification system using **shared cla
 - Would create messy coupling if combined
 - Clear separation of concerns justifies it
 
+### Professional Report Writing Guidelines
+
+**CRITICAL: Paragraph Structure and Length**
+- ⚠️ **NO SHORT PARAGRAPHS:** Every paragraph must be substantial (80-250 words)
+- ⚠️ **SYMMETRICAL LENGTH:** Paragraphs within the same section should have similar word counts
+- ⚠️ **NO ORPHAN SENTENCES:** Never leave 1-2 sentence paragraphs - merge them with related content
+- ⚠️ **CONSISTENT DENSITY:** All narrative sections should maintain uniform paragraph density
+
+**Writing Quality Standards:**
+1. **Paragraph Uniformity**
+   - Target: 80-250 words per paragraph in narrative sections
+   - Measure: Use word count to ensure consistency
+   - Action: If paragraph <80 words, merge with adjacent paragraph or expand with detail
+   - Exception: Lists, tables, and technical specifications can be shorter
+
+2. **Visual Symmetry**
+   - Paragraphs in Section A should have similar length
+   - Paragraphs in Section B should have similar length
+   - Avoid: Long paragraph → short paragraph → long paragraph pattern
+   - Achieve: Consistent visual weight across entire document
+
+3. **Content Completeness**
+   - Each paragraph should develop ONE complete idea
+   - No claims without supporting data from experiments
+   - All statistics must trace back to `results/optA_[timestamp]/`
+   - Hardware specs must match actual equipment (RTX 3060 12GB, NOT RTX 4090)
+
+4. **Common Mistakes to Avoid**
+   - ❌ "Total waktu pelatihan berkurang dari 200 jam menjadi 80 jam" (unverified claims)
+   - ❌ Short 2-3 sentence paragraphs (unprofessional)
+   - ❌ Inconsistent paragraph lengths within same section (visually jarring)
+   - ❌ GPU spec mismatch (claiming RTX 4090 when using RTX 3060)
+
+**Verification Checklist Before Finalizing:**
+- [ ] All paragraphs 80-250 words (narrative sections)
+- [ ] Similar paragraph lengths within each section
+- [ ] No orphan short paragraphs (<80 words)
+- [ ] All performance claims verified against experiment results
+- [ ] Hardware specifications accurate (RTX 3060 12GB)
+- [ ] Training time claims realistic (~120 GPU-hours)
+- [ ] No bright colors in tables (eye-friendly palette)
+- [ ] All figures exist in visualization_outputs/
+
 ---
 
 ## 📚 DOCUMENTATION INDEX
