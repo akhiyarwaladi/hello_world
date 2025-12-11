@@ -91,6 +91,12 @@ def generate_dataset_statistics(experiment_folder, output_folder):
 
     df = pd.read_csv(csv_file)
 
+    # Remove duplicates (experiment was run before main_pipeline.py fix)
+    original_rows = len(df)
+    df = df.drop_duplicates(subset=['Dataset'], keep='first')
+    if len(df) < original_rows:
+        print(f"  ⚠ Removed {original_rows - len(df)} duplicate rows ({original_rows} → {len(df)})")
+
     output_file = output_folder / 'Table1_Dataset_Statistics.xlsx'
 
     with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
