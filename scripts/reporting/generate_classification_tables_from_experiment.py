@@ -83,8 +83,8 @@ def read_dataset_data(experiment_folder, dataset_key):
             support = int(cls_data[cls_data['Metric'] == 'support'][model].values[0])
             per_class_metrics.append({
                 'class': cls,
-                'precision': precision,
-                'f1': f1,
+                'precision': precision * 100,  # Convert to percentage
+                'f1': f1 * 100,  # Convert to percentage
                 'support': support
             })
 
@@ -102,8 +102,8 @@ def read_dataset_data(experiment_folder, dataset_key):
             'model': model,
             'params': param_map.get(model, 0),
             'training_time': training_time,
-            'accuracy': accuracy,
-            'balanced_acc': balanced_acc,
+            'accuracy': accuracy * 100,  # Convert to percentage
+            'balanced_acc': balanced_acc * 100,  # Convert to percentage
             'per_class_metrics': per_class_metrics
         })
 
