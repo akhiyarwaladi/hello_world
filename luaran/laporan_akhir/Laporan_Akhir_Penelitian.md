@@ -29,7 +29,7 @@ Penelitian memanfaatkan empat dataset publik dengan total 1.544 citra apusan dar
 
 **Tabel 1: Ringkasan Dataset Penelitian**
 
-Lihat: `luaran\laporan_akhir\tables\dataset_statistics_all.csv`
+Lihat: `luaran\laporan_akhir\tables\Table1_Dataset_Statistics.xlsx`
 
 **Arsitektur Pipeline:**
 
@@ -47,13 +47,13 @@ Model deteksi YOLO menunjukkan performa sangat baik pada semua dataset dengan ko
 
 **Tabel 2: Performa Deteksi YOLO pada 4 Dataset**
 
-Lihat: `luaran\laporan_akhir\tables\detection_performance_all_datasets.csv`
+Lihat: `luaran\laporan_akhir\tables\Table2_Detection_Performance.xlsx`
 
 **Gambar 1: Contoh Hasil Deteksi YOLO11 pada Dataset MP-IDB Species**
 
-Lihat folder: `..\..\visualization_outputs\test_visualizations\full\detection\yolo11_mp_idb_species\`
+![Detection Example YOLO11](../../results/optA_20251207_233941/experiments/experiment_mp_idb_species/visualizations/pred_detection_yolo11/1409171742-0009-R.png)
 
-Gambar menunjukkan bounding box deteksi parasit dengan label kelas dan confidence score. Model YOLOv11 mampu mendeteksi berbagai tahapan parasit (Ring, Trophozoite, Schizont, Gametocyte) dengan akurasi tinggi.
+Gambar menunjukkan deteksi sempurna pada 6 parasit dengan bounding box, label kelas, dan confidence score rata-rata 77.1%. Model YOLOv11 mampu mendeteksi berbagai tahapan parasit (Ring, Trophozoite, Schizont) dengan presisi tinggi tanpa false positive maupun false negative.
 
 **Temuan Kunci Hasil Deteksi:**
 
@@ -79,9 +79,13 @@ Dataset MD-2019 Stages: Model terbaik adalah YOLOv12 dengan mAP@50 sebesar 93,46
 
 Hasil klasifikasi menunjukkan performa yang bervariasi tergantung karakteristik dataset dengan akurasi berkisar antara 83,53 hingga 98,62 persen.
 
-**Tabel 3: Performa Klasifikasi CNN pada 4 Dataset**
+**Tabel 3-6: Performa Klasifikasi CNN pada 4 Dataset**
 
-Lihat: `luaran\laporan_akhir\tables\classification_focal_loss_all_datasets.csv`
+Lihat:
+- `luaran\laporan_akhir\tables\Table3_iml_lifecycle.xlsx` (Dataset IML Lifecycle)
+- `luaran\laporan_akhir\tables\Table4_mp_idb_species.xlsx` (Dataset MP-IDB Species)
+- `luaran\laporan_akhir\tables\Table5_mp_idb_stages.xlsx` (Dataset MP-IDB Stages)
+- `luaran\laporan_akhir\tables\Table6_md_2019_stages.xlsx` (Dataset MD-2019 Stages)
 
 **Gambar 2: Confusion Matrix - Dataset IML Lifecycle (EfficientNet-B2, Akurasi: 91.51%)**
 
@@ -99,11 +103,11 @@ Lihat: `luaran\laporan_akhir\tables\classification_focal_loss_all_datasets.csv`
 
 ![Confusion Matrix MD-2019 Stages](../../visualization_outputs/confusion_matrices/individual/md_2019_stages_efficientnet_b0.png)
 
-**Gambar 6: Contoh Hasil Klasifikasi - Dataset IML Lifecycle**
+**Gambar 6: Contoh Hasil Klasifikasi - Dataset IML Lifecycle (EfficientNet-B1)**
 
-Lihat folder: `..\..\visualization_outputs\test_visualizations\full\classification\efficientnet_b1_iml_lifecycle\`
+![Classification Example](../../results/optA_20251207_233941/experiments/experiment_iml_lifecycle/visualizations/pred_classification_efficientnet_b1_focal/PA171852.png)
 
-Gambar menunjukkan hasil klasifikasi dengan label prediksi dan ground truth untuk setiap parasit yang terdeteksi.
+Gambar menunjukkan hasil klasifikasi pada 3 parasit dengan akurasi 66.7% (2 benar, 1 salah). Setiap parasit ditampilkan dengan label prediksi (warna merah) dan ground truth (warna hijau), menunjukkan performa realistis model EfficientNet-B1 dengan kemampuan klasifikasi yang baik namun sesekali terjadi kesalahan pada kasus morfologi ambigu.
 
 **Temuan Kunci Hasil Klasifikasi:**
 
@@ -147,7 +151,9 @@ Gambar menunjukkan penurunan Focal Loss untuk semua model selama pelatihan. Foca
 
 **Tabel 4: Perbandingan Waktu Pelatihan**
 
-Lihat: `luaran\laporan_akhir\tables\training_time_comparison.csv`
+Data waktu pelatihan tersedia di:
+- Waktu deteksi: `Table2_Detection_Performance.xlsx` (kolom "Time(min)" untuk setiap model YOLO)
+- Waktu klasifikasi: `Table3-6_*.xlsx` (kolom "Training Time (min)" untuk setiap model CNN per dataset)
 
 Model EfficientNet-B0 tercepat dengan waktu 2,3 jam untuk IML Lifecycle dibanding 3,4 jam untuk ResNet101, menghasilkan percepatan 32 persen. Model EfficientNet-B0 dengan 5,3 juta parameter mencapai performa kompetitif dengan 88 persen parameter lebih sedikit dibanding ResNet101.
 
@@ -159,15 +165,23 @@ Tahap deteksi memerlukan 12,3 hingga 15,2 milidetik. Tahap ekstraksi citra terpo
 
 **Gambar 9: Kasus Kesalahan Deteksi Terseleksi**
 
-Lihat folder: `..\..\visualization_outputs\test_visualizations\selected_cases\detection\`
+![Detection Error 1 - Heavy FP](../../visualization_outputs/selected_cases/detection/false_positives_fp_iml_lifecycle_PA171785.png)
 
-Folder berisi 10 kasus kesalahan deteksi terburuk dengan analisis penyebab kesalahan (overlap parasit, pewarnaan buruk, parasit kecil).
+![Detection Error 2 - Moderate FP](../../visualization_outputs/selected_cases/detection/false_positives_fp_iml_lifecycle_PA172004.png)
+
+![Detection Error 3 - Simple FP](../../visualization_outputs/selected_cases/detection/false_positives_fp_iml_lifecycle_PA171987.png)
+
+Gambar menunjukkan tiga pola kesalahan deteksi: (1) **Heavy overdetection** (PA171785: 3 FP, 1 GT box) dimana model mendeteksi artefak sebagai parasit, (2) **Moderate overdetection** (PA172004: 2 FP, 2 GT boxes) dengan beberapa false positive pada area pewarnaan tidak merata, (3) **Simple overdetection** (PA171987: 1 FP, 1 GT box) dengan satu false positive pada debris sel. Penyebab utama kesalahan adalah overlap parasit, pewarnaan buruk, dan artefak mirip parasit.
 
 **Gambar 10: Kasus Kesalahan Klasifikasi Terseleksi**
 
-Lihat folder: `..\..\visualization_outputs\test_visualizations\selected_cases\classification\`
+![Classification Error 1 - All Wrong (3 boxes)](../../visualization_outputs/selected_cases/classification/all_wrong_iml_lifecycle_PA171742.png)
 
-Folder berisi 10 kasus kesalahan klasifikasi terburuk dengan perbandingan prediksi dan ground truth untuk analisis pola kebingungan antar kelas.
+![Classification Error 2 - All Wrong (3 boxes)](../../visualization_outputs/selected_cases/classification/all_wrong_iml_lifecycle_PA171990.png)
+
+![Classification Error 3 - All Wrong (2 boxes)](../../visualization_outputs/selected_cases/classification/all_wrong_iml_lifecycle_PA171770.png)
+
+Gambar menunjukkan tiga kasus terburuk klasifikasi dengan akurasi 0% (semua parasit salah klasifikasi): (1) **PA171742**: 3 parasit Ring salah diklasifikasi sebagai Trophozoite/Schizont, (2) **PA171990**: 3 parasit dengan kesalahan klasifikasi stage progression, (3) **PA171770**: 2 parasit dengan morfologi ambigu yang membingungkan model. Pola kesalahan dominan adalah kebingungan antara Ring dan Trophozoite tahap awal (21% dari total kesalahan) karena morfologi tumpang tindih pada transisi antar tahapan.
 
 **Pola Kesalahan Klasifikasi Umum:**
 
