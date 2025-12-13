@@ -13,6 +13,7 @@ Features:
 - Journal-quality styling (400 DPI)
 - Best vs Worst model comparison
 - Configurable output paths
+- **METADATA GENERATION** - Exports training statistics to JSON for report enrichment
 """
 
 import argparse
@@ -23,6 +24,8 @@ import matplotlib
 matplotlib.use('Agg')  # Non-interactive backend
 import matplotlib.pyplot as plt
 import numpy as np
+import json
+from datetime import datetime
 
 
 class TrainingCurvesGenerator:
@@ -91,6 +94,9 @@ class TrainingCurvesGenerator:
         # Default dataset configurations (can be overridden)
         self.dataset_configs = dataset_configs or self._get_default_configs()
 
+        # Storage for metadata
+        self.metadata = {}
+
     def _get_default_configs(self) -> Dict:
         """Get default dataset configurations."""
         return {
@@ -135,6 +141,70 @@ class TrainingCurvesGenerator:
 
         return pd.read_csv(csv_path)
 
+    def _extract_model_metadata(self, data: pd.DataFrame, model_label: str) -> Dict:
+        """
+        Extract comprehensive metadata from training data.
+
+        Args:
+            data: Training history DataFrame
+            model_label: Model display label (e.g., 'EfficientNet-B1')
+
+        Returns:
+            Dict with training statistics
+        """
+        if data is None or data.empty:
+            return {}
+
+        # Final epoch values
+        final_epoch = int(data['epoch'].max())
+        final_train_acc = float(data['train_acc'].iloc[-1])
+        final_val_acc = float(data['val_acc'].iloc[-1])
+        final_train_loss = float(data['train_loss'].iloc[-1])
+        final_val_loss = float(data['val_loss'].iloc[-1])
+
+        # Best values
+        best_val_acc_idx = data['val_acc'].idxmax()
+        best_val_acc = float(data.loc[best_val_acc_idx, 'val_acc'])
+        best_val_acc_epoch = int(data.loc[best_val_acc_idx, 'epoch'])
+
+        best_val_loss_idx = data['val_loss'].idxmin()
+        best_val_loss = float(data.loc[best_val_loss_idx, 'val_loss'])
+        best_val_loss_epoch = int(data.loc[best_val_loss_idx, 'epoch'])
+
+        # Convergence analysis (when did it reach 90%, 95% accuracy?)
+        convergence_90 = data[data['val_acc'] >= 90.0]['epoch'].min() if (data['val_acc'] >= 90.0).any() else None
+        convergence_95 = data[data['val_acc'] >= 95.0]['epoch'].min() if (data['val_acc'] >= 95.0).any() else None
+
+        # Training stability (standard deviation of last 10 epochs)
+        last_10_val_acc_std = float(data['val_acc'].tail(10).std()) if len(data) >= 10 else None
+        last_10_val_loss_std = float(data['val_loss'].tail(10).std()) if len(data) >= 10 else None
+
+        return {
+            'model': model_label,
+            'total_epochs': final_epoch + 1,
+            'final': {
+                'epoch': final_epoch,
+                'train_accuracy': round(final_train_acc, 2),
+                'val_accuracy': round(final_val_acc, 2),
+                'train_loss': round(final_train_loss, 4),
+                'val_loss': round(final_val_loss, 4)
+            },
+            'best': {
+                'val_accuracy': round(best_val_acc, 2),
+                'val_accuracy_epoch': best_val_acc_epoch,
+                'val_loss': round(best_val_loss, 4),
+                'val_loss_epoch': best_val_loss_epoch
+            },
+            'convergence': {
+                'epoch_90pct': int(convergence_90) if convergence_90 is not None else None,
+                'epoch_95pct': int(convergence_95) if convergence_95 is not None else None
+            },
+            'stability_last_10_epochs': {
+                'val_accuracy_std': round(last_10_val_acc_std, 2) if last_10_val_acc_std is not None else None,
+                'val_loss_std': round(last_10_val_loss_std, 4) if last_10_val_loss_std is not None else None
+            }
+        }
+
     def create_accuracy_figure(
         self,
         dataset_key: str,
@@ -161,6 +231,20 @@ class TrainingCurvesGenerator:
         if best_data is None or worst_data is None:
             print(f"   [SKIP] Missing data for {dataset_key}")
             return False
+
+        # Extract metadata for both models
+        if dataset_key not in self.metadata:
+            self.metadata[dataset_key] = {
+                'dataset_name': config['name'],
+                'models': {}
+            }
+
+        self.metadata[dataset_key]['models'][config['best'][0]] = self._extract_model_metadata(
+            best_data, config['best'][1]
+        )
+        self.metadata[dataset_key]['models'][config['worst'][0]] = self._extract_model_metadata(
+            worst_data, config['worst'][1]
+        )
 
         # Create SQUARE figure for perfect consistency
         fig, ax = plt.subplots(figsize=figsize)
@@ -271,9 +355,40 @@ class TrainingCurvesGenerator:
         plt.close()
         return True
 
+    def save_metadata(self) -> bool:
+        """
+        Save extracted metadata to JSON file.
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            metadata_path = self.output_dir / "training_curves_metadata.json"
+
+            # Prepare output with timestamp
+            output_data = {
+                'title': 'Training Curves Metadata',
+                'generated_at': datetime.now().isoformat(),
+                'description': 'Comprehensive training statistics extracted from training curves',
+                'datasets': self.metadata
+            }
+
+            # Write JSON with pretty printing
+            with open(metadata_path, 'w', encoding='utf-8') as f:
+                json.dump(output_data, f, indent=2, default=str)
+
+            print(f"\n   [METADATA] Saved to {metadata_path}")
+            return True
+
+        except Exception as e:
+            print(f"\n   [ERROR] Failed to save metadata: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
+
     def generate_all(self, plot_types: List[str] = ['accuracy']) -> Dict[str, int]:
         """
-        Generate all training curves.
+        Generate all training curves and metadata.
 
         Args:
             plot_types: List of plot types to generate ['accuracy', 'loss']
@@ -282,7 +397,7 @@ class TrainingCurvesGenerator:
             Dict with success counts per plot type
         """
         print("\n" + "="*80)
-        print("GENERATING PROFESSIONAL TRAINING CURVES")
+        print("GENERATING PROFESSIONAL TRAINING CURVES + METADATA")
         print("="*80)
         print(f"Output: {self.output_dir}")
         print(f"Plot types: {', '.join(plot_types)}")
@@ -304,11 +419,18 @@ class TrainingCurvesGenerator:
                 if self.create_loss_figure(dataset_key, config):
                     results['loss'] += 1
 
+        # Save metadata to JSON
+        print("\n" + "="*80)
+        print("SAVING METADATA")
+        print("="*80)
+        self.save_metadata()
+
         print("\n" + "="*80)
         print("GENERATION COMPLETE")
         print("="*80)
         for plot_type, count in results.items():
             print(f"  {plot_type.capitalize()}: {count}/{len(self.dataset_configs)} figures")
+        print(f"  Metadata: training_curves_metadata.json")
         print(f"  Location: {self.output_dir}")
         print("="*80)
 

@@ -204,7 +204,11 @@ class CentralizedVisualizationGenerator:
         if self.curves_dir.exists():
             for f in self.curves_dir.glob("*.png"):
                 f.unlink()
-            print("   ✓ Cleaned old training curves")
+            # Also clean metadata JSON
+            metadata_file = self.curves_dir / "training_curves_metadata.json"
+            if metadata_file.exists():
+                metadata_file.unlink()
+            print("   ✓ Cleaned old training curves and metadata")
 
         try:
             generator = TrainingCurvesGenerator(

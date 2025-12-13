@@ -1,0 +1,227 @@
+{
+  "title": "Training Curves Metadata",
+  "generated_at": "2025-12-13T12:56:10.576073",
+  "description": "Comprehensive training statistics extracted from training curves",
+  "datasets": {
+    "iml_lifecycle": {
+      "dataset_name": "IML Lifecycle",
+      "models": {
+        "efficientnet_b1": {
+          "model": "EfficientNet-B1",
+          "total_epochs": 54,
+          "final": {
+            "epoch": 53,
+            "train_accuracy": 99.61,
+            "val_accuracy": 94.34,
+            "train_loss": 0.0011,
+            "val_loss": 0.0194
+          },
+          "best": {
+            "val_accuracy": 97.17,
+            "val_accuracy_epoch": 39,
+            "val_loss": 0.0131,
+            "val_loss_epoch": 39
+          },
+          "convergence": {
+            "epoch_90pct": 33,
+            "epoch_95pct": 39
+          },
+          "stability_last_10_epochs": {
+            "val_accuracy_std": 1.67,
+            "val_loss_std": 0.011
+          }
+        },
+        "resnet101": {
+          "model": "ResNet101",
+          "total_epochs": 53,
+          "final": {
+            "epoch": 52,
+            "train_accuracy": 91.8,
+            "val_accuracy": 88.68,
+            "train_loss": 0.0182,
+            "val_loss": 0.043
+          },
+          "best": {
+            "val_accuracy": 93.4,
+            "val_accuracy_epoch": 34,
+            "val_loss": 0.015,
+            "val_loss_epoch": 35
+          },
+          "convergence": {
+            "epoch_90pct": 34,
+            "epoch_95pct": null
+          },
+          "stability_last_10_epochs": {
+            "val_accuracy_std": 1.41,
+            "val_loss_std": 0.0097
+          }
+        }
+      }
+    },
+    "mp_idb_species": {
+      "dataset_name": "MP-IDB Species",
+      "models": {
+        "efficientnet_b1": {
+          "model": "EfficientNet-B1",
+          "total_epochs": 51,
+          "final": {
+            "epoch": 50,
+            "train_accuracy": 99.76,
+            "val_accuracy": 95.05,
+            "train_loss": 0.0005,
+            "val_loss": 0.0514
+          },
+          "best": {
+            "val_accuracy": 98.23,
+            "val_accuracy_epoch": 43,
+            "val_loss": 0.0182,
+            "val_loss_epoch": 4
+          },
+          "convergence": {
+            "epoch_90pct": 2,
+            "epoch_95pct": 3
+          },
+          "stability_last_10_epochs": {
+            "val_accuracy_std": 1.37,
+            "val_loss_std": 0.0081
+          }
+        },
+        "efficientnet_b0": {
+          "model": "EfficientNet-B0",
+          "total_epochs": 50,
+          "final": {
+            "epoch": 49,
+            "train_accuracy": 99.64,
+            "val_accuracy": 96.11,
+            "train_loss": 0.0007,
+            "val_loss": 0.0497
+          },
+          "best": {
+            "val_accuracy": 98.23,
+            "val_accuracy_epoch": 36,
+            "val_loss": 0.0217,
+            "val_loss_epoch": 37
+          },
+          "convergence": {
+            "epoch_90pct": 3,
+            "epoch_95pct": 4
+          },
+          "stability_last_10_epochs": {
+            "val_accuracy_std": 1.29,
+            "val_loss_std": 0.0048
+          }
+        }
+      }
+    },
+    "mp_idb_stages": {
+      "dataset_name": "MP-IDB Stages",
+      "models": {
+        "resnet50": {
+          "model": "ResNet50",
+          "total_epochs": 38,
+          "final": {
+            "epoch": 37,
+            "train_accuracy": 90.99,
+            "val_accuracy": 95.19,
+            "train_loss": 0.0178,
+            "val_loss": 0.0513
+          },
+          "best": {
+            "val_accuracy": 95.88,
+            "val_accuracy_epoch": 2,
+            "val_loss": 0.0326,
+            "val_loss_epoch": 23
+          },
+          "convergence": {
+            "epoch_90pct": 2,
+            "epoch_95pct": 2
+          },
+          "stability_last_10_epochs": {
+            "val_accuracy_std": 4.04,
+            "val_loss_std": 0.0264
+          }
+        },
+        "densenet121": {
+          "model": "DenseNet121",
+          "total_epochs": 51,
+          "final": {
+            "epoch": 50,
+            "train_accuracy": 97.84,
+            "val_accuracy": 95.19,
+            "train_loss": 0.0034,
+            "val_loss": 0.0846
+          },
+          "best": {
+            "val_accuracy": 95.88,
+            "val_accuracy_epoch": 21,
+            "val_loss": 0.0368,
+            "val_loss_epoch": 36
+          },
+          "convergence": {
+            "epoch_90pct": 3,
+            "epoch_95pct": 4
+          },
+          "stability_last_10_epochs": {
+            "val_accuracy_std": 4.65,
+            "val_loss_std": 0.0099
+          }
+        }
+      }
+    },
+    "md_2019_stages": {
+      "dataset_name": "MD_2019 Stages",
+      "models": {
+        "efficientnet_b0": {
+          "model": "EfficientNet-B0",
+          "total_epochs": 72,
+          "final": {
+            "epoch": 71,
+            "train_accuracy": 99.25,
+            "val_accuracy": 85.27,
+            "train_loss": 0.0015,
+            "val_loss": 0.0862
+          },
+          "best": {
+            "val_accuracy": 85.96,
+            "val_accuracy_epoch": 67,
+            "val_loss": 0.0352,
+            "val_loss_epoch": 6
+          },
+          "convergence": {
+            "epoch_90pct": null,
+            "epoch_95pct": null
+          },
+          "stability_last_10_epochs": {
+            "val_accuracy_std": 0.45,
+            "val_loss_std": 0.0024
+          }
+        },
+        "resnet101": {
+          "model": "ResNet101",
+          "total_epochs": 76,
+          "final": {
+            "epoch": 75,
+            "train_accuracy": 92.48,
+            "val_accuracy": 84.59,
+            "train_loss": 0.0145,
+            "val_loss": 0.0466
+          },
+          "best": {
+            "val_accuracy": 86.3,
+            "val_accuracy_epoch": 52,
+            "val_loss": 0.0355,
+            "val_loss_epoch": 49
+          },
+          "convergence": {
+            "epoch_90pct": null,
+            "epoch_95pct": null
+          },
+          "stability_last_10_epochs": {
+            "val_accuracy_std": 0.31,
+            "val_loss_std": 0.002
+          }
+        }
+      }
+    }
+  }
+}
