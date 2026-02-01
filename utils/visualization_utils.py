@@ -64,10 +64,14 @@ def draw_boxes(image: np.ndarray,
             else:
                 text_pos_y = y1 - baseline - 5
 
+            # Pick text color based on background luminance (BGR format)
+            luminance = 0.299 * color[2] + 0.587 * color[1] + 0.114 * color[0]
+            text_color = (0, 0, 0) if luminance > 150 else (255, 255, 255)
+
             cv2.rectangle(img_copy, (x1 - 8, text_y_top),
                          (x1 + text_width + 8, text_y_bottom), color, -1, lineType=cv2.LINE_AA)
             cv2.putText(img_copy, label, (x1, text_pos_y),
-                       cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), 2, lineType=cv2.LINE_AA)
+                       cv2.FONT_HERSHEY_SIMPLEX, font_scale, text_color, 2, lineType=cv2.LINE_AA)
 
     return img_copy
 
@@ -311,10 +315,10 @@ def save_publication_image(image: np.ndarray, output_path: Path, dpi: int = 300)
 
 # Color constants for visualization
 COLORS = {
-    'green': (0, 180, 0),      # Correct predictions
-    'red': (0, 0, 255),        # Wrong predictions
+    'green': (0, 180, 0),      # Correct predictions (TP)
+    'red': (0, 0, 220),        # Wrong predictions (FP)
     'blue': (255, 0, 0),       # Ground truth
-    'yellow': (0, 255, 255),   # Warnings
+    'yellow': (0, 190, 255),   # Warnings / FN - amber-orange, readable with black text
     'cyan': (255, 255, 0),     # Info
     'magenta': (255, 0, 255),  # Special
     'white': (255, 255, 255),
