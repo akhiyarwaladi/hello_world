@@ -268,7 +268,7 @@ Changes are listed in document order, top to bottom.
 | **Editor** | 1 | Introduction structure | 1, 2 |
 | **Editor** | 2, 10 | Improve analysis & comparison | 21, 22 |
 | **Editor** | 6 | All tables/figures referenced | 9, 11, 13, 21 |
-| **Editor** | 7 | Citations correct & sequential | 8, 16, 17, 20 |
+| **Editor** | 7 | Citations correct & sequential | 8, 16, 17, 20, 27, 28 |
 | **Reviewer C** | 1 | Literature review with contributors | 1, 2 |
 | **Reviewer C** | 2 | Method justification | 6, 7 |
 | **Reviewer C** | 3 | Discussion section | 22 |
@@ -314,7 +314,82 @@ Changes are listed in document order, top to bottom.
 
 ---
 
-## TOTAL: 26 Changes
+## CHANGE 27 — Section 3.7, restore Prototypical Networks citation [FIX]
+**Location in Word:** Section 3.7 "Limitations", second paragraph
+**Type:** Restore orphaned citation (was removed by Change 8)
+
+**Find:** `prototypical networks and meta-learning approaches [30]`
+**Replace:** `prototypical networks [22] and meta-learning approaches [30]`
+
+**Note:** Reference [22] (Snell et al., "Prototypical Networks for Few-shot Learning") was accidentally orphaned when Change 8 replaced `[22]` with `[9]` in Section 3.1. This restores it in the appropriate context.
+
+---
+
+## CHANGE 28 — Full Reference Renumbering for IEEE Sequential Order [RENUMBER]
+**Location in Word:** ENTIRE DOCUMENT — all citation numbers and reference list
+**Type:** IEEE compliance — citations must appear in sequential first-appearance order (Editor Point 7)
+
+**IMPORTANT:** Apply this change LAST, after all other changes (1-27) have been applied.
+
+The new Section 1.2 Literature Review (Change 2) introduced references [7], [25], [24], [21], [26] early in the paper, breaking the sequential first-appearance order required by IEEE style. This change renumbers all 33 citations and reorders the reference list.
+
+**Renumbering Map (Old → New):**
+
+| Old | New | Author / Short Title |
+|-----|-----|---------------------|
+| [1] | [1] | WHO, World malaria report 2024 |
+| [2] | [2] | WHO, Global technical strategy |
+| [3] | [3] | Sutanto, Combating Malaria |
+| [4] | [4] | Rajaraman, Deep neural ensembles |
+| [7] | **[5]** | Arshad, IML Lifecycle dataset |
+| [25] | **[6]** | Loddo, Empirical Evaluation CNN 2022 |
+| [24] | **[7]** | Zedda, Deep Learning Framework 2022 |
+| [21] | **[8]** | Zedda, YOLO-PAM 2023 |
+| [26] | **[9]** | Sukumarran, YOLOv4 malaria 2024 |
+| [8] | **[10]** | Pachetti, Few-shot learning review |
+| [5] | **[11]** | Tek, Computer vision malaria |
+| [9] | **[12]** | Salmi, Imbalanced medical datasets |
+| [6] | **[13]** | Yang, Smartphone malaria detection |
+| [10] | **[14]** | Alkandary, YOLO series comparison |
+| [11] | **[15]** | Li, Generalized Focal Loss |
+| [12] | **[16]** | Dutt, Parameter-Efficient Fine-Tuning |
+| [13] | **[17]** | Fischer, Prompt tuning |
+| [14] | **[18]** | Peng, Efficient Deep Learning |
+| [15] | **[19]** | Loddo, MP-IDB database 2019 |
+| [16] | **[20]** | Abbas, Malaria-Detection-2019 |
+| [17] | **[21]** | Garcea, Data augmentation review |
+| [18] | **[22]** | Huang, DenseNet |
+| [19] | **[23]** | Tan & Le, EfficientNet |
+| [20] | **[24]** | Cheng, ResGANet |
+| [23] | **[25]** | Hoyos, Supporting Malaria Diagnosis |
+| [27] | **[26]** | Lei, GAN medical image synthesis |
+| [28] | **[27]** | Kazerouni, Diffusion models |
+| [29] | **[28]** | Fang, Transfer learning |
+| [22] | **[29]** | Snell, Prototypical Networks |
+| [30] | [30] | Ouahab, ProtoMed |
+| [31] | [31] | Zhang, Attention mechanisms |
+| [32] | [32] | Aris, Malaria detection framework |
+| [33] | [33] | Singh, Healthcare System CNN |
+
+**How to apply in Word:**
+1. Use Find & Replace with "Match case" and "Find whole words only"
+2. First pass: Replace each `[old]` with a temporary placeholder `[__old__]` to avoid collisions
+3. Second pass: Replace each `[__old__]` with `[new]`
+4. Reorder the Reference list entries to match the new numbering [1] through [33]
+
+**Note:** Changes 8, 16, 17, and 20 used OLD citation numbers in their Replace text. After applying Change 28, those numbers will be automatically updated. For clarity:
+- Change 8 Fix A: `[22]` → `[9]` (old) → becomes `[12]` (new) after renumbering
+- Change 8 Fix B: `[15]` → `[1]` (old) → stays `[1]` (new)
+- Change 8 Fix C: `[3]` → `[10]` (old) → becomes `[14]` (new) after renumbering
+- Change 16: `[11]` → `[19]` (old) → becomes `[23]` (new) after renumbering
+- Change 17: `[2]` → `[9]` (old) → becomes `[12]` (new) after renumbering
+- Change 20 Fix A: `[27]` → `[26]` (old) → becomes `[9]` (new) after renumbering
+- Change 20 Fix B: `[15]` → `[25]` (old) → becomes `[6]` (new) after renumbering
+- Change 20 Fix C: `[24]` → `[26]` (old) → becomes `[9]` (new) after renumbering
+
+---
+
+## TOTAL: 28 Changes
 
 - **2** major rewrites (Section 1.2 Literature Review, new Section 3.6 Discussion)
 - **4** new text additions (Section 2.2 justification, Section 2.4 AdamW paragraph, Section 2.4 Focal Loss paragraph, Section 4 significance paragraph)
@@ -324,6 +399,8 @@ Changes are listed in document order, top to bottom.
 - **1** wrong figure reference — Figure 4f → 6f (Change 19)
 - **1** missing table reference — Table 7 added to body text (Change 21)
 - **3** figure data corrections — updated to match experiment optA_20251207_233941 (Changes 24, 25, 26)
+- **1** restored orphaned citation — [22] Prototypical Networks (Change 27)
+- **1** full reference renumbering — IEEE sequential first-appearance order (Change 28)
 
 ---
 
