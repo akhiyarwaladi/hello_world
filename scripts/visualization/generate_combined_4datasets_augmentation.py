@@ -91,7 +91,7 @@ def load_mp_idb_species_sample():
     """Load largest P_falciparum from MP-IDB Species"""
     print("\n[LOADING] MP-IDB Species - P_falciparum")
 
-    metadata_path = 'results/optA_20251013_220815/experiments/experiment_mp_idb_species/crops_gt_crops/ground_truth_crop_metadata.csv'
+    metadata_path = 'results/optA_20251016_200330/experiments/experiment_mp_idb_species/crops_gt_crops/ground_truth_crop_metadata.csv'
     df = pd.read_csv(metadata_path)
     df['width'] = df['bbox_x2'] - df['bbox_x1']
     df['height'] = df['bbox_y2'] - df['bbox_y1']
@@ -103,9 +103,7 @@ def load_mp_idb_species_sample():
     sample = species_df.iloc[0]
 
     # Load image
-    img_file = sample['original_image']
-    if img_file.startswith('images/'):
-        img_file = img_file[7:]
+    img_file = Path(sample['original_image']).name
 
     image_path = None
     for split in ['train', 'val', 'test']:
@@ -114,12 +112,15 @@ def load_mp_idb_species_sample():
             image_path = candidate
             break
 
+    if image_path is None:
+        raise FileNotFoundError(f"Could not find image {img_file} in data/processed/species/*/images/")
+
     image = cv2.imread(str(image_path))
     bbox = [sample['bbox_x1'], sample['bbox_y1'], sample['bbox_x2'], sample['bbox_y2']]
     crop = crop_with_margin(image, bbox, margin_ratio=0.25)
     crop_resized = smart_resize(crop)
 
-    print(f"  Size: {sample['size_with_margin']:.0f}px → {crop_resized.shape[0]}px")
+    print(f"  Size: {sample['size_with_margin']:.0f}px -> {crop_resized.shape[0]}px")
     return crop_resized, "MP-IDB Species\n(P. falciparum)"
 
 
@@ -127,7 +128,7 @@ def load_mp_idb_stages_sample():
     """Load largest Ring from MP-IDB Stages"""
     print("\n[LOADING] MP-IDB Stages - Ring")
 
-    metadata_path = 'results/optA_20251013_220815/experiments/experiment_mp_idb_species/crops_gt_crops/ground_truth_crop_metadata.csv'
+    metadata_path = 'results/optA_20251016_200330/experiments/experiment_mp_idb_species/crops_gt_crops/ground_truth_crop_metadata.csv'
     df = pd.read_csv(metadata_path)
     df['width'] = df['bbox_x2'] - df['bbox_x1']
     df['height'] = df['bbox_y2'] - df['bbox_y1']
@@ -139,9 +140,7 @@ def load_mp_idb_stages_sample():
     df_sorted = df.sort_values('size_with_margin', ascending=False)
     sample = df_sorted.iloc[1]  # Use 2nd largest (1st is already used for species)
 
-    img_file = sample['original_image']
-    if img_file.startswith('images/'):
-        img_file = img_file[7:]
+    img_file = Path(sample['original_image']).name
 
     image_path = None
     for split in ['train', 'val', 'test']:
@@ -150,12 +149,15 @@ def load_mp_idb_stages_sample():
             image_path = candidate
             break
 
+    if image_path is None:
+        raise FileNotFoundError(f"Could not find image {img_file} in data/processed/species/*/images/")
+
     image = cv2.imread(str(image_path))
     bbox = [sample['bbox_x1'], sample['bbox_y1'], sample['bbox_x2'], sample['bbox_y2']]
     crop = crop_with_margin(image, bbox, margin_ratio=0.25)
     crop_resized = smart_resize(crop)
 
-    print(f"  Size: {sample['size_with_margin']:.0f}px → {crop_resized.shape[0]}px")
+    print(f"  Size: {sample['size_with_margin']:.0f}px -> {crop_resized.shape[0]}px")
     return crop_resized, "MP-IDB Stages\n(Ring Stage)"
 
 
@@ -241,8 +243,8 @@ def load_md2019_sample():
                     continue
 
                 class_id = int(parts[0])
-                if class_id != 2:  # 2 = trophozoite
-                    continue
+                # MD-2019 uses single class (0=parasite); accept any class
+                _ = class_id
 
                 x_center, y_center, width, height = map(float, parts[1:5])
 

@@ -45,8 +45,8 @@ def draw_boxes(image: np.ndarray,
     for box, label, color in zip(boxes, labels, colors):
         x1, y1, x2, y2 = [int(c) for c in box]
 
-        # Draw rectangle
-        cv2.rectangle(img_copy, (x1, y1), (x2, y2), color, thickness)
+        # Draw rectangle with anti-aliasing
+        cv2.rectangle(img_copy, (x1, y1), (x2, y2), color, thickness, lineType=cv2.LINE_AA)
 
         # Draw label if provided
         if label:
@@ -65,9 +65,9 @@ def draw_boxes(image: np.ndarray,
                 text_pos_y = y1 - baseline - 5
 
             cv2.rectangle(img_copy, (x1 - 8, text_y_top),
-                         (x1 + text_width + 8, text_y_bottom), color, -1)
+                         (x1 + text_width + 8, text_y_bottom), color, -1, lineType=cv2.LINE_AA)
             cv2.putText(img_copy, label, (x1, text_pos_y),
-                       cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), 2)
+                       cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), 2, lineType=cv2.LINE_AA)
 
     return img_copy
 
@@ -290,6 +290,23 @@ def clean_output_directory(output_dir: Path, backup: bool = True) -> None:
             shutil.rmtree(str(output_path))
 
     output_path.mkdir(parents=True, exist_ok=True)
+
+
+def save_publication_image(image: np.ndarray, output_path: Path, dpi: int = 300) -> None:
+    """
+    Save image with embedded DPI metadata for publication quality.
+
+    Converts OpenCV BGR image to RGB PIL Image, sets DPI metadata,
+    and saves as PNG for lossless quality.
+
+    Args:
+        image: OpenCV image (BGR format)
+        output_path: Path to save the image
+        dpi: DPI value to embed (default 300 for journal requirements)
+    """
+    img_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    pil_img = Image.fromarray(img_rgb)
+    pil_img.save(str(output_path), format='PNG', dpi=(dpi, dpi))
 
 
 # Color constants for visualization

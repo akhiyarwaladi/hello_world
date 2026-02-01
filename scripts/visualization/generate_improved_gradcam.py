@@ -528,13 +528,13 @@ def visualize_improved_gradcam(image_path, model, model_name, class_names, devic
         cam = cams[layer_name]
         overlay, heatmap = apply_colormap_on_image(img_for_display, cam, alpha=0.5)
 
-        # Save heatmap
+        # Save heatmap with 300 DPI metadata
         heatmap_file = components_dir / f'{Path(image_path).stem}_{layer_name}_heatmap.png'
-        cv2.imwrite(str(heatmap_file), cv2.cvtColor(heatmap, cv2.COLOR_RGB2BGR))
+        Image.fromarray(heatmap).save(str(heatmap_file), format='PNG', dpi=(300, 300))
 
-        # Save overlay
+        # Save overlay with 300 DPI metadata
         overlay_file = components_dir / f'{Path(image_path).stem}_{layer_name}_overlay.png'
-        cv2.imwrite(str(overlay_file), cv2.cvtColor(overlay, cv2.COLOR_RGB2BGR))
+        Image.fromarray(overlay).save(str(overlay_file), format='PNG', dpi=(300, 300))
 
     print(f"   [SAVED] Components: {components_dir}")
 

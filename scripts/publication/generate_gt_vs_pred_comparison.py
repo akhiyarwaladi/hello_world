@@ -14,6 +14,7 @@ import cv2
 import numpy as np
 from pathlib import Path
 from datetime import datetime
+from PIL import Image
 
 
 # Base paths
@@ -168,8 +169,9 @@ def create_side_by_side_comparison(gt_path, pred_path, output_path,
     # Concatenate: GT | gap | Pred
     comparison = np.hstack([gt_img_labeled, gap_img, pred_img_labeled])
 
-    # Save comparison image
-    cv2.imwrite(str(output_path), comparison)
+    # Save comparison image with 300 DPI metadata
+    comparison_rgb = cv2.cvtColor(comparison, cv2.COLOR_BGR2RGB)
+    Image.fromarray(comparison_rgb).save(str(output_path), format='PNG', dpi=(300, 300))
 
     # Verify save
     if output_path.exists():

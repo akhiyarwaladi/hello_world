@@ -1,0 +1,105 @@
+Notifications
+undefined
+[KINETIK] Editor Decision
+2026-01-16 10:04 PM
+Akhiyar Waladi, Hasanatul Iftitah, Yogi Perdana, Nindy Raisa Hanum, Fitra Wahyuni, Rahmad Ashar:
+
+We have reached a decision regarding your submission to Kinetik: Game Technology, Information System, Computer Network, Computing, Electronics, and Control, "Parameter Efficient Models for Malaria Detection and Classification Using Small-Scale Imbalanced Blood Smear Images".
+
+Our decision is: Revisions Required
+
+In preparing your revised paper, you should pay attention to:
+1. An Introduction should contain the following three parts:
+- Background: Authors have to make clear what the context is. Ideally, authors should give an idea of the state-of-the art of the field the report is about.
+- The Problem: If there was no problem, there would be no reason for writing a manuscript, and definitely no reason for reading it. So, please tell readers why they should proceed reading. Experience shows that for this part a few lines are often sufficient.
+- The Proposed Solution: Now and only now! - authors may outline the contribution of the manuscript. Here authors have to make sure readers point out what are the novel aspects of authors work.
+
+2. Results and discussion section: The presentation of results should be simple and straightforward in style. You should improve your analyzing and also present the comparison between performance of your approach and other researches.
+Results given in figures should not be repeated in tables. This section report the most important findings, including results of analyses as appropriate. It is very important to prove that your manuscript has a significant value and not trivial.
+
+3. Prepare your figures in high quality and created by yourself (not copy and paste from other parties). All legends, captions ... in your figures MUST in English.
+
+4. Each submitted article must be written in English.
+
+5. Figures and Tables must be written in English
+
+6. All Figures, tables, and formulas are clearly visible and referenced in a paragraph
+
+7. Referral of at least 25 articles references (IEEE References Style) from journal and proceeding using Mendeley as referencing software. Citations and references are sequential (All references mentioned in the Reference List are MUST cited in the text, and vice versa).
+
+8. Article matches the Kinetik template.
+
+9. For more information about submission please check author guideline at http://kinetik.umm.ac.id/index.php/kinetik/pages/view/Guidelines
+
+10. You should improve analyzing and also present the comparison between the performance of your approach and other researches.
+
+When your revised paper reached us, it will be evaluated for contribution, originality, relevance, and presentation.
+In order to shorten the review process you should
+1. submit your revised paper,
+3. author response file (must be filled in and re-uploaded), and
+3. plagiarism check result (max 20%) within 2 weeks. Then, your paper will be judged: accepted or rejected.
+We look forward to hearing from you.
+
+
+
+------------------------------------------------------
+Reviewer B:
+Recommendation: Accept Submission
+
+------------------------------------------------------
+
+Reviewer's recommendation:
+Write the recommendation of overall article's content, problem statements, Gap Analysis, Contributions, Result performance and discussion, figure and table description, article references.
+
+Dari saya semua sudah ok dan terima submisi
+------------------------------------------------------
+
+
+
+------------------------------------------------------
+Reviewer C:
+Recommendation: Revisions Required
+
+------------------------------------------------------
+
+Reviewer's recommendation:
+Write the recommendation of overall article's content, problem statements, Gap Analysis, Contributions, Result performance and discussion, figure and table description, article references.
+
+1. The introduction should contextualize your research and provide any specialized information that the general measurement or control reader may require to comprehend what follows. It must explain the significance of previous work as well as the issues that your work addresses. It should also contain a list of comparable works. The introduction should define the article's contribution(s) and show how it is demonstrated throughout the manuscript. A typical introduction should be as oncise as possible and include the following:
+a). An outline of the problem.
+b). A review of the relevant literature, highlighting briefly the major
+contributors and indicating:
+- What the main contributors did?
+- What the main contributors found?
+
+2. The method section must provide a detailed step-by-step description of the experimental procedure, including all of the information required to replicate the work described in the paper. The Method must include a description of both novel and standard experimental approaches, as well as any necessary justification to persuade the reader that the methods are correct.
+
+3. The discussion informs readers about your study's larger implications based on the findings. Highlighting these implications without overstating the findings can be difficult, especially if you're submitting to a journal that chooses articles based on novelty or potential impact. Regardless of which journal you submit to, the discussion section always serves the same purpose: to summarize what your study's findings mean. A successful discussion section puts your findings in context. It should include:
+- the results of your research,
+- a discussion of related research, and
+- a comparison between your results and initial hypothesis.
+
+4. Your conclusion is more than just a summary of what you've previously written. It should enhance your paper by addressing any outstanding questions. Summarize what you've discovered in your research and propose potential applications and extensions. The primary question in your conclusion should be, "What do my findings mean for the research field and my community?"
+------------------------------------------------------
+
+
+
+------------------------------------------------------
+Reviewer D:
+Recommendation: Revisions Required
+
+------------------------------------------------------
+
+Reviewer's recommendation:
+Write the recommendation of overall article's content, problem statements, Gap Analysis, Contributions, Result performance and discussion, figure and table description, article references.
+
+Thanks for you contribution on the field in computer science. I am very glad with your research, you shared a detail of your research. It is very good and make your research more valuable in your field.
+
+I have some comment in my pdf file, please check and update it. You can follow my comment inside my pdf file as a guide. You have a good research and results.
+Keep on going.
+------------------------------------------------------
+
+
+
+
+KINETIK: Game Technology, Information System, Computer Network, Computing, Electronics, and Control

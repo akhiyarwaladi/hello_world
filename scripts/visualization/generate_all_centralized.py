@@ -1,101 +1,116 @@
 #!/usr/bin/env python3
 """
-UNIFIED VISUALIZATION GENERATOR - CENTRALIZED OUTPUT
-====================================================
+UNIFIED FIGURE GENERATOR - ALL PAPER FIGURES IN ONE COMMAND
+============================================================
 
-Generate SEMUA visualizations LANGSUNG ke SATU FOLDER TERPUSAT.
-NO copying, NO scattered outputs - everything generated to ONE place from the start!
+Generates ALL 6 paper figures + metadata to a single centralized folder.
+
+Paper Figure Mapping:
+    Figure 1 → Augmentation examples (4 datasets, 2x2 grid)
+    Figure 2 → Pipeline architecture diagram
+    Figure 3 → Confusion matrices (4 best models, individual PNGs)
+    Figure 4 → Training accuracy curves (4 datasets, best vs worst)
+    Figure 5 → Detection error patterns (selected from experiment)
+    Figure 6 → Classification error patterns (selected from experiment)
 
 Output Structure:
-    visualization_outputs/              ← SATU FOLDER UNTUK SEMUA!
-    ├── confusion_matrices/
-    │   ├── individual/                # Per-model CMs (auto-generated during training)
-    │   └── consolidated_2x2.png       # 2x2 grid publication figure
-    │
-    ├── training_curves/
+    visualization_outputs/
+    ├── fig1_augmentation/
+    │   └── augmentation_4datasets_combined_2x2.png
+    ├── fig2_pipeline/
+    │   └── pipeline_architecture_horizontal.png
+    ├── fig3_confusion_matrices/
+    │   └── individual/          (per-model CMs)
+    ├── fig4_training_curves/
     │   ├── accuracy_iml_lifecycle.png
-    │   ├── accuracy_md_2019_stages.png
     │   ├── accuracy_mp_idb_species.png
-    │   └── accuracy_mp_idb_stages.png
-    │
-    ├── selected_cases/                # Curated error examples (for publication)
-    │   ├── detection/                 # Detection error cases
-    │   └── classification/            # Classification error cases
-    │
+    │   ├── accuracy_mp_idb_stages.png
+    │   └── accuracy_md_2019_stages.png
+    ├── fig5_detection_errors/
+    │   └── (selected detection error images)
+    ├── fig6_classification_errors/
+    │   └── (selected classification error images)
     ├── metadata/
     │   ├── selected_detection_errors.csv
     │   ├── selected_classification_errors.csv
-    │   ├── selected_error_images.csv
     │   └── visualization_report.md
-    │
-    └── _README.txt                    # Guide
+    └── _README.txt
 
 Usage:
-    # Generate everything to default location (visualization_outputs/)
-    python generate_all_centralized.py
+    # Generate ALL figures (default)
+    python scripts/visualization/generate_all_centralized.py
 
-    # Custom output directory
-    python generate_all_centralized.py --output my_viz
+    # Custom experiment
+    python scripts/visualization/generate_all_centralized.py --experiment results/optA_20251016_200330
 
-    # Specific experiment
-    python generate_all_centralized.py --experiment results/optA_20251207_233941
+    # Selective generation (by figure number)
+    python scripts/visualization/generate_all_centralized.py --only fig1 fig3 fig4
+    python scripts/visualization/generate_all_centralized.py --only fig5 fig6
 """
 
 import argparse
+import re
+import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List
 from datetime import datetime
 import shutil
+
+
+def sanitize_filename(name: str) -> str:
+    """Remove/replace characters invalid for Windows filenames."""
+    return re.sub(r'[<>:"/\\|?*\s]+', '_', name).strip('_')
 
 # Add project root
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from scripts.visualization.selectors import DetectionErrorSelector, ClassificationErrorSelector
-from scripts.visualization.reporters import CSVReporter, MarkdownReporter, JSONReporter
-from scripts.visualization.generate_training_curves import TrainingCurvesGenerator
-# REMOVED: Consolidated confusion matrix no longer needed
-# from scripts.visualization.generate_consolidated_confusion_matrices import ConsolidatedConfusionMatrixGenerator
+
+# Figure-to-folder mapping (single source of truth)
+FIGURE_DIRS = {
+    'fig1': 'fig1_augmentation',
+    'fig2': 'fig2_pipeline',
+    'fig3': 'fig3_confusion_matrices',
+    'fig4': 'fig4_training_curves',
+    'fig5': 'fig5_detection_errors',
+    'fig6': 'fig6_classification_errors',
+}
+
+FIGURE_LABELS = {
+    'fig1': 'Figure 1 - Augmentation Examples',
+    'fig2': 'Figure 2 - Pipeline Architecture',
+    'fig3': 'Figure 3 - Confusion Matrices',
+    'fig4': 'Figure 4 - Training Curves',
+    'fig5': 'Figure 5 - Detection Errors',
+    'fig6': 'Figure 6 - Classification Errors',
+}
 
 
 class CentralizedVisualizationGenerator:
-    """
-    Generate ALL visualizations directly to ONE centralized folder.
-
-    No scattered outputs, no manual copying - everything generated in place!
-    """
+    """Generate ALL paper figures to ONE centralized folder."""
 
     def __init__(
         self,
         experiment_root: Path,
         output_dir: Path = Path("visualization_outputs"),
-        top_n: int = 20  # More cases for flexibility
+        top_n: int = 20
     ):
-        """
-        Initialize generator.
-
-        Args:
-            experiment_root: Experiment root (e.g., results/optA_20251207_233941)
-            output_dir: Master output directory
-            top_n: Number of cases per category for selection
-        """
         self.experiment_root = Path(experiment_root)
         self.experiments_dir = self.experiment_root / "experiments"
         self.output_dir = Path(output_dir)
         self.top_n = top_n
 
-        # Create centralized structure
-        self.cm_dir = self.output_dir / "confusion_matrices"
-        self.cm_individual_dir = self.cm_dir / "individual"
-        self.curves_dir = self.output_dir / "training_curves"
-        self.selected_cases_dir = self.output_dir / "selected_cases"
-        self.metadata_dir = self.output_dir / "metadata"
-
-        for d in [self.cm_dir, self.cm_individual_dir, self.curves_dir,
-                  self.selected_cases_dir / "detection", self.selected_cases_dir / "classification",
-                  self.metadata_dir]:
+        # Create figure directories
+        self.fig_dirs = {}
+        for key, dirname in FIGURE_DIRS.items():
+            d = self.output_dir / dirname
             d.mkdir(parents=True, exist_ok=True)
+            self.fig_dirs[key] = d
+
+        # Subdirectories
+        (self.fig_dirs['fig3'] / "individual").mkdir(parents=True, exist_ok=True)
+        (self.output_dir / "metadata").mkdir(parents=True, exist_ok=True)
 
         self.results = {}
 
@@ -104,10 +119,10 @@ class CentralizedVisualizationGenerator:
         experiments = []
 
         if not self.experiments_dir.exists():
-            print(f"[ERROR] Experiments directory not found: {self.experiments_dir}")
+            print(f"  [ERROR] Experiments directory not found: {self.experiments_dir}")
             return experiments
 
-        for exp_dir in self.experiments_dir.iterdir():
+        for exp_dir in sorted(self.experiments_dir.iterdir()):
             if not exp_dir.is_dir() or not exp_dir.name.startswith('experiment_'):
                 continue
 
@@ -116,7 +131,6 @@ class CentralizedVisualizationGenerator:
 
             detection_models = [d.name for d in viz_dir.iterdir()
                                if d.is_dir() and d.name.startswith('pred_detection_')] if viz_dir.exists() else []
-
             classification_models = [d.name for d in viz_dir.iterdir()
                                     if d.is_dir() and d.name.startswith('pred_classification_')] if viz_dir.exists() else []
 
@@ -127,208 +141,490 @@ class CentralizedVisualizationGenerator:
                 'detection_models': detection_models,
                 'classification_models': classification_models
             })
-
-            print(f"[DISCOVERED] {dataset_name}: {len(detection_models)} det, {len(classification_models)} cls")
+            print(f"  [DISCOVERED] {dataset_name}: {len(detection_models)} det, {len(classification_models)} cls")
 
         return experiments
 
-    def generate_confusion_matrices(self):
-        """Generate confusion matrices DIRECTLY to centralized folder."""
+    # ------------------------------------------------------------------
+    # FIGURE 1: Augmentation Examples
+    # ------------------------------------------------------------------
+    def generate_fig1_augmentation(self):
+        """Figure 1 - Medical-safe augmentation examples across 4 datasets."""
         print("\n" + "="*80)
-        print("[1/4] GENERATING CONFUSION MATRICES")
+        print("[Fig 1/6] AUGMENTATION EXAMPLES")
         print("="*80)
 
-        # Clean confusion matrices folder before regenerating
-        print("\n[1.-1] Cleaning confusion matrices folder...")
-        if self.cm_individual_dir.exists():
-            for f in self.cm_individual_dir.glob("*.png"):
-                f.unlink()
-        if self.cm_dir.exists():
-            for f in self.cm_dir.glob("*.png"):
-                f.unlink()
-        print("   ✓ Cleaned old confusion matrices")
+        output_path = self.fig_dirs['fig1'] / "augmentation_4datasets_combined_2x2.png"
+        script_path = project_root / "scripts" / "visualization" / "generate_combined_4datasets_augmentation.py"
 
-        # Step 0: Regenerate publication-quality confusion matrices
-        # Features: NO 45-degree rotation, dataset-specific colors, dual annotations
-        print("\n[1.0] Regenerating publication-quality confusion matrices...")
-        print("        (NO rotation, dataset-specific colormaps)")
+        if not script_path.exists():
+            print(f"  [ERROR] Script not found: {script_path}")
+            self.results['fig1'] = 0
+            return
+
+        # Clean existing
+        for f in self.fig_dirs['fig1'].glob("*.png"):
+            f.unlink()
+
         try:
-            import subprocess
+            result = subprocess.run([
+                sys.executable, str(script_path),
+                "--output", str(output_path),
+                "--dpi", "300"
+            ], capture_output=True, text=True, timeout=300)
+
+            if result.returncode == 0 and output_path.exists():
+                size_kb = output_path.stat().st_size / 1024
+                print(f"  [OK] Saved: {output_path.name} ({size_kb:.0f} KB)")
+                self.results['fig1'] = 1
+            else:
+                print(f"  [ERROR] Generation failed")
+                if result.stderr:
+                    print(f"  {result.stderr[:300]}")
+                self.results['fig1'] = 0
+        except Exception as e:
+            print(f"  [ERROR] {e}")
+            self.results['fig1'] = 0
+
+    # ------------------------------------------------------------------
+    # FIGURE 2: Pipeline Architecture Diagram
+    # ------------------------------------------------------------------
+    def generate_fig2_pipeline(self):
+        """Figure 2 - System architecture overview diagram."""
+        print("\n" + "="*80)
+        print("[Fig 2/6] PIPELINE ARCHITECTURE DIAGRAM")
+        print("="*80)
+
+        script_path = project_root / "scripts" / "visualization" / "generate_pipeline_architecture_diagram.py"
+
+        if not script_path.exists():
+            print(f"  [ERROR] Script not found: {script_path}")
+            self.results['fig2'] = 0
+            return
+
+        # Clean existing
+        for f in self.fig_dirs['fig2'].glob("*.png"):
+            f.unlink()
+
+        # The pipeline script saves to luaran/auto_generated/..., we run it
+        # then copy the result to our centralized folder
+        try:
+            result = subprocess.run([
+                sys.executable, str(script_path)
+            ], capture_output=True, text=True, timeout=120)
+
+            # Copy from its default output location to centralized folder
+            default_output = project_root / "luaran" / "auto_generated" / "figures" / "pipeline_diagrams" / "pipeline_architecture_horizontal.png"
+            dest_path = self.fig_dirs['fig2'] / "pipeline_architecture_horizontal.png"
+
+            if default_output.exists():
+                shutil.copy2(default_output, dest_path)
+                size_kb = dest_path.stat().st_size / 1024
+                print(f"  [OK] Saved: {dest_path.name} ({size_kb:.0f} KB)")
+                self.results['fig2'] = 1
+            else:
+                print(f"  [ERROR] Output not found at {default_output}")
+                self.results['fig2'] = 0
+        except Exception as e:
+            print(f"  [ERROR] {e}")
+            self.results['fig2'] = 0
+
+    # ------------------------------------------------------------------
+    # FIGURE 3: Confusion Matrices
+    # ------------------------------------------------------------------
+    def generate_fig3_confusion_matrices(self):
+        """Figure 3 - Confusion matrices for best-performing models."""
+        print("\n" + "="*80)
+        print("[Fig 3/6] CONFUSION MATRICES")
+        print("="*80)
+
+        cm_individual_dir = self.fig_dirs['fig3'] / "individual"
+
+        # Clean existing
+        for f in cm_individual_dir.glob("*.png"):
+            f.unlink()
+        for f in self.fig_dirs['fig3'].glob("*.png"):
+            f.unlink()
+
+        # Step 1: Regenerate publication-quality CMs
+        print("  Regenerating publication-quality confusion matrices...")
+        try:
             result = subprocess.run([
                 sys.executable,
-                "scripts/visualization/regenerate_publication_quality_confusion_matrices.py"
+                str(project_root / "scripts" / "visualization" / "regenerate_publication_quality_confusion_matrices.py")
             ], capture_output=True, text=True, timeout=900)
-            if result.returncode == 0:
-                print("   ✓ Successfully regenerated all confusion matrices")
-            else:
-                print(f"   [WARNING] Some confusion matrices failed to regenerate")
-                if result.stderr:
-                    print(f"   {result.stderr[:200]}")
-        except Exception as e:
-            print(f"   [WARNING] Could not regenerate CMs: {e}")
 
-        # Step 1: Copy individual confusion matrices (now with beautiful styling)
-        print("\n[1.1] Collecting beautiful confusion matrices...")
+            if result.returncode == 0:
+                print("  [OK] Regenerated all confusion matrices")
+            else:
+                print("  [WARNING] Some confusion matrices failed to regenerate")
+                if result.stderr:
+                    print(f"  {result.stderr[:200]}")
+        except Exception as e:
+            print(f"  [WARNING] Could not regenerate CMs: {e}")
+
+        # Step 2: Collect individual CMs from experiment folders
+        print("  Collecting individual confusion matrices...")
         count = 0
 
-        for exp_dir in self.experiments_dir.iterdir():
+        for exp_dir in sorted(self.experiments_dir.iterdir()):
             if not exp_dir.is_dir() or not exp_dir.name.startswith('experiment_'):
                 continue
 
             dataset_name = exp_dir.name.replace('experiment_', '')
 
-            for cls_dir in exp_dir.glob("cls_*_focal"):
+            for cls_dir in sorted(exp_dir.glob("cls_*_focal")):
                 cm_file = cls_dir / "confusion_matrix.png"
                 if cm_file.exists():
                     model_name = cls_dir.name.replace('cls_', '').replace('_focal', '')
                     dest_name = f"{dataset_name}_{model_name}.png"
-                    dest_path = self.cm_individual_dir / dest_name
-                    shutil.copy2(cm_file, dest_path)
+                    shutil.copy2(cm_file, cm_individual_dir / dest_name)
                     count += 1
 
-        print(f"   ✓ Collected {count} individual confusion matrices")
+        print(f"  [OK] Collected {count} individual confusion matrices")
+        self.results['fig3'] = count
 
-        # REMOVED: Consolidated 2x2 grid generation (not needed)
-        # User only wants individual confusion matrices
-        self.results['confusion_matrices'] = count
-        print(f"\n[1.2] Skipped: Consolidated confusion matrix (individual matrices only)")
+    # ------------------------------------------------------------------
+    # FIGURE 4: Training Curves
+    # ------------------------------------------------------------------
+    def generate_fig4_training_curves(self):
+        """Figure 4 - Training accuracy curves (best vs worst per dataset)."""
+        from scripts.visualization.generate_training_curves import TrainingCurvesGenerator
 
-    def generate_training_curves(self):
-        """Generate training curves DIRECTLY to centralized folder."""
         print("\n" + "="*80)
-        print("[2/4] GENERATING TRAINING CURVES")
+        print("[Fig 4/6] TRAINING CURVES")
         print("="*80)
 
-        # Clean training curves folder before regenerating
-        print("\n[2.0] Cleaning training curves folder...")
-        if self.curves_dir.exists():
-            for f in self.curves_dir.glob("*.png"):
-                f.unlink()
-            # Also clean metadata JSON
-            metadata_file = self.curves_dir / "training_curves_metadata.json"
-            if metadata_file.exists():
-                metadata_file.unlink()
-            print("   ✓ Cleaned old training curves and metadata")
+        curves_dir = self.fig_dirs['fig4']
+
+        # Clean existing
+        for f in curves_dir.glob("*.png"):
+            f.unlink()
+        metadata_file = curves_dir / "training_curves_metadata.json"
+        if metadata_file.exists():
+            metadata_file.unlink()
 
         try:
             generator = TrainingCurvesGenerator(
                 experiment_dir=self.experiments_dir,
-                output_dir=self.curves_dir,  # Direct to centralized folder!
+                output_dir=curves_dir,
                 dpi=400
             )
-
-            # Generate BOTH accuracy and loss curves (complete set)
             results = generator.generate_all(plot_types=['accuracy', 'loss'])
-            self.results['training_curves'] = sum(results.values())
-
+            total = sum(results.values())
+            print(f"  [OK] Generated {total} training curve figures")
+            self.results['fig4'] = total
         except Exception as e:
-            print(f"   [ERROR] Failed to generate training curves: {e}")
-            self.results['training_curves'] = 0
+            print(f"  [ERROR] Failed to generate training curves: {e}")
+            self.results['fig4'] = 0
 
-    def select_and_copy_error_cases(self):
-        """Select error cases and copy to centralized folder."""
+    # ------------------------------------------------------------------
+    # FIGURES 5 & 6: Detection & Classification Error Cases
+    # ------------------------------------------------------------------
+    def _load_detection_metadata(self, dataset: str, model: str = 'yolo11') -> 'pd.DataFrame':
+        """Load detection metadata CSV for a dataset/model pair."""
+        import pandas as pd
+        viz_dir = self.experiments_dir / f"experiment_{dataset}" / "visualizations"
+        candidates = list(viz_dir.glob(f"pred_detection_{model}*/detection_metadata.csv"))
+        if not candidates:
+            return pd.DataFrame()
+        df = pd.read_csv(candidates[0])
+        df['_viz_dir'] = str(candidates[0].parent)
+        df['_model'] = candidates[0].parent.name.replace('pred_detection_', '')
+        return df
+
+    def _load_classification_metadata(self, dataset: str, model_pattern: str = '*') -> 'pd.DataFrame':
+        """Load classification metadata CSV, searching across models."""
+        import pandas as pd
+        viz_dir = self.experiments_dir / f"experiment_{dataset}" / "visualizations"
+        candidates = list(viz_dir.glob(f"pred_classification_{model_pattern}/classification_metadata_images.csv"))
+        all_dfs = []
+        for csv_path in candidates:
+            df = pd.read_csv(csv_path)
+            df['_viz_dir'] = str(csv_path.parent)
+            df['_model'] = csv_path.parent.name.replace('pred_classification_', '')
+            all_dfs.append(df)
+        return pd.concat(all_dfs, ignore_index=True) if all_dfs else pd.DataFrame()
+
+    def _pick_best_row(self, df: 'pd.DataFrame', condition, sort_cols, ascending, label: str):
+        """Filter df by condition, sort, return best row or None."""
+        filtered = df[condition].copy()
+        if filtered.empty:
+            print(f"    [WARNING] No match for {label}")
+            return None
+        filtered = filtered.sort_values(sort_cols, ascending=ascending)
+        return filtered.iloc[0]
+
+    def _copy_case(self, row, dest_dir: Path, fig_label: str) -> bool:
+        """Copy a single selected case image to dest_dir."""
+        if row is None:
+            return False
+        viz_dir = Path(row['_viz_dir'])
+        src = viz_dir / f"{row['image_name']}.png"
+        if not src.exists():
+            # Try sanitized name
+            src = viz_dir / f"{sanitize_filename(row['image_name'])}.png"
+        if src.exists():
+            dest = dest_dir / f"{fig_label}_{sanitize_filename(row['image_name'])}.png"
+            shutil.copy2(src, dest)
+            print(f"    [{fig_label}] {row['image_name']}")
+            return True
+        else:
+            print(f"    [{fig_label}] NOT FOUND: {src}")
+            return False
+
+    def generate_fig5_fig6_error_cases(self):
+        """
+        Figures 5 & 6 - Exactly 6 images each, matching journal paper layout.
+
+        Figure 5 (Detection): YOLOv11 Detection Error Patterns
+          (a) IML Lifecycle - False positive case
+          (b) IML Lifecycle - False negative case
+          (c) MP-IDB Stages - Overdetection (high FP count)
+          (d) MP-IDB Species - Mixed errors (FP + FN)
+          (e) MD-2019 - Crowded mixed case
+          (f) MD-2019 - False negative case
+
+        Figure 6 (Classification): Classification Confusion Patterns
+          (a) IML Lifecycle - Single error (1 incorrect, ~3 boxes)
+          (b) IML Lifecycle - Moderate error (partial accuracy)
+          (c) MP-IDB Stages - Stage confusion (high error count)
+          (d) MP-IDB Species - Species misidentification (0% accuracy)
+          (e) MD-2019 - Heavy error (low accuracy, many boxes)
+          (f) MD-2019 - Perfect classification (100% accuracy, many boxes)
+        """
+        import pandas as pd
+        from scripts.visualization.reporters import CSVReporter, MarkdownReporter
+
         print("\n" + "="*80)
-        print("[3/4] SELECTING & COPYING ERROR CASES")
+        print("[Fig 5-6/6] DETECTION & CLASSIFICATION ERROR CASES")
         print("="*80)
 
-        # Clean selected cases folder before regenerating
-        print("\n[3.0] Cleaning selected cases folder...")
-        if self.selected_cases_dir.exists():
-            import shutil
-            shutil.rmtree(self.selected_cases_dir)
-        # Recreate folder structure
-        (self.selected_cases_dir / "detection").mkdir(parents=True, exist_ok=True)
-        (self.selected_cases_dir / "classification").mkdir(parents=True, exist_ok=True)
-        print("   ✓ Cleaned old selected cases")
+        det_dir = self.fig_dirs['fig5']
+        cls_dir = self.fig_dirs['fig6']
+        metadata_dir = self.output_dir / "metadata"
 
-        experiments = self.discover_experiments()
+        # Clean existing
+        for d in [det_dir, cls_dir]:
+            if d.exists():
+                for f in d.glob("*.png"):
+                    f.unlink()
 
-        # Detection errors
-        print("\n[3.1] Selecting detection error cases...")
-        selector = DetectionErrorSelector(top_n=self.top_n, include_perfect=False)
-        detection_selected = []
+        # ================================================================
+        # FIGURE 5: Detection errors (6 specific cases matching paper)
+        # Paper: "YOLOv11 Detection Error Patterns: (a-b) IML Lifecycle
+        #   false positive/negative, (c-d) MP-IDB Stages/Species
+        #   overdetection and crowding, (e-f) MD-2019 inter-patient variation"
+        # ================================================================
+        print("\n  [Fig 5] Selecting 6 detection error cases...")
 
-        for exp in experiments:
-            detection_csvs = list(exp['viz_dir'].glob("pred_detection_*/detection_metadata.csv"))
+        det_iml = self._load_detection_metadata('iml_lifecycle', 'yolo11')
+        det_md = self._load_detection_metadata('md_2019_stages', 'yolo11')
+        det_species = self._load_detection_metadata('mp_idb_species', 'yolo11')
 
-            for csv_path in detection_csvs:
-                try:
-                    selected = selector.select_from_csv(csv_path)
-                    if not selected.empty:
-                        selected['dataset'] = exp['dataset']
-                        selected['model'] = csv_path.parent.name.replace('pred_detection_', '')
-                        detection_selected.append(selected)
-                except Exception as e:
-                    print(f"   [WARNING] {csv_path}: {e}")
+        import pandas as pd
+        # Paper caption: "YOLOv11 Detection Error Patterns" — use YOLO11 for all
+        det_stages = self._load_detection_metadata('mp_idb_stages', 'yolo11')
 
-        if detection_selected:
-            import pandas as pd
-            detection_df = pd.concat(detection_selected, ignore_index=True)
+        fig5_cases = {}
 
-            # Copy top cases to centralized folder
-            for _, row in detection_df.head(self.top_n).iterrows():
-                src = Path(row['image_file'])
-                if src.exists():
-                    category = row['error_category'].replace(' ', '_').replace('(', '').replace(')', '').lower()
-                    dest_name = f"{category}_{row['dataset']}_{row['image_name']}.png"
-                    dest_path = self.selected_cases_dir / "detection" / dest_name
-                    shutil.copy2(src, dest_path)
+        # 5a: IML - FP only (most FPs, no FN)
+        fig5_cases['5a'] = self._pick_best_row(
+            det_iml,
+            (det_iml['n_false_positives'] > 0) & (det_iml['n_false_negatives'] == 0),
+            ['n_false_positives', 'avg_confidence'], [False, False],
+            "5a IML FP"
+        )
 
-            print(f"   ✓ Selected {len(detection_df)} detection cases, copied top {self.top_n}")
-            self.results['detection_cases'] = len(detection_df)
+        # 5b: IML - FN only (most FNs, no FP)
+        fig5_cases['5b'] = self._pick_best_row(
+            det_iml,
+            (det_iml['n_false_negatives'] > 0) & (det_iml['n_false_positives'] == 0),
+            ['n_false_negatives'], [False],
+            "5b IML FN"
+        )
+
+        # 5c: MP-IDB Stages - Paper (updated): "6 false positives and 5 false negatives"
+        #   Use YOLO11 (consistent with caption), pick worst overdetection case
+        fig5_cases['5c'] = self._pick_best_row(
+            det_stages,
+            (det_stages['n_false_positives'] > 0),
+            ['n_false_positives', 'n_false_negatives'], [False, False],
+            "5c Stages YOLO11 worst-overdetection"
+        )
+
+        # 5d: MP-IDB Species - Mixed (both FP and FN, most errors)
+        fig5_cases['5d'] = self._pick_best_row(
+            det_species,
+            (det_species['n_false_positives'] > 0) & (det_species['n_false_negatives'] > 0),
+            ['n_false_positives', 'n_false_negatives'], [False, False],
+            "5d Species mixed"
+        )
+
+        # 5e: MD-2019 - Crowded mixed (both FP and FN, many GT boxes)
+        if not det_md.empty:
+            det_md_mixed = det_md[
+                (det_md['n_false_positives'] > 0) & (det_md['n_false_negatives'] > 0)
+            ].copy()
+            if not det_md_mixed.empty:
+                det_md_mixed['total_errors'] = det_md_mixed['n_false_positives'] + det_md_mixed['n_false_negatives']
+                fig5_cases['5e'] = det_md_mixed.sort_values(
+                    ['total_errors', 'n_gt_boxes'], ascending=[False, False]
+                ).iloc[0]
+            else:
+                fig5_cases['5e'] = None
         else:
-            print("   [WARNING] No detection cases found")
-            detection_df = pd.DataFrame()
-            self.results['detection_cases'] = 0
+            fig5_cases['5e'] = None
 
-        # Classification errors
-        print("\n[3.2] Selecting classification error cases...")
-        selector = ClassificationErrorSelector(top_n=self.top_n, include_perfect=False)
-        classification_selected = []
+        # 5f: MD-2019 - FN only (atypical morphology, high FN count)
+        fig5_cases['5f'] = self._pick_best_row(
+            det_md,
+            (det_md['n_false_negatives'] > 0) & (det_md['n_false_positives'] == 0),
+            ['n_false_negatives'], [False],
+            "5f MD-2019 FN"
+        )
 
-        for exp in experiments:
-            classification_csvs = list(exp['viz_dir'].glob("pred_classification_*/classification_metadata_images.csv"))
+        # Copy fig5 images with stats
+        fig5_copied = 0
+        fig5_rows = []
+        for label in ['5a', '5b', '5c', '5d', '5e', '5f']:
+            row = fig5_cases[label]
+            if row is not None:
+                fp = row.get('n_false_positives', '?')
+                fn = row.get('n_false_negatives', '?')
+                gt = row.get('n_gt_boxes', '?')
+                model = row.get('_model', '?')
+                print(f"    [{label}] {row['image_name']} (GT={gt}, FP={fp}, FN={fn}, model={model})")
+            if self._copy_case(row, det_dir, label):
+                fig5_copied += 1
+                fig5_rows.append(row)
+        print(f"  [OK] Figure 5: {fig5_copied}/6 images copied")
+        self.results['fig5'] = fig5_copied
 
-            for csv_path in classification_csvs:
-                try:
-                    selected = selector.select_from_csv(csv_path)
-                    if not selected.empty:
-                        selected['dataset'] = exp['dataset']
-                        selected['model'] = csv_path.parent.name.replace('pred_classification_', '')
-                        classification_selected.append(selected)
-                except Exception as e:
-                    print(f"   [WARNING] {csv_path}: {e}")
+        # ================================================================
+        # FIGURE 6: Classification errors (6 specific cases matching paper)
+        # Paper: "Classification Confusion Patterns Using Best Models:
+        #   (a-b) IML Lifecycle single/moderate errors,
+        #   (c-d) MP-IDB stage/species confusion,
+        #   (e-f) MD-2019 heavy errors and perfect classification"
+        # ================================================================
+        print("\n  [Fig 6] Selecting 6 classification error cases...")
 
-        if classification_selected:
-            import pandas as pd
-            classification_df = pd.concat(classification_selected, ignore_index=True)
+        cls_iml = self._load_classification_metadata('iml_lifecycle')
+        cls_md = self._load_classification_metadata('md_2019_stages')
+        cls_species = self._load_classification_metadata('mp_idb_species')
+        cls_stages = self._load_classification_metadata('mp_idb_stages')
 
-            # Copy top cases to centralized folder
-            for _, row in classification_df.head(self.top_n).iterrows():
-                src = Path(row['image_file'])
-                if src.exists():
-                    category = row['error_category'].replace(' ', '_').replace('(', '').replace(')', '').replace('>', '').lower()
-                    dest_name = f"{category}_{row['dataset']}_{row['image_name']}.png"
-                    dest_path = self.selected_cases_dir / "classification" / dest_name
-                    shutil.copy2(src, dest_path)
+        fig6_cases = {}
 
-            print(f"   ✓ Selected {len(classification_df)} classification cases, copied top {self.top_n}")
-            self.results['classification_cases'] = len(classification_df)
-        else:
-            print("   [WARNING] No classification cases found")
-            classification_df = pd.DataFrame()
-            self.results['classification_cases'] = 0
+        # 6a: IML - Paper: "1 error among 3 parasites" using EfficientNet-B1
+        cls_iml_b1 = cls_iml[cls_iml['_model'] == 'efficientnet_b1_focal']
+        if cls_iml_b1.empty:
+            cls_iml_b1 = cls_iml  # fallback to any model
+        fig6_cases['6a'] = self._pick_best_row(
+            cls_iml_b1,
+            (cls_iml_b1['n_boxes'] == 3) & (cls_iml_b1['n_incorrect'] == 1),
+            ['avg_confidence'], [False],
+            "6a IML B1 3-box 1-error"
+        )
 
+        # 6b: IML - Paper: "1 error among 3 parasites, 66.7%" using EfficientNet-B1
+        used_6a = fig6_cases['6a']['image_name'] if fig6_cases['6a'] is not None else ''
+        fig6_cases['6b'] = self._pick_best_row(
+            cls_iml_b1,
+            (cls_iml_b1['n_boxes'] == 3) & (cls_iml_b1['n_incorrect'] == 1) &
+            (cls_iml_b1['image_name'] != used_6a),
+            ['avg_confidence'], [True],
+            "6b IML B1 3-box 1-error (diff)"
+        )
+
+        # 6c: MP-IDB Stages - Paper (updated): "1 misclassification among 31
+        #   parasites at 96.8% accuracy with ResNet101"
+        cls_stages_r101 = cls_stages[cls_stages['_model'] == 'resnet101_focal']
+        if cls_stages_r101.empty:
+            cls_stages_r101 = cls_stages
+        row_6c = self._pick_best_row(
+            cls_stages_r101,
+            (cls_stages_r101['n_boxes'] >= 10) & (cls_stages_r101['n_incorrect'] > 0),
+            ['accuracy', 'n_boxes'], [False, False],
+            "6c Stages ResNet101 best-acc high-box"
+        )
+        fig6_cases['6c'] = row_6c
+
+        # 6d: MP-IDB Species - Paper: "100% misclassification, single parasite"
+        fig6_cases['6d'] = self._pick_best_row(
+            cls_species,
+            (cls_species['accuracy'] == 0) & (cls_species['n_boxes'] <= 3),
+            ['avg_confidence'], [False],
+            "6d Species 0%-acc"
+        )
+
+        # 6e: MD-2019 - Paper: "6 errors among 8, 25% accuracy"
+        row_6e = self._pick_best_row(
+            cls_md,
+            (cls_md['n_boxes'] == 8) & (cls_md['n_incorrect'] == 6),
+            ['avg_confidence'], [False],
+            "6e MD-2019 8-box 6-error exact"
+        )
+        if row_6e is None:
+            # Fallback: closest to 25% accuracy with ~8 boxes
+            row_6e = self._pick_best_row(
+                cls_md,
+                (cls_md['n_boxes'] >= 6) & (cls_md['n_boxes'] <= 10) &
+                (cls_md['accuracy'] >= 0.2) & (cls_md['accuracy'] <= 0.3),
+                ['n_boxes'], [False],
+                "6e MD-2019 ~8-box ~25% relaxed"
+            )
+        fig6_cases['6e'] = row_6e
+
+        # 6f: MD-2019 - Paper: "10 parasites, 100% accuracy"
+        #   Try n_boxes=10 first, then relax to >=8
+        row_6f = self._pick_best_row(
+            cls_md,
+            (cls_md['n_boxes'] == 10) & (cls_md['accuracy'] == 1.0),
+            ['avg_confidence'], [False],
+            "6f MD-2019 10-box perfect exact"
+        )
+        if row_6f is None:
+            row_6f = self._pick_best_row(
+                cls_md,
+                (cls_md['accuracy'] == 1.0) & (cls_md['n_boxes'] >= 8),
+                ['n_boxes', 'avg_confidence'], [False, False],
+                "6f MD-2019 >=8-box perfect"
+            )
+        fig6_cases['6f'] = row_6f
+
+        # Copy fig6 images with stats
+        fig6_copied = 0
+        fig6_rows = []
+        for label in ['6a', '6b', '6c', '6d', '6e', '6f']:
+            row = fig6_cases[label]
+            if row is not None:
+                boxes = row.get('n_boxes', '?')
+                correct = row.get('n_correct', '?')
+                wrong = row.get('n_incorrect', '?')
+                acc = row.get('accuracy', '?')
+                model = row.get('_model', '?')
+                print(f"    [{label}] {row['image_name']} (boxes={boxes}, correct={correct}, wrong={wrong}, acc={acc}, model={model})")
+            if self._copy_case(row, cls_dir, label):
+                fig6_copied += 1
+                fig6_rows.append(row)
+        print(f"  [OK] Figure 6: {fig6_copied}/6 images copied")
+        self.results['fig6'] = fig6_copied
+
+        # ================================================================
         # Save metadata
+        # ================================================================
+        detection_df = pd.DataFrame([r for r in fig5_rows if r is not None])
+        classification_df = pd.DataFrame([r for r in fig6_rows if r is not None])
+
         csv_reporter = CSVReporter()
-        csv_reporter.generate(detection_df, self.metadata_dir / "selected_detection_errors.csv")
-        csv_reporter.generate(classification_df, self.metadata_dir / "selected_classification_errors.csv")
+        csv_reporter.generate(detection_df, metadata_dir / "selected_detection_errors.csv")
+        csv_reporter.generate(classification_df, metadata_dir / "selected_classification_errors.csv")
 
-        # Combined
         combined = pd.concat([detection_df, classification_df], ignore_index=True)
-        csv_reporter.generate(combined, self.metadata_dir / "selected_error_images.csv")
+        csv_reporter.generate(combined, metadata_dir / "selected_error_images.csv")
 
-        # Markdown report
         md_reporter = MarkdownReporter()
         summary_data = {
             'summary': {
@@ -340,177 +636,165 @@ class CentralizedVisualizationGenerator:
             'detection_errors': detection_df,
             'classification_errors': classification_df
         }
-        md_reporter.generate(summary_data, self.metadata_dir / "visualization_report.md")
+        md_reporter.generate(summary_data, metadata_dir / "visualization_report.md")
 
+    # ------------------------------------------------------------------
+    # README
+    # ------------------------------------------------------------------
     def create_readme(self):
-        """Create README guide."""
-        print("\n" + "="*80)
-        print("[4/4] CREATING README")
-        print("="*80)
-
+        """Create README guide with figure mapping."""
         readme_path = self.output_dir / "_README.txt"
-
-        content = f"""
-╔══════════════════════════════════════════════════════════════════════════════╗
-║              CENTRALIZED VISUALIZATION OUTPUTS - ONE FOLDER!                 ║
-╚══════════════════════════════════════════════════════════════════════════════╝
+        content = f"""CENTRALIZED VISUALIZATION OUTPUTS
+==================================
 
 Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-Source Experiment: {self.experiment_root}
-Output Directory: {self.output_dir.absolute()}
+Experiment: {self.experiment_root}
 
-═══════════════════════════════════════════════════════════════════════════════
+PAPER FIGURE MAPPING
+--------------------
+Figure 1 (Augmentation)     -> {FIGURE_DIRS['fig1']}/
+Figure 2 (Pipeline)         -> {FIGURE_DIRS['fig2']}/
+Figure 3 (Confusion Matrix) -> {FIGURE_DIRS['fig3']}/individual/
+Figure 4 (Training Curves)  -> {FIGURE_DIRS['fig4']}/
+Figure 5 (Detection Errors) -> {FIGURE_DIRS['fig5']}/
+Figure 6 (Classification)   -> {FIGURE_DIRS['fig6']}/
 
-📂 FOLDER STRUCTURE (EVERYTHING IN ONE PLACE!):
+GENERATION RESULTS
+------------------
+Figure 1: {self.results.get('fig1', '-')} file(s)
+Figure 2: {self.results.get('fig2', '-')} file(s)
+Figure 3: {self.results.get('fig3', '-')} file(s)
+Figure 4: {self.results.get('fig4', '-')} file(s)
+Figure 5: {self.results.get('fig5', '-')} file(s)
+Figure 6: {self.results.get('fig6', '-')} file(s)
 
-confusion_matrices/
-├── individual/              {self.results.get('confusion_matrices', 0)} per-model confusion matrices
-└── consolidated_2x2.png     Publication 2x2 grid (best models)
+METADATA
+--------
+metadata/selected_detection_errors.csv
+metadata/selected_classification_errors.csv
+metadata/selected_error_images.csv
+metadata/visualization_report.md
 
-training_curves/             {self.results.get('training_curves', 0)} accuracy curves
-├── accuracy_iml_lifecycle.png
-├── accuracy_md_2019_stages.png
-├── accuracy_mp_idb_species.png
-└── accuracy_mp_idb_stages.png
-
-selected_cases/              Top {self.top_n} error cases each type
-├── detection/               Detection errors (FP, FN, Mixed)
-└── classification/          Classification errors
-
-metadata/                    Analysis data & reports
-├── selected_detection_errors.csv      ({self.results.get('detection_cases', 0)} cases)
-├── selected_classification_errors.csv ({self.results.get('classification_cases', 0)} cases)
-├── selected_error_images.csv          (combined)
-└── visualization_report.md            (human-readable)
-
-═══════════════════════════════════════════════════════════════════════════════
-
-🎯 QUICK ACCESS FOR PAPER/LAPORAN:
-
-📊 FIGURES:
-   → confusion_matrices/consolidated_2x2.png    (Publication figure)
-   → training_curves/*.png                      (4 accuracy curves)
-   → selected_cases/                            (Error examples)
-
-📋 DATA/ANALYSIS:
-   → metadata/selected_*_errors.csv             (Sortable in Excel)
-   → metadata/visualization_report.md           (Summary)
-
-═══════════════════════════════════════════════════════════════════════════════
-
-💡 CARA PAKAI:
-
-1. UNTUK PAPER:
-   - Ambil: confusion_matrices/consolidated_2x2.png
-   - Ambil: training_curves/*.png (pilih yang perlu)
-   - Ambil: selected_cases/ (error examples)
-
-2. UNTUK ANALISIS:
-   - Buka: metadata/selected_detection_errors.csv di Excel
-   - Sort by: paper_score (descending) atau error_category
-   - Lihat image_file column untuk lokasi gambar
-
-3. UNTUK LAPORAN:
-   - Baca: metadata/visualization_report.md
-   - Quick summary semua results
-
-═══════════════════════════════════════════════════════════════════════════════
-
-🔄 TO REGENERATE:
-
+TO REGENERATE
+-------------
 python scripts/visualization/generate_all_centralized.py
-
-═══════════════════════════════════════════════════════════════════════════════
+python scripts/visualization/generate_all_centralized.py --only fig1 fig3
 """
-
         with open(readme_path, 'w', encoding='utf-8') as f:
             f.write(content)
+        print(f"  [OK] Created: _README.txt")
 
-        print(f"   ✓ Created: _README.txt")
-
-    def run(
-        self,
-        generate_confusion: bool = True,
-        generate_curves: bool = True,
-        generate_bbox: bool = True
-    ):
+    # ------------------------------------------------------------------
+    # MAIN RUN
+    # ------------------------------------------------------------------
+    def run(self, only_figures: List[str] = None):
         """
-        Run centralized generation with selective options.
+        Run figure generation.
 
         Args:
-            generate_confusion: Generate confusion matrices
-            generate_curves: Generate training curves
-            generate_bbox: Generate bbox predictions (error cases)
+            only_figures: List of figure keys to generate (e.g. ['fig1', 'fig3']).
+                         None = generate all.
         """
+        all_figures = ['fig1', 'fig2', 'fig3', 'fig4', 'fig5_fig6']
+        generate_all = only_figures is None
+
+        if generate_all:
+            targets = all_figures
+        else:
+            # Normalize: if user says fig5 or fig6, include fig5_fig6
+            targets = []
+            for f in only_figures:
+                if f in ('fig5', 'fig6'):
+                    if 'fig5_fig6' not in targets:
+                        targets.append('fig5_fig6')
+                elif f in ('fig1', 'fig2', 'fig3', 'fig4'):
+                    targets.append(f)
+
         print("\n" + "="*80)
-        print("CENTRALIZED VISUALIZATION GENERATION")
+        print("PAPER FIGURE GENERATION")
         print("="*80)
         print(f"Experiment: {self.experiment_root}")
-        print(f"Output: {self.output_dir.absolute()}")
-        print(f"Top N per category: {self.top_n}")
-        print()
-        print("Generation mode:")
-        print(f"  Confusion matrices: {'✓' if generate_confusion else '✗'}")
-        print(f"  Training curves: {'✓' if generate_curves else '✗'}")
-        print(f"  Bbox predictions: {'✓' if generate_bbox else '✗'}")
+        print(f"Output:     {self.output_dir.absolute()}")
+        print(f"Figures:    {', '.join(targets) if not generate_all else 'ALL (fig1-fig6)'}")
         print("="*80)
 
-        # Selective generation
-        if generate_confusion:
-            self.generate_confusion_matrices()
-        else:
-            print("\n[SKIPPED] Confusion matrices generation")
+        # Execute each figure generator
+        generators = {
+            'fig1':     self.generate_fig1_augmentation,
+            'fig2':     self.generate_fig2_pipeline,
+            'fig3':     self.generate_fig3_confusion_matrices,
+            'fig4':     self.generate_fig4_training_curves,
+            'fig5_fig6': self.generate_fig5_fig6_error_cases,
+        }
 
-        if generate_curves:
-            self.generate_training_curves()
-        else:
-            print("\n[SKIPPED] Training curves generation")
+        skip_labels = {
+            'fig1': FIGURE_LABELS['fig1'],
+            'fig2': FIGURE_LABELS['fig2'],
+            'fig3': FIGURE_LABELS['fig3'],
+            'fig4': FIGURE_LABELS['fig4'],
+            'fig5_fig6': 'Figures 5 & 6 - Detection & Classification Errors',
+        }
 
-        if generate_bbox:
-            self.select_and_copy_error_cases()
-        else:
-            print("\n[SKIPPED] Bbox predictions generation")
+        for key in all_figures:
+            if key in targets:
+                generators[key]()
+            else:
+                print(f"\n[SKIPPED] {skip_labels[key]}")
 
-        # Always create README
         self.create_readme()
 
         # Summary
         print("\n" + "="*80)
-        print("✅ GENERATION COMPLETE - EVERYTHING IN ONE PLACE!")
+        print("GENERATION COMPLETE")
         print("="*80)
-        if generate_confusion:
-            print(f"📊 Confusion matrices: {self.results.get('confusion_matrices', 0)}")
-        if generate_curves:
-            print(f"📈 Training curves: {self.results.get('training_curves', 0)}")
-        if generate_bbox:
-            print(f"🔍 Detection cases: {self.results.get('detection_cases', 0)}")
-            print(f"🔬 Classification cases: {self.results.get('classification_cases', 0)}")
-        print(f"\n📁 LOCATION: {self.output_dir.absolute()}")
-        print(f"📄 READ: {(self.output_dir / '_README.txt').absolute()}")
+        for fig_key in ['fig1', 'fig2', 'fig3', 'fig4', 'fig5', 'fig6']:
+            count = self.results.get(fig_key, '-')
+            label = FIGURE_LABELS[fig_key]
+            status = f"{count} file(s)" if isinstance(count, int) and count > 0 else "skipped"
+            print(f"  {label}: {status}")
+        print(f"\nOutput: {self.output_dir.absolute()}")
         print("="*80)
+
+
+def auto_detect_experiment() -> str:
+    """Find the latest results/optA_* experiment folder."""
+    results_dir = Path("results")
+    if not results_dir.exists():
+        return None
+
+    experiments = sorted(
+        [d for d in results_dir.iterdir() if d.is_dir() and d.name.startswith('optA_')],
+        key=lambda x: x.name, reverse=True
+    )
+    return str(experiments[0]) if experiments else None
 
 
 def main():
     """CLI interface."""
     parser = argparse.ArgumentParser(
-        description='Generate ALL visualizations to ONE centralized folder',
+        description='Generate ALL paper figures to one centralized folder',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
+Paper Figure Mapping:
+  fig1  = Figure 1 (Augmentation examples)
+  fig2  = Figure 2 (Pipeline architecture)
+  fig3  = Figure 3 (Confusion matrices)
+  fig4  = Figure 4 (Training curves)
+  fig5  = Figure 5 (Detection errors)
+  fig6  = Figure 6 (Classification errors)
+
 Examples:
-  # Generate everything (default)
-  python generate_all_centralized.py
+  # Generate ALL figures
+  python scripts/visualization/generate_all_centralized.py
 
-  # Generate only confusion matrices
-  python generate_all_centralized.py --confusion-matrices-only
+  # Generate specific figures only
+  python scripts/visualization/generate_all_centralized.py --only fig1 fig3 fig4
 
-  # Generate only training curves
-  python generate_all_centralized.py --training-curves-only
+  # Generate only error case figures
+  python scripts/visualization/generate_all_centralized.py --only fig5 fig6
 
-  # Generate only bbox predictions
-  python generate_all_centralized.py --bbox-predictions-only
-
-  # Generate confusion matrices + training curves
-  python generate_all_centralized.py --confusion-matrices --training-curves
+  # Custom experiment directory
+  python scripts/visualization/generate_all_centralized.py --experiment results/optA_20251016_200330
         """
     )
     parser.add_argument('--experiment', type=str, default=None,
@@ -518,83 +802,26 @@ Examples:
     parser.add_argument('--output', type=str, default='visualization_outputs',
                        help='Output directory (default: visualization_outputs/)')
     parser.add_argument('--top-n', type=int, default=20,
-                       help='Number of cases per category (default: 20)')
-
-    # Selective generation flags
-    parser.add_argument('--confusion-matrices', action='store_true',
-                       help='Generate only confusion matrices')
-    parser.add_argument('--training-curves', action='store_true',
-                       help='Generate only training curves')
-    parser.add_argument('--bbox-predictions', action='store_true',
-                       help='Generate only bbox predictions (error cases)')
-
-    # Convenience shortcuts (mutually exclusive with individual flags)
-    parser.add_argument('--confusion-matrices-only', action='store_true',
-                       help='Shortcut: generate ONLY confusion matrices')
-    parser.add_argument('--training-curves-only', action='store_true',
-                       help='Shortcut: generate ONLY training curves')
-    parser.add_argument('--bbox-predictions-only', action='store_true',
-                       help='Shortcut: generate ONLY bbox predictions')
+                       help='Number of error cases per category (default: 20)')
+    parser.add_argument('--only', nargs='+', choices=['fig1', 'fig2', 'fig3', 'fig4', 'fig5', 'fig6'],
+                       help='Generate only specified figures (e.g. --only fig1 fig3)')
 
     args = parser.parse_args()
 
-    # Determine what to generate
-    generate_all = not any([
-        args.confusion_matrices, args.training_curves, args.bbox_predictions,
-        args.confusion_matrices_only, args.training_curves_only, args.bbox_predictions_only
-    ])
-
-    # Handle shortcuts
-    if args.confusion_matrices_only:
-        args.confusion_matrices = True
-        generate_all = False
-    if args.training_curves_only:
-        args.training_curves = True
-        generate_all = False
-    if args.bbox_predictions_only:
-        args.bbox_predictions = True
-        generate_all = False
-
-    # Auto-detect
+    # Auto-detect experiment
     if args.experiment is None:
-        results_dir = Path("results")
-        if results_dir.exists():
-            experiments = sorted([d for d in results_dir.iterdir()
-                                if d.is_dir() and d.name.startswith('optA_')],
-                               key=lambda x: x.name, reverse=True)
-            if experiments:
-                args.experiment = str(experiments[0])
-                print(f"[AUTO-DETECT] Latest: {args.experiment}")
-            else:
-                print("[ERROR] No experiments found")
-                return 1
-        else:
-            print("[ERROR] results/ not found")
+        args.experiment = auto_detect_experiment()
+        if args.experiment is None:
+            print("[ERROR] No experiments found in results/")
             return 1
+        print(f"[AUTO-DETECT] Using: {args.experiment}")
 
-    # Print selective generation info
-    if not generate_all:
-        print("\n[SELECTIVE GENERATION MODE]")
-        if args.confusion_matrices:
-            print("  ✓ Confusion matrices")
-        if args.training_curves:
-            print("  ✓ Training curves")
-        if args.bbox_predictions:
-            print("  ✓ Bbox predictions")
-        print()
-
-    # Generate
     generator = CentralizedVisualizationGenerator(
         experiment_root=Path(args.experiment),
         output_dir=Path(args.output),
         top_n=args.top_n
     )
-
-    generator.run(
-        generate_confusion=generate_all or args.confusion_matrices,
-        generate_curves=generate_all or args.training_curves,
-        generate_bbox=generate_all or args.bbox_predictions
-    )
+    generator.run(only_figures=args.only)
     return 0
 
 

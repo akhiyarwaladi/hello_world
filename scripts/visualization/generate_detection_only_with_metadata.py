@@ -17,7 +17,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 from utils.visualization_utils import (
     draw_boxes, yolo_to_absolute, load_gt_annotations,
-    calculate_iou, clean_output_directory, COLORS
+    calculate_iou, clean_output_directory, save_publication_image, COLORS
 )
 
 
@@ -174,9 +174,9 @@ def generate_detection_visualization_with_metadata(
 
     img_with_boxes = draw_boxes(image, all_coords, all_labels, all_colors)
 
-    # Save image
+    # Save image with 300 DPI metadata for publication quality
     output_file = Path(output_dir) / f"{image_name}.png"
-    cv2.imwrite(str(output_file), img_with_boxes)
+    save_publication_image(img_with_boxes, output_file, dpi=300)
 
     # Return metadata
     metadata = {

@@ -39,8 +39,9 @@ def remove_whitespace_crop(image_path, output_path, margin=20, threshold=250):
     coords = cv2.findNonZero(binary)
 
     if coords is None:
-        print("No content detected, saving original")
-        cv2.imwrite(output_path, img)
+        print("No content detected, saving original with DPI metadata")
+        img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        Image.fromarray(img_rgb).save(output_path, format='PNG', dpi=(300, 300))
         return
 
     # Get bounding box
@@ -61,9 +62,10 @@ def remove_whitespace_crop(image_path, output_path, margin=20, threshold=250):
     print(f"Size reduction: {img.shape[0]*img.shape[1]} -> {cropped.shape[0]*cropped.shape[1]} pixels")
     print(f"Reduction: {100*(1 - (cropped.shape[0]*cropped.shape[1])/(img.shape[0]*img.shape[1])):.1f}%")
 
-    # Save cropped image
-    cv2.imwrite(output_path, cropped)
-    print(f"Saved cropped image to: {output_path}")
+    # Save cropped image with 300 DPI metadata
+    cropped_rgb = cv2.cvtColor(cropped, cv2.COLOR_BGR2RGB)
+    Image.fromarray(cropped_rgb).save(output_path, format='PNG', dpi=(300, 300))
+    print(f"Saved cropped image to: {output_path} (300 DPI)")
 
     return cropped
 

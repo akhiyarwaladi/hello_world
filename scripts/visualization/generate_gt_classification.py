@@ -12,7 +12,7 @@ import pandas as pd
 # Add project root to path for imports
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-from utils.visualization_utils import draw_boxes, yolo_to_absolute, load_gt_annotations, COLORS
+from utils.visualization_utils import draw_boxes, yolo_to_absolute, load_gt_annotations, save_publication_image, COLORS
 
 
 def load_gt_class_mapping(crops_dir, image_name):
@@ -87,9 +87,9 @@ def generate_gt_classification_visualization(image_path, label_file, gt_crops_di
     colors = [COLORS['blue']] * len(gt_boxes)
     img_with_boxes = draw_boxes(image, gt_boxes, labels, colors)
 
-    # Save
+    # Save with 300 DPI metadata for publication quality
     output_file = Path(output_dir) / f"{image_name}.png"
-    cv2.imwrite(str(output_file), img_with_boxes)
+    save_publication_image(img_with_boxes, output_file, dpi=300)
 
     return len(gt_boxes)
 

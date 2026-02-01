@@ -10,7 +10,7 @@ Architecture:
 - Easy to extend: Just inherit BaseSelector and implement select() method
 
 Usage:
-    from selectors import DetectionErrorSelector
+    from case_selectors import DetectionErrorSelector
 
     selector = DetectionErrorSelector(top_n=5)
     selected = selector.select_from_csv('detection_metadata.csv')
