@@ -20,7 +20,7 @@ The Excel file contains 5 sections with color-coded headers:
 2. **Reviewer B** (1 item) — acceptance acknowledged
 3. **Reviewer C** (4 items) — detailed responses with specific changes per point
 4. **Reviewer D** (1 item) — placeholder for inline PDF comments
-5. **Additional Quality Improvements** (12 items) — typos, grammar, citation fixes
+5. **Additional Quality Improvements** (12 items) — typos and grammar fixes
 
 Each row contains: No. | Reviewer's Comment | Author's Response / Revised Version | Page
 

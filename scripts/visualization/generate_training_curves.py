@@ -209,15 +209,15 @@ class TrainingCurvesGenerator:
         self,
         dataset_key: str,
         config: Dict,
-        figsize: Tuple[float, float] = (8, 8)
+        figsize: Tuple[float, float] = (5, 5)
     ) -> bool:
         """
-        Create accuracy comparison figure (SQUARE for consistency).
+        Create accuracy comparison figure (square).
 
         Args:
             dataset_key: Dataset identifier
             config: Dataset configuration dict
-            figsize: Figure size in inches (SQUARE)
+            figsize: Figure size in inches
 
         Returns:
             True if successful, False otherwise
@@ -276,13 +276,16 @@ class TrainingCurvesGenerator:
                   edgecolor='black', fontsize=10, ncol=1)
         ax.tick_params(axis='both', which='major', labelsize=11, length=6)
 
-        # Fixed padding with extra space for text labels (PERFECTLY CONSISTENT sizing)
-        plt.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.12)
+        # Force exact plot area position (identical across all figures)
+        ax.set_position([0.12, 0.09, 0.85, 0.88])
 
         # Save with consistent sizing (NO bbox_inches='tight', NO tight_layout)
         output_path = self.output_dir / f"accuracy_{dataset_key}.png"
         plt.savefig(output_path, dpi=self.dpi, facecolor='white')
+        svg_path = self.output_dir / f"accuracy_{dataset_key}.svg"
+        plt.savefig(svg_path, format='svg', facecolor='white')
         print(f"   [SAVED] {output_path}")
+        print(f"   [SAVED] {svg_path}")
         plt.close()
         return True
 
@@ -290,15 +293,15 @@ class TrainingCurvesGenerator:
         self,
         dataset_key: str,
         config: Dict,
-        figsize: Tuple[float, float] = (8, 8)
+        figsize: Tuple[float, float] = (5, 5)
     ) -> bool:
         """
-        Create loss comparison figure (SQUARE for consistency).
+        Create loss comparison figure (square).
 
         Args:
             dataset_key: Dataset identifier
             config: Dataset configuration dict
-            figsize: Figure size in inches (SQUARE)
+            figsize: Figure size in inches
 
         Returns:
             True if successful, False otherwise
@@ -345,13 +348,16 @@ class TrainingCurvesGenerator:
                   edgecolor='black', fontsize=10, ncol=1)
         ax.tick_params(axis='both', which='major', labelsize=11, length=6)
 
-        # Fixed padding with extra space for text labels (PERFECTLY CONSISTENT sizing)
-        plt.subplots_adjust(left=0.15, right=0.95, top=0.95, bottom=0.12)
+        # Force exact plot area position (identical across all figures)
+        ax.set_position([0.12, 0.09, 0.85, 0.88])
 
         # Save with consistent sizing (NO bbox_inches='tight', NO tight_layout)
         output_path = self.output_dir / f"loss_{dataset_key}.png"
         plt.savefig(output_path, dpi=self.dpi, facecolor='white')
+        svg_path = self.output_dir / f"loss_{dataset_key}.svg"
+        plt.savefig(svg_path, format='svg', facecolor='white')
         print(f"   [SAVED] {output_path}")
+        print(f"   [SAVED] {svg_path}")
         plt.close()
         return True
 

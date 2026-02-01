@@ -20,6 +20,31 @@ import torch
 from PIL import Image
 
 
+def _rects_overlap(r1, r2, margin=2):
+    """Check if two rectangles (x1,y1,x2,y2) overlap with optional margin."""
+    return not (r1[2] + margin <= r2[0] or r2[2] + margin <= r1[0] or
+                r1[3] + margin <= r2[1] or r2[3] + margin <= r1[1])
+
+
+def _draw_arrow_line(img, pt1, pt2, color, thickness=2, scale=1.0):
+    """Draw a line with a small arrowhead at pt2."""
+    cv2.line(img, pt1, pt2, color, thickness, lineType=cv2.LINE_AA)
+    # Arrowhead
+    dx = pt2[0] - pt1[0]
+    dy = pt2[1] - pt1[1]
+    length = max(1, (dx * dx + dy * dy) ** 0.5)
+    ux, uy = dx / length, dy / length
+    arrow_len = int(10 * scale)
+    # Perpendicular
+    px, py = -uy, ux
+    tip = pt2
+    left = (int(tip[0] - arrow_len * ux + arrow_len * 0.4 * px),
+            int(tip[1] - arrow_len * uy + arrow_len * 0.4 * py))
+    right = (int(tip[0] - arrow_len * ux - arrow_len * 0.4 * px),
+             int(tip[1] - arrow_len * uy - arrow_len * 0.4 * py))
+    cv2.fillPoly(img, [np.array([tip, left, right])], color, lineType=cv2.LINE_AA)
+
+
 def draw_boxes(image: np.ndarray,
                boxes: List[List[int]],
                labels: List[str],
@@ -27,51 +52,249 @@ def draw_boxes(image: np.ndarray,
                thickness: int = 4,
                font_scale: float = 0.9) -> np.ndarray:
     """
-    Draw bounding boxes with labels on an image
+    Draw bounding boxes with labels on an image.
+    Uses collision detection: overlapping labels are offset with an arrow
+    pointing back to the box. Font size, thickness, and padding auto-scale
+    based on image width (reference: 1400px) so labels appear the same
+    size across different resolution images.
 
     Args:
         image: Input image (BGR format)
         boxes: List of bounding boxes [[x1,y1,x2,y2], ...]
         labels: List of labels for each box
         colors: List of colors (BGR) for each box
-        thickness: Line thickness for boxes
-        font_scale: Font scale for labels
+        thickness: Ignored (auto-scaled)
+        font_scale: Ignored (auto-scaled)
 
     Returns:
         Image with drawn boxes
     """
+    import math
+
     img_copy = image.copy()
+    img_h, img_w = img_copy.shape[:2]
 
-    for box, label, color in zip(boxes, labels, colors):
+    # Auto-scale font, thickness and padding based on image size
+    # Reference: 1400px wide image uses font_scale=1.4, thickness=5, pad=12
+    REF_WIDTH = 1400
+    scale_factor = img_w / REF_WIDTH
+    font_scale = 1.1 * scale_factor
+    thickness = max(3, int(5 * scale_factor + 0.5))
+    font_thickness = max(2, int(2.5 * scale_factor + 0.5))
+    pad = max(5, int(10 * scale_factor + 0.5))
+    arrow_thickness = max(2, int(4 * scale_factor + 0.5))
+    label_margin = max(3, int(4 * scale_factor + 0.5))  # margin between labels
+
+    # Phase 1: Draw all bounding box rectangles
+    int_boxes = []
+    for box, color in zip(boxes, colors):
         x1, y1, x2, y2 = [int(c) for c in box]
-
-        # Draw rectangle with anti-aliasing
+        int_boxes.append((x1, y1, x2, y2))
         cv2.rectangle(img_copy, (x1, y1), (x2, y2), color, thickness, lineType=cv2.LINE_AA)
 
-        # Draw label if provided
-        if label:
-            (text_width, text_height), baseline = cv2.getTextSize(
-                label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, 2
-            )
+    # Phase 2: Compute label sizes
+    label_info = []
+    for label in labels:
+        if not label:
+            label_info.append(None)
+        else:
+            (tw, th), bl = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, font_thickness)
+            label_info.append((tw, th, bl))
 
-            text_y_top = y1 - text_height - baseline - 8
-            text_y_bottom = y1
+    # Phase 3: Place labels one by one, avoiding collisions
+    # Strategy: 3-pass approach
+    #   Pass 1: avoid both other labels AND bounding boxes (strict)
+    #   Pass 2: avoid other labels only, allow overlap with boxes (relaxed)
+    #   Pass 3: minimize overlap count (best-effort fallback)
+    placed_rects = []  # list of (lx1, ly1, lx2, ly2) for all placed labels
+    final_draw = [None] * len(labels)  # (lx1, ly1, lx2, ly2, text_pos_y)
+    needs_arrow = [None] * len(labels)  # (arrow_start_pt, arrow_end_pt)
 
-            if text_y_top < 0:
-                text_y_top = y1
-                text_y_bottom = y1 + text_height + baseline + 8
-                text_pos_y = y1 + text_height + baseline
-            else:
-                text_pos_y = y1 - baseline - 5
+    def _check_labels_only(rect, margin=None):
+        """Check if rect doesn't overlap any already-placed label."""
+        m = label_margin if margin is None else margin
+        for pr in placed_rects:
+            if _rects_overlap(rect, pr, m):
+                return False
+        return True
 
-            # Pick text color based on background luminance (BGR format)
-            luminance = 0.299 * color[2] + 0.587 * color[1] + 0.114 * color[0]
-            text_color = (0, 0, 0) if luminance > 150 else (255, 255, 255)
+    def _check_strict(rect, own_box_idx):
+        """Check if rect doesn't overlap any placed label or any OTHER box."""
+        if not _check_labels_only(rect):
+            return False
+        for bi, bo in enumerate(int_boxes):
+            if bi == own_box_idx:
+                continue  # skip own box
+            if _rects_overlap(rect, bo, label_margin):
+                return False
+        return True
 
-            cv2.rectangle(img_copy, (x1 - 8, text_y_top),
-                         (x1 + text_width + 8, text_y_bottom), color, -1, lineType=cv2.LINE_AA)
-            cv2.putText(img_copy, label, (x1, text_pos_y),
-                       cv2.FONT_HERSHEY_SIMPLEX, font_scale, text_color, 2, lineType=cv2.LINE_AA)
+    def _count_label_overlaps(rect):
+        """Count how many placed labels this rect overlaps."""
+        count = 0
+        for pr in placed_rects:
+            if _rects_overlap(rect, pr, 0):
+                count += 1
+        return count
+
+    def _clamp(ox, oy, lw, lh):
+        ox = max(0, min(ox, img_w - lw))
+        oy = max(0, min(oy, img_h - lh))
+        return ox, oy
+
+    def _get_candidate_positions(bx1, by1, bx2, by2, lw, lh):
+        """Generate candidate label positions around a bounding box."""
+        gap = label_margin + 2
+        positions = [
+            (bx1, by1 - lh - gap),          # above-left
+            (bx1, by2 + gap),               # below-left
+            (bx2 + gap, by1),               # right-top
+            (bx1 - lw - gap, by1),          # left-top
+            (bx2 - lw, by1 - lh - gap),     # above-right
+            (bx2 + gap, by2 - lh),          # right-bottom
+            (bx1 - lw - gap, by2 - lh),     # left-bottom
+            ((bx1+bx2)//2 - lw//2, by1 - lh - gap),  # above-center
+            ((bx1+bx2)//2 - lw//2, by2 + gap),        # below-center
+        ]
+        return [_clamp(x, y, lw, lh) for x, y in positions]
+
+    def _get_radial_positions(bcx, bcy, lw, lh):
+        """Generate radial candidate positions at increasing distances."""
+        base_dists = [40, 65, 90, 115, 140, 170, 200, 240, 280, 330, 390]
+        scaled_dists = [max(20, int(d * scale_factor)) for d in base_dists]
+        positions = []
+        for dist in scaled_dists:
+            for angle_deg in range(0, 360, 10):  # 36 directions
+                angle = math.radians(angle_deg)
+                ox = int(bcx + dist * math.cos(angle) - lw / 2)
+                oy = int(bcy + dist * math.sin(angle) - lh / 2)
+                positions.append(_clamp(ox, oy, lw, lh))
+        return positions
+
+    for i in range(len(labels)):
+        if label_info[i] is None:
+            continue
+
+        tw, th, bl = label_info[i]
+        bx1, by1, bx2, by2 = int_boxes[i]
+        lw = tw + 2 * pad
+        lh = th + bl + pad
+        bcx = (bx1 + bx2) // 2
+        bcy = (by1 + by2) // 2
+
+        def make_rect(ox, oy):
+            return (ox, oy, ox + lw, oy + lh)
+
+        # --- Pass 1: Strict (avoid labels + other boxes) ---
+        direct_positions = _get_candidate_positions(bx1, by1, bx2, by2, lw, lh)
+        placed = False
+        for ox, oy in direct_positions:
+            rect = make_rect(ox, oy)
+            if _check_strict(rect, i):
+                placed_rects.append(rect)
+                tpy = oy + th + bl
+                final_draw[i] = (ox, oy, ox + lw, oy + lh, tpy)
+                placed = True
+                break
+        if placed:
+            continue
+
+        # Strict radial search
+        radial_positions = _get_radial_positions(bcx, bcy, lw, lh)
+        for ox, oy in radial_positions:
+            rect = make_rect(ox, oy)
+            if _check_strict(rect, i):
+                placed_rects.append(rect)
+                tpy = oy + th + bl
+                final_draw[i] = (ox, oy, ox + lw, oy + lh, tpy)
+                lcx, lcy = ox + lw // 2, oy + lh // 2
+                cx = max(bx1, min(bcx, bx2))
+                cy = max(by1, min(bcy, by2))
+                needs_arrow[i] = ((lcx, lcy), (cx, cy))
+                placed = True
+                break
+        if placed:
+            continue
+
+        # --- Pass 2: Relaxed (avoid labels only, allow box overlap) ---
+        for ox, oy in direct_positions:
+            rect = make_rect(ox, oy)
+            if _check_labels_only(rect):
+                placed_rects.append(rect)
+                tpy = oy + th + bl
+                final_draw[i] = (ox, oy, ox + lw, oy + lh, tpy)
+                placed = True
+                break
+        if placed:
+            continue
+
+        for ox, oy in radial_positions:
+            rect = make_rect(ox, oy)
+            if _check_labels_only(rect):
+                placed_rects.append(rect)
+                tpy = oy + th + bl
+                final_draw[i] = (ox, oy, ox + lw, oy + lh, tpy)
+                lcx, lcy = ox + lw // 2, oy + lh // 2
+                cx = max(bx1, min(bcx, bx2))
+                cy = max(by1, min(bcy, by2))
+                needs_arrow[i] = ((lcx, lcy), (cx, cy))
+                placed = True
+                break
+        if placed:
+            continue
+
+        # --- Pass 3: Best-effort (minimize label overlaps) ---
+        all_candidates = direct_positions + radial_positions
+        best_pos = None
+        best_overlaps = float('inf')
+        for ox, oy in all_candidates:
+            rect = make_rect(ox, oy)
+            n_overlaps = _count_label_overlaps(rect)
+            if n_overlaps < best_overlaps:
+                best_overlaps = n_overlaps
+                best_pos = (ox, oy)
+                if n_overlaps == 0:
+                    break
+
+        if best_pos:
+            ox, oy = best_pos
+        else:
+            ox, oy = _clamp(bx1, by1 - lh, lw, lh)
+
+        rect = make_rect(ox, oy)
+        placed_rects.append(rect)
+        tpy = oy + th + bl
+        final_draw[i] = (ox, oy, ox + lw, oy + lh, tpy)
+        # Add arrow if label center is far from box center
+        lcx, lcy = ox + lw // 2, oy + lh // 2
+        dist_to_box = math.hypot(lcx - bcx, lcy - bcy)
+        box_diag = math.hypot(bx2 - bx1, by2 - by1)
+        if dist_to_box > box_diag * 0.8:
+            cx = max(bx1, min(bcx, bx2))
+            cy = max(by1, min(bcy, by2))
+            needs_arrow[i] = ((lcx, lcy), (cx, cy))
+
+    # Phase 4: Draw arrows (behind labels)
+    for i in range(len(labels)):
+        if needs_arrow[i] is not None:
+            arr_start, arr_end = needs_arrow[i]
+            _draw_arrow_line(img_copy, arr_start, arr_end, colors[i], arrow_thickness, scale_factor)
+
+    # Phase 5: Draw label backgrounds and text
+    for i in range(len(labels)):
+        if final_draw[i] is None:
+            continue
+
+        label = labels[i]
+        color = colors[i]
+        lx1, ly1, lx2, ly2, tpy = final_draw[i]
+
+        luminance = 0.299 * color[2] + 0.587 * color[1] + 0.114 * color[0]
+        text_color = (0, 0, 0) if luminance > 150 else (255, 255, 255)
+
+        cv2.rectangle(img_copy, (lx1, ly1), (lx2, ly2), color, -1, lineType=cv2.LINE_AA)
+        cv2.putText(img_copy, label, (lx1 + pad, tpy),
+                   cv2.FONT_HERSHEY_SIMPLEX, font_scale, text_color, font_thickness, lineType=cv2.LINE_AA)
 
     return img_copy
 

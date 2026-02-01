@@ -273,8 +273,9 @@ Changes are listed in document order, top to bottom.
 | **Reviewer C** | 2 | Method justification | 6, 7 |
 | **Reviewer C** | 3 | Discussion section | 22 |
 | **Reviewer C** | 4 | Conclusion significance | 23 |
-| **Quality** | — | Typos & grammar fixes | 3, 4, 5, 10, 12, 14, 15, 18, 19 |
+| **Quality** | — | Typos & grammar fixes | 3, 4, 5, 10, 12, 14, 15, 18, 19, 31 |
 | **Quality** | — | Citation number corrections | 8, 16, 17, 20 |
+| **Quality** | — | Figure data corrections (experiment regen) | 24, 25, 26, 29, 30, 32, 33 |
 
 ---
 
@@ -298,19 +299,19 @@ Changes are listed in document order, top to bottom.
 > shows 4 trophozoites misclassified as rings among 14 parasites at 71.4% image accuracy, where the systematic trophozoite-to-ring misclassification pattern reflects prevalence of early-stage trophozoites with compact cytoplasm and minimal hemozoin accumulation resembling ring morphology.
 
 **Replace:**
-> shows 1 misclassification among 31 parasites at 96.8% image accuracy with ResNet101, where the residual trophozoite-to-ring misclassification pattern reflects prevalence of early-stage trophozoites with compact cytoplasm and minimal hemozoin accumulation resembling ring morphology. Notably, architecture selection critically impacts performance on this dense field: DenseNet121 achieves only 6.5% accuracy and ResNet50 reaches 35.5% on the identical image, demonstrating that deeper residual architectures better discriminate subtle morphological differences in crowded multi-parasite scenarios.
+> shows 1 ring misclassified as gametocyte among 41 parasites at 97.6% image accuracy with ResNet101, where the residual ring-to-gametocyte misclassification pattern reflects morphological similarity between compact ring-stage parasites and early gametocyte forms with similar chromatin distribution and cytoplasmic density. This dense microscopy field with 41 annotated parasites demonstrates that ResNet101 maintains high accuracy even on crowded multi-parasite images, achieving near-perfect classification despite the challenging visual complexity of overlapping blood cells and numerous small parasites.
 
 ---
 
 ## CHANGE 26 — Section 3.4.2, Figure 6f statistics [REPLACE]
-**Location in Word:** Section 3.4.2, fourth paragraph (MD-2019 perfect classification)
+**Location in Word:** Section 3.4.2, fourth paragraph (MD-2019 near-perfect classification)
 **Type:** Figure data correction (experiment regeneration)
 
 **Find:**
 > with 10 parasites correctly classified at 100% image accuracy on crowded microscopy fields
 
 **Replace:**
-> with 8 parasites correctly classified at 100% image accuracy by ResNet101 on crowded microscopy fields
+> with 7 of 8 parasites correctly classified at 87.5% image accuracy by EfficientNet-B0 on a different patient sample, where only 1 ring-stage parasite is misclassified as trophozoite while the remaining 7 are correctly identified as ring stage, providing balanced assessment demonstrating that classification failures primarily result from inter-patient morphological variation rather than fundamental architectural inadequacy
 
 ---
 
@@ -389,18 +390,87 @@ The new Section 1.2 Literature Review (Change 2) introduced references [7], [25]
 
 ---
 
-## TOTAL: 28 Changes
+## CHANGE 29 — Section 3.4.2, Figure 6a+6b paragraph [REPLACE ENTIRE PARAGRAPH]
+**Location in Word:** Section 3.4.2, first paragraph (IML classification errors)
+**Type:** Figure data correction — new images selected because Dec 2025 model classifies original images correctly (experiment regeneration)
+
+**Find (entire paragraph):**
+> The IML single error case displayed in Figure 6a shows 1 trophozoite misclassified as ring among 3 parasites, demonstrating that even on high-quality datasets, borderline cases exist where parasites occupy morphological transition zones between discrete stage categories. The IML moderate error shown in Figure 6b exhibits 1 misclassification among 3 parasites at 66.7% image accuracy, where continuous parasite development creates ambiguous specimens with overlapping characteristics between adjacent stages. Both cases highlight inherent subjectivity in lifecycle stage assignment where morphological boundaries between consecutive stages remain inherently ambiguous, with EfficientNet-B1 achieving 2 correct classifications and 1 error in both representative images. The trophozoite-to-ring confusion pattern reflects early developmental stage parasites where cytoplasm maturation and chromatin condensation present similar visual signatures under microscopy.
+
+**Replace (entire paragraph):**
+
+> The IML error case displayed in Figure 6a shows 2 gametocytes misclassified as schizont among 3 parasites at 33.3% image accuracy, demonstrating that even on high-quality datasets, borderline cases exist where parasites occupy morphological transition zones between discrete stage categories. The gametocyte-to-schizont confusion reflects similar rounded morphology and dense chromatin distribution between mature gametocytes and schizonts under Giemsa staining. The IML moderate error shown in Figure 6b exhibits 1 ring-stage parasite misclassified as trophozoite among 2 parasites at 50% image accuracy, where continuous parasite development creates ambiguous specimens with overlapping characteristics between adjacent stages. Both cases highlight inherent subjectivity in lifecycle stage assignment where morphological boundaries between consecutive stages remain inherently ambiguous, with EfficientNet-B1 struggling on parasites at developmental transition points where morphological features of adjacent stages overlap substantially under microscopy.
+
+**Note:** Figure 6a image changed from original to PA171697.png, Figure 6b image changed from original to PA171909.png. The original images no longer showed classification errors with the Dec 2025 model (optA_20251207_233941).
+
+---
+
+## CHANGE 30 — Section 3.4.2, Figure 6e+6f paragraph [REPLACE ENTIRE PARAGRAPH]
+**Location in Word:** Section 3.4.2, fourth paragraph (MD-2019 classification errors)
+**Type:** Figure data correction — 6f image changed and stats updated (experiment regeneration)
+
+**Find (entire paragraph):**
+> The MD-2019 heavy error case presented in Figure 6e shows 6 schizonts misclassified as trophozoites among 8 parasites at 25% image accuracy, revealing systematic challenges in distinguishing transitional mature stages that exhibit overlapping morphological features across the continuous development spectrum reflecting realistic multi-patient morphological diversity. The perfect classification case shown in Figure 4f demonstrates flawless performance with 10 parasites correctly classified at 100% image accuracy on crowded microscopy fields when morphological features are sufficiently distinct, providing balanced assessment demonstrating that classification failures primarily result from specific morphological ambiguities rather than fundamental architectural inadequacy. The schizont-to-trophozoite confusion pattern in Figure 6e reflects early schizont segmentation phases where individual merozoites remain indistinct, contrasting sharply with Figure 6f where well-defined morphological features enable perfect discrimination across all lifecycle stages present.
+
+**Replace (entire paragraph):**
+
+> The MD-2019 heavy error case presented in Figure 6e shows 6 ring-stage parasites misclassified as schizont and trophozoite among 8 parasites at 25% image accuracy with EfficientNet-B0, revealing systematic challenges where morphological variation across different patients causes the classifier to confuse ring-stage parasites with later developmental stages that exhibit visually similar compact chromatin structures and cytoplasmic density patterns. The near-perfect classification case shown in Figure 6f demonstrates strong performance with 7 of 8 parasites correctly classified at 87.5% image accuracy by EfficientNet-B0 on a different patient sample, where only 1 ring-stage parasite is misclassified as trophozoite while the remaining 7 are correctly identified as ring stage, providing balanced assessment demonstrating that classification failures primarily result from inter-patient morphological variation rather than fundamental architectural inadequacy. The contrast between Figures 6e and 6f illustrates how patient-specific staining intensity and parasite morphology critically influence classification accuracy, with well-stained specimens enabling reliable discrimination while ambiguous specimens from different patients challenge even well-trained models.
+
+**Note:** Figure 6f image changed from original to Trip 073 Day 2 01-12-05 Image 1_16.png (best available: 87.5% accuracy). No MD-2019 test image achieved 100% accuracy with any of the 6 classification models on images with ≥6 parasites.
+
+---
+
+## CHANGE 31 — Section 3.4.1, Figure 5b singular→plural [FIX]
+**Location in Word:** Section 3.4.1, first paragraph, sentence about Figure 5b
+**Type:** Grammar fix to match actual image (image shows 2 FN, not 1)
+
+**Find:** `likely representing a faint ring-stage parasite with weak staining intensity`
+**Replace:** `likely representing faint ring-stage parasites with weak staining intensity`
+
+---
+
+## CHANGE 32 — Section 3.4.2, Figure 6d species correction [REPLACE]
+**Location in Word:** Section 3.4.2, second paragraph, sentences about Figure 6d (species misidentification)
+**Type:** Critical factual correction — wrong species in narration (verified against ground truth metadata)
+
+**Find:**
+> The species misidentification displayed in Figure 6d represents clinically significant error where single P. vivax parasite is confused with P. ovale, demonstrating 100% misclassification on this image despite these species requiring different treatment protocols particularly primaquine for eliminating dormant liver stages. The P. vivax-P. ovale confusion stems from similar enlarged red blood cell morphology, Schüffner's dots presence, and overlapping amoeboid trophozoite shapes characteristic of both species that challenge even experienced human microscopists.
+
+**Replace:**
+> The species misidentification displayed in Figure 6d represents clinically significant error where a single P. falciparum parasite is misclassified as P. vivax with high confidence (0.96), demonstrating 100% misclassification on this image. This error carries severe clinical consequences because P. falciparum causes the most lethal form of malaria including cerebral malaria and multi-organ failure, and misidentifying it as the less dangerous P. vivax could lead to inadequate treatment and potentially fatal outcomes. The P. falciparum-P. vivax confusion stems from morphological overlap between early trophozoite stages of both species, where small ring forms with similar chromatin dots and thin cytoplasmic bands challenge even experienced human microscopists particularly in thin blood smears with low parasitemia.
+
+**Note:** Ground truth metadata confirms the parasite GT class is P_falciparum, NOT P_vivax or P_ovale. The model predicted P_vivax (shown as red box in the image). The original narration had wrong species on both sides of the confusion (said P. vivax→P. ovale, actual is P. falciparum→P. vivax).
+
+---
+
+## CHANGE 33 — Figure 6 caption [REPLACE]
+**Location in Word:** Figure 6 caption (below Figure 6 images)
+**Type:** Caption correction to match updated sub-figure content
+
+**Find:**
+> Figure 6 Classification Confusion Patterns Using Best Models: (a-b) IML Lifecycle single/moderate errors, (c-d) MP-IDB stage/species confusion, (e-f) MD-2019 heavy errors and perfect classification
+
+**Replace:**
+> Figure 6 Classification Confusion Patterns Using Best Models: (a-b) IML Lifecycle stage confusion errors, (c-d) MP-IDB stage/species confusion, (e-f) MD-2019 heavy errors and near-perfect classification
+
+**Note:** "(a-b)" changed from "single/moderate errors" to "stage confusion errors" to match new 6a (gametocyte→schizont) and 6b (ring→trophozoite) images. "(e-f)" changed from "perfect classification" to "near-perfect classification" because 6f now shows 87.5% (not 100%).
+
+---
+
+## TOTAL: 33 Changes
 
 - **2** major rewrites (Section 1.2 Literature Review, new Section 3.6 Discussion)
 - **4** new text additions (Section 2.2 justification, Section 2.4 AdamW paragraph, Section 2.4 Focal Loss paragraph, Section 4 significance paragraph)
 - **8** citation number fixes (Changes 8, 16, 17, 20)
-- **8** typo/grammar fixes (Changes 3, 4, 5, 10, 12, 14, 15, 18)
+- **9** typo/grammar fixes (Changes 3, 4, 5, 10, 12, 14, 15, 18, 31)
 - **3** table caption fixes — missing closing parenthesis (Changes 9, 11, 13)
 - **1** wrong figure reference — Figure 4f → 6f (Change 19)
 - **1** missing table reference — Table 7 added to body text (Change 21)
-- **3** figure data corrections — updated to match experiment optA_20251207_233941 (Changes 24, 25, 26)
+- **7** figure data corrections — updated to match experiment optA_20251207_233941 (Changes 24, 25, 26, 29, 30, 32, 33)
 - **1** restored orphaned citation — [22] Prototypical Networks (Change 27)
 - **1** full reference renumbering — IEEE sequential first-appearance order (Change 28)
+
+**Note:** Change 28 (renumbering) should still be applied LAST. Changes 29-33 should be applied before Change 28.
 
 ---
 

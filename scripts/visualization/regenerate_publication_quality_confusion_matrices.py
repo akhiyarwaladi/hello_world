@@ -80,32 +80,22 @@ def plot_publication_quality_confusion_matrix(
     # Calculate percentages for dual annotations
     cm_percent = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis] * 100
 
-    # Create figure with FIXED size for consistency across all confusion matrices
-    # Reduced width to 8 to minimize right white space
-    fig, ax = plt.subplots(figsize=(8, 8))  # Square, compact
+    n = len(class_names)
 
-    # Plot heatmap with dataset-specific colors (NO annot, we'll add manually)
-    sns.heatmap(
-        cm,
-        annot=False,  # We'll add manual annotations
-        cmap=cmap,
-        xticklabels=class_names,
-        yticklabels=class_names,
-        cbar_kws={
-            'label': '',     # No label (removed "Count")
-            'shrink': 0.82,  # Optimized colorbar size
-            'aspect': 20,    # Ultra-thin colorbar
-            'pad': 0.01      # Ultra-minimal gap
-        },
-        linewidths=1.0,
-        linecolor='white',
-        square=True,
-        ax=ax
-    )
+    # Create figure with FIXED size (square, compact)
+    fig, ax = plt.subplots(figsize=(5, 5))
+
+    # Use imshow for full layout control (aspect='auto' fills the allocated area)
+    im = ax.imshow(cm, cmap=cmap, aspect='auto')
+
+    # Draw white grid lines between cells
+    for i in range(n + 1):
+        ax.axhline(i - 0.5, color='white', linewidth=1.5)
+        ax.axvline(i - 0.5, color='white', linewidth=1.5)
 
     # Manual annotations with different font sizes for count and percentage
-    for i in range(cm.shape[0]):
-        for j in range(cm.shape[1]):
+    for i in range(n):
+        for j in range(n):
             count = cm[i, j]
             percent = cm_percent[i, j]
 
@@ -114,40 +104,35 @@ def plot_publication_quality_confusion_matrix(
             if percent_str.endswith('.0%'):
                 percent_str = percent_str[:-3] + '%'
 
+            text_color = 'white' if cm[i, j] > cm.max() / 2 else 'black'
+
             # Plot count (larger, bold)
-            ax.text(j + 0.5, i + 0.4, f'{int(count)}',
+            ax.text(j, i - 0.1, f'{int(count)}',
                    ha='center', va='center',
-                   fontsize=22, fontweight='bold',
-                   color='white' if cm[i, j] > cm.max() / 2 else 'black')
+                   fontsize=20, fontweight='bold', color=text_color)
 
             # Plot percentage (smaller, regular)
-            ax.text(j + 0.5, i + 0.65, f'({percent_str})',
+            ax.text(j, i + 0.2, f'({percent_str})',
                    ha='center', va='center',
-                   fontsize=16, fontweight='normal',
-                   color='white' if cm[i, j] > cm.max() / 2 else 'black')
+                   fontsize=14, fontweight='normal', color=text_color)
 
-    # Title with model and accuracy
-    dataset_display = dataset_name.replace('_', ' ').title()
-    model_display = model_name.replace('_', ' ').title()
-    title = f'{dataset_display} - {model_display}\nTest Accuracy: {accuracy:.2f}%'
-    ax.set_title(title, fontsize=18, fontweight='bold', pad=12)
+    # Tick labels on class names, no title, no axis labels
+    ax.set_xticks(range(n))
+    ax.set_yticks(range(n))
+    ax.set_xticklabels(class_names, rotation=0, fontsize=10, ha='center', fontweight='bold')
+    ax.set_yticklabels(class_names, rotation=90, fontsize=10, va='center', fontweight='bold')
+    ax.tick_params(length=0, pad=2)  # Hide tick marks, minimal padding
 
-    # Labels - Y-axis rotated 90° to save space
-    ax.set_xlabel('Predicted Class', fontsize=16, fontweight='bold', labelpad=6)
-    ax.set_ylabel('True Class', fontsize=16, fontweight='bold', labelpad=6)
+    # Move x-axis labels to bottom
+    ax.xaxis.set_ticks_position('bottom')
 
-    # X-axis labels: horizontal (rotation=0), moderate font
-    ax.set_xticklabels(ax.get_xticklabels(), rotation=0, fontsize=14, ha='center', fontweight='bold')
-    # Y-axis labels: rotated 90° for space efficiency, moderate font
-    ax.set_yticklabels(ax.get_yticklabels(), rotation=90, fontsize=14, va='center', fontweight='bold')
+    # Force exact plot area position (identical across all figures, minimal whitespace)
+    ax.set_position([0.05, 0.04, 0.94, 0.95])
 
-    # FIXED margins for consistent sizing (no bbox_inches='tight')
-    # Ultra-minimal: more space bottom (for xlabel), zero right
-    # Right: 1.0, Top: 0.92, Bottom: 0.09 (increased for xlabel), Left: 0.10
-    plt.subplots_adjust(left=0.10, bottom=0.09, right=1.0, top=0.92)
-
-    # Save with FIXED size (no bbox_inches='tight' to ensure consistent dimensions)
+    # Save as PNG and SVG
     plt.savefig(save_path, dpi=dpi, facecolor='white')
+    svg_path = save_path.with_suffix('.svg')
+    plt.savefig(svg_path, format='svg', facecolor='white')
     plt.close()
 
     print(f"   ✓ {save_path.name} ({cmap} colormap)")

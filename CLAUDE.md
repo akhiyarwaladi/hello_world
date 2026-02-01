@@ -8,6 +8,7 @@ Advanced malaria parasite detection and classification system using **shared cla
 **Environment:** Python 3.13.10, PyTorch 2.8.0+cu128, CUDA 12.8
 **GPU:** NVIDIA RTX 4090 (24GB VRAM) - Fully tested and optimized
 **Latest Baseline:** Detection mAP@50: 96.38% | Classification Acc: 91.51% (Oct 16, 2025 - 100/75 epochs)
+**Paper Status:** KINETIK Journal (Paper ID 2558) — Revision submitted (Feb 2026)
 
 ---
 
@@ -78,6 +79,31 @@ Advanced malaria parasite detection and classification system using **shared cla
 - [ ] Training time claims realistic (~120 GPU-hours)
 - [ ] No bright colors in tables (eye-friendly palette)
 - [ ] All figures exist in visualization_outputs/
+
+### Paper Revision Guidelines (Learned from KINETIK v1→v2)
+
+**CRITICAL: Always verify narration against actual data**
+- ⚠️ **VERIFY FIGURES:** Always cross-check paper narration (species, class, counts, percentages) against ground truth metadata CSV and regenerated images
+- ⚠️ **NO ASSUMPTIONS:** Do not assume narration from v1 is still correct after re-running experiments — model outputs change between runs
+- ⚠️ **CHANGE MAP:** Maintain a CHANGE_MAP document listing every single v1→v2 text change with Find/Replace instructions for Word
+- ⚠️ **CITATION ORDER:** IEEE requires strict sequential first-appearance order — adding new references to the Introduction breaks numbering throughout
+
+**Figure Narration Verification Process:**
+1. Read ground truth metadata CSV for each image used in figures
+2. Compare GT classes, counts, model predictions against what the paper says
+3. Check species names, confusion patterns, accuracy percentages
+4. Fix any mismatch — wrong species is a critical error (e.g., saying "P. vivax→P. ovale" when GT is actually P. falciparum→P. vivax)
+
+**Visualization Label Collision (Dense Images):**
+- Use multi-pass collision avoidance: strict → relaxed (labels only) → best-effort
+- Dense microscopy images (40+ boxes) need relaxed placement that allows box overlap
+- Auto-scale font size based on image resolution (reference width: 1400px)
+
+**Author Response Best Practices:**
+- Use a generator script (`gen_author_response_xlsx.py`) to maintain consistent formatting
+- Keep responses professional with flowing prose, not bullet-heavy lists
+- Auto-adjust Excel row heights based on text length per column width
+- Separate reviewer-requested changes from proactive quality improvements
 
 ---
 
@@ -606,14 +632,49 @@ luaran/
 │   └── _metadata.json
 │
 ├── hand_created/            # ✍️ MANUALLY CREATED (EDIT HERE)
-│   ├── papers/              # Research manuscripts (MD → DOCX/PDF)
+│   ├── papers/              # Research manuscripts & revision files
 │   ├── reports/             # Progress reports
 │   └── documentation/
 │
 └── templates/               # Official templates
 ```
 
-### One-Command Regeneration
+### KINETIK Paper Files (hand_created/papers/)
+
+```
+papers/
+├── KINETIK_v1_SUBMITTED.md          # Original submitted version (frozen)
+├── KINETIK_v2_REVISED.md            # Revised version (active editing here)
+├── CHANGE_MAP_v1_to_v2.md           # 33 changes with Find/Replace for Word
+├── AUTHOR_RESPONSE.md               # Response index document
+├── AUTHOR_RESPONSE.xlsx             # Point-by-point response (generated)
+├── gen_author_response_xlsx.py      # Script that generates the xlsx above
+├── COVER_LETTER_REVISION.md         # OJS submission cover letter
+├── revision.txt                     # Raw reviewer comments from OJS
+├── 2558-Article Text-*.docx         # Word document for OJS upload
+├── 2558-Article Text-*.pdf          # PDF version
+├── 2558-Article Text- Similarity Check Turnitin.pdf  # Plagiarism check
+└── Backup *.docx                    # Backup of original Word file
+```
+
+### Revision Workflow
+
+```bash
+# 1. Edit paper content in Markdown
+#    luaran/hand_created/papers/KINETIK_v2_REVISED.md
+
+# 2. Track all changes in the change map
+#    luaran/hand_created/papers/CHANGE_MAP_v1_to_v2.md
+
+# 3. Regenerate author response Excel
+python luaran/hand_created/papers/gen_author_response_xlsx.py
+
+# 4. Apply changes to Word using CHANGE_MAP (manual, with Track Changes ON)
+
+# 5. Upload to OJS: revised .docx + AUTHOR_RESPONSE.xlsx + Turnitin PDF
+```
+
+### Regenerate Auto-Generated Outputs
 
 ```bash
 # Regenerate all auto-generated outputs (~5 minutes)
@@ -624,21 +685,6 @@ python scripts/publication/generate_all_publication_outputs.py --figures-only
 
 # Tables only
 python scripts/publication/generate_all_publication_outputs.py --tables-only
-```
-
-### Workflow: Update Paper with Latest Results
-
-```bash
-# 1. Run experiment
-python main_pipeline.py --dataset all
-
-# 2. Regenerate outputs
-python scripts/publication/generate_all_publication_outputs.py
-
-# 3. Edit paper (hand_created/papers/*.md)
-
-# 4. Export to DOCX
-pandoc hand_created/papers/JICEST_Paper.md -o hand_created/papers/exports/JICEST_Paper.docx
 ```
 
 **See [ARCHITECTURE.md](ARCHITECTURE.md) for complete luaran structure and philosophy.**
@@ -687,6 +733,19 @@ pandoc hand_created/papers/JICEST_Paper.md -o hand_created/papers/exports/JICEST
 ---
 
 ## 📝 CHANGELOG
+
+### 2026-02-01 - KINETIK Paper Revision (v1→v2) Submitted
+- 📄 **Paper revision complete** - 33 changes applied (Paper ID 2558, KINETIK Journal)
+- ✍️ **New sections added** - Section 1.2 Literature Review rewrite, Section 3.6 Discussion (3 hypotheses), Section 4 significance paragraph
+- 🔬 **Method justifications** - Ground truth crop architecture, AdamW optimizer, Focal Loss parameters (Reviewer C)
+- 📊 **Figure narration verified** - All 12 images (Fig 5 + Fig 6) cross-checked against GT metadata
+- 🐛 **Critical fix** - Figure 6d species correction (P. falciparum→P. vivax, NOT P. vivax→P. ovale)
+- 🏷️ **Label collision fix** - Multi-pass placement algorithm for dense microscopy images (40+ boxes)
+- 📐 **Font size tuned** - Auto-scaling labels (base 1.1, ref width 1400px) with collision avoidance
+- 🔢 **IEEE citation renumbering** - Full 33-reference renumbering for sequential first-appearance order
+- 📋 **Author response** - gen_author_response_xlsx.py with auto row height, 12 quality items
+- 📨 **Cover letter** - COVER_LETTER_REVISION.md for OJS submission
+- 📎 **Files uploaded** - Revised .docx, AUTHOR_RESPONSE.xlsx, Turnitin similarity PDF
 
 ### 2025-12-07 - Data Setup Automation & Full Verification
 - ⚡ **ONE-COMMAND DATA SETUP** - New `setup_all_data.py` for automated setup (~10 min)
@@ -786,13 +845,13 @@ python main_pipeline.py
 
 ---
 
-**Last Updated:** 2025-12-07 23:30 WIB
-**Status:** ✅ Verified Working (Full pipeline + data setup tested today)
+**Last Updated:** 2026-02-01
+**Status:** ✅ Verified Working | 📄 KINETIK revision submitted
 **Environment:** Python 3.13.10, PyTorch 2.8.0+cu128, CUDA 12.8, RTX 4090 24GB
 **Verified Baseline:** Detection: 96.38% mAP@50 | Classification: 91.51% accuracy (Oct 16, 2025)
 **Quick Test (5 epochs):** Detection: 84.0% mAP@50 | Classification: 23.58% (Dec 7, 2025)
-**Data Setup:** ⚡ One-command automated setup (`setup_all_data.py --yes`) - 10 minutes
-**Main Pipeline:** YOLO-focused shared classification architecture for efficient malaria detection
+**Data Setup:** ⚡ One-command automated setup (`setup_all_data.py --yes`)
+**Paper:** KINETIK Journal Paper ID 2558 — Revision submitted Feb 2026 (33 changes, 3 reviewers addressed)
 
 **Documentation:**
 - 📚 [SETUP_GUIDE.md](SETUP_GUIDE.md) - Environment setup
