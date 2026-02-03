@@ -1,0 +1,134 @@
+{
+  "Figure 5a": {
+    "status": "verified",
+    "path": "results\\optA_20251207_233941\\experiments\\experiment_iml_lifecycle\\visualizations\\pred_detection_yolo10\\PA171698.png",
+    "info": {
+      "type": "detection",
+      "dataset": "iml_lifecycle",
+      "model": "yolo10",
+      "image_name": "PA171698",
+      "description": "IML False Positive (GT: 3, Pred: 4, FP: 1)"
+    }
+  },
+  "Figure 5b": {
+    "status": "verified",
+    "path": "results\\optA_20251207_233941\\experiments\\experiment_iml_lifecycle\\visualizations\\pred_detection_yolo10\\PA171831.png",
+    "info": {
+      "type": "detection",
+      "dataset": "iml_lifecycle",
+      "model": "yolo10",
+      "image_name": "PA171831",
+      "description": "IML False Negative (GT: 3, Pred: 2, FN: 1)"
+    }
+  },
+  "Figure 5c": {
+    "status": "verified",
+    "path": "results\\optA_20251207_233941\\experiments\\experiment_mp_idb_stages\\visualizations\\pred_detection_yolo10\\1405022890-0003-R.png",
+    "info": {
+      "type": "detection",
+      "dataset": "mp_idb_stages",
+      "model": "yolo10",
+      "image_name": "1405022890-0003-R",
+      "description": "MP-IDB Stages - EXACT 8 FP (GT: 24, Pred: 29, FP: 8, FN: 3)"
+    }
+  },
+  "Figure 5d": {
+    "status": "verified",
+    "path": "results\\optA_20251207_233941\\experiments\\experiment_mp_idb_species\\visualizations\\pred_detection_yolo10\\1704282807-0015-R.png",
+    "info": {
+      "type": "detection",
+      "dataset": "mp_idb_species",
+      "model": "yolo10",
+      "image_name": "1704282807-0015-R",
+      "description": "MP-IDB Species Mixed (GT: 21, Pred: 21, FP: 3, FN: 3)"
+    }
+  },
+  "Figure 5e": {
+    "status": "verified",
+    "path": "results\\optA_20251207_233941\\experiments\\experiment_md_2019_stages\\visualizations\\pred_detection_yolo10\\Trip 073 Day 2 01-12-05 Image 1_6.png",
+    "info": {
+      "type": "detection",
+      "dataset": "md_2019_stages",
+      "model": "yolo10",
+      "image_name": "Trip 073 Day 2 01-12-05 Image 1_6",
+      "description": "MD-2019 Crowded Mixed (GT: 10, Pred: 11, FP: 3, FN: 2)"
+    }
+  },
+  "Figure 5f": {
+    "status": "verified",
+    "path": "results\\optA_20251207_233941\\experiments\\experiment_md_2019_stages\\visualizations\\pred_detection_yolo11\\Trip 073 Day 2 01-12-05 Image 1_10.png",
+    "info": {
+      "type": "detection",
+      "dataset": "md_2019_stages",
+      "model": "yolo11",
+      "image_name": "Trip 073 Day 2 01-12-05 Image 1_10",
+      "description": "MD-2019 False Negative (GT: 14, Pred: 10, FN: 4)"
+    }
+  },
+  "Figure 6a": {
+    "status": "verified",
+    "path": "results\\optA_20251207_233941\\experiments\\experiment_iml_lifecycle\\visualizations\\pred_classification_efficientnet_b1_focal\\PA171852.png",
+    "info": {
+      "type": "classification",
+      "dataset": "iml_lifecycle",
+      "model": "efficientnet_b1",
+      "image_name": "PA171852",
+      "description": "IML EfficientNet-B1 (3 boxes, 1 error, 66.7%)"
+    }
+  },
+  "Figure 6b": {
+    "status": "verified",
+    "path": "results\\optA_20251207_233941\\experiments\\experiment_iml_lifecycle\\visualizations\\pred_classification_efficientnet_b1_focal\\PA171771.png",
+    "info": {
+      "type": "classification",
+      "dataset": "iml_lifecycle",
+      "model": "efficientnet_b1",
+      "image_name": "PA171771",
+      "description": "IML EfficientNet-B1 (3 boxes, 1 error, 66.7%)"
+    }
+  },
+  "Figure 6c": {
+    "status": "manual_selection_needed",
+    "path": null,
+    "info": {
+      "type": "classification",
+      "dataset": "mp_idb_stages",
+      "model": "N/A",
+      "image_name": "N/A",
+      "description": "\u26a0\ufe0f NO EXACT MATCH - Manual selection needed"
+    }
+  },
+  "Figure 6d": {
+    "status": "verified",
+    "path": "results\\optA_20251207_233941\\experiments\\experiment_mp_idb_species\\visualizations\\pred_classification_densenet121_focal\\1305121398-0003-R.png",
+    "info": {
+      "type": "classification",
+      "dataset": "mp_idb_species",
+      "model": "densenet121",
+      "image_name": "1305121398-0003-R",
+      "description": "MP-IDB Species (1 box, 100% error, cross-model)"
+    }
+  },
+  "Figure 6e": {
+    "status": "verified",
+    "path": "results\\optA_20251207_233941\\experiments\\experiment_md_2019_stages\\visualizations\\pred_classification_densenet121_focal\\Trip 064 Day 2 25-11-05 Image 5_11.png",
+    "info": {
+      "type": "classification",
+      "dataset": "md_2019_stages",
+      "model": "densenet121",
+      "image_name": "Trip 064 Day 2 25-11-05 Image 5_11",
+      "description": "MD-2019 (8 boxes, 6 errors, 25%, cross-model)"
+    }
+  },
+  "Figure 6f": {
+    "status": "verified",
+    "path": "results\\optA_20251207_233941\\experiments\\experiment_md_2019_stages\\visualizations\\pred_classification_resnet101_focal\\Trip 804 Day 1 02-12-05 Image 3_1.png",
+    "info": {
+      "type": "classification",
+      "dataset": "md_2019_stages",
+      "model": "resnet101",
+      "image_name": "Trip 804 Day 1 02-12-05 Image 3_1",
+      "description": "MD-2019 Perfect (6 boxes, 100%, cross-model) - UPDATED from 10 boxes"
+    }
+  }
+}

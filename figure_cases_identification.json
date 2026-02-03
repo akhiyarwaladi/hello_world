@@ -1,0 +1,127 @@
+{
+  "Figure 5 - Detection Error Cases": {
+    "5a_IML_FP_only": {
+      "image_name": "PA171785",
+      "image_file": "results\\optA_20251207_233941\\experiments\\experiment_iml_lifecycle\\visualizations\\pred_detection_yolo11\\PA171785.png",
+      "n_gt_boxes": 1,
+      "n_pred_boxes": 4,
+      "n_false_positives": 3,
+      "n_false_negatives": 0,
+      "avg_confidence": 0.867,
+      "description": "False positive only (overdetection)"
+    },
+    "5b_IML_FN_only": {
+      "image_name": "PA171699",
+      "image_file": "results\\optA_20251207_233941\\experiments\\experiment_iml_lifecycle\\visualizations\\pred_detection_yolo11\\PA171699.png",
+      "n_gt_boxes": 2,
+      "n_pred_boxes": 0,
+      "n_false_positives": 0,
+      "n_false_negatives": 2,
+      "avg_confidence": 0.0,
+      "description": "False negative only (missed detection)"
+    },
+    "5e_MD2019_Crowded_Mixed": {
+      "image_name": "Trip 073 Day 2 01-12-05 Image 1_8",
+      "image_file": "results\\optA_20251207_233941\\experiments\\experiment_md_2019_stages\\visualizations\\pred_detection_yolo11\\Trip 073 Day 2 01-12-05 Image 1_8.png",
+      "n_gt_boxes": 18,
+      "n_pred_boxes": 17,
+      "n_false_positives": 3,
+      "n_false_negatives": 4,
+      "avg_confidence": 0.735,
+      "description": "Crowded scene with mixed errors"
+    },
+    "5f_MD2019_FN_Atypical": {
+      "image_name": "Trip 073 Day 2 01-12-05 Image 1_10",
+      "image_file": "results\\optA_20251207_233941\\experiments\\experiment_md_2019_stages\\visualizations\\pred_detection_yolo11\\Trip 073 Day 2 01-12-05 Image 1_10.png",
+      "n_gt_boxes": 14,
+      "n_pred_boxes": 10,
+      "n_false_positives": 0,
+      "n_false_negatives": 4,
+      "avg_confidence": 0.702,
+      "description": "False negatives due to atypical morphology"
+    },
+    "5d_MPIDB_Species_Mixed": {
+      "image_name": "1701151546-0015-R_T",
+      "image_file": "results\\optA_20251207_233941\\experiments\\experiment_mp_idb_species\\visualizations\\pred_detection_yolo11\\1701151546-0015-R_T.png",
+      "n_gt_boxes": 37,
+      "n_pred_boxes": 39,
+      "n_false_positives": 11,
+      "n_false_negatives": 9,
+      "avg_confidence": 0.688,
+      "description": "Mixed error case (both FP and FN)"
+    },
+    "5c_MPIDB_Stages_Overdetection": {
+      "image_name": "1307210661-0007-R",
+      "image_file": "results\\optA_20251207_233941\\experiments\\experiment_mp_idb_stages\\visualizations\\pred_detection_yolo11\\1307210661-0007-R.png",
+      "n_gt_boxes": 31,
+      "n_pred_boxes": 36,
+      "n_false_positives": 6,
+      "n_false_negatives": 1,
+      "avg_confidence": 0.702,
+      "description": "Overdetection with high false positives"
+    }
+  },
+  "Figure 6 - Classification Error Cases": {
+    "6a_IML_Single_Error": {
+      "image_name": "PA171852",
+      "image_file": "results\\optA_20251207_233941\\experiments\\experiment_iml_lifecycle\\visualizations\\pred_classification_efficientnet_b0_focal\\PA171852.png",
+      "n_boxes": 3,
+      "n_correct": 2,
+      "n_incorrect": 1,
+      "accuracy": 0.667,
+      "avg_confidence": 0.643,
+      "description": "Single classification error (1 incorrect out of 3)"
+    },
+    "6b_IML_Moderate_Error": {
+      "image_name": "PA171802",
+      "image_file": "results\\optA_20251207_233941\\experiments\\experiment_iml_lifecycle\\visualizations\\pred_classification_efficientnet_b0_focal\\PA171802.png",
+      "n_boxes": 3,
+      "n_correct": 2,
+      "n_incorrect": 1,
+      "accuracy": 0.667,
+      "avg_confidence": 0.581,
+      "description": "Moderate error case (accuracy ~67%)"
+    },
+    "6e_MD2019_Heavy_Error": {
+      "image_name": "Trip 073 Day 2 01-12-05 Image 1_8",
+      "image_file": "results\\optA_20251207_233941\\experiments\\experiment_md_2019_stages\\visualizations\\pred_classification_efficientnet_b0_focal\\Trip 073 Day 2 01-12-05 Image 1_8.png",
+      "n_boxes": 18,
+      "n_correct": 3,
+      "n_incorrect": 15,
+      "accuracy": 0.167,
+      "avg_confidence": 0.639,
+      "description": "Heavy error case (low accuracy)"
+    },
+    "6d_MPIDB_Species_Complete_Fail": {
+      "image_name": "1305121398-0003-R",
+      "image_file": "results\\optA_20251207_233941\\experiments\\experiment_mp_idb_species\\visualizations\\pred_classification_efficientnet_b0_focal\\1305121398-0003-R.png",
+      "n_boxes": 1,
+      "n_correct": 0,
+      "n_incorrect": 1,
+      "accuracy": 0.0,
+      "avg_confidence": 0.811,
+      "description": "Complete failure - species confusion"
+    },
+    "6c_MPIDB_Stages_Heavy_Error": {
+      "image_name": "1704282807-0019-R_G",
+      "image_file": "results\\optA_20251207_233941\\experiments\\experiment_mp_idb_stages\\visualizations\\pred_classification_efficientnet_b0_focal\\1704282807-0019-R_G.png",
+      "n_boxes": 41,
+      "n_correct": 1,
+      "n_incorrect": 40,
+      "accuracy": 0.024,
+      "avg_confidence": 0.503,
+      "description": "Heavy error case with high box count"
+    },
+    "6f_MD2019_Perfect": {
+      "image_name": "Trip 065 Day 2 01-12-05 Image 7_9",
+      "image_file": "results\\optA_20251207_233941\\experiments\\experiment_md_2019_stages\u000bisualizations\\pred_classification_resnet101_focal\\Trip 065 Day 2 01-12-05 Image 7_9.png",
+      "n_boxes": 8,
+      "n_correct": 8,
+      "n_incorrect": 0,
+      "accuracy": 1.0,
+      "avg_confidence": 0.913,
+      "description": "Perfect classification on crowded image (ResNet101 model)",
+      "model": "resnet101_focal"
+    }
+  }
+}

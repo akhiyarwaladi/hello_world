@@ -1,0 +1,163 @@
+================================================================================
+KINETIK PAPER FIGURE SELECTIONS - QUICK REFERENCE
+Experiment: optA_20251207_233941 (5-epoch quick test)
+Generated: 2026-02-01
+================================================================================
+
+FIGURE 5c: Detection (MP-IDB Stages) - 8 False Positives
+────────────────────────────────────────────────────────────────────────────────
+Image:    1405022890-0003-R
+Model:    YOLO10
+Status:   ✅ EXACT MATCH
+Metrics:  GT=24, Pred=29, Correct=21, FP=8, FN=3, Conf=0.775
+Path:     experiment_mp_idb_stages/visualizations/pred_detection_yolo10/
+CSV:      detection_metadata.csv
+
+
+FIGURE 6a: IML Lifecycle - Error Case 1 (66.7% accuracy)
+────────────────────────────────────────────────────────────────────────────────
+Image:    PA171852
+Model:    EfficientNet-B0
+Status:   ✅ EXACT MATCH (found in all 6 models)
+Metrics:  Boxes=3, Correct=2, Incorrect=1, Acc=0.667, Conf=0.643
+Path:     experiment_iml_lifecycle/visualizations/
+          pred_classification_efficientnet_b0_focal/
+CSV:      classification_metadata_images.csv
+Note:     Most consistent across models (conf range: 0.556-0.861)
+
+
+FIGURE 6b: IML Lifecycle - Error Case 2 (66.7% accuracy)
+────────────────────────────────────────────────────────────────────────────────
+Image:    PA171802
+Model:    ResNet50
+Status:   ✅ EXACT MATCH (found in 6 models, perfect in EfficientNet-B1)
+Metrics:  Boxes=3, Correct=2, Incorrect=1, Acc=0.667, Conf=0.928
+Path:     experiment_iml_lifecycle/visualizations/
+          pred_classification_resnet50_focal/
+CSV:      classification_metadata_images.csv
+Note:     High confidence (92.8%) despite being wrong - shows overconfidence
+Alt:      EfficientNet-B1 achieves 100% accuracy on same image
+
+
+FIGURE 6c: MP-IDB Stages - High Box Count (n=14, acc=71%)
+────────────────────────────────────────────────────────────────────────────────
+Image:    [NO MATCH]
+Model:    -
+Status:   ❌ SKIP (use baseline experiment optA_20251016_200330)
+Reason:   5-epoch training insufficient for complex multi-parasite images
+          All n_boxes≥10 images have accuracy <10%
+Solution: Use baseline experiment (75 epochs) OR skip this figure
+
+
+FIGURE 6e: MD-2019 - Low Accuracy (25%)
+────────────────────────────────────────────────────────────────────────────────
+Image:    Trip 064 Day 2 25-11-05 Image 5_11
+Model:    EfficientNet-B2
+Status:   ✅ EXACT MATCH (found in 5/6 models)
+Metrics:  Boxes=8, Correct=2, Incorrect=6, Acc=0.25, Conf=0.999
+Path:     experiment_md_2019_stages/visualizations/
+          pred_classification_efficientnet_b2_focal/
+CSV:      classification_metadata_images.csv
+Note:     99.9% confidence but 75% wrong - excellent overconfidence demo
+
+
+FIGURE 6f: MD-2019 - High Accuracy (100%)
+────────────────────────────────────────────────────────────────────────────────
+Image:    Trip 065 Day 2 01-12-05 Image 7_9
+Model:    ResNet101
+Status:   ⚠️ ACCEPTABLE (n_boxes=8, target was 10)
+Metrics:  Boxes=8, Correct=8, Incorrect=0, Acc=1.0, Conf=0.913
+Path:     experiment_md_2019_stages/visualizations/
+          pred_classification_resnet101_focal/
+CSV:      classification_metadata_images.csv
+Note:     Only image with n_boxes≥8 AND perfect accuracy
+          Other models: 62.5-75% accuracy on same image
+Caveat:   n_boxes=8 instead of preferred n_boxes=10
+
+
+================================================================================
+SUMMARY
+================================================================================
+
+Results:  5/6 figures matched (83.3%)
+  ✅ EXACT matches:      4/6 (Figures 5c, 6a, 6b, 6e)
+  ⚠️ ACCEPTABLE matches: 1/6 (Figure 6f - n_boxes=8 not 10)
+  ❌ NO MATCH:           1/6 (Figure 6c - requires baseline)
+
+Models Used:
+  - Detection:      YOLO10
+  - Classification: EfficientNet-B0, EfficientNet-B2, ResNet50, ResNet101
+
+Datasets Covered:
+  - IML Lifecycle:  100% (2/2 figures)
+  - MP-IDB Stages:  50% (1/2 figures - detection only)
+  - MD-2019:        100% (2/2 figures)
+
+
+================================================================================
+RECOMMENDATIONS
+================================================================================
+
+Option A: Use 5-epoch experiment only
+  → Include: 5c, 6a, 6b, 6e, 6f (skip 6c)
+  → Caveat: Figure 6f only n_boxes=8, Figure 6c requires full training
+  → Best for: Demonstrating rapid prototyping capability
+
+Option B: Hybrid with baseline (RECOMMENDED)
+  → From 5-epoch: 5c, 6a, 6b, 6e
+  → From baseline optA_20251016_200330: 6c, 6f
+  → Best for: Complete system demonstration with all 6 figures
+
+
+================================================================================
+FILE LOCATIONS (relative to results/optA_20251207_233941/experiments/)
+================================================================================
+
+5c:  experiment_mp_idb_stages/visualizations/pred_detection_yolo10/
+     1405022890-0003-R.png
+
+6a:  experiment_iml_lifecycle/visualizations/pred_classification_efficientnet_b0_focal/
+     PA171852.png
+
+6b:  experiment_iml_lifecycle/visualizations/pred_classification_resnet50_focal/
+     PA171802.png
+
+6e:  experiment_md_2019_stages/visualizations/pred_classification_efficientnet_b2_focal/
+     Trip 064 Day 2 25-11-05 Image 5_11.png
+
+6f:  experiment_md_2019_stages/visualizations/pred_classification_resnet101_focal/
+     Trip 065 Day 2 01-12-05 Image 7_9.png
+
+
+================================================================================
+INTERESTING FINDINGS
+================================================================================
+
+1. Cross-Model Variation
+   - PA171802: 100% in EfficientNet-B1, 66.7% in ResNet50 (same image!)
+   - Trip 065 Image 7_9: 100% in ResNet101, 62.5-75% in others
+
+2. Overconfidence Examples
+   - Figure 6b: 92.8% confidence, 33% wrong
+   - Figure 6e: 99.9% confidence, 75% wrong
+
+3. 5-Epoch Limitations
+   - Detection: 84% mAP@50 ✓ (good)
+   - Simple classification (≤3 boxes): 66.7% ✓ (acceptable)
+   - Complex classification (>10 boxes): <10% ✗ (needs 75 epochs)
+
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. Verify image files exist and are publication-quality
+2. Choose approach (5-epoch only vs hybrid with baseline)
+3. Extract images for paper
+4. Document caveats in paper text
+5. Consider discussing cross-model variation in Results section
+
+
+================================================================================
+End of Quick Reference
+================================================================================
