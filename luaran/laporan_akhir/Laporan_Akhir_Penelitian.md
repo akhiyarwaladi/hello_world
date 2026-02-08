@@ -17,6 +17,18 @@
 
 Penelitian berhasil memvalidasi sistem deteksi dan klasifikasi parasit malaria otomatis pada empat dataset publik (IML Lifecycle [1], MP-IDB Species [2], MP-IDB Stages, MD-2019 Stages [3]) dengan total 1.544 citra apusan darah. Sistem menggunakan arsitektur hibrida: deteksi YOLO (YOLOv10 [4], YOLOv11 [5], YOLOv12) dan klasifikasi CNN (DenseNet121 [6], EfficientNet B0/B1/B2 [7], ResNet50/101 [8]) dengan Focal Loss [9] untuk menangani ketidakseimbangan kelas ekstrem. Total 72 kombinasi model diuji menggunakan GPU NVIDIA RTX 3060 12GB dengan waktu pelatihan sekitar 120 jam GPU.
 
+**Gambar 1: Alur Metodologi Deteksi dan Klasifikasi Malaria**
+
+![Flowchart Metodologi](../templates/figures/Malaria Detection Classification Flowchart-C4 Context.png)
+
+Gambar menunjukkan arsitektur sistem dengan pendekatan Shared Classification yang terdiri dari empat tahapan utama. Tahap pertama adalah pelatihan deteksi dimana tiga model YOLO yaitu YOLOv10, YOLOv11, dan YOLOv12 varian Medium dilatih secara independen pada masing-masing dataset dengan konfigurasi augmentasi konservatif yang aman untuk citra medis meliputi rotasi terbatas 15 derajat dan tanpa pembalikan vertikal untuk menjaga orientasi parasit. Tahap kedua adalah ekstraksi crop dari ground truth dimana citra berukuran 224 kali 224 piksel diekstraksi sekali dari anotasi asli dan dibagi menjadi set pelatihan 60 persen, validasi 20 persen, dan pengujian 20 persen, kemudian digunakan bersama oleh semua model deteksi sehingga menghemat sekitar 70 persen kebutuhan penyimpanan. Tahap ketiga adalah pelatihan klasifikasi dimana enam model CNN yaitu DenseNet121, EfficientNet-B0, EfficientNet-B1, EfficientNet-B2, ResNet50, dan ResNet101 dilatih sekali menggunakan Focal Loss untuk menangani ketidakseimbangan kelas ekstrem, menghemat sekitar 60 persen waktu pelatihan dibanding pendekatan konvensional yang melatih model klasifikasi terpisah per model deteksi. Tahap keempat adalah analisis komprehensif dimana evaluasi performa dilakukan terpisah untuk deteksi menggunakan metrik mAP@50, precision, dan recall serta untuk klasifikasi menggunakan metrik accuracy, balanced accuracy, dan F1-score per kelas.
+
+**Gambar 2: Contoh Augmentasi Data pada Sel Terinfeksi**
+
+![Augmentasi Data - 4 Tahapan Lifecycle](../auto_generated/figures/augmentation/augmentation_iml_lifecycle_upscaled.png)
+
+Gambar menampilkan 14 jenis augmentasi yang diterapkan pada empat tahapan siklus hidup parasit malaria yaitu Gametocyte, Ring, Schizont, dan Trophozoite. Augmentasi meliputi transformasi geometris berupa rotasi 90, 180, dan 270 derajat serta pencerminan horizontal dan vertikal, ditambah transformasi fotometrik meliputi penyesuaian kecerahan, kontras, saturasi, dan ketajaman. Transformasi geometris dipilih karena orientasi parasit dalam sel darah merah bersifat acak dan tidak memiliki makna diagnostik, sedangkan transformasi fotometrik mensimulasikan variasi kondisi pewarnaan Giemsa yang umum terjadi antar laboratorium dengan protokol berbeda. Strategi augmentasi ini sangat penting mengingat keterbatasan jumlah dataset yang hanya berkisar 209 hingga 813 citra per dataset, sehingga kombinasi augmentasi menghasilkan perkalian efektif sekitar 4 kali untuk data pelatihan deteksi dan 3,5 kali untuk klasifikasi.
+
 ### C.1 Hasil Deteksi Parasit Malaria
 
 **Tabel 2: Performa Deteksi YOLO pada 4 Dataset**
