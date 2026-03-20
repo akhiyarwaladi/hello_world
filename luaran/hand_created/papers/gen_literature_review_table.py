@@ -35,22 +35,13 @@ STUDIES = [
         "year": 2022,
         "title": "A dataset and benchmark for malaria life-cycle classification in thin blood smear images",
         "venue": "Neural Comput. Appl.",
-        # Detection
-        "det_method": "Morphological segmentation\n+ watershed algorithm",
-        "det_metric": "Precision: 89.33%",
-        # Classification
-        "cls_method": "ResNet50V2",
-        "cls_metric": "Accuracy: 95.86%\n(classification stage only)",
+        # Combined method
+        "method": "Det: Morphological segmentation + watershed\nCls: ResNet50V2",
         # Dataset
-        "dataset": "IML Lifecycle\n(345 images, 4 P. vivax stages)",
-        "num_images": "345",
-        "species": "P. vivax only",
-        "classes": "4 lifecycle stages\n(ring, trophozoite,\nschizont, gametocyte)",
-        # Contribution & limitation
-        "contribution": "Introduced IML Lifecycle dataset with bounding box annotations; "
-                        "demonstrated viability of two-stage detection-classification pipeline",
-        "limitation": "Single species (P. vivax); relatively small dataset; "
-                      "no cross-dataset evaluation; no class imbalance handling",
+        "dataset": "IML (345 imgs, 4 P. vivax stages)",
+        # Contribution & limitation (concise)
+        "contribution": "Introduced IML dataset with bbox annotations; two-stage det-cls pipeline",
+        "limitation": "Single species; small dataset; no cross-dataset eval; no imbalance handling",
         # RQ mapping
         "rq1_cross_dataset": "Single dataset\n(IML only)",
         "rq2_imbalance": "Not addressed\n(standard CE loss)",
@@ -62,18 +53,10 @@ STUDIES = [
         "year": 2022,
         "title": "An Empirical Evaluation of Convolutional Networks for Malaria Diagnosis",
         "venue": "J. Imaging",
-        "det_method": "Not applicable\n(classification only)",
-        "det_metric": "N/A",
-        "cls_method": "11 CNNs evaluated\n(best: DenseNet-201)",
-        "cls_metric": "Accuracy: 99.40%\n(4-stage P. falciparum;\nMP-IDB-FC crops)",
-        "dataset": "MP-IDB + NIH\n(209 + 27,558 images)",
-        "num_images": "209 (MP-IDB)",
-        "species": "P. falciparum\n(MP-IDB subset)",
-        "classes": "Binary (healthy/infected)\n+ 4 lifecycle stages",
-        "contribution": "First deep learning baseline for lifecycle stage classification on MP-IDB; "
-                        "comprehensive comparison of 11 CNN architectures",
-        "limitation": "Classification only — no detection component; "
-                      "single species (P. falciparum); no end-to-end workflow",
+        "method": "Cls only: 11 CNNs evaluated\n(best: DenseNet-201, Acc 99.40%)",
+        "dataset": "MP-IDB + NIH (209 + 27,558 imgs)",
+        "contribution": "First DL baseline on MP-IDB; comprehensive 11 CNN comparison",
+        "limitation": "No detection component; single species (P. falciparum); no end-to-end workflow",
         "rq1_cross_dataset": "Single dataset\n(MP-IDB only)",
         "rq2_imbalance": "Not addressed",
         "rq3_efficiency": "Classification only\n(no detection pipeline)",
@@ -84,18 +67,10 @@ STUDIES = [
         "year": 2022,
         "title": "A Deep Learning Based Framework for Malaria Diagnosis on High Variation Data Set",
         "venue": "ICIAP 2022, Springer",
-        "det_method": "YOLOv5",
-        "det_metric": "Detection accuracy:\n95.2%",
-        "cls_method": "DarkNet-53",
-        "cls_metric": "Accuracy: 96.02%\n(4 lifecycle stages)",
-        "dataset": "MP-IDB\n(209 images)",
-        "num_images": "209",
-        "species": "P. falciparum",
-        "classes": "4 lifecycle stages\n(ring, trophozoite,\nschizont, gametocyte)",
-        "contribution": "First application of YOLO-based object detection on MP-IDB; "
-                        "demonstrated single-stage detectors match classification-only pipelines",
-        "limitation": "Single dataset (MP-IDB); no class imbalance handling; "
-                      "separate detection and classification models",
+        "method": "Det: YOLOv5\nCls: DarkNet-53 (Acc 96.02%)",
+        "dataset": "MP-IDB (209 imgs, P. falciparum)",
+        "contribution": "First YOLO detection on MP-IDB; single-stage det matches cls-only pipelines",
+        "limitation": "Single dataset; no imbalance handling; separate det and cls models",
         "rq1_cross_dataset": "Single dataset\n(MP-IDB only)",
         "rq2_imbalance": "Not addressed",
         "rq3_efficiency": "Per-detector training\n(separate cls per det)",
@@ -106,19 +81,10 @@ STUDIES = [
         "year": 2023,
         "title": "YOLO-PAM: Parasite-Attention-Based Model for Efficient Malaria Parasite Detection",
         "venue": "J. Imaging",
-        "det_method": "YOLO-PAM\n(YOLOv8 + NAM/CBAM\nattention modules)",
-        "det_metric": "mAP@50: 91.8% (IML)\nmAP@50: 83.6% (MP-IDB)",
-        "cls_method": "Not specified\n(detection focus)",
-        "cls_metric": "N/A\n(detection-only evaluation)",
-        "dataset": "IML + MP-IDB\n(313 + 209 images)",
-        "num_images": "522 (combined)",
-        "species": "P. vivax (IML)\nP. falciparum (MP-IDB)",
-        "classes": "4 lifecycle stages",
-        "contribution": "Introduced attention mechanisms (NAM/CBAM) for malaria detection; "
-                        "reduced parameters by 11M vs baseline YOLOv8 while maintaining accuracy",
-        "limitation": "Detection only — no classification evaluation; "
-                      "specialized architecture limits reproducibility; "
-                      "no class imbalance handling",
+        "method": "Det+Cls: YOLO-PAM\n(YOLOv8 + NAM/CBAM attention)\nmAP@50: 91.8% IML, 83.6% MP-IDB",
+        "dataset": "IML + MP-IDB (522 imgs, 2 species)",
+        "contribution": "Attention mechanisms for malaria det; 11M fewer params vs YOLOv8",
+        "limitation": "Detection-only eval; specialized arch limits reproducibility; no imbalance handling",
         "rq1_cross_dataset": "2 datasets\n(IML + MP-IDB)",
         "rq2_imbalance": "Not addressed",
         "rq3_efficiency": "Parameter reduction\n(attention pruning)\nbut no shared cls arch",
@@ -129,18 +95,10 @@ STUDIES = [
         "year": 2024,
         "title": "An optimised YOLOv4 deep learning model for efficient malarial cell detection",
         "venue": "Parasit. Vectors",
-        "det_method": "YOLOv4 (optimised)\n+ YOLOv5 comparison",
-        "det_metric": "mAP@0.5: 96% (YOLOv5)\nmAP@0.5: 89-90% (YOLOv4)",
-        "cls_method": "DenseNet-121",
-        "cls_metric": "Accuracy: 95.5%\n(species identification)",
-        "dataset": "IML + MP-IDB\n(313 + 209 images)",
-        "num_images": "522 (combined)",
-        "species": "Multi-species\n(P. vivax, P. falciparum)",
-        "classes": "Species identification\n+ lifecycle stages",
-        "contribution": "Comparative evaluation of YOLOv4 vs YOLOv5 for malaria detection; "
-                        "two-stage detection then species classification",
-        "limitation": "Fixed architecture (no multi-model comparison for classification); "
-                      "no class imbalance handling; per-detector training",
+        "method": "Det: YOLOv4/v5 (mAP@50: 96%)\nCls: DenseNet-121 (Acc 95.5%)",
+        "dataset": "IML + MP-IDB (522 imgs, 2 species)",
+        "contribution": "YOLOv4 vs v5 comparison; two-stage det then species cls",
+        "limitation": "Fixed cls arch (no multi-model comparison); no imbalance handling; per-detector training",
         "rq1_cross_dataset": "2 datasets\n(IML + MP-IDB)",
         "rq2_imbalance": "Not addressed",
         "rq3_efficiency": "Per-detector training\n(no shared architecture)",
@@ -152,22 +110,11 @@ STUDIES = [
         "title": "Parameter Efficient Models for Malaria Detection and Classification "
                  "Using Small-Scale Imbalanced Blood Smear Images",
         "venue": "KINETIK",
-        "det_method": "YOLOv10/v11/v12\nMedium (20.1M params)",
-        "det_metric": "mAP@50: 70.84-96.27%\nRecall: 71.05-93.12%",
-        "cls_method": "6 CNNs: DenseNet121,\nEfficientNet-B0/B1/B2,\nResNet50/101",
-        "cls_metric": "Accuracy: 84.22-98.28%\nBal.Acc: 78.64-91.96%",
-        "dataset": "4 datasets:\nIML (313), MP-IDB Species (209),\n"
-                   "MP-IDB Stages (209), MD-2019 (813)\nTotal: 1,544 images",
-        "num_images": "1,544 (4 datasets)",
-        "species": "P. vivax, P. falciparum\n(multi-species)",
-        "classes": "3-4 lifecycle stages\n+ 4 species",
-        "contribution": "Shared classification architecture (train-once-reuse); "
-                        "systematic 3-YOLO x 6-CNN multi-model evaluation; "
-                        "Focal Loss for extreme imbalance (up to 54:1); "
-                        "parameter-efficient models (46-89 MB)",
-        "limitation": "Limited to 4 public datasets (max 813 images); "
-                      "bounding box only (no pixel-level segmentation); "
-                      "laboratory images only (no field validation)",
+        "method": "Det: YOLOv10/v11/v12 (20.1M params)\nCls: 6 CNNs (DenseNet, EfficientNet, ResNet)",
+        "dataset": "4 datasets, 1,544 imgs total\n(IML, MP-IDB Species/Stages, MD-2019)",
+        "contribution": "Shared cls arch (train-once-reuse); 3x6 multi-model eval; "
+                        "Focal Loss for imbalance (up to 54:1); 46-89 MB models",
+        "limitation": "4 public datasets (max 813 imgs); bbox only; lab images only",
         "rq1_cross_dataset": "4 complementary datasets\n(1,544 total images;\nlifecycle + species + multi-patient)",
         "rq2_imbalance": "Focal Loss (a=1.0, g=1.5)\n+ weighted random sampling\nF1: 0.44-1.00 on minorities",
         "rq3_efficiency": "Shared classification\n(train-once-reuse paradigm)\n"
@@ -247,13 +194,11 @@ def create_methodology_gap_sheet(wb):
 
     # Column definitions
     columns = [
-        ("Study", 14),
-        ("Year", 6),
-        ("Detection\nMethod", 22),
-        ("Classification\nMethod", 20),
-        ("Dataset(s)\n& Scale", 22),
-        ("Key Contribution", 38),
-        ("Limitation / Gap", 38),
+        ("Study (Year)", 18),
+        ("Method", 30),
+        ("Dataset(s) & Scale", 22),
+        ("Key Contribution", 34),
+        ("Limitation / Gap", 34),
     ]
 
     col_widths = [w for _, w in columns]
@@ -292,10 +237,8 @@ def create_methodology_gap_sheet(wb):
         row_font = OURS_FONT if is_ours else BODY_FONT
 
         values = [
-            f"{study['authors']}\n{study['ref']}",
-            str(study["year"]),
-            study["det_method"],
-            study["cls_method"],
+            f"{study['authors']} ({study['year']})\n{study['ref']}",
+            study["method"],
             study["dataset"],
             study["contribution"],
             study["limitation"],
@@ -303,8 +246,7 @@ def create_methodology_gap_sheet(wb):
 
         for col_idx, val in enumerate(values, 1):
             cell = ws.cell(row=row, column=col_idx, value=val)
-            align = CENTER_ALIGN if col_idx == 2 else BODY_ALIGN
-            apply_cell_style(cell, font=row_font, align=align, fill=row_fill)
+            apply_cell_style(cell, font=row_font, align=BODY_ALIGN, fill=row_fill)
 
         auto_row_height(ws, row, col_widths)
 
@@ -327,8 +269,7 @@ def create_rq_alignment_sheet(wb):
     ws = wb.create_sheet("RQ Alignment")
 
     columns = [
-        ("Study", 14),
-        ("Year", 6),
+        ("Study (Year)", 18),
         ("Key Method", 24),
         ("Gap 1:\nCross-Dataset\nRobustness", 24),
         ("Gap 2:\nClass Imbalance\nHandling", 24),
@@ -370,13 +311,8 @@ def create_rq_alignment_sheet(wb):
         base_fill = OURS_FILL if is_ours else (ALT_FILL_1 if i % 2 == 0 else ALT_FILL_2)
         row_font = OURS_FONT if is_ours else BODY_FONT
 
-        # Determine key method string
-        key_method_parts = []
-        if study["det_method"] and study["det_method"] != "Not applicable\n(classification only)":
-            key_method_parts.append(study["det_method"].split("\n")[0])
-        if study["cls_method"] and study["cls_method"] != "Not specified\n(detection focus)":
-            key_method_parts.append(study["cls_method"].split("\n")[0])
-        key_method = "\n+ ".join(key_method_parts) if key_method_parts else "N/A"
+        # Use first line of method as key method summary
+        key_method = study["method"].split("\n")[0]
 
         rq_values = [
             study["rq1_cross_dataset"],
@@ -386,19 +322,17 @@ def create_rq_alignment_sheet(wb):
 
         # Fixed columns
         fixed_values = [
-            f"{study['authors']}\n{study['ref']}",
-            str(study["year"]),
+            f"{study['authors']} ({study['year']})\n{study['ref']}",
             key_method,
         ]
 
         for col_idx, val in enumerate(fixed_values, 1):
             cell = ws.cell(row=row, column=col_idx, value=val)
-            align = CENTER_ALIGN if col_idx == 2 else BODY_ALIGN
-            apply_cell_style(cell, font=row_font, align=align, fill=base_fill)
+            apply_cell_style(cell, font=row_font, align=BODY_ALIGN, fill=base_fill)
 
         # RQ columns with conditional coloring
         for rq_idx, rq_val in enumerate(rq_values):
-            col_idx = 4 + rq_idx
+            col_idx = 3 + rq_idx
             cell = ws.cell(row=row, column=col_idx, value=rq_val)
 
             if is_ours:
@@ -444,9 +378,9 @@ def main():
     print(f"\nSaved to: {OUTPUT_FILE}")
     print(f"  File size: {os.path.getsize(OUTPUT_FILE) / 1024:.1f} KB")
     print("\nSheets:")
-    print("  1. Methodology-Gap  — 7 columns: Study, Year, Detection, Classification,")
-    print("                        Dataset, Key Contribution, Limitation/Gap")
-    print("  2. RQ Alignment     — 6 columns: Study, Year, Key Method,")
+    print("  1. Methodology-Gap  — 5 columns: Study (Year), Method, Dataset,")
+    print("                        Key Contribution, Limitation/Gap")
+    print("  2. RQ Alignment     — 5 columns: Study (Year), Key Method,")
     print("                        Gap1 (Cross-Dataset), Gap2 (Imbalance), Gap3 (Efficiency)")
 
 
